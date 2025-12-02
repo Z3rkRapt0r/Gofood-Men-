@@ -5,7 +5,15 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
 
-export default function Header() {
+interface HeaderProps {
+  restaurantName?: string;
+  logoUrl?: string;
+}
+
+export default function Header({
+  restaurantName = 'Magna Roma Trattoria & Pinseria',
+  logoUrl = '/magnaroma.png'
+}: HeaderProps) {
   const { language } = useTranslation();
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
@@ -15,8 +23,8 @@ export default function Header() {
         {/* Layout mobile: logo sx, filtri dx */}
         <div className="flex items-center justify-between md:hidden">
           <Image
-            src="/magnaroma.png"
-            alt="Magna Roma Trattoria & Pinseria"
+            src={logoUrl}
+            alt={restaurantName}
             width={140}
             height={50}
             className="h-10 w-auto"
@@ -57,8 +65,8 @@ export default function Header() {
           {/* Logo centrato */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Image
-              src="/magnaroma.png"
-              alt="Magna Roma Trattoria & Pinseria"
+              src={logoUrl}
+              alt={restaurantName}
               width={180}
               height={60}
               className="h-14 w-auto"
