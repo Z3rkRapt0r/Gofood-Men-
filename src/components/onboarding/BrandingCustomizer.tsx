@@ -186,51 +186,130 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
             <p className="text-xs text-gray-500 mt-1">PNG, JPG o SVG. Max 2MB.</p>
           </div>
 
-          {/* Colori */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="primary_color" className="block text-sm font-semibold text-gray-700 mb-2">
-                Colore Primario
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="primary_color"
-                  value={formData.primary_color}
-                  onChange={(e) => onUpdate({ primary_color: e.target.value })}
-                  className="w-12 h-12 rounded-lg cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={formData.primary_color}
-                  onChange={(e) => onUpdate({ primary_color: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Header e accenti</p>
+          {/* Temi e Colori */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-4">
+              Scegli lo stile del tuo menu
+            </label>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+              {[
+                { id: 'classic', name: 'Classico', primary: '#8B0000', secondary: '#D4AF37' },
+                { id: 'modern', name: 'Moderno', primary: '#1a1a1a', secondary: '#eab308' },
+                { id: 'ocean', name: 'Oceano', primary: '#0f172a', secondary: '#38bdf8' },
+                { id: 'fresh', name: 'Natura', primary: '#14532d', secondary: '#4ade80' },
+                { id: 'sunset', name: 'Tramonto', primary: '#c2410c', secondary: '#fbbf24' },
+                { id: 'custom', name: 'Personalizzato', primary: null, secondary: null },
+              ].map((theme) => {
+                const isSelected =
+                  theme.id === 'custom'
+                    ? !['#8B0000', '#1a1a1a', '#0f172a', '#14532d', '#c2410c'].includes(formData.primary_color)
+                    : formData.primary_color === theme.primary && formData.secondary_color === theme.secondary;
+
+                return (
+                  <button
+                    key={theme.id}
+                    onClick={() => {
+                      if (theme.primary && theme.secondary) {
+                        onUpdate({
+                          primary_color: theme.primary,
+                          secondary_color: theme.secondary
+                        });
+                      } else {
+                        // Se clicca su personalizzato e non lo è già, resetta a default o lascia corrente?
+                        // Lasciamo corrente per ora, l'utente userà i picker
+                      }
+                    }}
+                    className={`relative p-3 rounded-xl border-2 transition-all hover:shadow-md text-left group ${isSelected
+                        ? 'border-orange-500 ring-2 ring-orange-500 ring-opacity-20 bg-orange-50'
+                        : 'border-gray-200 hover:border-orange-300'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-sm font-bold ${isSelected ? 'text-orange-700' : 'text-gray-700'}`}>
+                        {theme.name}
+                      </span>
+                      {isSelected && (
+                        <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    {theme.id !== 'custom' ? (
+                      <div className="flex gap-2">
+                        <div
+                          className="w-8 h-8 rounded-full shadow-sm border border-black/10"
+                          style={{ backgroundColor: theme.primary! }}
+                          title="Colore Primario"
+                        />
+                        <div
+                          className="w-8 h-8 rounded-full shadow-sm border border-black/10"
+                          style={{ backgroundColor: theme.secondary! }}
+                          title="Colore Secondario"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 via-green-500 to-blue-500 shadow-sm opacity-80" />
+                        <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                          <span className="text-xs">+</span>
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            <div>
-              <label htmlFor="secondary_color" className="block text-sm font-semibold text-gray-700 mb-2">
-                Colore Secondario
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="secondary_color"
-                  value={formData.secondary_color}
-                  onChange={(e) => onUpdate({ secondary_color: e.target.value })}
-                  className="w-12 h-12 rounded-lg cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={formData.secondary_color}
-                  onChange={(e) => onUpdate({ secondary_color: e.target.value })}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                />
+            {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
+            {(!['#8B0000', '#1a1a1a', '#0f172a', '#14532d', '#c2410c'].includes(formData.primary_color)) && (
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-2">
+                <div>
+                  <label htmlFor="primary_color" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                    Primario
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="primary_color"
+                      value={formData.primary_color}
+                      onChange={(e) => onUpdate({ primary_color: e.target.value })}
+                      className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0 shadow-sm"
+                    />
+                    <input
+                      type="text"
+                      value={formData.primary_color}
+                      onChange={(e) => onUpdate({ primary_color: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="secondary_color" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                    Secondario
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="secondary_color"
+                      value={formData.secondary_color}
+                      onChange={(e) => onUpdate({ secondary_color: e.target.value })}
+                      className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0 shadow-sm"
+                    />
+                    <input
+                      type="text"
+                      value={formData.secondary_color}
+                      onChange={(e) => onUpdate({ secondary_color: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Badge e decorazioni</p>
-            </div>
+            )}
           </div>
         </div>
 
