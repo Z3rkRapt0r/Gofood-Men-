@@ -39,12 +39,14 @@ export default function DashboardLayout({
           return;
         }
 
-        if (!tenantData.onboarding_completed) {
+        const tenant = tenantData as Tenant;
+
+        if (!tenant.onboarding_completed) {
           router.push('/onboarding');
           return;
         }
 
-        setTenant(tenantData);
+        setTenant(tenant);
       } catch (err) {
         console.error('Error loading tenant:', err);
         router.push('/login');

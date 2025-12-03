@@ -53,8 +53,10 @@ export default function LoginPage() {
         return;
       }
 
+      const tenantData = tenant as { onboarding_completed: boolean; restaurant_name: string };
+
       // Redirect based on onboarding status
-      if (!tenant.onboarding_completed) {
+      if (!tenantData.onboarding_completed) {
         router.push('/onboarding');
       } else {
         router.push('/dashboard');

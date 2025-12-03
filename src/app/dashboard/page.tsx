@@ -35,17 +35,27 @@ export default function DashboardOverview() {
         // Get tenant info
         const { data: tenant } = await supabase
           .from('tenants')
-          .select('restaurant_name, slug, max_dishes, max_categories')
+          .select('id, restaurant_name, slug, max_dishes, max_categories')
           .eq('owner_id', user.id)
           .single();
 
+        let tenantId = '';
+
         if (tenant) {
-          setRestaurantName(tenant.restaurant_name);
-          setSlug(tenant.slug);
+          const tenantData = tenant as {
+            id: string;
+            restaurant_name: string;
+            slug: string;
+            max_dishes: number;
+            max_categories: number
+          };
+          tenantId = tenantData.id;
+          setRestaurantName(tenantData.restaurant_name);
+          setSlug(tenantData.slug);
           setStats(prev => ({
             ...prev,
-            maxDishes: tenant.max_dishes,
-            maxCategories: tenant.max_categories,
+            maxDishes: tenantData.max_dishes,
+            maxCategories: tenantData.max_categories,
           }));
         }
 
@@ -53,19 +63,19 @@ export default function DashboardOverview() {
         const { count: categoriesCount } = await supabase
           .from('categories')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenant?.id || '');
+          .eq('tenant_id', tenantId);
 
         // Get dishes count
         const { count: dishesCount } = await supabase
           .from('dishes')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenant?.id || '');
+          .eq('tenant_id', tenantId);
 
         // Get visible dishes count
         const { count: visibleCount } = await supabase
           .from('dishes')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenant?.id || '')
+          .eq('tenant_id', tenantId)
           .eq('is_visible', true);
 
         setStats(prev => ({

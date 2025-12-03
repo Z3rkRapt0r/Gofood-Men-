@@ -48,7 +48,7 @@ export default function OnboardingPage() {
           .eq('owner_id', user.id)
           .single();
 
-        let tenantData = data;
+        let tenantData = data as Tenant | null;
 
         // Se il tenant non esiste, crealo (utente ha confermato email ma non ha completato registrazione)
         if (error || !data) {
@@ -62,6 +62,8 @@ export default function OnboardingPage() {
 
           const { data: newTenant, error: createError } = await supabase
             .from('tenants')
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore - Supabase client type inference issue with generated Database types
             .insert({
               owner_id: user.id,
               restaurant_name: restaurantName,
@@ -87,10 +89,12 @@ export default function OnboardingPage() {
         }
 
         // Se onboarding già completato, vai alla dashboard
-        if (tenantData.onboarding_completed) {
+        if (tenantData && tenantData.onboarding_completed) {
           router.push('/dashboard');
           return;
         }
+
+        if (!tenantData) return;
 
         setTenant(tenantData);
         setFormData({
@@ -130,6 +134,8 @@ export default function OnboardingPage() {
 
       const { error } = await supabase
         .from('tenants')
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Supabase client type inference issue
         .update(updateData)
         .eq('id', tenant.id);
 
