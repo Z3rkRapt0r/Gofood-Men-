@@ -8,15 +8,10 @@ interface Stats {
   totalDishes: number;
   totalCategories: number;
   visibleDishes: number;
-  maxDishes: number;
-  maxCategories: number;
 }
 
 export default function DashboardOverview() {
   const [stats, setStats] = useState<Stats>({
-    totalDishes: 0,
-    totalCategories: 0,
-    visibleDishes: 0,
     totalDishes: 0,
     totalCategories: 0,
     visibleDishes: 0,
