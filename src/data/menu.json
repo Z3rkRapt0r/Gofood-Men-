@@ -10,8 +10,8 @@
         {
           "id": "tagliere-magna-roma",
           "name": {
-            "it": "Tagliere Magna Romā",
-            "en": "Magna Romā Platter"
+            "it": "Tagliere della Casa",
+            "en": "House Platter"
           },
           "description": {
             "it": "Tagliere con salumi e formaggi per due persone",
@@ -19,13 +19,16 @@
           },
           "price": "20.00",
           "image": "/images/dishes/tagliere-magna-roma.jpg",
-          "allergens": ["lattosio", "frutta-secca"]
+          "allergens": [
+            "lattosio",
+            "frutta-secca"
+          ]
         },
         {
           "id": "patate-magna-roma",
           "name": {
-            "it": "Patate Magna Romā",
-            "en": "Magna Romā Potatoes"
+            "it": "Patate della Casa",
+            "en": "House Potatoes"
           },
           "description": {
             "it": "Patate fritte scavate con crema di pecorino",
@@ -33,7 +36,10 @@
           },
           "price": "6.50",
           "image": "/images/dishes/patate-magna-roma.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "arrosticini",
@@ -60,7 +66,13 @@
           },
           "price": "6.50",
           "image": "/images/dishes/mozzarella-carrozza.jpg",
-          "allergens": ["glutine", "uova", "pesce", "soia", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "pesce",
+            "soia",
+            "lattosio"
+          ]
         },
         {
           "id": "tagliere-porchettaro",
@@ -74,7 +86,10 @@
           },
           "price": "15.00",
           "image": "/images/dishes/tagliere-porchettaro.jpg",
-          "allergens": ["lattosio", "solfiti"]
+          "allergens": [
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "fritti-romani",
@@ -88,7 +103,22 @@
           },
           "price": "6.50",
           "image": "/images/dishes/fritti-romani.jpg",
-          "allergens": ["glutine", "crostacei", "uova", "pesce", "arachidi", "soia", "lattosio", "frutta-secca", "sedano", "senape", "sesamo", "solfiti", "lupini", "molluschi"]
+          "allergens": [
+            "glutine",
+            "crostacei",
+            "uova",
+            "pesce",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "frutta-secca",
+            "sedano",
+            "senape",
+            "sesamo",
+            "solfiti",
+            "lupini",
+            "molluschi"
+          ]
         },
         {
           "id": "trippa-romana",
@@ -102,7 +132,11 @@
           },
           "price": "11.00",
           "image": "/images/dishes/trippa-romana.jpg",
-          "allergens": ["lattosio", "sedano", "solfiti"]
+          "allergens": [
+            "lattosio",
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "supplì",
@@ -116,7 +150,13 @@
           },
           "price": "6.00",
           "image": "/images/dishes/suppli.jpg",
-          "allergens": ["glutine", "lattosio", "frutta-secca", "sedano", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "frutta-secca",
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "fagioli-cotiche",
@@ -130,7 +170,10 @@
           },
           "price": "9.00",
           "image": "/images/dishes/fagioli-cotiche.jpg",
-          "allergens": ["sedano", "solfiti"]
+          "allergens": [
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "baccala-pastella",
@@ -144,7 +187,11 @@
           },
           "price": "9.00",
           "image": "/images/dishes/baccala-pastella.jpg",
-          "allergens": ["glutine", "pesce", "lupini"]
+          "allergens": [
+            "glutine",
+            "pesce",
+            "lupini"
+          ]
         },
         {
           "id": "polpette-sugo-giannone",
@@ -158,7 +205,11 @@
           },
           "price": "9.00",
           "image": "/images/dishes/polpette-sugo-giannone.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "solo-fiori",
@@ -172,7 +223,22 @@
           },
           "price": "8.00",
           "image": "/images/dishes/solo-fiori.jpg",
-          "allergens": ["glutine", "crostacei", "uova", "pesce", "arachidi", "soia", "lattosio", "frutta-secca", "sedano", "senape", "sesamo", "solfiti", "lupini", "molluschi"]
+          "allergens": [
+            "glutine",
+            "crostacei",
+            "uova",
+            "pesce",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "frutta-secca",
+            "sedano",
+            "senape",
+            "sesamo",
+            "solfiti",
+            "lupini",
+            "molluschi"
+          ]
         },
         {
           "id": "carciofi-romana",
@@ -186,7 +252,10 @@
           },
           "price": "7.00",
           "image": "/images/dishes/carciofi-romana.jpg",
-          "allergens": ["lattosio", "pesce"]
+          "allergens": [
+            "lattosio",
+            "pesce"
+          ]
         },
         {
           "id": "carciofo-giudia",
@@ -200,7 +269,9 @@
           },
           "price": "6.00",
           "image": "/images/dishes/carciofo-giudia.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "carpaccio-manzo",
@@ -214,7 +285,9 @@
           },
           "price": "10.00",
           "image": "/images/dishes/carpaccio-manzo.jpg",
-          "allergens": ["lattosio"]
+          "allergens": [
+            "lattosio"
+          ]
         },
         {
           "id": "sformato-melanzane",
@@ -228,7 +301,9 @@
           },
           "price": "8.00",
           "image": "/images/dishes/sformato-melanzane.jpg",
-          "allergens": ["lattosio"]
+          "allergens": [
+            "lattosio"
+          ]
         },
         {
           "id": "puntarelle-romana",
@@ -242,7 +317,10 @@
           },
           "price": "9.00",
           "image": "/images/dishes/puntarelle-romana.jpg",
-          "allergens": ["pesce", "solfiti"]
+          "allergens": [
+            "pesce",
+            "solfiti"
+          ]
         },
         {
           "id": "crudo-bufala",
@@ -256,7 +334,9 @@
           },
           "price": "11.00",
           "image": "/images/dishes/crudo-bufala.jpg",
-          "allergens": ["lattosio"]
+          "allergens": [
+            "lattosio"
+          ]
         }
       ]
     },
@@ -279,7 +359,9 @@
           },
           "price": "5.50",
           "image": "/images/dishes/bruschetta-tradizionale.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "bruschetta-lardo-miele",
@@ -293,7 +375,9 @@
           },
           "price": "6.50",
           "image": "/images/dishes/bruschetta-lardo-miele.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "bruschetta-stracciatella-alici",
@@ -307,7 +391,11 @@
           },
           "price": "6.50",
           "image": "/images/dishes/bruschetta-stracciatella-alici.jpg",
-          "allergens": ["glutine", "pesce", "lattosio"]
+          "allergens": [
+            "glutine",
+            "pesce",
+            "lattosio"
+          ]
         },
         {
           "id": "bruschetta-salmone-rucola",
@@ -321,13 +409,17 @@
           },
           "price": "7.50",
           "image": "/images/dishes/bruschetta-salmone-rucola.jpg",
-          "allergens": ["glutine", "pesce", "lattosio"]
+          "allergens": [
+            "glutine",
+            "pesce",
+            "lattosio"
+          ]
         }
       ]
-        },
-        {
+    },
+    {
       "id": "primi",
-          "name": {
+      "name": {
         "it": "I Primi",
         "en": "First Courses"
       },
@@ -344,11 +436,14 @@
           },
           "price": "12.00",
           "image": "/images/dishes/tonnarello-checca.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "tonnarello-broccoli-salsiccia",
-      "name": {
+          "name": {
             "it": "Tonnarello Broccoli e Salsiccia",
             "en": "Tonnarello with Broccoli and Sausage"
           },
@@ -358,7 +453,10 @@
           },
           "price": "13.00",
           "image": "/images/dishes/tonnarello-broccoli-salsiccia.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "pasta-fagioli-cotiche",
@@ -372,7 +470,11 @@
           },
           "price": "11.00",
           "image": "/images/dishes/pasta-fagioli-cotiche.jpg",
-          "allergens": ["glutine", "sedano", "solfiti"]
+          "allergens": [
+            "glutine",
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "raviolacci-carciofi",
@@ -386,7 +488,22 @@
           },
           "price": "14.00",
           "image": "/images/dishes/raviolacci-carciofi.jpg",
-          "allergens": ["glutine", "crostacei", "uova", "pesce", "arachidi", "soia", "lattosio", "frutta-secca", "sedano", "senape", "sesamo", "solfiti", "lupini", "molluschi"]
+          "allergens": [
+            "glutine",
+            "crostacei",
+            "uova",
+            "pesce",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "frutta-secca",
+            "sedano",
+            "senape",
+            "sesamo",
+            "solfiti",
+            "lupini",
+            "molluschi"
+          ]
         },
         {
           "id": "gnocchi-burro-salvia",
@@ -400,7 +517,10 @@
           },
           "price": "11.00",
           "image": "/images/dishes/gnocchi-burro-salvia.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "tonnarello-vongole",
@@ -414,7 +534,11 @@
           },
           "price": "18.00",
           "image": "/images/dishes/tonnarello-vongole.jpg",
-          "allergens": ["glutine", "solfiti", "molluschi"]
+          "allergens": [
+            "glutine",
+            "solfiti",
+            "molluschi"
+          ]
         },
         {
           "id": "fettuccine-impero",
@@ -428,7 +552,11 @@
           },
           "price": "20.00",
           "image": "/images/dishes/fettuccine-impero.jpg",
-          "allergens": ["glutine", "crostacei", "solfiti"]
+          "allergens": [
+            "glutine",
+            "crostacei",
+            "solfiti"
+          ]
         },
         {
           "id": "mezzi-rigatoni-vignarola",
@@ -442,7 +570,10 @@
           },
           "price": "14.00",
           "image": "/images/dishes/mezzi-rigatoni-vignarola.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "mezzi-rigatoni-zozzona",
@@ -456,7 +587,12 @@
           },
           "price": "14.00",
           "image": "/images/dishes/mezzi-rigatoni-zozzona.jpg",
-          "allergens": ["glutine", "uova", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "tonnarello-magna-roma-primo",
@@ -470,7 +606,12 @@
           },
           "price": "14.00",
           "image": "/images/dishes/tonnarello-magna-roma-primo.jpg",
-          "allergens": ["glutine", "lattosio", "sedano", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "tonnarello-sora-norma",
@@ -484,7 +625,10 @@
           },
           "price": "11.00",
           "image": "/images/dishes/tonnarello-sora-norma.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "fettuccine-magnona",
@@ -498,7 +642,12 @@
           },
           "price": "14.00",
           "image": "/images/dishes/fettuccine-magnona.jpg",
-          "allergens": ["glutine", "lattosio", "sedano", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "mezzi-rigatoni-buttarona",
@@ -512,7 +661,10 @@
           },
           "price": "14.00",
           "image": "/images/dishes/mezzi-rigatoni-buttarona.jpg",
-          "allergens": ["glutine", "solfiti"]
+          "allergens": [
+            "glutine",
+            "solfiti"
+          ]
         },
         {
           "id": "tonnarello-coda-vaccinara",
@@ -526,7 +678,11 @@
           },
           "price": "14.00",
           "image": "/images/dishes/tonnarello-coda-vaccinara.jpg",
-          "allergens": ["glutine", "sedano", "solfiti"]
+          "allergens": [
+            "glutine",
+            "sedano",
+            "solfiti"
+          ]
         }
       ]
     },
@@ -549,7 +705,10 @@
           },
           "price": "12.50",
           "image": "/images/dishes/tonnarello-cacio-pepe.jpg",
-          "allergens": ["glutine", "lattosio"]
+          "allergens": [
+            "glutine",
+            "lattosio"
+          ]
         },
         {
           "id": "tonnarello-carbonara",
@@ -563,7 +722,11 @@
           },
           "price": "12.50",
           "image": "/images/dishes/tonnarello-carbonara.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "tonnarello-amatriciana",
@@ -577,7 +740,11 @@
           },
           "price": "12.50",
           "image": "/images/dishes/tonnarello-amatriciana.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "tonnarello-gricia",
@@ -591,7 +758,11 @@
           },
           "price": "12.50",
           "image": "/images/dishes/tonnarello-gricia.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "bis-tradizione",
@@ -605,7 +776,12 @@
           },
           "price": "14.00",
           "image": "/images/dishes/bis-tradizione.jpg",
-          "allergens": ["glutine", "uova", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio",
+            "solfiti"
+          ]
         }
       ]
     },
@@ -641,7 +817,11 @@
           },
           "price": "13.00",
           "image": "/images/dishes/scaloppine-vino-limone.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "scaloppine-funghi",
@@ -655,7 +835,11 @@
           },
           "price": "15.00",
           "image": "/images/dishes/scaloppine-funghi.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "coda-vaccinara-secondo",
@@ -669,7 +853,10 @@
           },
           "price": "16.00",
           "image": "/images/dishes/coda-vaccinara-secondo.jpg",
-          "allergens": ["sedano", "solfiti"]
+          "allergens": [
+            "sedano",
+            "solfiti"
+          ]
         },
         {
           "id": "saltimbocca-romana",
@@ -683,7 +870,11 @@
           },
           "price": "14.00",
           "image": "/images/dishes/saltimbocca-romana.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "gran-tagliere-casa",
@@ -697,7 +888,11 @@
           },
           "price": "28.00",
           "image": "/images/dishes/gran-tagliere-casa.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "spadellata-salsiccia-patate",
@@ -724,7 +919,10 @@
           },
           "price": "14.00",
           "image": "/images/dishes/baccala-giudia.jpg",
-          "allergens": ["glutine", "pesce"]
+          "allergens": [
+            "glutine",
+            "pesce"
+          ]
         },
         {
           "id": "carne-picchiapo",
@@ -738,7 +936,9 @@
           },
           "price": "12.00",
           "image": "/images/dishes/carne-picchiapo.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "tagliata-filetto",
@@ -752,7 +952,9 @@
           },
           "price": "20.00",
           "image": "/images/dishes/tagliata-filetto.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "calamaro-arrosto",
@@ -766,7 +968,9 @@
           },
           "price": "16.00",
           "image": "/images/dishes/calamaro-arrosto.jpg",
-          "allergens": ["pesce"]
+          "allergens": [
+            "pesce"
+          ]
         },
         {
           "id": "filetto-funghi",
@@ -780,7 +984,11 @@
           },
           "price": "22.00",
           "image": "/images/dishes/filetto-funghi.jpg",
-          "allergens": ["glutine", "lattosio", "solfiti"]
+          "allergens": [
+            "glutine",
+            "lattosio",
+            "solfiti"
+          ]
         },
         {
           "id": "bistecca-manzo",
@@ -807,7 +1015,10 @@
           },
           "price": "10.00",
           "image": "/images/dishes/petto-pollo.jpg",
-          "allergens": ["glutine", "uova"]
+          "allergens": [
+            "glutine",
+            "uova"
+          ]
         }
       ]
     },
@@ -830,7 +1041,13 @@
           },
           "price": "14.00",
           "image": "/images/dishes/giulio-cesare.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "mortazza",
@@ -844,7 +1061,14 @@
           },
           "price": "13.00",
           "image": "/images/dishes/mortazza.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "frutta-secca", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "frutta-secca",
+            "senape"
+          ]
         },
         {
           "id": "romana",
@@ -858,7 +1082,13 @@
           },
           "price": "10.00",
           "image": "/images/dishes/romana.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "amatriciana-pinsa",
@@ -872,7 +1102,13 @@
           },
           "price": "11.00",
           "image": "/images/dishes/amatriciana-pinsa.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "buciarda",
@@ -886,7 +1122,13 @@
           },
           "price": "10.00",
           "image": "/images/dishes/buciarda.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "der-pupone",
@@ -900,7 +1142,13 @@
           },
           "price": "11.00",
           "image": "/images/dishes/der-pupone.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "bruciacculo",
@@ -914,7 +1162,13 @@
           },
           "price": "13.00",
           "image": "/images/dishes/bruciacculo.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "cuppolone",
@@ -928,7 +1182,13 @@
           },
           "price": "13.00",
           "image": "/images/dishes/cuppolone.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "sora-lella",
@@ -942,7 +1202,13 @@
           },
           "price": "13.00",
           "image": "/images/dishes/sora-lella.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "magna-roma",
@@ -956,7 +1222,13 @@
           },
           "price": "14.00",
           "image": "/images/dishes/magna-roma.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "la-caciarona",
@@ -970,7 +1242,13 @@
           },
           "price": "13.00",
           "image": "/images/dishes/la-caciarona.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         },
         {
           "id": "villa-borghese",
@@ -984,7 +1262,15 @@
           },
           "price": "13.00",
           "image": "/images/dishes/villa-borghese.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "frutta-secca", "senape", "solfiti"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "frutta-secca",
+            "senape",
+            "solfiti"
+          ]
         },
         {
           "id": "la-fiatella",
@@ -998,7 +1284,13 @@
           },
           "price": "12.00",
           "image": "/images/dishes/la-fiatella.jpg",
-          "allergens": ["glutine", "arachidi", "soia", "lattosio", "senape"]
+          "allergens": [
+            "glutine",
+            "arachidi",
+            "soia",
+            "lattosio",
+            "senape"
+          ]
         }
       ]
     },
@@ -1069,7 +1361,12 @@
           },
           "price": "10.00",
           "image": "/images/dishes/insalatona-casa.jpg",
-          "allergens": ["uova", "pesce", "lattosio", "frutta-secca"]
+          "allergens": [
+            "uova",
+            "pesce",
+            "lattosio",
+            "frutta-secca"
+          ]
         },
         {
           "id": "insalata-mista",
@@ -1105,7 +1402,11 @@
           },
           "price": "7.00",
           "image": "/images/dishes/tiramisu-scomposto.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "panna-cotta-guarnita",
@@ -1119,7 +1420,11 @@
           },
           "price": "6.00",
           "image": "/images/dishes/panna-cotta-guarnita.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "tortino-ricotta-pere",
@@ -1133,7 +1438,11 @@
           },
           "price": "6.00",
           "image": "/images/dishes/tortino-ricotta-pere.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "tortino-cuore-caldo-cioccolato",
@@ -1147,7 +1456,11 @@
           },
           "price": "7.00",
           "image": "/images/dishes/tortino-cuore-caldo-cioccolato.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "crostata-visciole",
@@ -1161,7 +1474,11 @@
           },
           "price": "7.00",
           "image": "/images/dishes/crostata-visciole.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         },
         {
           "id": "sorbetto-limone",
@@ -1201,7 +1518,11 @@
           },
           "price": "6.00",
           "image": "/images/dishes/sbriciolata.jpg",
-          "allergens": ["glutine", "uova", "lattosio"]
+          "allergens": [
+            "glutine",
+            "uova",
+            "lattosio"
+          ]
         }
       ]
     },
@@ -1224,7 +1545,9 @@
           },
           "price": "6.00",
           "image": "/images/dishes/vino-rosso-375.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "vino-bianco-375",
@@ -1238,7 +1561,9 @@
           },
           "price": "6.00",
           "image": "/images/dishes/vino-bianco-375.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "vino-rosso-750",
@@ -1252,7 +1577,9 @@
           },
           "price": "10.00",
           "image": "/images/dishes/vino-rosso-750.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "vino-bianco-750",
@@ -1266,7 +1593,9 @@
           },
           "price": "10.00",
           "image": "/images/dishes/vino-bianco-750.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "vino-frizzante-750",
@@ -1280,7 +1609,9 @@
           },
           "price": "12.00",
           "image": "/images/dishes/vino-frizzante-750.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "calice-magnaroma",
@@ -1294,7 +1625,9 @@
           },
           "price": "3.50",
           "image": "/images/dishes/calice-magnaroma.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "calice-bottiglia",
@@ -1308,7 +1641,9 @@
           },
           "price": "5.00",
           "image": "/images/dishes/calice-bottiglia.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "birra-bionda-20",
@@ -1322,7 +1657,9 @@
           },
           "price": "3.50",
           "image": "/images/dishes/birra-bionda-20.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-bionda-40",
@@ -1336,7 +1673,9 @@
           },
           "price": "5.50",
           "image": "/images/dishes/birra-bionda-40.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-weiss-20",
@@ -1350,7 +1689,9 @@
           },
           "price": "4.00",
           "image": "/images/dishes/birra-weiss-20.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-weiss-40",
@@ -1364,7 +1705,9 @@
           },
           "price": "6.50",
           "image": "/images/dishes/birra-weiss-40.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-rossa-20",
@@ -1378,7 +1721,9 @@
           },
           "price": "4.00",
           "image": "/images/dishes/birra-rossa-20.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-rossa-40",
@@ -1392,7 +1737,9 @@
           },
           "price": "6.50",
           "image": "/images/dishes/birra-rossa-40.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-analcolica",
@@ -1432,7 +1779,9 @@
           },
           "price": "3.50",
           "image": "/images/dishes/birra-artigianale-bionda.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-artigianale-weiss",
@@ -1446,7 +1795,9 @@
           },
           "price": "3.50",
           "image": "/images/dishes/birra-artigianale-weiss.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-artigianale-rossa",
@@ -1460,7 +1811,9 @@
           },
           "price": "3.50",
           "image": "/images/dishes/birra-artigianale-rossa.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         },
         {
           "id": "birra-artigianale-strong",
@@ -1474,7 +1827,9 @@
           },
           "price": "4.50",
           "image": "/images/dishes/birra-artigianale-strong.jpg",
-          "allergens": ["glutine"]
+          "allergens": [
+            "glutine"
+          ]
         }
       ]
     },
@@ -1679,7 +2034,9 @@
           },
           "price": "7.00",
           "image": "/images/dishes/aperol-spritz.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         },
         {
           "id": "spritz-magnaroma",
@@ -1693,10 +2050,11 @@
           },
           "price": "7.00",
           "image": "/images/dishes/spritz-magnaroma.jpg",
-          "allergens": ["solfiti"]
+          "allergens": [
+            "solfiti"
+          ]
         }
       ]
     }
   ]
 }
-

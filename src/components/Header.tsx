@@ -11,14 +11,14 @@ interface HeaderProps {
 }
 
 export default function Header({
-  restaurantName = 'Magna Roma Trattoria & Pinseria',
-  logoUrl = '/magnaroma.png'
+  restaurantName = 'Menu Digitale',
+  logoUrl = '/icon.svg'
 }: HeaderProps) {
   const { language } = useTranslation();
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200/50">
+    <header className="sticky top-0 z-50 bg-[var(--tenant-surface,#FFFFFF)]/95 backdrop-blur-md shadow-md border-b border-gray-200/50">
       <div className="container mx-auto px-4 py-3 md:py-4">
         {/* Layout mobile: logo sx, filtri dx */}
         <div className="flex items-center justify-between md:hidden">
@@ -30,17 +30,16 @@ export default function Header({
             className="h-10 w-auto"
             priority
           />
-          
+
           {/* Gruppo controlli: filtro + lingua */}
           <div className="flex items-center gap-2">
             {/* Pulsante filtro celiaci */}
-            <button 
+            <button
               onClick={toggleGlutenFilter}
-              className={`p-2 rounded-lg transition-colors ${
-                isGlutenFree 
-                  ? 'bg-amber-100 hover:bg-amber-200' 
-                  : 'hover:bg-gray-100'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${isGlutenFree
+                ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'
+                : 'hover:bg-gray-100'
+                }`}
               aria-label="Filtro senza glutine"
               aria-pressed={isGlutenFree}
             >
@@ -52,7 +51,7 @@ export default function Header({
                 className="w-5 h-5"
               />
             </button>
-            
+
             <LanguageSwitcher />
           </div>
         </div>
@@ -61,7 +60,7 @@ export default function Header({
         <div className="hidden md:flex items-center justify-between relative">
           {/* Spacer per bilanciare il layout */}
           <div className="w-[140px]"></div>
-          
+
           {/* Logo centrato */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Image
@@ -73,17 +72,16 @@ export default function Header({
               priority
             />
           </div>
-          
+
           {/* Gruppo controlli a destra */}
           <div className="flex items-center gap-3">
             {/* Pulsante filtro celiaci */}
-            <button 
+            <button
               onClick={toggleGlutenFilter}
-              className={`p-2.5 rounded-lg transition-colors ${
-                isGlutenFree 
-                  ? 'bg-amber-100 hover:bg-amber-200' 
-                  : 'hover:bg-gray-100'
-              }`}
+              className={`p-2.5 rounded-lg transition-colors ${isGlutenFree
+                ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'
+                : 'hover:bg-gray-100'
+                }`}
               aria-label="Filtro senza glutine"
               aria-pressed={isGlutenFree}
             >
@@ -95,7 +93,7 @@ export default function Header({
                 className="w-6 h-6"
               />
             </button>
-            
+
             <LanguageSwitcher />
           </div>
         </div>

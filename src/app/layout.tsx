@@ -17,19 +17,19 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Magna Roma Trattoria - Menu Digitale",
-  description: "Scopri il menu della Magna Roma Trattoria, autentica cucina romana con i piatti della tradizione",
-  keywords: "ristorante romano, menu digitale, cucina romana, trattoria, pinsa romana",
+  title: "Gofood Menù - Il tuo menu digitale",
+  description: "Crea e gestisci il tuo menu digitale con Gofood Menù",
+  keywords: "menu digitale, ristorante, gofood, menu online",
   openGraph: {
-    title: "Magna Roma Trattoria - Menu Digitale",
-    description: "Scopri il menu della Magna Roma Trattoria, autentica cucina romana con i piatti della tradizione",
+    title: "Gofood Menù - Il tuo menu digitale",
+    description: "Crea e gestisci il tuo menu digitale con Gofood Menù",
     type: "website",
     images: [
       {
-        url: '/magnaroma.png',
+        url: '/icon.svg',
         width: 512,
         height: 512,
-        alt: 'Magna Roma Trattoria Logo',
+        alt: 'Gofood Menù Logo',
       },
     ],
   },

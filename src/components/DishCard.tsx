@@ -38,7 +38,7 @@ export default function DishCard({ dish }: DishCardProps) {
 
   // Verifica se il piatto contiene glutine
   const containsGluten = dish.allergens?.includes('glutine') || false;
-  
+
   // Il piatto è disabilitato se il filtro glutine è attivo E contiene glutine
   const isDisabled = isGlutenFree && containsGluten;
 
@@ -47,23 +47,22 @@ export default function DishCard({ dish }: DishCardProps) {
   const isSeasonalDish = seasonalDishes.includes(dish.id);
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${
-      isDisabled 
-        ? 'opacity-50 pointer-events-none' 
-        : 'hover:shadow-2xl hover:-translate-y-1'
-    }`}>
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-[#FFF8E7] to-[#D4AF37]/20">
+    <div className={`bg-[var(--tenant-surface,#FFFFFF)] rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${isDisabled
+      ? 'opacity-50 pointer-events-none'
+      : 'hover:shadow-2xl hover:-translate-y-1'
+      }`}>
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-[var(--tenant-background,#FFF8E7)] to-[var(--tenant-secondary,#D4AF37)]/20">
         {/* Placeholder "Fuori stagione" per piatti stagionali */}
         {isSeasonalDish ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#FFF8E7] via-[#F5E6D3] to-[#E8D9C4]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[var(--tenant-background,#FFF8E7)] via-[#F5E6D3] to-[#E8D9C4]">
             <div className="text-center max-w-xs">
               <div className="text-7xl mb-6 opacity-40">🌿</div>
-              <div className="text-xl md:text-2xl font-serif font-bold text-[#8B0000] mb-3">
+              <div className="text-xl md:text-2xl font-serif font-bold text-[var(--tenant-primary,#8B0000)] mb-3">
                 {language === 'it' ? 'Fuori stagione' : 'Out of season'}
               </div>
               <div className="text-sm md:text-base text-gray-700 leading-relaxed">
-                {language === 'it' 
-                  ? 'Disponibile solo nel periodo stagionale' 
+                {language === 'it'
+                  ? 'Disponibile solo nel periodo stagionale'
                   : 'Available only in season'}
               </div>
             </div>
@@ -96,10 +95,10 @@ export default function DishCard({ dish }: DishCardProps) {
           </>
         )}
         {/* Price badge */}
-        <div className="absolute top-4 right-4 bg-gradient-to-r from-[#D4AF37] to-[#C4A037] text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+        <div className="absolute top-4 right-4 bg-gradient-to-r from-[var(--tenant-secondary,#D4AF37)] to-[#C4A037] text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
           <span className="font-bold text-base">€{dish.price}</span>
         </div>
-        
+
         {/* Badge glutine quando filtro attivo */}
         {isDisabled && (
           <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
@@ -110,16 +109,16 @@ export default function DishCard({ dish }: DishCardProps) {
           </div>
         )}
       </div>
-      
+
       <div className="p-4 md:p-5">
-        <h3 className="text-lg md:text-xl lg:text-2xl font-serif font-bold text-gray-900 mb-2 leading-tight">
+        <h3 className="text-lg md:text-xl lg:text-2xl font-serif font-bold text-[var(--tenant-text,#171717)] mb-2 leading-tight">
           {t(dish.name)}
         </h3>
-        
-        <div className="text-gray-600 text-sm md:text-base leading-relaxed mb-3 min-h-[3em]">
+
+        <div className="text-[var(--tenant-text-secondary,#4B5563)] text-sm md:text-base leading-relaxed mb-3 min-h-[3em]">
           {parseIngredients(t(dish.description))}
         </div>
-        
+
         {dish.allergens && dish.allergens.length > 0 && (
           <div className="mt-4 space-y-3">
             <div className="flex flex-wrap gap-2">
@@ -134,7 +133,7 @@ export default function DishCard({ dish }: DishCardProps) {
             </div>
             <Link
               href="/allergeni"
-              className="inline-flex items-center gap-1.5 text-sm text-[#8B0000] hover:text-[#6B0000] font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-[var(--tenant-primary,#8B0000)] hover:brightness-75 font-medium transition-all"
             >
               <span>ℹ️</span>
               {language === 'it' ? 'Vedi info allergeni' : 'See allergen info'}

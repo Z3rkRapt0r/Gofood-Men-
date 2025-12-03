@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { FooterData, FooterLocation, FooterLink, FooterSocial } from '@/types/menu';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,16 @@ export default function SettingsPage() {
     city: '',
     primaryColor: '#8B0000',
     secondaryColor: '#D4AF37',
+    backgroundColor: '#FFF8E7',
+    surfaceColor: '#FFFFFF',
+    textColor: '#171717',
+    secondaryTextColor: '#4B5563',
+    footerData: {
+      locations: [] as FooterLocation[],
+      links: [] as FooterLink[],
+      socials: [] as FooterSocial[],
+      show_brand_column: true,
+    } as FooterData,
   });
 
   useEffect(() => {
@@ -48,6 +59,11 @@ export default function SettingsPage() {
         city: string | null;
         primary_color: string;
         secondary_color: string;
+        background_color: string;
+        surface_color: string;
+        text_color: string;
+        secondary_text_color: string;
+        footer_data: FooterData | null;
         logo_url: string | null;
       };
 
@@ -61,6 +77,16 @@ export default function SettingsPage() {
         city: tenantData.city || '',
         primaryColor: tenantData.primary_color || '#8B0000',
         secondaryColor: tenantData.secondary_color || '#D4AF37',
+        backgroundColor: tenantData.background_color || '#FFF8E7',
+        surfaceColor: tenantData.surface_color || '#FFFFFF',
+        textColor: tenantData.text_color || '#171717',
+        secondaryTextColor: tenantData.secondary_text_color || '#4B5563',
+        footerData: tenantData.footer_data || {
+          locations: [],
+          links: [],
+          socials: [],
+          show_brand_column: true,
+        },
       });
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -89,6 +115,11 @@ export default function SettingsPage() {
           city: formData.city,
           primary_color: formData.primaryColor,
           secondary_color: formData.secondaryColor,
+          background_color: formData.backgroundColor,
+          surface_color: formData.surfaceColor,
+          text_color: formData.textColor,
+          secondary_text_color: formData.secondaryTextColor,
+          footer_data: formData.footerData,
         })
         .eq('id', tenantId);
 
@@ -284,6 +315,106 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Sfondo
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.backgroundColor}
+                  onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.backgroundColor}
+                    onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Colore di sfondo principale
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Superfici (Card/Header)
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.surfaceColor}
+                  onChange={(e) => setFormData({ ...formData, surfaceColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.surfaceColor}
+                    onChange={(e) => setFormData({ ...formData, surfaceColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Sfondo di card e header
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Testo Principale
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.textColor}
+                  onChange={(e) => setFormData({ ...formData, textColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.textColor}
+                    onChange={(e) => setFormData({ ...formData, textColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Titoli e testo principale
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Testo Secondario
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.secondaryTextColor}
+                  onChange={(e) => setFormData({ ...formData, secondaryTextColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.secondaryTextColor}
+                    onChange={(e) => setFormData({ ...formData, secondaryTextColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Descrizioni e dettagli
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Preview */}
@@ -301,6 +432,256 @@ export default function SettingsPage() {
                 style={{ backgroundColor: formData.secondaryColor }}
               >
                 Secondario
+              </div>
+              <div
+                className="flex-1 h-20 rounded-lg shadow-sm flex items-center justify-center text-gray-900 font-bold border border-gray-200"
+                style={{ backgroundColor: formData.backgroundColor }}
+              >
+                Sfondo
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Customization */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Personalizzazione Footer
+          </h2>
+
+          <div className="space-y-8">
+            {/* Brand Column Toggle */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="showBrandColumn"
+                checked={formData.footerData.show_brand_column}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  footerData: { ...formData.footerData, show_brand_column: e.target.checked }
+                })}
+                className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+              />
+              <label htmlFor="showBrandColumn" className="text-sm font-medium text-gray-900">
+                Mostra colonna Brand (Logo e descrizione)
+              </label>
+            </div>
+
+            {/* Locations */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Sedi</h3>
+                <button
+                  type="button"
+                  onClick={() => setFormData({
+                    ...formData,
+                    footerData: {
+                      ...formData.footerData,
+                      locations: [...formData.footerData.locations, { city: '', address: '', phone: '' }]
+                    }
+                  })}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                >
+                  + Aggiungi Sede
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formData.footerData.locations.map((loc, index) => (
+                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Città"
+                        value={loc.city}
+                        onChange={(e) => {
+                          const newLocs = [...formData.footerData.locations];
+                          newLocs[index].city = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Indirizzo"
+                        value={loc.address}
+                        onChange={(e) => {
+                          const newLocs = [...formData.footerData.locations];
+                          newLocs[index].address = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Telefono (opzionale)"
+                        value={loc.phone || ''}
+                        onChange={(e) => {
+                          const newLocs = [...formData.footerData.locations];
+                          newLocs[index].phone = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
+                        setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                      }}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+                {formData.footerData.locations.length === 0 && (
+                  <p className="text-sm text-gray-500 italic">Nessuna sede aggiunta.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Links */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Link Utili</h3>
+                <button
+                  type="button"
+                  onClick={() => setFormData({
+                    ...formData,
+                    footerData: {
+                      ...formData.footerData,
+                      links: [...formData.footerData.links, { label: { it: '', en: '' }, url: '' }]
+                    }
+                  })}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                >
+                  + Aggiungi Link
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formData.footerData.links.map((link, index) => (
+                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div className="flex-1 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Etichetta (IT)"
+                          value={link.label.it}
+                          onChange={(e) => {
+                            const newLinks = [...formData.footerData.links];
+                            newLinks[index].label.it = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
+                          }}
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Label (EN)"
+                          value={link.label.en}
+                          onChange={(e) => {
+                            const newLinks = [...formData.footerData.links];
+                            newLinks[index].label.en = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
+                          }}
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="URL (es. /menu o https://...)"
+                        value={link.url}
+                        onChange={(e) => {
+                          const newLinks = [...formData.footerData.links];
+                          newLinks[index].url = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newLinks = formData.footerData.links.filter((_, i) => i !== index);
+                        setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
+                      }}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+                {formData.footerData.links.length === 0 && (
+                  <p className="text-sm text-gray-500 italic">Nessun link aggiunto.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Socials */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Social Network</h3>
+                <button
+                  type="button"
+                  onClick={() => setFormData({
+                    ...formData,
+                    footerData: {
+                      ...formData.footerData,
+                      socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
+                    }
+                  })}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                >
+                  + Aggiungi Social
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formData.footerData.socials.map((social, index) => (
+                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div className="flex-1 space-y-2">
+                      <select
+                        value={social.platform}
+                        onChange={(e) => {
+                          const newSocials = [...formData.footerData.socials];
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          newSocials[index].platform = e.target.value as any;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      >
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="tripadvisor">TripAdvisor</option>
+                        <option value="website">Sito Web</option>
+                        <option value="other">Altro</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="URL Profilo"
+                        value={social.url}
+                        onChange={(e) => {
+                          const newSocials = [...formData.footerData.socials];
+                          newSocials[index].url = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
+                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                      }}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+                {formData.footerData.socials.length === 0 && (
+                  <p className="text-sm text-gray-500 italic">Nessun social aggiunto.</p>
+                )}
               </div>
             </div>
           </div>
@@ -331,7 +712,7 @@ export default function SettingsPage() {
             )}
           </button>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 }

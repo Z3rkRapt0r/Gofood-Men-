@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
+import { FooterData } from '@/types/menu';
 import Header from '@/components/Header';
 import CategoryNav from '@/components/CategoryNav';
 import DishCard from '@/components/DishCard';
@@ -11,6 +12,12 @@ interface Tenant {
   logo_url?: string;
   primary_color: string;
   secondary_color: string;
+  background_color?: string;
+  surface_color?: string;
+  text_color?: string;
+  secondary_text_color?: string;
+  footer_data?: FooterData;
+  slug: string;
 }
 
 interface Dish {
@@ -45,10 +52,15 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
   return (
     <div
       ref={mainRef}
-      className="min-h-screen bg-cream"
+      className="min-h-screen"
       style={{
+        backgroundColor: tenant.background_color || '#FFF8E7',
         '--tenant-primary': tenant.primary_color,
         '--tenant-secondary': tenant.secondary_color,
+        '--tenant-background': tenant.background_color || '#FFF8E7',
+        '--tenant-surface': tenant.surface_color || '#FFFFFF',
+        '--tenant-text': tenant.text_color || '#171717',
+        '--tenant-text-secondary': tenant.secondary_text_color || '#4B5563',
       } as React.CSSProperties}
     >
       <Header restaurantName={tenant.restaurant_name} logoUrl={tenant.logo_url || undefined} />
@@ -98,7 +110,12 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
           </section>
         ))}
       </main>
-      <Footer />
+      <Footer
+        footerData={tenant.footer_data}
+        restaurantName={tenant.restaurant_name}
+        logoUrl={tenant.logo_url || undefined}
+        slug={tenant.slug}
+      />
       <ScrollToTop />
     </div>
   );

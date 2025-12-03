@@ -69,6 +69,36 @@ export interface Profile {
 /**
  * Tenant (ristorante)
  */
+
+// ============================================================
+// TYPES: Footer Configuration
+// ============================================================
+
+export interface FooterLocation {
+  city: string;
+  address: string;
+  phone?: string;
+}
+
+export interface FooterLink {
+  label: Translation;
+  url: string;
+  icon?: string; // Emoji or icon name
+}
+
+export interface FooterSocial {
+  platform: 'facebook' | 'instagram' | 'tripadvisor' | 'website' | 'other';
+  url: string;
+  icon?: string; // Emoji
+}
+
+export interface FooterData {
+  locations: FooterLocation[];
+  links: FooterLink[];
+  socials: FooterSocial[];
+  show_brand_column: boolean; // Toggle for the first column
+}
+
 export interface Tenant {
   id: string; // UUID
   owner_id: string; // UUID ref to profiles.id
@@ -88,6 +118,13 @@ export interface Tenant {
   logo_url: string | null; // Supabase Storage URL
   primary_color: string; // Hex color (default: #8B0000)
   secondary_color: string; // Hex color (default: #D4AF37)
+  background_color?: string; // Hex color (default: #FFF8E7)
+  surface_color?: string;
+  text_color?: string;
+  secondary_text_color?: string;
+
+  // Footer
+  footer_data?: FooterData; // JSONB
 
   // Menu settings
   default_language: Language;
@@ -109,6 +146,7 @@ export interface Tenant {
   created_at: string;
   updated_at: string;
 }
+
 
 /**
  * Categoria menu (tenant-specific)
@@ -252,6 +290,7 @@ export interface TenantSettingsInput {
   logo_url?: string;
   primary_color?: string;
   secondary_color?: string;
+  background_color?: string;
   default_language?: Language;
   supported_languages?: Language[];
   cover_charge?: number;

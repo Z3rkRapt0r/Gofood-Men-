@@ -14,17 +14,17 @@ export default function AllergensLegal({ data }: AllergensLegalProps) {
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto">
       {/* Header con logo ufficiale */}
-      <div className="bg-gradient-to-r from-[#8B0000] to-[#6B0000] text-center py-8 px-6">
+      <div className="bg-gradient-to-r from-[var(--tenant-primary,#8B0000)] to-[var(--tenant-primary,#8B0000)] text-center py-8 px-6">
         <div className="inline-block bg-white/10 backdrop-blur-sm border-2 border-[#D4AF37] rounded-lg px-8 py-6">
           <Image
-            src="/magnaroma.png"
-            alt="Magna Roma Logo"
-            width={200}
+            src="/icon.svg"
+            alt="Menu Digitale Logo"
+            width={60}
             height={60}
             className="h-16 w-auto mx-auto mb-2"
           />
           <p className="text-sm text-white/90 uppercase tracking-wider">
-            Cucina Romana
+            Menu Digitale
           </p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function AllergensLegal({ data }: AllergensLegalProps) {
               key={allergen.id}
               className="flex gap-3 text-sm md:text-base text-gray-800"
             >
-              <span className="font-bold text-[#8B0000] min-w-[2rem]">
+              <span className="font-bold text-[var(--tenant-primary,#8B0000)] min-w-[2rem]">
                 {allergen.number}.
               </span>
               <span className="leading-relaxed">{t(allergen.name)}</span>
