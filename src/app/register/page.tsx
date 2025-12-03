@@ -115,8 +115,8 @@ export default function RegisterPage() {
           onboarding_completed: false,
           onboarding_step: 1,
           subscription_tier: 'free',
-          max_dishes: 50,
-          max_categories: 10
+          max_dishes: 9999,
+          max_categories: 9999
         })
         .select()
         .single();
@@ -345,7 +345,7 @@ export default function RegisterPage() {
           <ul className="space-y-3 text-sm">
             <li className="flex items-start gap-3 text-gray-700">
               <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Fino a 50 piatti e 10 categorie</span>
+              <span className="font-semibold">Piatti e categorie illimitati</span>
             </li>
             <li className="flex items-start gap-3 text-gray-700">
               <span className="text-orange-600 font-black text-lg">✓</span>

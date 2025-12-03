@@ -89,6 +89,7 @@ async function main() {
     '004_auto_create_profile.sql',
     '005_add_tagline.sql',
     '006_storage_policies.sql',
+    '007_remove_limits.sql',
   ];
 
   let success = 0;

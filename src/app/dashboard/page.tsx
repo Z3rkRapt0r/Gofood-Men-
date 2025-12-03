@@ -17,8 +17,9 @@ export default function DashboardOverview() {
     totalDishes: 0,
     totalCategories: 0,
     visibleDishes: 0,
-    maxDishes: 50,
-    maxCategories: 10,
+    totalDishes: 0,
+    totalCategories: 0,
+    visibleDishes: 0,
   });
   const [loading, setLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState('');
@@ -54,8 +55,6 @@ export default function DashboardOverview() {
           setSlug(tenantData.slug);
           setStats(prev => ({
             ...prev,
-            maxDishes: tenantData.max_dishes,
-            maxCategories: tenantData.max_categories,
           }));
         }
 
@@ -102,8 +101,7 @@ export default function DashboardOverview() {
     );
   }
 
-  const dishesPercentage = (stats.totalDishes / stats.maxDishes) * 100;
-  const categoriesPercentage = (stats.totalCategories / stats.maxCategories) * 100;
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -122,7 +120,6 @@ export default function DashboardOverview() {
         <StatCard
           title="Piatti Totali"
           value={stats.totalDishes}
-          max={stats.maxDishes}
           icon="🍽️"
           color="orange"
         />
@@ -135,7 +132,6 @@ export default function DashboardOverview() {
         <StatCard
           title="Categorie"
           value={stats.totalCategories}
-          max={stats.maxCategories}
           icon="📁"
           color="blue"
         />
@@ -148,21 +144,7 @@ export default function DashboardOverview() {
         />
       </div>
 
-      {/* Usage bars */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UsageCard
-          title="Utilizzo Piatti"
-          current={stats.totalDishes}
-          max={stats.maxDishes}
-          percentage={dishesPercentage}
-        />
-        <UsageCard
-          title="Utilizzo Categorie"
-          current={stats.totalCategories}
-          max={stats.maxCategories}
-          percentage={categoriesPercentage}
-        />
-      </div>
+
 
       {/* Quick actions */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -248,11 +230,7 @@ function StatCard({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
         <span className="text-3xl">{icon}</span>
-        {max && (
-          <span className="text-xs text-gray-500 font-semibold">
-            max {max}
-          </span>
-        )}
+
       </div>
       <div className="mb-1">
         <div className="text-3xl font-black text-gray-900">
@@ -270,43 +248,7 @@ function StatCard({
   );
 }
 
-function UsageCard({
-  title,
-  current,
-  max,
-  percentage,
-}: {
-  title: string;
-  current: number;
-  max: number;
-  percentage: number;
-}) {
-  const getColor = () => {
-    if (percentage >= 90) return 'bg-red-500';
-    if (percentage >= 70) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
 
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-gray-900">{title}</h3>
-        <span className="text-sm text-gray-600 font-semibold">
-          {current}/{max}
-        </span>
-      </div>
-      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-        <div
-          className={`h-full ${getColor()} transition-all duration-500`}
-          style={{ width: `${Math.min(percentage, 100)}%` }}
-        />
-      </div>
-      <p className="text-xs text-gray-500 mt-2">
-        {percentage >= 90 ? '⚠️ Limite quasi raggiunto' : `${(100 - percentage).toFixed(0)}% disponibile`}
-      </p>
-    </div>
-  );
-}
 
 function ActionCard({
   title,
