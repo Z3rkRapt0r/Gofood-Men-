@@ -59,12 +59,12 @@ export default function LoginPage() {
       } else {
         router.push('/dashboard');
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
-      if (err.message.includes('Invalid login credentials')) {
+      if (err instanceof Error && err.message.includes('Invalid login credentials')) {
         setError('Email o password non validi. Riprova.');
       } else {
-        setError(err.message || 'Errore durante il login. Riprova.');
+        setError(err instanceof Error ? err.message : 'Errore durante il login. Riprova.');
       }
     } finally {
       setLoading(false);

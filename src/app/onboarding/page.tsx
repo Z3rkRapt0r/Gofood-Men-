@@ -122,7 +122,7 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient();
 
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         ...updates,
         onboarding_step: nextStep || currentStep,
         onboarding_completed: nextStep === 4 // Completa se siamo allo step 4 (dopo lo step 3)

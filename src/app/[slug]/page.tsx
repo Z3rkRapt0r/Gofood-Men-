@@ -52,6 +52,8 @@ async function getMenuData(slug: string) {
     return null;
   }
 
+  const tenantData = tenant as Tenant;
+
   // 2. Fetch categories con piatti e allergeni
   const { data: categories, error: categoriesError } = await supabase
     .from('categories')
@@ -64,7 +66,7 @@ async function getMenuData(slug: string) {
         )
       )
     `)
-    .eq('tenant_id', tenant.id)
+    .eq('tenant_id', tenantData.id)
     .eq('is_visible', true)
     .order('display_order', { ascending: true });
 
@@ -91,7 +93,7 @@ async function getMenuData(slug: string) {
   })) || [];
 
   return {
-    tenant: tenant as Tenant,
+    tenant: tenantData,
     categories: transformedCategories
   };
 }
@@ -103,8 +105,15 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
   const { tenant, categories } = menuData;
+
+  // Transform tenant to match expected interface
+  const transformedTenant = {
+    ...tenant,
+    logo_url: tenant.logo_url || undefined,
+  };
+
   return (
-    <MenuPageClient tenant={tenant} categories={categories} />
+    <MenuPageClient tenant={transformedTenant} categories={categories} />
   );
 }
 
@@ -125,8 +134,10 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
+  const tenantData = tenant as { restaurant_name: string; city: string | null };
+
   return {
-    title: `${tenant.restaurant_name} - Menu Digitale`,
-    description: `Menu completo di ${tenant.restaurant_name}. Cucina tradizionale italiana con ingredienti freschi e genuini.`,
+    title: `${tenantData.restaurant_name} - Menu Digitale`,
+    description: `Menu completo di ${tenantData.restaurant_name}. Cucina tradizionale italiana con ingredienti freschi e genuini.`,
   };
 }

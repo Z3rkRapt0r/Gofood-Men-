@@ -133,9 +133,9 @@ export default function RegisterPage() {
 
       // 4. Redirect to onboarding
       router.push('/onboarding');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Errore durante la registrazione. Riprova.');
+      setError(err instanceof Error ? err.message : 'Errore durante la registrazione. Riprova.');
     } finally {
       setLoading(false);
     }
@@ -272,7 +272,7 @@ export default function RegisterPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2 ml-1">
-                Minimo 6 caratteri, consigliamo l'uso di caratteri speciali
+                Minimo 6 caratteri, consigliamo l&apos;uso di caratteri speciali
               </p>
             </div>
 

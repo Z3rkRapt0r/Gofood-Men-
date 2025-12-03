@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import type { Database } from '@/types/database';
+
+type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
+type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
 
 interface Category {
   id: string;
@@ -47,12 +51,14 @@ export default function CategoriesPage() {
         .single();
 
       if (!tenant) return;
-      setTenantId(tenant.id);
+
+      const tenantData = tenant as { id: string };
+      setTenantId(tenantData.id);
 
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('tenant_id', tenant.id)
+        .eq('tenant_id', tenantData.id)
         .order('display_order', { ascending: true });
 
       if (error) throw error;
@@ -72,30 +78,45 @@ export default function CategoriesPage() {
     try {
       const supabase = createClient();
 
-      const categoryData = {
-        tenant_id: tenantId,
-        name: { it: formData.nameIt, en: formData.nameEn },
-        slug: formData.slug || generateSlug(formData.nameIt),
-        description: formData.descriptionIt || formData.descriptionEn
-          ? { it: formData.descriptionIt, en: formData.descriptionEn }
-          : null,
-        is_visible: formData.isVisible,
-        display_order: categories.length,
-      };
-
       if (editingCategory) {
         // Update
+        const updateData: CategoryUpdate = {
+          tenant_id: tenantId,
+          name: { it: formData.nameIt, en: formData.nameEn },
+          slug: formData.slug || generateSlug(formData.nameIt),
+          description: formData.descriptionIt || formData.descriptionEn
+            ? { it: formData.descriptionIt, en: formData.descriptionEn }
+            : null,
+          is_visible: formData.isVisible,
+          display_order: categories.length,
+        };
+
         const { error } = await supabase
           .from('categories')
-          .update(categoryData)
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - Supabase client type inference issue with generated Database types
+          .update(updateData)
           .eq('id', editingCategory.id);
 
         if (error) throw error;
       } else {
         // Create
+        const insertData: CategoryInsert = {
+          tenant_id: tenantId,
+          name: { it: formData.nameIt, en: formData.nameEn },
+          slug: formData.slug || generateSlug(formData.nameIt),
+          description: formData.descriptionIt || formData.descriptionEn
+            ? { it: formData.descriptionIt, en: formData.descriptionEn }
+            : null,
+          is_visible: formData.isVisible,
+          display_order: categories.length,
+        };
+
         const { error } = await supabase
           .from('categories')
-          .insert([categoryData]);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - Supabase client type inference issue with generated Database types
+          .insert([insertData]);
 
         if (error) throw error;
       }
@@ -111,9 +132,9 @@ export default function CategoriesPage() {
       setShowForm(false);
       setEditingCategory(null);
       loadCategories();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error saving category:', err);
-      alert(err.message || 'Errore nel salvataggio della categoria');
+      alert(err instanceof Error ? err.message : 'Errore nel salvataggio della categoria');
     }
   }
 

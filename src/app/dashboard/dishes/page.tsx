@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
 interface Dish {
@@ -64,7 +65,9 @@ export default function DishesPage() {
         .single();
 
       if (!tenant) return;
-      setTenantId(tenant.id);
+
+      const tenantData = tenant as { id: string };
+      setTenantId(tenantData.id);
 
       // Load categories
       const { data: categoriesData } = await supabase
@@ -142,9 +145,9 @@ export default function DishesPage() {
 
       resetForm();
       loadData();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error saving dish:', err);
-      alert(err.message || 'Errore nel salvataggio del piatto');
+      alert(err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
     }
   }
 
@@ -228,12 +231,12 @@ export default function DishesPage() {
         <p className="text-gray-600 mb-6">
           Prima di aggiungere piatti, devi creare almeno una categoria
         </p>
-        <a
+        <Link
           href="/dashboard/categories"
           className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all"
         >
           Vai alle Categorie
-        </a>
+        </Link>
       </div>
     );
   }

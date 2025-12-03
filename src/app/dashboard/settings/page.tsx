@@ -80,9 +80,9 @@ export default function SettingsPage() {
       if (error) throw error;
 
       alert('✅ Impostazioni salvate con successo!');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error saving settings:', err);
-      alert('❌ Errore nel salvataggio: ' + (err.message || 'Riprova'));
+      alert('❌ Errore nel salvataggio: ' + (err instanceof Error ? err.message : 'Riprova'));
     } finally {
       setSaving(false);
     }

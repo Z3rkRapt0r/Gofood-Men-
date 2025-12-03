@@ -202,7 +202,7 @@ export default function DashboardOverview() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-orange-600 font-bold mt-0.5">•</span>
-                <span>Usa descrizioni accattivanti per far venire l'acquolina in bocca</span>
+                <span>Usa descrizioni accattivanti per far venire l&apos;acquolina in bocca</span>
               </li>
             </ul>
           </div>
