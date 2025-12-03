@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "prisma generate && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "supabase:setup": "node supabase/run-migrations.js",
     "migrate:menu": "node scripts/migrate-menu-data.mjs"
   },
