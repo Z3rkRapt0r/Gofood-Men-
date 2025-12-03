@@ -19,6 +19,7 @@ interface BrandingCustomizerProps {
 export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack }: BrandingCustomizerProps) {
   const [slugError, setSlugError] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [showCustomPickers, setShowCustomPickers] = useState(false);
 
   // Genera slug da nome ristorante
   function generateSlug(name: string): string {
@@ -203,8 +204,8 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
               ].map((theme) => {
                 const isSelected =
                   theme.id === 'custom'
-                    ? !['#8B0000', '#1a1a1a', '#0f172a', '#14532d', '#c2410c'].includes(formData.primary_color)
-                    : formData.primary_color === theme.primary && formData.secondary_color === theme.secondary;
+                    ? showCustomPickers
+                    : !showCustomPickers && formData.primary_color === theme.primary && formData.secondary_color === theme.secondary;
 
                 return (
                   <button
@@ -215,14 +216,14 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                           primary_color: theme.primary,
                           secondary_color: theme.secondary
                         });
+                        setShowCustomPickers(false);
                       } else {
-                        // Se clicca su personalizzato e non lo è già, resetta a default o lascia corrente?
-                        // Lasciamo corrente per ora, l'utente userà i picker
+                        setShowCustomPickers(true);
                       }
                     }}
                     className={`relative p-3 rounded-xl border-2 transition-all hover:shadow-md text-left group ${isSelected
-                        ? 'border-orange-500 ring-2 ring-orange-500 ring-opacity-20 bg-orange-50'
-                        : 'border-gray-200 hover:border-orange-300'
+                      ? 'border-orange-500 ring-2 ring-orange-500 ring-opacity-20 bg-orange-50'
+                      : 'border-gray-200 hover:border-orange-300'
                       }`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -265,7 +266,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
             </div>
 
             {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
-            {(!['#8B0000', '#1a1a1a', '#0f172a', '#14532d', '#c2410c'].includes(formData.primary_color)) && (
+            {showCustomPickers && (
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-2">
                 <div>
                   <label htmlFor="primary_color" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
