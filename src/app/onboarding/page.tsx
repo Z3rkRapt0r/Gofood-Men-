@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Tenant } from '@/types/menu';
 import StepIndicator from '@/components/onboarding/StepIndicator';
@@ -203,18 +205,22 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream to-white">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 py-4">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-orange-100 py-4 sticky top-0 z-50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-roma-red rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">M</span>
-            </div>
-            <div>
-              <h1 className="font-display text-xl font-bold text-roma-red">MenuBuilder</h1>
-              <p className="text-sm text-gray-600">Configurazione iniziale</p>
-            </div>
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Image
+                src="/logo-gofood.png"
+                alt="GO! FOOD"
+                width={120}
+                height={50}
+                className="h-10 w-auto"
+              />
+            </Link>
+            <div className="h-6 w-px bg-orange-200" />
+            <span className="font-bold text-gray-600 text-sm">Configurazione iniziale</span>
           </div>
         </div>
       </header>

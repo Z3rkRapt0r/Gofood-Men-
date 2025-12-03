@@ -12,7 +12,7 @@ interface ContactInfoProps {
 
 export default function ContactInfo({ formData, onUpdate, onNext, onBack }: ContactInfoProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8">
+    <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">
       <div className="text-center mb-8">
         <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
           Informazioni di contatto
@@ -33,7 +33,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
             id="contact_email"
             value={formData.contact_email}
             onChange={(e) => onUpdate({ contact_email: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             placeholder="info@tuoristorante.it"
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -51,7 +51,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
             id="phone"
             value={formData.phone}
             onChange={(e) => onUpdate({ phone: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             placeholder="+39 06 1234567"
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -69,7 +69,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
             id="address"
             value={formData.address}
             onChange={(e) => onUpdate({ address: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             placeholder="Via Roma, 123"
           />
         </div>
@@ -84,7 +84,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
             id="city"
             value={formData.city}
             onChange={(e) => onUpdate({ city: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             placeholder="Roma"
           />
         </div>
@@ -122,7 +122,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         </button>
         <button
           onClick={onNext}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl"
+          className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
         >
           Completa Setup →
         </button>

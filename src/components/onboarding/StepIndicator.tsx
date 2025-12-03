@@ -17,13 +17,12 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
             {/* Step Circle */}
             <div className="flex flex-col items-center">
               <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${
-                  step.number === currentStep
-                    ? 'bg-roma-red text-white scale-110 shadow-lg'
+                className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${step.number === currentStep
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white scale-110 shadow-lg shadow-orange-200'
                     : step.number < currentStep
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-500'
-                }`}
+                      ? 'bg-orange-100 text-orange-600'
+                      : 'bg-gray-100 text-gray-400'
+                  }`}
               >
                 {step.number < currentStep ? (
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -41,9 +40,8 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
               {/* Step Label */}
               <div className="mt-2 text-center hidden sm:block">
                 <div
-                  className={`text-sm font-semibold ${
-                    step.number === currentStep ? 'text-roma-red' : 'text-gray-700'
-                  }`}
+                  className={`text-sm font-bold ${step.number === currentStep ? 'text-orange-600' : 'text-gray-600'
+                    }`}
                 >
                   {step.title}
                 </div>
@@ -55,9 +53,8 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
             {index < steps.length - 1 && (
               <div className="flex-1 h-1 mx-4 hidden sm:block">
                 <div
-                  className={`h-full transition-all ${
-                    step.number < currentStep ? 'bg-green-500' : 'bg-gray-200'
-                  }`}
+                  className={`h-full transition-all ${step.number < currentStep ? 'bg-orange-200' : 'bg-gray-100'
+                    }`}
                 />
               </div>
             )}
@@ -67,7 +64,7 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
 
       {/* Mobile Labels */}
       <div className="mt-4 text-center sm:hidden">
-        <div className="text-sm font-semibold text-roma-red">{steps[currentStep - 1].title}</div>
+        <div className="text-sm font-bold text-orange-600">{steps[currentStep - 1].title}</div>
         <div className="text-xs text-gray-500">{steps[currentStep - 1].description}</div>
       </div>
     </div>

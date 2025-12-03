@@ -97,7 +97,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8">
+    <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">
       <div className="text-center mb-8">
         <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
           Personalizza il tuo menu
@@ -127,7 +127,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                   onUpdate({ slug: generateSlug(e.target.value) });
                 }
               }}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
               placeholder="Es. Trattoria da Mario"
             />
           </div>
@@ -146,9 +146,8 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                 value={formData.slug}
                 onChange={(e) => onUpdate({ slug: e.target.value.toLowerCase() })}
                 onBlur={(e) => checkSlugAvailability(e.target.value)}
-                className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-roma-red focus:border-transparent ${
-                  slugError ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${slugError ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="trattoria-mario"
               />
             </div>
@@ -313,7 +312,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
         <button
           onClick={handleNext}
           disabled={!formData.restaurant_name || !formData.slug || !!slugError}
-          className="flex-1 bg-roma-red hover:bg-roma-red/90 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
         >
           Continua →
         </button>
