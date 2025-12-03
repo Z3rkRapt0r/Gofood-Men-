@@ -195,12 +195,13 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
               {[
-                { id: 'classic', name: 'Classico', primary: '#8B0000', secondary: '#D4AF37' },
-                { id: 'modern', name: 'Moderno', primary: '#1a1a1a', secondary: '#eab308' },
-                { id: 'ocean', name: 'Oceano', primary: '#0f172a', secondary: '#38bdf8' },
-                { id: 'fresh', name: 'Natura', primary: '#14532d', secondary: '#4ade80' },
-                { id: 'sunset', name: 'Tramonto', primary: '#c2410c', secondary: '#fbbf24' },
-                { id: 'custom', name: 'Personalizzato', primary: null, secondary: null },
+                { id: 'elegant', name: 'Elegant', primary: '#1a1a1a', secondary: '#c0a062' }, // Fine Dining
+                { id: 'organic', name: 'Organic', primary: '#2c5f2d', secondary: '#97bc62' }, // Healthy/Vegan
+                { id: 'bistro', name: 'Bistro', primary: '#8b4513', secondary: '#e6ccb2' }, // Bakery/Cafe
+                { id: 'minimal', name: 'Minimal', primary: '#2d3436', secondary: '#dfe6e9' }, // Modern
+                { id: 'italian', name: 'Italian', primary: '#c0392b', secondary: '#f1c40f' }, // Pizzeria
+                { id: 'ocean', name: 'Ocean', primary: '#006994', secondary: '#7ed6df' }, // Seafood
+                { id: 'custom', name: 'Custom', primary: null, secondary: null },
               ].map((theme) => {
                 const isSelected =
                   theme.id === 'custom'
@@ -221,18 +222,18 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                         setShowCustomPickers(true);
                       }
                     }}
-                    className={`relative p-3 rounded-xl border-2 transition-all hover:shadow-md text-left group ${isSelected
+                    className={`relative p-3 rounded-xl border-2 transition-all hover:shadow-md text-left group h-full flex flex-col justify-between ${isSelected
                       ? 'border-orange-500 ring-2 ring-orange-500 ring-opacity-20 bg-orange-50'
                       : 'border-gray-200 hover:border-orange-300'
                       }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-sm font-bold ${isSelected ? 'text-orange-700' : 'text-gray-700'}`}>
+                    <div className="flex items-start justify-between mb-3 w-full">
+                      <span className={`text-sm font-bold truncate pr-2 ${isSelected ? 'text-orange-700' : 'text-gray-700'}`}>
                         {theme.name}
                       </span>
                       {isSelected && (
-                        <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0 -mt-1 -mr-1 shadow-sm">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
@@ -254,9 +255,9 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                       </div>
                     ) : (
                       <div className="flex gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 via-green-500 to-blue-500 shadow-sm opacity-80" />
-                        <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                          <span className="text-xs">+</span>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 via-pink-500 to-purple-500 shadow-sm opacity-80" />
+                        <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 bg-white">
+                          <span className="text-xs font-bold">+</span>
                         </div>
                       </div>
                     )}
