@@ -143,13 +143,10 @@ export default function LandingPage() {
                 <div className="relative z-10 mx-auto max-w-[300px] transform hover:scale-105 transition-transform duration-500">
                   {/* Phone Frame */}
                   <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-gray-900 bg-black">
-                    {/* Notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-7 w-32 bg-black rounded-b-2xl z-20"></div>
-
                     {/* Screen Content */}
                     <div className="relative bg-white w-full aspect-[1206/2374]">
                       <iframe
-                        src="https://player.vimeo.com/video/1143247555?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1"
+                        src="https://player.vimeo.com/video/1143247555?background=1&autoplay=1&loop=1&muted=1"
                         frameBorder="0"
                         allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"
