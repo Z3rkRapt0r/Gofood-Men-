@@ -11,6 +11,8 @@ interface ContactInfoProps {
 }
 
 export default function ContactInfo({ formData, onUpdate, onNext, onBack }: ContactInfoProps) {
+  const isValid = formData.contact_email && formData.phone && formData.address && formData.city;
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">
       <div className="text-center mb-8">
@@ -18,7 +20,7 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
           Informazioni di contatto
         </h2>
         <p className="text-lg text-gray-600">
-          Opzionale - Puoi compilare questi campi anche dopo
+          Inserisci i dati del tuo ristorante per completare il profilo
         </p>
       </div>
 
@@ -26,11 +28,12 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         {/* Email Contatto */}
         <div>
           <label htmlFor="contact_email" className="block text-sm font-semibold text-gray-700 mb-2">
-            Email Contatto
+            Email Contatto *
           </label>
           <input
             type="email"
             id="contact_email"
+            required
             value={formData.contact_email}
             onChange={(e) => onUpdate({ contact_email: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
@@ -44,11 +47,12 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         {/* Telefono */}
         <div>
           <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-            Telefono
+            Telefono *
           </label>
           <input
             type="tel"
             id="phone"
+            required
             value={formData.phone}
             onChange={(e) => onUpdate({ phone: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
@@ -62,11 +66,12 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         {/* Indirizzo */}
         <div>
           <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
-            Indirizzo
+            Indirizzo *
           </label>
           <input
             type="text"
             id="address"
+            required
             value={formData.address}
             onChange={(e) => onUpdate({ address: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
@@ -77,38 +82,17 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         {/* Città */}
         <div>
           <label htmlFor="city" className="block text-sm font-semibold text-gray-700 mb-2">
-            Città
+            Città *
           </label>
           <input
             type="text"
             id="city"
+            required
             value={formData.city}
             onChange={(e) => onUpdate({ city: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             placeholder="Roma"
           />
-        </div>
-      </div>
-
-      {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 max-w-2xl mx-auto">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <div>
-            <p className="text-sm text-blue-900 font-semibold mb-1">
-              Questi campi sono opzionali
-            </p>
-            <p className="text-sm text-blue-700">
-              Puoi aggiungere o modificare queste informazioni in qualsiasi momento dalla dashboard.
-              Le informazioni di contatto saranno visibili nel footer del tuo menu.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -122,19 +106,10 @@ export default function ContactInfo({ formData, onUpdate, onNext, onBack }: Cont
         </button>
         <button
           onClick={onNext}
-          className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+          disabled={!isValid}
+          className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
         >
           Completa Setup →
-        </button>
-      </div>
-
-      {/* Skip Link */}
-      <div className="text-center mt-6">
-        <button
-          onClick={onNext}
-          className="text-sm text-gray-500 hover:text-gray-700 underline"
-        >
-          Salta questo step
         </button>
       </div>
     </div>
