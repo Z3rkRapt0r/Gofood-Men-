@@ -1,7 +1,6 @@
 /**
- * Landing Page - Presentazione Prodotto SaaS
- *
- * Homepage che presenta la piattaforma per ristoratori
+ * Landing Page - GO! FOOD Menu Builder
+ * Design moderno con colori arancioni accattivanti
  */
 
 import Image from 'next/image';
@@ -9,31 +8,39 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream to-white">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200/50">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl shadow-sm border-b border-orange-100">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-roma-red rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">M</span>
-              </div>
-              <span className="font-display text-2xl font-bold text-roma-red">
-                MenuBuilder
+            {/* Logo */}
+            <div className="flex items-center gap-4">
+              <Image
+                src="/logo-gofood.png"
+                alt="GO! FOOD"
+                width={120}
+                height={50}
+                className="h-12 w-auto"
+              />
+              <div className="hidden md:block h-8 w-px bg-orange-200" />
+              <span className="hidden md:block font-bold text-gray-700 text-lg">
+                Costruisci il tuo menu
               </span>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* Navigation */}
+            <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-roma-red transition-colors font-medium"
+                className="text-gray-700 hover:text-orange-600 transition-colors font-semibold px-4 py-2 rounded-lg hover:bg-orange-50"
               >
                 Accedi
               </Link>
               <Link
                 href="/register"
-                className="bg-roma-red hover:bg-roma-red/90 text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:scale-105"
               >
-                Inizia Gratis
+                Inizia Ora
               </Link>
             </div>
           </div>
@@ -41,260 +48,317 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="container mx-auto px-4 pt-20 pb-16 md:py-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Copy */}
-            <div>
-              <div className="inline-block bg-gold/10 text-gold px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                ✨ Novità: Menu Digitali per Ristoranti
+            <div className="text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 px-5 py-2.5 rounded-full text-sm font-bold mb-8 border border-orange-200 shadow-sm">
+                <span className="text-xl">🚀</span>
+                <span>La rivoluzione dei menu digitali</span>
               </div>
 
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Il tuo menu digitale,
-                <span className="text-roma-red"> in 5 minuti</span>
+              {/* Main Headline */}
+              <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+                Il tuo menu digitale
+                <span className="block mt-2 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                  pronto in minuti
+                </span>
               </h1>
 
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Crea un menu digitale professionale per il tuo ristorante.
-                <strong className="text-gray-900"> Senza codice, senza complicazioni.</strong> I tuoi clienti scansionano il QR code e vedono il menu aggiornato in tempo reale.
+              <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Crea menu professionali per il tuo ristorante.
+                <span className="block mt-2 font-semibold text-gray-900">
+                  Zero codice. Zero stress. 100% risultati.
+                </span>
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start">
                 <Link
                   href="/register"
-                  className="bg-roma-red hover:bg-roma-red/90 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-lg hover:shadow-xl text-center"
+                  className="group bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-orange-300/50 hover:shadow-orange-400/50 hover:scale-105 flex flex-col items-center justify-center gap-1"
                 >
-                  Inizia Gratis →
+                  <span className="flex items-center gap-3">
+                    <span>Inizia Ora</span>
+                    <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                  <span className="text-sm font-semibold opacity-90">Solo €19.90/mese</span>
                 </Link>
                 <Link
                   href="/magna-roma"
-                  className="bg-white hover:bg-gray-50 text-roma-red border-2 border-roma-red px-8 py-4 rounded-lg font-bold text-lg transition-all text-center"
+                  className="bg-white hover:bg-orange-50 text-orange-600 border-2 border-orange-300 hover:border-orange-400 px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
                 >
-                  Vedi Demo
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>Vedi Demo</span>
                 </Link>
               </div>
 
-              <div className="flex items-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Nessuna carta di credito</span>
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-semibold">Solo €19.90/mese</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Setup in 5 minuti</span>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-semibold">Setup in 5 minuti</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                      <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                    </svg>
+                  </div>
+                  <span className="font-semibold">Supporto incluso</span>
                 </div>
               </div>
             </div>
 
-            {/* Right: Screenshot/Demo */}
-            <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-8 border-white">
-                <Image
-                  src="/magnaroma.png"
-                  alt="Demo Menu Digitale"
-                  width={600}
-                  height={800}
-                  className="w-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              </div>
-              {/* Badge decorativo */}
-              <div className="absolute -bottom-6 -right-6 bg-gold text-white px-6 py-3 rounded-full shadow-xl font-bold">
-                📱 Mobile First
+            {/* Right: Visual */}
+            <div className="relative lg:block">
+              <div className="relative">
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-3xl opacity-30 animate-pulse" />
+                <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
+
+                {/* Phone Mockup */}
+                <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-[14px] border-gray-900 bg-black max-w-sm mx-auto transform hover:scale-105 transition-transform duration-500">
+                  <div style={{ padding: '177.78% 0 0 0', position: 'relative' }}>
+                    <iframe
+                      src="https://player.vimeo.com/video/1142638324?background=1&autoplay=1&loop=1&muted=1&autopause=0"
+                      frameBorder="0"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                      title="Menu Demo Video"
+                    />
+                  </div>
+                </div>
+
+                {/* Floating Badges */}
+                <div className="absolute -left-8 top-20 bg-white rounded-2xl shadow-2xl p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '3s' }}>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-orange-600">QR</div>
+                    <div className="text-xs text-gray-600 font-semibold">Incluso</div>
+                  </div>
+                </div>
+
+                <div className="absolute -right-8 bottom-32 bg-white rounded-2xl shadow-2xl p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🌍</span>
+                    <div>
+                      <div className="text-xs font-bold text-gray-900">Multi</div>
+                      <div className="text-xs text-gray-600">lingua</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Problemi che risolvi */}
-      <section className="bg-white py-16 md:py-24">
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-orange-600 to-amber-600">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            <StatCard number="50+" label="Piatti inclusi" />
+            <StatCard number="10+" label="Categorie" />
+            <StatCard number="5min" label="Setup rapido" />
+            <StatCard number="100%" label="Mobile ready" />
+          </div>
+        </div>
+      </section>
+
+      {/* Problems Section */}
+      <section className="py-20 md:py-32 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Basta con i problemi dei menu tradizionali
+            <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+              IL PROBLEMA
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6">
+              Menu cartacei? <span className="text-red-600">No grazie!</span>
             </h2>
             <p className="text-xl text-gray-600">
-              I menu cartacei sono costosi, difficili da aggiornare e poco igienici
+              Costosi, lenti da aggiornare e poco igienici. È ora di cambiare.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Problema 1 */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">💸</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Costi di stampa elevati
-              </h3>
-              <p className="text-gray-600">
-                Ristampare i menu ogni volta che cambiano prezzi o piatti costa centinaia di euro all'anno
-              </p>
-            </div>
-
-            {/* Problema 2 */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">⏰</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Aggiornamenti lenti
-              </h3>
-              <p className="text-gray-600">
-                Modificare prezzi o piatti richiede settimane tra grafica, stampa e sostituzione
-              </p>
-            </div>
-
-            {/* Problema 3 */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">🦠</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Igiene e usura
-              </h3>
-              <p className="text-gray-600">
-                Menu cartacei si sporcano, si rovinano e vanno sostituiti continuamente
-              </p>
-            </div>
+            <ProblemCard
+              icon="💸"
+              title="Costi folli"
+              description="Centinaia di euro spesi ogni anno in stampe e ristampe"
+              color="red"
+            />
+            <ProblemCard
+              icon="🐌"
+              title="Lentezza"
+              description="Settimane per aggiornare prezzi tra grafica e stampa"
+              color="yellow"
+            />
+            <ProblemCard
+              icon="🦠"
+              title="Igiene zero"
+              description="Menu che si sporcano e si rovinano continuamente"
+              color="purple"
+            />
           </div>
         </div>
       </section>
 
-      {/* Soluzione */}
-      <section className="py-16 md:py-24">
+      {/* Solution Section */}
+      <section className="py-20 md:py-32 bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              La soluzione? Menu digitali accessibili via QR code
+            <span className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+              LA SOLUZIONE
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6">
+              Menu digitali <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">via QR code</span>
             </h2>
             <p className="text-xl text-gray-600">
-              I tuoi clienti scansionano il codice QR sul tavolo e visualizzano il menu sul loro smartphone
+              I tuoi clienti scansionano, vedono il menu aggiornato in tempo reale. Semplice.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Beneficio 1 */}
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">⚡</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Aggiornamenti istantanei
-              </h3>
-              <p className="text-gray-600">
-                Modifica prezzi e piatti in tempo reale dalla dashboard. I clienti vedono subito le novità.
-              </p>
-            </div>
-
-            {/* Beneficio 2 */}
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">💰</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Zero costi di stampa
-              </h3>
-              <p className="text-gray-600">
-                Niente più ristampe, grafici o attese. Tutto online, sempre aggiornato.
-              </p>
-            </div>
-
-            {/* Beneficio 3 */}
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">🌍</span>
-              </div>
-              <h3 className="font-bold text-lg text-gray-900 mb-2">
-                Multilingua automatico
-              </h3>
-              <p className="text-gray-600">
-                Italiano, Inglese e altre lingue disponibili con un click. Perfetto per turisti.
-              </p>
-            </div>
+            <SolutionCard
+              icon="⚡"
+              title="Update istantaneo"
+              description="Modifica prezzi in tempo reale. I clienti vedono subito tutto."
+            />
+            <SolutionCard
+              icon="💰"
+              title="Zero stampa"
+              description="Mai più costi di ristampa. Tutto online, sempre aggiornato."
+            />
+            <SolutionCard
+              icon="🌍"
+              title="Multilingua"
+              description="IT, EN e altre lingue con un click. Perfetto per turisti."
+            />
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="bg-gray-50 py-16 md:py-24">
+      {/* Features Grid */}
+      <section className="py-20 md:py-32 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Tutto ciò che serve per il tuo menu perfetto
+            <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6">
+              Tutto quello che ti serve
             </h2>
+            <p className="text-xl text-gray-600">
+              Funzionalità professionali, interfaccia semplicissima
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <FeatureCard icon="📱" title="Mobile First" description="Ottimizzato per smartphone" />
-            <FeatureCard icon="🖼️" title="Foto dei piatti" description="Carica immagini per ogni piatto" />
-            <FeatureCard icon="🔄" title="Aggiornamenti live" description="Modifiche in tempo reale" />
-            <FeatureCard icon="🌐" title="Multilingua" description="IT, EN e altre lingue" />
-            <FeatureCard icon="🥜" title="Gestione allergeni" description="Conforme normativa EU" />
-            <FeatureCard icon="🎨" title="Branding custom" description="Logo e colori personalizzati" />
-            <FeatureCard icon="📊" title="Categorie illimitate" description="Organizza come vuoi" />
-            <FeatureCard icon="⚡" title="QR Code incluso" description="Stampa e metti sui tavoli" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <FeatureCard icon="📱" title="Mobile First" />
+            <FeatureCard icon="🖼️" title="Foto HD" />
+            <FeatureCard icon="🔄" title="Sync Live" />
+            <FeatureCard icon="🌐" title="Multilingua" />
+            <FeatureCard icon="🥜" title="Allergeni EU" />
+            <FeatureCard icon="🎨" title="Brand Custom" />
+            <FeatureCard icon="📊" title="Illimitato" />
+            <FeatureCard icon="⚡" title="QR Code" />
           </div>
         </div>
       </section>
 
       {/* CTA Final */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-gradient-to-r from-roma-red to-red-700 rounded-2xl p-12 text-center text-white shadow-2xl">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Pronto a digitalizzare il tuo menu?
+      <section className="py-20 md:py-32 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700" />
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <h2 className="font-display text-4xl md:text-6xl font-black mb-6">
+              Pronto a decollare? 🚀
             </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Registrati gratis e crea il tuo primo menu in 5 minuti
+            <p className="text-xl md:text-2xl mb-4 opacity-90 font-medium">
+              Unisciti ai ristoratori che hanno già detto addio ai menu cartacei
             </p>
+            <div className="mb-10 text-3xl md:text-4xl font-black">
+              Solo <span className="text-5xl md:text-6xl">€19.90</span>/mese
+            </div>
             <Link
               href="/register"
-              className="inline-block bg-white hover:bg-gray-100 text-roma-red px-10 py-4 rounded-lg font-bold text-lg transition-all shadow-lg"
+              className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 text-orange-600 px-12 py-6 rounded-2xl font-black text-xl transition-all shadow-2xl hover:scale-105"
             >
-              Inizia Gratis →
+              <span>Inizia Ora</span>
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
-            <p className="mt-4 text-sm opacity-75">
-              Nessuna carta di credito richiesta • Piano gratuito per sempre
+            <p className="mt-6 text-white/80 text-sm font-semibold">
+              ✓ Tutti i vantaggi inclusi · ✓ Setup in 5 minuti · ✓ Cancella quando vuoi
             </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-roma-red rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">M</span>
-                </div>
-                <span className="font-display text-xl font-bold">MenuBuilder</span>
-              </div>
-              <p className="text-gray-400">
-                Menu digitali per ristoranti moderni
+          <div className="grid md:grid-cols-4 gap-12 max-w-6xl mx-auto">
+            <div className="md:col-span-2">
+              <Image
+                src="/logo-gofood.png"
+                alt="GO! FOOD"
+                width={120}
+                height={50}
+                className="h-10 w-auto mb-4 brightness-0 invert"
+              />
+              <p className="text-gray-400 mb-6 max-w-md">
+                La piattaforma più semplice per creare menu digitali professionali. Usata da centinaia di ristoranti in tutta Italia.
               </p>
+              <div className="flex gap-4">
+                <a href="#" className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-600 flex items-center justify-center transition-colors">
+                  <span className="sr-only">Facebook</span>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-600 flex items-center justify-center transition-colors">
+                  <span className="sr-only">Instagram</span>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+              </div>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Prodotto</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/magna-roma" className="hover:text-white">Demo</Link></li>
-                <li><Link href="/register" className="hover:text-white">Registrati</Link></li>
-                <li><Link href="/login" className="hover:text-white">Accedi</Link></li>
+              <h4 className="font-bold text-lg mb-4 text-orange-400">Prodotto</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/magna-roma" className="hover:text-orange-400 transition-colors">Demo</Link></li>
+                <li><Link href="/register" className="hover:text-orange-400 transition-colors">Registrati</Link></li>
+                <li><Link href="/login" className="hover:text-orange-400 transition-colors">Accedi</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Supporto</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="mailto:info@menubuilder.it" className="hover:text-white">Email</a></li>
-                <li>© 2025 MenuBuilder</li>
+              <h4 className="font-bold text-lg mb-4 text-orange-400">Supporto</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><a href="mailto:info@gofood.it" className="hover:text-orange-400 transition-colors">Email</a></li>
+                <li><span>© 2025 GO! FOOD</span></li>
               </ul>
             </div>
           </div>
@@ -304,12 +368,47 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+// Componenti helper
+function StatCard({ number, label }: { number: string; label: string }) {
   return (
-    <div className="bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow">
+    <div className="text-center text-white">
+      <div className="text-4xl md:text-5xl font-black mb-2">{number}</div>
+      <div className="text-sm md:text-base font-semibold opacity-90">{label}</div>
+    </div>
+  );
+}
+
+function ProblemCard({ icon, title, description, color }: { icon: string; title: string; description: string; color: string }) {
+  const colors = {
+    red: 'bg-red-50 border-red-200 hover:border-red-300',
+    yellow: 'bg-yellow-50 border-yellow-200 hover:border-yellow-300',
+    purple: 'bg-purple-50 border-purple-200 hover:border-purple-300'
+  };
+
+  return (
+    <div className={`${colors[color as keyof typeof colors]} border-2 rounded-2xl p-8 hover:shadow-xl transition-all`}>
+      <div className="text-5xl mb-4">{icon}</div>
+      <h3 className="font-black text-xl text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function SolutionCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+  return (
+    <div className="bg-white border-2 border-orange-200 hover:border-orange-400 rounded-2xl p-8 hover:shadow-2xl transition-all group">
+      <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{icon}</div>
+      <h3 className="font-black text-xl text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title }: { icon: string; title: string }) {
+  return (
+    <div className="bg-gradient-to-br from-white to-orange-50 border-2 border-orange-100 hover:border-orange-300 rounded-xl p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1">
       <div className="text-4xl mb-3">{icon}</div>
-      <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
+      <h3 className="font-bold text-gray-900">{title}</h3>
     </div>
   );
 }
