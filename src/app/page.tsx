@@ -139,16 +139,28 @@ export default function LandingPage() {
                 <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
 
                 {/* Phone Mockup */}
-                <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-[14px] border-gray-900 bg-black max-w-sm mx-auto transform hover:scale-105 transition-transform duration-500">
-                  <div style={{ padding: '177.78% 0 0 0', position: 'relative' }}>
-                    <iframe
-                      src="https://player.vimeo.com/video/1142638324?background=1&autoplay=1&loop=1&muted=1&autopause=0"
-                      frameBorder="0"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                      title="Menu Demo Video"
-                    />
+                {/* Phone Mockup */}
+                <div className="relative z-10 mx-auto max-w-[300px] transform hover:scale-105 transition-transform duration-500">
+                  {/* Phone Frame */}
+                  <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-gray-900 bg-black">
+                    {/* Notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-7 w-32 bg-black rounded-b-2xl z-20"></div>
+
+                    {/* Screen Content */}
+                    <div className="relative bg-white w-full aspect-[1206/2374]">
+                      <iframe
+                        src="https://player.vimeo.com/video/1143247555?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1"
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                        title="ScreenRecording_12-03-2025 00-12-13_1 2"
+                      />
+                    </div>
                   </div>
+
+                  {/* Reflection/Glare */}
+                  <div className="absolute inset-0 rounded-[3rem] pointer-events-none ring-1 ring-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]"></div>
                 </div>
 
                 {/* Floating Badges */}
