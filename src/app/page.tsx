@@ -89,14 +89,15 @@ export default function LandingPage() {
                   <span className="text-sm font-semibold opacity-90">Solo €19.90/mese</span>
                 </Link>
                 <Link
-                  href="/magna-roma"
+                  href="https://magnaroma-table-menu.vercel.app/"
+                  target="_blank"
                   className="bg-white hover:bg-orange-50 text-orange-600 border-2 border-orange-300 hover:border-orange-400 px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
-                  <span>Vedi Demo</span>
+                  <span>Vedi esempio</span>
                 </Link>
               </div>
 
@@ -200,27 +201,30 @@ export default function LandingPage() {
           <p className="text-center text-gray-500 font-semibold uppercase tracking-wider mb-8 text-sm">
             Scelto dai migliori ristoranti
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Placeholder Logos */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
-              <span className="font-display font-bold text-xl text-gray-800">Ristorante Roma</span>
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-80 hover:opacity-100 transition-all duration-500">
+            {/* Real Logos */}
+            <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
+              <div className="relative w-16 h-16">
+                <Image
+                  src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/magnaroma-logo1.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL21hZ25hcm9tYS1sb2dvMS5wbmciLCJpYXQiOjE3NjQ3OTQ1MDIsImV4cCI6MjA4MDE1NDUwMn0.iqkxWbz2bd8AoHLmk4RhxhTqMw4Wn_mjk99YlkEzAjM"
+                  alt="Magna Roma"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-display font-bold text-xl text-gray-800">Magna Roma</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
-              <span className="font-display font-bold text-xl text-gray-800">La Pizzeria</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
-              <span className="font-display font-bold text-xl text-gray-800">Sushi Bar</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
-              <span className="font-display font-bold text-xl text-gray-800">Burger King</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gray-800"></div>
-              <span className="font-display font-bold text-xl text-gray-800">Bistro 54</span>
+
+            <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
+              <div className="relative w-16 h-16">
+                <Image
+                  src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/Logo.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL0xvZ28ud2VicCIsImlhdCI6MTc2NDc5NDU2MiwiZXhwIjoyMDgwMTU0NTYyfQ.ICJ0ZxUymkIqxBO98p6a3_AmV71lueVdOTP2w8EOhos"
+                  alt="Go Food Partner"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-display font-bold text-xl text-gray-800">Go Food Partner</span>
             </div>
           </div>
         </div>
