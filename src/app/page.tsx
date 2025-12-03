@@ -16,11 +16,11 @@ export default function LandingPage() {
             {/* Logo */}
             <div className="flex items-center gap-4">
               <Image
-                src="/logo-gofood.png"
+                src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/gofood-logoHD.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL2dvZm9vZC1sb2dvSEQuc3ZnIiwiaWF0IjoxNzY0Nzk5OTg0LCJleHAiOjIwODAxNTk5ODR9.u0xvBk9SohQ53303twe_gKZ87_Bj2ga3dD1HauBaevk"
                 alt="GO! FOOD"
-                width={120}
-                height={50}
-                className="h-12 w-auto"
+                width={150}
+                height={60}
+                className="h-14 w-auto"
               />
               <div className="hidden md:block h-8 w-px bg-orange-200" />
               <span className="hidden md:block font-bold text-gray-700 text-lg">
@@ -204,7 +204,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-80 hover:opacity-100 transition-all duration-500">
             {/* Real Logos */}
             <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
-              <div className="relative w-16 h-16">
+              <div className="relative w-32 h-32">
                 <Image
                   src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/magnaroma-logo1.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL21hZ25hcm9tYS1sb2dvMS5wbmciLCJpYXQiOjE3NjQ3OTQ1MDIsImV4cCI6MjA4MDE1NDUwMn0.iqkxWbz2bd8AoHLmk4RhxhTqMw4Wn_mjk99YlkEzAjM"
                   alt="Magna Roma"
@@ -212,11 +212,11 @@ export default function LandingPage() {
                   className="object-contain"
                 />
               </div>
-              <span className="font-display font-bold text-xl text-gray-800">Magna Roma</span>
+              <span className="font-display font-bold text-2xl text-gray-800">Magna Roma</span>
             </div>
 
             <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
-              <div className="relative w-16 h-16">
+              <div className="relative w-32 h-32">
                 <Image
                   src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/Logo.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL0xvZ28ud2VicCIsImlhdCI6MTc2NDc5NDU2MiwiZXhwIjoyMDgwMTU0NTYyfQ.ICJ0ZxUymkIqxBO98p6a3_AmV71lueVdOTP2w8EOhos"
                   alt="Go Food Partner"
@@ -224,7 +224,7 @@ export default function LandingPage() {
                   className="object-contain"
                 />
               </div>
-              <span className="font-display font-bold text-xl text-gray-800">Go Food Partner</span>
+              <span className="font-display font-bold text-2xl text-gray-800">Go Food Partner</span>
             </div>
           </div>
         </div>
@@ -367,11 +367,11 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12 max-w-6xl mx-auto">
             <div className="md:col-span-2">
               <Image
-                src="/logo-gofood.png"
+                src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/gofood-logoHD.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL2dvZm9vZC1sb2dvSEQuc3ZnIiwiaWF0IjoxNzY0Nzk5OTg0LCJleHAiOjIwODAxNTk5ODR9.u0xvBk9SohQ53303twe_gKZ87_Bj2ga3dD1HauBaevk"
                 alt="GO! FOOD"
-                width={120}
-                height={50}
-                className="h-10 w-auto mb-4 brightness-0 invert"
+                width={150}
+                height={60}
+                className="h-12 w-auto mb-4 brightness-0 invert"
               />
               <p className="text-gray-400 mb-6 max-w-md">
                 La piattaforma più semplice per creare menu digitali professionali. Usata da centinaia di ristoranti in tutta Italia.
