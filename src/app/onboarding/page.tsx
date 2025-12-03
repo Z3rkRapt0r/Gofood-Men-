@@ -16,7 +16,7 @@ type SubscriptionTier = 'free' | 'basic' | 'premium';
 export default function OnboardingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [tenant, setTenant] = useState<Tenant | null>(null);
 
   const [formData, setFormData] = useState({
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
           address: tenantData.address || '',
           city: tenantData.city || ''
         });
-        setCurrentStep(tenantData.onboarding_step || 2);
+        setCurrentStep(tenantData.onboarding_step || 1);
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -186,7 +186,7 @@ export default function OnboardingPage() {
   }
 
   function handleBack() {
-    if (currentStep > 2) {
+    if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   }
@@ -234,6 +234,14 @@ export default function OnboardingPage() {
       <div className="container mx-auto px-4 pb-16">
         <div className="max-w-4xl mx-auto">
 
+
+          {currentStep === 1 && (
+            <PlanSelector
+              selectedPlan={formData.subscription_tier}
+              onSelectPlan={(tier) => setFormData({ ...formData, subscription_tier: tier })}
+              onNext={handleNext}
+            />
+          )}
 
           {currentStep === 2 && (
             <BrandingCustomizer
