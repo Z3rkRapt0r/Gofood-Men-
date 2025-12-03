@@ -266,47 +266,68 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
             </div>
 
             {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
+            {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
             {showCustomPickers && (
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-2">
-                <div>
-                  <label htmlFor="primary_color" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                    Primario
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 animate-in fade-in slide-in-from-top-2">
+                <div className="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 text-center">
+                  Colori Personalizzati
+                </div>
+
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <label htmlFor="primary_color" className="block text-xs font-bold text-gray-700 mb-2">
+                    PRIMARIO
                   </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      id="primary_color"
-                      value={formData.primary_color}
-                      onChange={(e) => onUpdate({ primary_color: e.target.value })}
-                      className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0 shadow-sm"
-                    />
-                    <input
-                      type="text"
-                      value={formData.primary_color}
-                      onChange={(e) => onUpdate({ primary_color: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-12 h-12 flex-shrink-0">
+                      <input
+                        type="color"
+                        id="primary_color"
+                        value={formData.primary_color}
+                        onChange={(e) => onUpdate({ primary_color: e.target.value })}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div
+                        className="w-full h-full rounded-lg border-2 border-gray-200 shadow-inner"
+                        style={{ backgroundColor: formData.primary_color }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={formData.primary_color}
+                        onChange={(e) => onUpdate({ primary_color: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-mono uppercase focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="secondary_color" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                    Secondario
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <label htmlFor="secondary_color" className="block text-xs font-bold text-gray-700 mb-2">
+                    SECONDARIO
                   </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      id="secondary_color"
-                      value={formData.secondary_color}
-                      onChange={(e) => onUpdate({ secondary_color: e.target.value })}
-                      className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0 shadow-sm"
-                    />
-                    <input
-                      type="text"
-                      value={formData.secondary_color}
-                      onChange={(e) => onUpdate({ secondary_color: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-12 h-12 flex-shrink-0">
+                      <input
+                        type="color"
+                        id="secondary_color"
+                        value={formData.secondary_color}
+                        onChange={(e) => onUpdate({ secondary_color: e.target.value })}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div
+                        className="w-full h-full rounded-lg border-2 border-gray-200 shadow-inner"
+                        style={{ backgroundColor: formData.secondary_color }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="text"
+                        value={formData.secondary_color}
+                        onChange={(e) => onUpdate({ secondary_color: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-mono uppercase focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
