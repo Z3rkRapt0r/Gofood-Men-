@@ -11,6 +11,7 @@ export default function SettingsPage() {
 
   const [formData, setFormData] = useState({
     restaurantName: '',
+    tagline: '',
     slug: '',
     contactEmail: '',
     phone: '',
@@ -52,6 +53,7 @@ export default function SettingsPage() {
       const tenantData = tenant as {
         id: string;
         restaurant_name: string;
+        tagline: string | null;
         slug: string;
         contact_email: string | null;
         phone: string | null;
@@ -70,6 +72,7 @@ export default function SettingsPage() {
       setTenantId(tenantData.id);
       setFormData({
         restaurantName: tenantData.restaurant_name || '',
+        tagline: tenantData.tagline || '',
         slug: tenantData.slug || '',
         contactEmail: tenantData.contact_email || '',
         phone: tenantData.phone || '',
@@ -108,6 +111,7 @@ export default function SettingsPage() {
         // @ts-ignore - Supabase client type inference issue with generated Database types
         .update({
           restaurant_name: formData.restaurantName,
+          tagline: formData.tagline,
           slug: formData.slug,
           contact_email: formData.contactEmail,
           phone: formData.phone,
@@ -178,6 +182,19 @@ export default function SettingsPage() {
 
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">
+                Slogan (sotto il nome)
+              </label>
+              <input
+                type="text"
+                value={formData.tagline}
+                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                placeholder="Autentica cucina romana..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 Slug (URL) *
               </label>
               <div className="flex items-center gap-2">
@@ -187,8 +204,9 @@ export default function SettingsPage() {
                   required
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed font-mono"
                   placeholder="il-mio-ristorante"
+                  disabled
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
@@ -466,6 +484,53 @@ export default function SettingsPage() {
                 Mostra colonna Brand (Logo e descrizione)
               </label>
             </div>
+
+            {/* Brand Description */}
+            {formData.footerData.show_brand_column && (
+              <div className="grid md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="md:col-span-2">
+                  <h3 className="text-sm font-bold text-gray-900 mb-2">Descrizione Brand</h3>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Italiano</label>
+                  <textarea
+                    value={formData.footerData.brand_description?.it || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      footerData: {
+                        ...formData.footerData,
+                        brand_description: {
+                          ...formData.footerData.brand_description,
+                          it: e.target.value,
+                          en: formData.footerData.brand_description?.en || ''
+                        }
+                      }
+                    })}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Scopri i nostri piatti..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Inglese</label>
+                  <textarea
+                    value={formData.footerData.brand_description?.en || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      footerData: {
+                        ...formData.footerData,
+                        brand_description: {
+                          ...formData.footerData.brand_description,
+                          en: e.target.value,
+                          it: formData.footerData.brand_description?.it || ''
+                        }
+                      }
+                    })}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-20 resize-none"
+                    placeholder="Discover our dishes..."
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Locations */}
             <div>

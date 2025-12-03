@@ -86,6 +86,9 @@ async function main() {
     '001_schema.sql',
     '002_seed.sql',
     '003_policies.sql',
+    '004_auto_create_profile.sql',
+    '005_add_tagline.sql',
+    '006_storage_policies.sql',
   ];
 
   let success = 0;

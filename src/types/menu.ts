@@ -97,6 +97,7 @@ export interface FooterData {
   links: FooterLink[];
   socials: FooterSocial[];
   show_brand_column: boolean; // Toggle for the first column
+  brand_description?: Translation; // Custom description for the brand column
 }
 
 export interface Tenant {
@@ -105,6 +106,7 @@ export interface Tenant {
 
   // Business info
   restaurant_name: string;
+  tagline?: string; // Short description under the name
   slug: string; // URL-friendly: /magna-roma
 
   // Contact

@@ -18,6 +18,7 @@ interface Tenant {
   secondary_text_color?: string;
   footer_data?: FooterData;
   slug: string;
+  tagline?: string;
 }
 
 interface Dish {
@@ -80,7 +81,7 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
             {tenant.restaurant_name}
           </h1>
           <p className="text-lg sm:text-xl max-w-2xl mx-auto">
-            Autentica cucina romana nel cuore della città
+            {tenant.tagline || 'Autentica cucina romana nel cuore della città'}
           </p>
         </div>
       </section>

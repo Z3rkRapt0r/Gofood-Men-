@@ -45,6 +45,7 @@ export default function DishesPage() {
     isVegetarian: false,
     isVegan: false,
     isGlutenFree: false,
+    image: null as File | null,
   });
 
   useEffect(() => {
@@ -102,6 +103,28 @@ export default function DishesPage() {
       .replace(/^-+|-+$/g, '');
   }
 
+  async function uploadImage(file: File, slug: string): Promise<string> {
+    const supabase = createClient();
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    // Path structure: [slug]/immagini piatti/[filename]
+    const filePath = `${slug}/immagini piatti/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('dishes')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('dishes')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -113,12 +136,29 @@ export default function DishesPage() {
     try {
       const supabase = createClient();
 
+      // Get tenant slug for folder path
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('slug')
+        .eq('id', tenantId)
+        .single();
+
+      if (!tenant) throw new Error('Tenant not found');
+
+      const tenantData = tenant as { slug: string };
+      let imageUrl = editingDish?.image_url;
+
+      if (formData.image) {
+        imageUrl = await uploadImage(formData.image, tenantData.slug);
+      }
+
       const dishData = {
         tenant_id: tenantId,
         category_id: formData.categoryId,
         name: { it: formData.nameIt, en: formData.nameEn },
         description: { it: formData.descriptionIt, en: formData.descriptionEn },
         price: parseFloat(formData.price),
+        image_url: imageUrl,
         slug: formData.slug || generateSlug(formData.nameIt),
         is_visible: formData.isVisible,
         is_seasonal: formData.isSeasonal,
@@ -190,6 +230,7 @@ export default function DishesPage() {
       isVegetarian: dish.is_vegetarian,
       isVegan: dish.is_vegan,
       isGlutenFree: dish.is_gluten_free,
+      image: null,
     });
     setShowForm(true);
   }
@@ -208,6 +249,7 @@ export default function DishesPage() {
       isVegetarian: false,
       isVegan: false,
       isGlutenFree: false,
+      image: null,
     });
     setShowForm(false);
     setEditingDish(null);
@@ -275,11 +317,10 @@ export default function DishesPage() {
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${
-            selectedCategory === 'all'
-              ? 'bg-orange-500 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
+          className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${selectedCategory === 'all'
+            ? 'bg-orange-500 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
         >
           Tutte ({dishes.length})
         </button>
@@ -287,11 +328,10 @@ export default function DishesPage() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${
-              selectedCategory === cat.id
-                ? 'bg-orange-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${selectedCategory === cat.id
+              ? 'bg-orange-500 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             {cat.name.it} ({dishes.filter(d => d.category_id === cat.id).length})
           </button>
@@ -416,6 +456,33 @@ export default function DishesPage() {
                 />
               </div>
 
+              {/* Immagine */}
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-2">
+                  Immagine Piatto
+                </label>
+                <div className="flex items-center gap-4">
+                  {editingDish?.image_url && !formData.image && (
+                    <img
+                      src={editingDish.image_url}
+                      alt="Current"
+                      className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                    />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormData({ ...formData, image: file });
+                      }
+                    }}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                  />
+                </div>
+              </div>
+
               {/* Flags */}
               <div className="space-y-3">
                 <label className="block text-sm font-bold text-gray-900">
@@ -522,36 +589,47 @@ export default function DishesPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {dish.name.it}
-                      </h3>
-                      {!dish.is_visible && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
-                          NASCOSTO
-                        </span>
+                    <div className="flex items-center gap-4 mb-2">
+                      {dish.image_url && (
+                        <img
+                          src={dish.image_url}
+                          alt={dish.name.it}
+                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        />
                       )}
-                      {dish.is_seasonal && (
-                        <span className="text-lg" title="Stagionale">🍂</span>
-                      )}
-                      {dish.is_vegetarian && (
-                        <span className="text-lg" title="Vegetariano">🥬</span>
-                      )}
-                      {dish.is_vegan && (
-                        <span className="text-lg" title="Vegano">🌱</span>
-                      )}
-                      {dish.is_gluten_free && (
-                        <span className="text-lg" title="Senza Glutine">🌾</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {dish.description.it}
-                    </p>
-                    <div className="flex items-center gap-3 text-sm">
-                      <span className="font-bold text-orange-600">€{dish.price.toFixed(2)}</span>
-                      {category && (
-                        <span className="text-gray-500">• {category.name.it}</span>
-                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {dish.name.it}
+                          </h3>
+                          {!dish.is_visible && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
+                              NASCOSTO
+                            </span>
+                          )}
+                          {dish.is_seasonal && (
+                            <span className="text-lg" title="Stagionale">🍂</span>
+                          )}
+                          {dish.is_vegetarian && (
+                            <span className="text-lg" title="Vegetariano">🥬</span>
+                          )}
+                          {dish.is_vegan && (
+                            <span className="text-lg" title="Vegano">🌱</span>
+                          )}
+                          {dish.is_gluten_free && (
+                            <span className="text-lg" title="Senza Glutine">🌾</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {dish.description.it}
+                        </p>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="font-bold text-orange-600">€{dish.price.toFixed(2)}</span>
+                          {category && (
+                            <span className="text-gray-500">• {category.name.it}</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
 

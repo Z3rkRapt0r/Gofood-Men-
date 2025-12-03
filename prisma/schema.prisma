@@ -525,6 +525,7 @@ model tenants {
   surface_color        String?          @default("#FFFFFF")
   text_color           String?          @default("#171717")
   secondary_text_color String?          @default("#4B5563")
+  tagline              String?
   footer_data          Json?            // JSONB for flexible footer config
   default_language     String           @default("it")
   supported_languages  String[]         @default(["it", "en"])

@@ -48,9 +48,9 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
                   : 'Your Digital Menu'}
               </p>
               <p className="text-sm text-[var(--tenant-text,#171717)] leading-relaxed mb-4">
-                {language === 'it'
+                {footerData?.brand_description?.[language as 'it' | 'en'] || footerData?.brand_description?.it || (language === 'it'
                   ? 'Scopri i nostri piatti e le nostre specialità.'
-                  : 'Discover our dishes and specialties.'}
+                  : 'Discover our dishes and specialties.')}
               </p>
             </div>
           )}
