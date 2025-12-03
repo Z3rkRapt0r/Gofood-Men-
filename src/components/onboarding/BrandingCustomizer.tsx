@@ -20,6 +20,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
   const [slugError, setSlugError] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [showCustomPickers, setShowCustomPickers] = useState(false);
+  const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
 
   // Genera slug da nome ristorante
   function generateSlug(name: string): string {
@@ -29,30 +30,6 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-  }
-
-  // Verifica unicità slug
-  async function checkSlugAvailability(slug: string) {
-    if (!slug || slug.length < 3) {
-      setSlugError('Lo slug deve essere di almeno 3 caratteri');
-      return false;
-    }
-
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('tenants')
-      .select('slug')
-      .eq('slug', slug)
-      .neq('slug', formData.slug) // Esclude lo slug attuale
-      .single();
-
-    if (data) {
-      setSlugError('Questo slug è già in uso. Prova con un altro.');
-      return false;
-    }
-
-    setSlugError('');
-    return true;
   }
 
   // Upload logo (placeholder - da implementare con Supabase Storage)
@@ -89,11 +66,51 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
     }
   }
 
-  async function handleNext() {
-    // Verifica slug prima di procedere
-    const isSlugValid = await checkSlugAvailability(formData.slug);
-    if (!isSlugValid) return;
+  // Genera slug unico verificando nel DB
+  async function generateUniqueSlug(name: string) {
+    if (!name) return;
+    setIsGeneratingSlug(true);
+    setSlugError('');
 
+    const baseSlug = generateSlug(name);
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+
+    const supabase = createClient();
+
+    try {
+      while (true) {
+        // Controlla se lo slug esiste
+        const { data } = await supabase
+          .from('tenants')
+          .select('slug')
+          .eq('slug', uniqueSlug)
+          .neq('slug', formData.slug) // Esclude se stesso (utile in caso di update futuri)
+          .maybeSingle(); // Usa maybeSingle per evitare errori se non trova nulla
+
+        if (!data) {
+          // Slug disponibile!
+          break;
+        }
+
+        // Slug occupato, prova con suffisso
+        uniqueSlug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
+      onUpdate({ slug: uniqueSlug });
+    } catch (error) {
+      console.error('Error generating slug:', error);
+      setSlugError('Errore nella generazione dello slug');
+    } finally {
+      setIsGeneratingSlug(false);
+    }
+  }
+
+  async function handleNext() {
+    if (!formData.slug) {
+      await generateUniqueSlug(formData.restaurant_name);
+    }
     onNext();
   }
 
@@ -121,13 +138,8 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
               id="restaurant_name"
               required
               value={formData.restaurant_name}
-              onChange={(e) => {
-                onUpdate({ restaurant_name: e.target.value });
-                // Auto-genera slug se non modificato manualmente
-                if (!formData.slug || formData.slug === generateSlug(formData.restaurant_name)) {
-                  onUpdate({ slug: generateSlug(e.target.value) });
-                }
-              }}
+              onChange={(e) => onUpdate({ restaurant_name: e.target.value })}
+              onBlur={(e) => generateUniqueSlug(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
               placeholder="Es. Trattoria da Mario"
             />
@@ -136,25 +148,29 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
           {/* Slug */}
           <div>
             <label htmlFor="slug" className="block text-sm font-semibold text-gray-700 mb-2">
-              URL Menu (slug) *
+              URL Menu (Generato automaticamente)
             </label>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-gray-500">menubuilder.com/</span>
-              <input
-                type="text"
-                id="slug"
-                required
-                value={formData.slug}
-                onChange={(e) => onUpdate({ slug: e.target.value.toLowerCase() })}
-                onBlur={(e) => checkSlugAvailability(e.target.value)}
-                className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${slugError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="trattoria-mario"
-              />
+              <span className="text-sm text-gray-500">gofoodmenu.it/</span>
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  id="slug"
+                  readOnly
+                  value={formData.slug}
+                  className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
+                  placeholder="Generazione automatica..."
+                />
+                {isGeneratingSlug && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent"></div>
+                  </div>
+                )}
+              </div>
             </div>
             {slugError && <p className="text-sm text-red-600">{slugError}</p>}
-            {!slugError && formData.slug && (
-              <p className="text-sm text-green-600">✓ Slug disponibile</p>
+            {!slugError && formData.slug && !isGeneratingSlug && (
+              <p className="text-sm text-green-600">✓ URL disponibile e riservato per te</p>
             )}
           </div>
 
@@ -397,7 +413,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
 
             <p className="text-xs text-gray-500 text-center mt-3">
               Il tuo menu sarà disponibile su:<br />
-              <span className="font-mono font-semibold">menubuilder.com/{formData.slug || 'tuo-slug'}</span>
+              <span className="font-mono font-semibold">gofoodmenu.it/{formData.slug || 'tuo-slug'}</span>
             </p>
           </div>
         </div>
