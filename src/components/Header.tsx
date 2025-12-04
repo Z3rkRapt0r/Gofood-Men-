@@ -14,7 +14,6 @@ export default function Header({
   restaurantName = 'Menu Digitale',
   logoUrl = '/icon.svg'
 }: HeaderProps) {
-  const { language } = useTranslation();
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
   return (

@@ -293,7 +293,7 @@ export default function SettingsPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l'assistenza
+                Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l&apos;assistenza
               </p>
             </div>
           </div>

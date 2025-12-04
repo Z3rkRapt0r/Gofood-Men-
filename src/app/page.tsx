@@ -428,15 +428,7 @@ export default function LandingPage() {
   );
 }
 
-// Componenti helper
-function StatCard({ number, label }: { number: string; label: string }) {
-  return (
-    <div className="text-center text-white">
-      <div className="text-4xl md:text-5xl font-black mb-2">{number}</div>
-      <div className="text-sm md:text-base font-semibold opacity-90">{label}</div>
-    </div>
-  );
-}
+
 
 function ProblemCard({ icon, title, description, color }: { icon: string; title: string; description: string; color: string }) {
   const colors = {

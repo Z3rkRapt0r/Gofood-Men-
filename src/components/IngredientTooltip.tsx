@@ -61,22 +61,22 @@ export default function IngredientTooltip({ term, info }: IngredientTooltipProps
 
   const handleClick = () => {
     if (!spanRef.current) return;
-    
+
     const rect = spanRef.current.getBoundingClientRect();
     const tooltipWidth = 224; // 56 * 4 = 224px (w-56 in tailwind)
     const margin = 16; // Margine di sicurezza dai bordi
-    
+
     // Posizione centrale ideale del tooltip
     const idealLeft = rect.left + rect.width / 2 + window.scrollX;
-    
+
     // Calcola i limiti dello schermo
     const minLeft = margin;
-    const maxLeft = window.innerWidth - tooltipWidth - margin;
-    
+
+
     // Aggiusta la posizione se esce dai bordi
     let finalLeft = idealLeft;
     let arrowPos = 50; // Posizione della freccia in percentuale (default: centro)
-    
+
     if (idealLeft - tooltipWidth / 2 < minLeft) {
       // Tooltip esce a sinistra
       finalLeft = tooltipWidth / 2 + margin;
@@ -88,10 +88,10 @@ export default function IngredientTooltip({ term, info }: IngredientTooltipProps
       // Calcola dove deve puntare la freccia
       arrowPos = ((idealLeft - (window.innerWidth - tooltipWidth - margin)) / tooltipWidth) * 100;
     }
-    
+
     // Limita la freccia tra 10% e 90% per non farla uscire dal tooltip
     arrowPos = Math.max(10, Math.min(90, arrowPos));
-    
+
     setPosition({
       top: rect.top + window.scrollY,
       left: finalLeft,
@@ -112,13 +112,13 @@ export default function IngredientTooltip({ term, info }: IngredientTooltipProps
       className="w-56 z-[9999] animate-in fade-in slide-in-from-bottom-2 duration-200"
     >
       {/* Freccia verso il basso - posizionata dinamicamente */}
-      <div 
+      <div
         className="absolute top-full transform -translate-x-1/2 -mt-px"
         style={{ left: `${arrowOffset}%` }}
       >
         <div className="border-6 border-transparent border-t-white" />
       </div>
-      <div 
+      <div
         className="absolute top-full transform -translate-x-1/2 -mt-0.5"
         style={{ left: `${arrowOffset}%` }}
       >
