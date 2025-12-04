@@ -17,6 +17,8 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.86.0",
     "next": "15.5.4",
+    "openai": "^6.9.1",
+    "pdfjs-dist": "^5.4.449",
     "prisma": "^7.0.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
