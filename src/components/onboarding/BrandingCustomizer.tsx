@@ -184,6 +184,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
             <div className="flex items-center gap-4">
               {formData.logo_url && (
                 <div className="w-20 h-20 border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={formData.logo_url}
                     alt="Logo preview"
@@ -373,6 +374,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                 style={{ backgroundColor: formData.primary_color }}
               >
                 {formData.logo_url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={formData.logo_url}
                     alt="Logo"

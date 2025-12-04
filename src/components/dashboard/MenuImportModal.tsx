@@ -2,6 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Database } from '@/types/database';
+import { SupabaseClient } from '@supabase/supabase-js';
+
+// Define types from Database definition
+type DbCategoryInsert = Database['public']['Tables']['categories']['Insert'];
+type DbDishInsert = Database['public']['Tables']['dishes']['Insert'];
+type InsertedCategory = Database['public']['Tables']['categories']['Row'];
+
 // Remove top-level import
 // import * as pdfjsLib from 'pdfjs-dist';
 
@@ -30,7 +38,7 @@ interface MenuImportModalProps {
 
 export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }: MenuImportModalProps) {
     const [step, setStep] = useState<'upload' | 'processing' | 'review'>('upload');
-    const [files, setFiles] = useState<File[]>([]);
+    // const [files, setFiles] = useState<File[]>([]); // Removed unused state
     const [previews, setPreviews] = useState<string[]>([]);
     const [analyzedData, setAnalyzedData] = useState<Category[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +48,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
     useEffect(() => {
         if (isOpen) {
             setStep('upload');
-            setFiles([]);
+            // setFiles([]);
             setPreviews([]);
             setAnalyzedData([]);
             setError(null);
@@ -80,7 +88,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                     canvasContext: context,
                     viewport: viewport,
                 };
-                // @ts-ignore - pdfjs-dist type mismatch
+                // @ts-expect-error - pdfjs-dist type mismatch, render method expects a specific type for renderContext
                 await page.render(renderContext).promise;
                 images.push(canvas.toDataURL('image/jpeg', 0.8));
             }
@@ -92,7 +100,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const newFiles = Array.from(e.target.files);
-            setFiles(prev => [...prev, ...newFiles]);
+            // setFiles(prev => [...prev, ...newFiles]);
             setError(null);
 
             // Generate previews
@@ -158,7 +166,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
 
     const handleSave = async () => {
         try {
-            const supabase = createClient();
+            const supabase = createClient() as SupabaseClient<Database>;
 
             // Filter selected items
             const categoriesToImport = analyzedData.filter(cat => cat.selected);
@@ -173,11 +181,12 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                         slug: cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                         is_visible: true,
                         display_order: 99, // Append to end
-                    } as any) // Cast to any to avoid type mismatch
+                    } as DbCategoryInsert)
                     .select()
                     .single();
 
                 if (categoryError) throw categoryError;
+                if (!categoryData) throw new Error('Category data not returned after insert.');
 
                 // 2. Create Dishes
                 const dishesToImport = cat.dishes.filter(d => d.selected);
@@ -187,13 +196,13 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                         .insert(
                             dishesToImport.map(dish => ({
                                 tenant_id: tenantId,
-                                category_id: (categoryData as any).id,
+                                category_id: (categoryData as InsertedCategory).id,
                                 name: { it: dish.name, en: dish.name },
                                 description: { it: dish.description, en: dish.description },
                                 price: dish.price,
                                 is_visible: true,
                                 slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                            })) as any // Cast to any to avoid type mismatch
+                            })) as DbDishInsert[]
                         );
 
                     if (dishesError) throw dishesError;
@@ -242,7 +251,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Carica foto o PDF del menu</h3>
                                 <p className="text-gray-600 max-w-md mx-auto">
-                                    Carica una o più foto, oppure un file PDF. L'intelligenza artificiale analizzerà tutto insieme.
+                                    Carica una o più foto, oppure un file PDF. L&apos;intelligenza artificiale analizzerà tutto insieme.
                                 </p>
                             </div>
 
@@ -277,6 +286,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                                 <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {previews.map((src, index) => (
                                         <div key={index} className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={src} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
                                             <button
                                                 onClick={() => {
