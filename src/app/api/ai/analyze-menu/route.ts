@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         try {
             const data = JSON.parse(jsonString);
             return NextResponse.json(data);
-        } catch (parseError) {
+        } catch (_parseError) {
             console.error('Error parsing AI response:', content);
             return NextResponse.json(
                 { error: 'Errore nel parsing della risposta AI' },
@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error analyzing menu:', error);
         // Log detailed error from OpenAI/OpenRouter if available
