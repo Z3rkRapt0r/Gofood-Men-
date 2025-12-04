@@ -30,6 +30,8 @@ export default function SettingsPage() {
       show_brand_column: true,
     } as FooterData,
     logoUrl: '',
+    heroTitleColor: '#FFFFFF',
+    heroTaglineColor: '#E5E7EB',
   });
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export default function SettingsPage() {
         secondary_text_color: string;
         footer_data: FooterData | null;
         logo_url: string | null;
+        hero_title_color: string | null;
+        hero_tagline_color: string | null;
       };
 
       setTenantId(tenantData.id);
@@ -92,6 +96,8 @@ export default function SettingsPage() {
           show_brand_column: true,
         },
         logoUrl: tenantData.logo_url || '',
+        heroTitleColor: tenantData.hero_title_color || '#FFFFFF',
+        heroTaglineColor: tenantData.hero_tagline_color || '#E5E7EB',
       });
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -170,6 +176,8 @@ export default function SettingsPage() {
           secondary_text_color: formData.secondaryTextColor,
           footer_data: formData.footerData,
           logo_url: formData.logoUrl,
+          hero_title_color: formData.heroTitleColor,
+          hero_tagline_color: formData.heroTaglineColor,
         })
         .eq('id', tenantId);
 
@@ -437,6 +445,56 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Colore di sfondo principale
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Titolo Hero
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.heroTitleColor}
+                  onChange={(e) => setFormData({ ...formData, heroTitleColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.heroTitleColor}
+                    onChange={(e) => setFormData({ ...formData, heroTitleColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Colore del nome ristorante
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Colore Slogan Hero
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={formData.heroTaglineColor}
+                  onChange={(e) => setFormData({ ...formData, heroTaglineColor: e.target.value })}
+                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={formData.heroTaglineColor}
+                    onChange={(e) => setFormData({ ...formData, heroTaglineColor: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Colore della descrizione sotto il nome
                   </p>
                 </div>
               </div>

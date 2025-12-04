@@ -10,6 +10,8 @@ interface BrandingCustomizerProps {
     logo_url: string | null;
     primary_color: string;
     secondary_color: string;
+    hero_title_color?: string;
+    hero_tagline_color?: string;
   };
   onUpdate: (updates: Partial<BrandingCustomizerProps['formData']>) => void;
   onNext: () => void;
@@ -211,13 +213,13 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
               {[
-                { id: 'elegant', name: 'Elegant', primary: '#1a1a1a', secondary: '#c0a062' }, // Fine Dining
-                { id: 'organic', name: 'Organic', primary: '#2c5f2d', secondary: '#97bc62' }, // Healthy/Vegan
-                { id: 'bistro', name: 'Bistro', primary: '#8b4513', secondary: '#e6ccb2' }, // Bakery/Cafe
-                { id: 'minimal', name: 'Minimal', primary: '#2d3436', secondary: '#dfe6e9' }, // Modern
-                { id: 'italian', name: 'Italian', primary: '#c0392b', secondary: '#f1c40f' }, // Pizzeria
-                { id: 'ocean', name: 'Ocean', primary: '#006994', secondary: '#7ed6df' }, // Seafood
-                { id: 'custom', name: 'Custom', primary: null, secondary: null },
+                { id: 'elegant', name: 'Elegant', primary: '#1a1a1a', secondary: '#c0a062', heroTitle: '#FFFFFF', heroTagline: '#E5E7EB' }, // Fine Dining
+                { id: 'organic', name: 'Organic', primary: '#2c5f2d', secondary: '#97bc62', heroTitle: '#FFFFFF', heroTagline: '#E5E7EB' }, // Healthy/Vegan
+                { id: 'bistro', name: 'Bistro', primary: '#8b4513', secondary: '#e6ccb2', heroTitle: '#FFFFFF', heroTagline: '#E5E7EB' }, // Bakery/Cafe
+                { id: 'minimal', name: 'Minimal', primary: '#2d3436', secondary: '#dfe6e9', heroTitle: '#FFFFFF', heroTagline: '#9CA3AF' }, // Modern
+                { id: 'italian', name: 'Italian', primary: '#c0392b', secondary: '#f1c40f', heroTitle: '#FFFFFF', heroTagline: '#E5E7EB' }, // Pizzeria
+                { id: 'ocean', name: 'Ocean', primary: '#006994', secondary: '#7ed6df', heroTitle: '#FFFFFF', heroTagline: '#E5E7EB' }, // Seafood
+                { id: 'custom', name: 'Custom', primary: null, secondary: null, heroTitle: null, heroTagline: null },
               ].map((theme) => {
                 const isSelected =
                   theme.id === 'custom'
@@ -231,7 +233,9 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                       if (theme.primary && theme.secondary) {
                         onUpdate({
                           primary_color: theme.primary,
-                          secondary_color: theme.secondary
+                          secondary_color: theme.secondary,
+                          hero_title_color: theme.heroTitle,
+                          hero_tagline_color: theme.heroTagline
                         });
                         setShowCustomPickers(false);
                       } else {

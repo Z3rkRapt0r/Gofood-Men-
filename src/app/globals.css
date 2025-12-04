@@ -29,6 +29,10 @@ body {
   font-family: var(--font-playfair), serif;
 }
 
+.font-display {
+  font-family: var(--font-playfair), serif;
+}
+
 /* Hide scrollbar for horizontal scrolling */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
