@@ -29,6 +29,7 @@ export default function SettingsPage() {
       socials: [] as FooterSocial[],
       show_brand_column: true,
     } as FooterData,
+    logoUrl: '',
   });
 
   useEffect(() => {
@@ -90,11 +91,55 @@ export default function SettingsPage() {
           socials: [],
           show_brand_column: true,
         },
+        logoUrl: tenantData.logo_url || '',
       });
     } catch (err) {
       console.error('Error loading settings:', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type and size
+    if (!file.type.startsWith('image/')) {
+      alert('Per favore carica un\'immagine valida');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      alert('L\'immagine non può superare i 2MB');
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      // Use slug for folder path to ensure consistency with RLS policy
+      const filePath = `${formData.slug}/logo/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('Loghi Ristoratori') // Switch to 'Loghi Ristoratori' bucket
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('Loghi Ristoratori')
+        .getPublicUrl(filePath);
+
+      // Manually encode the URL to handle spaces in bucket name
+      // Supabase getPublicUrl might not encode the bucket name part if it's part of the path
+      const publicUrl = data.publicUrl.replace('Loghi Ristoratori', 'Loghi%20Ristoratori');
+
+      setFormData(prev => ({ ...prev, logoUrl: publicUrl }));
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Errore durante il caricamento del logo');
     }
   }
 
@@ -124,6 +169,7 @@ export default function SettingsPage() {
           text_color: formData.textColor,
           secondary_text_color: formData.secondaryTextColor,
           footer_data: formData.footerData,
+          logo_url: formData.logoUrl,
         })
         .eq('id', tenantId);
 
@@ -166,6 +212,43 @@ export default function SettingsPage() {
           </h2>
 
           <div className="space-y-4">
+            {/* Logo Upload */}
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Logo Ristorante
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden group">
+                  {formData.logoUrl ? (
+                    <img
+                      src={formData.logoUrl}
+                      alt="Logo Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-2xl text-gray-400">📷</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs font-bold">Modifica</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 mb-1">
+                    Carica il logo del tuo ristorante (PNG, JPG, WEBP)
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Consigliato: 512x512px, Max 2MB
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">
                 Nome Ristorante *
@@ -210,7 +293,7 @@ export default function SettingsPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Il menu sarà disponibile su: /{formData.slug}
+                Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l'assistenza
               </p>
             </div>
           </div>

@@ -188,9 +188,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="absolute -left-4 bottom-24 bg-white rounded-2xl shadow-2xl p-3 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
+                <div className="absolute -left-4 bottom-24 bg-white rounded-2xl shadow-2xl p-2 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">📸</span>
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-orange-100">
+                      <img
+                        src="/dish-preview.png"
+                        alt="Foto HD"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div>
                       <div className="text-xs font-bold text-gray-900">Foto</div>
                       <div className="text-xs text-gray-600">HD</div>

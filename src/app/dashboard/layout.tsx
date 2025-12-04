@@ -98,20 +98,27 @@ export default function DashboardLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <Image
-              src="/logo-gofood.png"
-              alt="GO! FOOD"
-              width={100}
-              height={40}
-              className="h-8 w-auto"
-            />
+            {tenant.logo_url ? (
+              <img
+                src={tenant.logo_url}
+                alt={tenant.restaurant_name}
+                className="h-10 w-auto object-contain"
+              />
+            ) : (
+              <Image
+                src="/logo-gofood.png"
+                alt="GO! FOOD"
+                width={100}
+                height={40}
+                className="h-8 w-auto"
+              />
+            )}
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -126,19 +133,11 @@ export default function DashboardLayout({
         {/* Restaurant info */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            {tenant.logo_url ? (
-              <img
-                src={tenant.logo_url}
-                alt={tenant.restaurant_name}
-                className="w-12 h-12 rounded-lg object-cover border-2 border-orange-200"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">
-                  {tenant.restaurant_name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <img
+              src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/gofood-logoHD.svg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL2dvZm9vZC1sb2dvSEQuc3ZnIiwiaWF0IjoxNzY0Nzk5OTg0LCJleHAiOjIwODAxNTk5ODR9.u0xvBk9SohQ53303twe_gKZ87_Bj2ga3dD1HauBaevk"
+              alt="Go Food"
+              className="w-12 h-12 rounded-lg object-contain border-2 border-orange-200 bg-white p-1"
+            />
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-900 truncate">{tenant.restaurant_name}</h3>
               <p className="text-xs text-gray-500 truncate">/{tenant.slug}</p>

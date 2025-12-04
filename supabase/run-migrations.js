@@ -90,6 +90,7 @@ async function main() {
     '005_add_tagline.sql',
     '006_storage_policies.sql',
     '007_remove_limits.sql',
+    '008_go_food_bucket_policies.sql',
   ];
 
   let success = 0;
