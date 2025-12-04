@@ -14,6 +14,8 @@ export default function Header({
   restaurantName = 'Menu Digitale',
   logoUrl = '/icon.svg'
 }: HeaderProps) {
+  // Ensure logoUrl is properly encoded to handle spaces
+  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/icon.svg';
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
   return (
@@ -21,13 +23,10 @@ export default function Header({
       <div className="container mx-auto px-4 py-3 md:py-4">
         {/* Layout mobile: logo sx, filtri dx */}
         <div className="flex items-center justify-between md:hidden">
-          <Image
-            src={logoUrl}
+          <img
+            src={sanitizedLogoUrl}
             alt={restaurantName}
-            width={140}
-            height={50}
-            className="h-10 w-auto"
-            priority
+            className="h-10 w-auto object-contain"
           />
 
           {/* Gruppo controlli: filtro + lingua */}
@@ -62,13 +61,10 @@ export default function Header({
 
           {/* Logo centrato */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
-            <Image
-              src={logoUrl}
+            <img
+              src={sanitizedLogoUrl}
               alt={restaurantName}
-              width={180}
-              height={60}
-              className="h-14 w-auto"
-              priority
+              className="h-14 w-auto object-contain"
             />
           </div>
 

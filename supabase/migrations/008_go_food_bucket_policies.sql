@@ -7,6 +7,11 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('Loghi Ristoratori', 'Loghi Ristoratori', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Force the bucket to be public (in case it was created manually as private)
+UPDATE storage.buckets
+SET public = true
+WHERE id = 'Loghi Ristoratori';
+
 -- 2. Policy: Public Read Access
 -- Anyone can read files from the "Loghi Ristoratori" bucket
 DROP POLICY IF EXISTS "Public read access to Loghi Ristoratori" ON storage.objects;

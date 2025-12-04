@@ -15,6 +15,8 @@ interface FooterProps {
 
 export default function Footer({ footerData, restaurantName, logoUrl, slug }: FooterProps) {
   const { language } = useTranslation();
+  // Ensure logoUrl is properly encoded to handle spaces
+  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/icon.svg';
 
   // Default locations if no footer data is provided
   const defaultLocations: { city: string; address: string; phone?: string }[] = [];
@@ -35,12 +37,10 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
           {/* Brand Section */}
           {showBrandColumn && (
             <div className="text-center md:text-left">
-              <Image
-                src={logoUrl || "/icon.svg"}
+              <img
+                src={sanitizedLogoUrl}
                 alt={`${restaurantName || 'Menu Digitale'} Logo`}
-                width={150}
-                height={50}
-                className="h-12 w-auto mx-auto md:mx-0 mb-3"
+                className="h-12 w-auto mx-auto md:mx-0 mb-3 object-contain"
               />
               <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)] mb-4">
                 {language === 'it'
