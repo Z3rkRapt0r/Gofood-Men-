@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'google/gemini-2.0-flash-lite-preview-02-05:free',
+            model: 'amazon/nova-2-lite-v1:free',
             messages: [
                 {
                     role: 'user',

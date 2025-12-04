@@ -145,7 +145,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
             });
 
             if (!response.ok) {
-                throw new Error('Errore durante l\'analisi del menu');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Errore durante l\'analisi del menu');
             }
 
             const data = await response.json();
@@ -158,9 +159,10 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
 
             setAnalyzedDishes(processedDishes);
             setStep('review');
-        } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
             console.error(err);
-            setError('Si è verificato un errore durante l\'analisi. Riprova.');
+            setError(err.message || 'Si è verificato un errore durante l\'analisi. Riprova.');
             setStep('upload');
         }
     };
@@ -268,9 +270,10 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                             <div className="flex flex-col gap-4 max-w-xs mx-auto">
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="bg-white border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-xl font-bold hover:bg-orange-50 transition-all"
+                                    disabled={!selectedCategoryId}
+                                    className="bg-white border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-xl font-bold hover:bg-orange-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Scegli File
+                                    {selectedCategoryId ? 'Scegli File' : 'Seleziona Categoria'}
                                 </button>
                                 {previews.length > 0 && (
                                     <button
