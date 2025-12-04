@@ -25,27 +25,22 @@ export async function POST(req: NextRequest) {
 
         const prompt = `
       Analizza queste immagini di un menu ristorante.
-      Estrai tutte le categorie e i piatti presenti.
+      Estrai tutti i piatti presenti.
       
       Restituisci SOLO un oggetto JSON valido con questa struttura esatta, senza markdown o altro testo:
-      {
-        "categories": [
-          {
-            "name": "Nome Categoria (es. Antipasti)",
+        {
             "dishes": [
-              {
-                "name": "Nome Piatto",
-                "description": "Descrizione del piatto (se presente)",
-                "price": 12.50
-              }
+                {
+                    "name": "Nome Piatto",
+                    "description": "Descrizione del piatto (se presente)",
+                    "price": 12.50
+                }
             ]
-          }
-        ]
-      }
+        }
 
       Se non trovi prezzi, metti 0.
       Se non trovi descrizioni, metti stringa vuota.
-      Traduci i nomi delle categorie in Italiano se sono in altra lingua, ma mantieni i nomi dei piatti originali.
+      Mantieni i nomi dei piatti originali.
     `;
 
         const contentParts = [
@@ -59,7 +54,7 @@ export async function POST(req: NextRequest) {
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'amazon/nova-2-lite-v1:free',
+            model: 'google/gemini-2.0-flash-lite-preview-02-05:free',
             messages: [
                 {
                     role: 'user',
@@ -88,10 +83,15 @@ export async function POST(req: NextRequest) {
             );
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error analyzing menu:', error);
+        // Log detailed error from OpenAI/OpenRouter if available
+        if (error.response) {
+            console.error('OpenAI API Error Data:', error.response.data);
+            console.error('OpenAI API Error Status:', error.response.status);
+        }
         return NextResponse.json(
-            { error: 'Errore durante l\'analisi del menu' },
+            { error: error.message || 'Errore durante l\'analisi del menu' },
             { status: 500 }
         );
     }

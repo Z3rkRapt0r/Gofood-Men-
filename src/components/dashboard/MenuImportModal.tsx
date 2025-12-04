@@ -6,9 +6,9 @@ import { Database } from '@/types/database';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 // Define types from Database definition
-type DbCategoryInsert = Database['public']['Tables']['categories']['Insert'];
-type DbDishInsert = Database['public']['Tables']['dishes']['Insert'];
-type InsertedCategory = Database['public']['Tables']['categories']['Row'];
+// type DbCategoryInsert = Database['public']['Tables']['categories']['Insert'];
+// type DbDishInsert = Database['public']['Tables']['dishes']['Insert'];
+// type InsertedCategory = Database['public']['Tables']['categories']['Row'];
 
 // Remove top-level import
 // import * as pdfjsLib from 'pdfjs-dist';
@@ -23,11 +23,11 @@ interface Dish {
     selected?: boolean;
 }
 
-interface Category {
-    name: string;
-    dishes: Dish[];
-    selected?: boolean;
-}
+// interface Category {
+//     name: string;
+//     dishes: Dish[];
+//     selected?: boolean;
+// }
 
 interface MenuImportModalProps {
     isOpen: boolean;
@@ -36,11 +36,12 @@ interface MenuImportModalProps {
     tenantId: string;
 }
 
-export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }: MenuImportModalProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, categories }: MenuImportModalProps & { categories: any[] }) {
     const [step, setStep] = useState<'upload' | 'processing' | 'review'>('upload');
-    // const [files, setFiles] = useState<File[]>([]); // Removed unused state
     const [previews, setPreviews] = useState<string[]>([]);
-    const [analyzedData, setAnalyzedData] = useState<Category[]>([]);
+    const [analyzedDishes, setAnalyzedDishes] = useState<Dish[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,9 +49,9 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
     useEffect(() => {
         if (isOpen) {
             setStep('upload');
-            // setFiles([]);
             setPreviews([]);
-            setAnalyzedData([]);
+            setAnalyzedDishes([]);
+            setSelectedCategoryId('');
             setError(null);
         }
     }, [isOpen]);
@@ -88,7 +89,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                     canvasContext: context,
                     viewport: viewport,
                 };
-                // @ts-expect-error - pdfjs-dist type mismatch, render method expects a specific type for renderContext
+                // @ts-expect-error - pdfjs-dist type mismatch
                 await page.render(renderContext).promise;
                 images.push(canvas.toDataURL('image/jpeg', 0.8));
             }
@@ -100,7 +101,6 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const newFiles = Array.from(e.target.files);
-            // setFiles(prev => [...prev, ...newFiles]);
             setError(null);
 
             // Generate previews
@@ -125,13 +125,15 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
 
     const handleAnalyze = async () => {
         if (previews.length === 0) return;
+        if (!selectedCategoryId) {
+            setError('Seleziona una categoria prima di procedere.');
+            return;
+        }
 
         setStep('processing');
         setError(null);
 
         try {
-            // Send base64 images directly (remove data:image/xxx;base64, prefix if needed by backend, 
-            // but our backend handles it)
             const imagesToSend = previews.map(p => p.split(',')[1]);
 
             const response = await fetch('/api/ai/analyze-menu', {
@@ -149,13 +151,12 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
             const data = await response.json();
 
             // Add selected state to all items
-            const processedData = data.categories.map((cat: Category) => ({
-                ...cat,
-                selected: true,
-                dishes: cat.dishes.map((dish: Dish) => ({ ...dish, selected: true }))
+            const processedDishes = data.dishes.map((dish: Dish) => ({
+                ...dish,
+                selected: true
             }));
 
-            setAnalyzedData(processedData);
+            setAnalyzedDishes(processedDishes);
             setStep('review');
         } catch (err) {
             console.error(err);
@@ -169,46 +170,25 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
             const supabase = createClient() as SupabaseClient<Database>;
 
             // Filter selected items
-            const categoriesToImport = analyzedData.filter(cat => cat.selected);
+            const dishesToImport = analyzedDishes.filter(d => d.selected);
 
-            for (const cat of categoriesToImport) {
-                // 1. Create Category
-                const { data: categoryData, error: categoryError } = await supabase
-                    .from('categories')
-                    .insert({
-                        tenant_id: tenantId,
-                        name: { it: cat.name, en: cat.name }, // Default en to same name
-                        slug: cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                        is_visible: true,
-                        display_order: 99, // Append to end
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    } as any)
-                    .select()
-                    .single();
+            if (dishesToImport.length > 0) {
+                const { error: dishesError } = await supabase
+                    .from('dishes')
+                    .insert(
+                        dishesToImport.map(dish => ({
+                            tenant_id: tenantId,
+                            category_id: selectedCategoryId,
+                            name: { it: dish.name, en: dish.name },
+                            description: { it: dish.description, en: dish.description },
+                            price: dish.price,
+                            is_visible: true,
+                            slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        })) as any
+                    );
 
-                if (categoryError) throw categoryError;
-                if (!categoryData) throw new Error('Category data not returned after insert.');
-
-                // 2. Create Dishes
-                const dishesToImport = cat.dishes.filter(d => d.selected);
-                if (dishesToImport.length > 0) {
-                    const { error: dishesError } = await supabase
-                        .from('dishes')
-                        .insert(
-                            dishesToImport.map(dish => ({
-                                tenant_id: tenantId,
-                                category_id: (categoryData as InsertedCategory).id,
-                                name: { it: dish.name, en: dish.name },
-                                description: { it: dish.description, en: dish.description },
-                                price: dish.price,
-                                is_visible: true,
-                                slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            })) as any
-                        );
-
-                    if (dishesError) throw dishesError;
-                }
+                if (dishesError) throw dishesError;
             }
 
             onSuccess();
@@ -244,7 +224,26 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
 
                     {step === 'upload' && (
                         <div className="text-center py-12">
-                            <div className="mb-8">
+                            <div className="mb-8 max-w-md mx-auto">
+                                <label className="block text-left text-sm font-bold text-gray-900 mb-2">
+                                    Seleziona Categoria di Destinazione *
+                                </label>
+                                <select
+                                    value={selectedCategoryId}
+                                    onChange={(e) => {
+                                        setSelectedCategoryId(e.target.value);
+                                        setError(null);
+                                    }}
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all mb-6"
+                                >
+                                    <option value="">-- Seleziona una categoria --</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name.it}
+                                        </option>
+                                    ))}
+                                </select>
+
                                 <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <svg className="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -252,8 +251,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                                     </svg>
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Carica foto o PDF del menu</h3>
-                                <p className="text-gray-600 max-w-md mx-auto">
-                                    Carica una o più foto, oppure un file PDF. L&apos;intelligenza artificiale analizzerà tutto insieme.
+                                <p className="text-gray-600">
+                                    Carica una o più foto, oppure un file PDF. L&apos;intelligenza artificiale estrarrà i piatti per la categoria selezionata.
                                 </p>
                             </div>
 
@@ -276,7 +275,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                                 {previews.length > 0 && (
                                     <button
                                         onClick={handleAnalyze}
-                                        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg"
+                                        disabled={!selectedCategoryId}
+                                        className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Analizza {previews.length} Immagini
                                     </button>
@@ -293,7 +293,6 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                                             <button
                                                 onClick={() => {
                                                     setPreviews(prev => prev.filter((_, i) => i !== index));
-                                                    // Note: Removing from 'files' state is harder because we don't map 1:1 if PDF pages
                                                 }}
                                                 className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                                             >
@@ -321,91 +320,67 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId }
                     {step === 'review' && (
                         <div className="space-y-8">
                             <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-blue-800 text-sm">
-                                Controlla i dati estratti. Puoi modificare i testi e deselezionare gli elementi che non vuoi importare.
+                                Controlla i piatti estratti per la categoria selezionata. Puoi modificare i testi e deselezionare gli elementi che non vuoi importare.
                             </div>
 
-                            {analyzedData.map((category, catIndex) => (
-                                <div key={catIndex} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                                    <div className="bg-gray-50 p-4 border-b border-gray-200 flex items-center gap-3">
-                                        <input
-                                            type="checkbox"
-                                            checked={category.selected}
-                                            onChange={(e) => {
-                                                const newData = [...analyzedData];
-                                                newData[catIndex].selected = e.target.checked;
-                                                setAnalyzedData(newData);
-                                            }}
-                                            className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={category.name || ''}
-                                            onChange={(e) => {
-                                                const newData = [...analyzedData];
-                                                newData[catIndex].name = e.target.value;
-                                                setAnalyzedData(newData);
-                                            }}
-                                            className="font-bold text-lg bg-transparent border-none focus:ring-0 w-full"
-                                        />
-                                    </div>
-
-                                    {category.selected && (
-                                        <div className="p-4 space-y-4">
-                                            {category.dishes.map((dish, dishIndex) => (
-                                                <div key={dishIndex} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={dish.selected || false}
-                                                        onChange={(e) => {
-                                                            const newData = [...analyzedData];
-                                                            newData[catIndex].dishes[dishIndex].selected = e.target.checked;
-                                                            setAnalyzedData(newData);
-                                                        }}
-                                                        className="mt-1 w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                                                    />
-                                                    <div className="flex-1 grid gap-2">
-                                                        <input
-                                                            type="text"
-                                                            value={dish.name || ''}
-                                                            onChange={(e) => {
-                                                                const newData = [...analyzedData];
-                                                                newData[catIndex].dishes[dishIndex].name = e.target.value;
-                                                                setAnalyzedData(newData);
-                                                            }}
-                                                            className="font-semibold bg-white border border-gray-200 rounded px-2 py-1 text-sm"
-                                                            placeholder="Nome Piatto"
-                                                        />
-                                                        <textarea
-                                                            value={dish.description || ''}
-                                                            onChange={(e) => {
-                                                                const newData = [...analyzedData];
-                                                                newData[catIndex].dishes[dishIndex].description = e.target.value;
-                                                                setAnalyzedData(newData);
-                                                            }}
-                                                            className="bg-white border border-gray-200 rounded px-2 py-1 text-sm w-full"
-                                                            placeholder="Descrizione"
-                                                            rows={2}
-                                                        />
-                                                    </div>
-                                                    <div className="w-24">
-                                                        <input
-                                                            type="number"
-                                                            value={dish.price || 0}
-                                                            onChange={(e) => {
-                                                                const newData = [...analyzedData];
-                                                                newData[catIndex].dishes[dishIndex].price = parseFloat(e.target.value);
-                                                                setAnalyzedData(newData);
-                                                            }}
-                                                            className="bg-white border border-gray-200 rounded px-2 py-1 text-sm w-full text-right"
-                                                            step="0.50"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                                <div className="bg-gray-50 p-4 border-b border-gray-200">
+                                    <h3 className="font-bold text-lg text-gray-900">Piatti Trovati</h3>
                                 </div>
-                            ))}
+                                <div className="p-4 space-y-4">
+                                    {analyzedDishes.map((dish, index) => (
+                                        <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                            <input
+                                                type="checkbox"
+                                                checked={dish.selected || false}
+                                                onChange={(e) => {
+                                                    const newData = [...analyzedDishes];
+                                                    newData[index].selected = e.target.checked;
+                                                    setAnalyzedDishes(newData);
+                                                }}
+                                                className="mt-1 w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
+                                            />
+                                            <div className="flex-1 grid gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={dish.name || ''}
+                                                    onChange={(e) => {
+                                                        const newData = [...analyzedDishes];
+                                                        newData[index].name = e.target.value;
+                                                        setAnalyzedDishes(newData);
+                                                    }}
+                                                    className="font-semibold bg-white border border-gray-200 rounded px-2 py-1 text-sm"
+                                                    placeholder="Nome Piatto"
+                                                />
+                                                <textarea
+                                                    value={dish.description || ''}
+                                                    onChange={(e) => {
+                                                        const newData = [...analyzedDishes];
+                                                        newData[index].description = e.target.value;
+                                                        setAnalyzedDishes(newData);
+                                                    }}
+                                                    className="bg-white border border-gray-200 rounded px-2 py-1 text-sm w-full"
+                                                    placeholder="Descrizione"
+                                                    rows={2}
+                                                />
+                                            </div>
+                                            <div className="w-24">
+                                                <input
+                                                    type="number"
+                                                    value={dish.price || 0}
+                                                    onChange={(e) => {
+                                                        const newData = [...analyzedDishes];
+                                                        newData[index].price = parseFloat(e.target.value);
+                                                        setAnalyzedDishes(newData);
+                                                    }}
+                                                    className="bg-white border border-gray-200 rounded px-2 py-1 text-sm w-full text-right"
+                                                    step="0.50"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
