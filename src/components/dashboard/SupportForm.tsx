@@ -39,7 +39,7 @@ export default function SupportForm({ userEmail, restaurantName }: SupportFormPr
         try {
             const data = new FormData();
             data.append('email', userEmail);
-            data.append('restaurantName', restaurantName);
+            data.append('restaurantName', restaurantName || 'Ristorante');
             data.append('subject', formData.subject);
             data.append('message', formData.message);
             if (file) {

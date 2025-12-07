@@ -43,12 +43,15 @@ export async function POST(request: Request) {
             });
         }
 
+        // Ensure restaurantName has a value
+        const cleanRestaurantName = restaurantName && restaurantName !== 'null' ? restaurantName : 'Ristorante';
+
         // Send email to Support Team
         const { data, error } = await resend.emails.send({
-            from: 'Gofood Menu <noreply@gofoodmenu.it>',
+            from: 'Gofood Menu <support@send.gofoodmenu.it>',
             to: ['help@gofoodmenu.it'],
             replyTo: email,
-            subject: `Nuova richiesta di assistenza da: ${restaurantName}`,
+            subject: `Nuova richiesta di assistenza da: ${cleanRestaurantName}`,
             text: `Motivo:${subject}\n\nMessaggio:\n${message}`,
             attachments,
         });
