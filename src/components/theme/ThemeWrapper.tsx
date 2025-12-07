@@ -3,9 +3,8 @@
 import React from 'react';
 import { useTheme } from './ThemeContext';
 import { MenuFrame } from './MenuFrame';
-import { TextureOverlay } from './TextureOverlay';
 
-export function ThemeWrapper({ children }: { children: React.ReactNode }) {
+export function ThemeWrapper({ children, className }: { children: React.ReactNode; className?: string }) {
     const { currentTheme } = useTheme();
     const { fontHeading, fontBody, colors } = currentTheme;
 
@@ -21,7 +20,7 @@ export function ThemeWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <div
-            className={`relative w-full min-h-[600px] flex flex-col`}
+            className={`relative w-full min-h-[600px] flex flex-col ${className || ''}`}
             style={{
                 fontFamily: fontBody,
                 '--tenant-primary': colors.primary,

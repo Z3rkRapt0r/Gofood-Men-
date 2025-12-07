@@ -20,12 +20,11 @@ export const ThemeDivider: React.FC<ThemeDividerProps> = ({
         opacity: 0.6,
     };
 
-    // Helper to get SVG data URI
-    const getSvgBg = (svgContent: string) => `url("data:image/svg+xml,${encodeURIComponent(svgContent)}")`;
+
 
     if (dividerStyle === 'wavy') {
         // True wavy line
-        const colorHex = color.includes('var') ? 'currentColor' : color;
+        // True wavy line
         return (
             <div className={`h-3 w-full ${className}`} style={{
                 color: color, // For currentColor to work if possible, but bg images need explicit color usually. 
@@ -107,7 +106,7 @@ export const ThemeDivider: React.FC<ThemeDividerProps> = ({
             className={`border-t ${className}`}
             style={{
                 ...baseStyle,
-                borderTopStyle: dividerStyle as any // solid, dashed, dotted are valid CSS
+                borderTopStyle: dividerStyle as React.CSSProperties['borderTopStyle'] // solid, dashed, dotted are valid CSS
             }}
         />
     );

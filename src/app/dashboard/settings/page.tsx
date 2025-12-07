@@ -36,7 +36,7 @@ export default function SettingsPage() {
     logoUrl: '',
     heroTitleColor: '#FFFFFF',
     heroTaglineColor: '#E5E7EB',
-    themeOptions: null as any,
+    themeOptions: null as Record<string, unknown> | null,
   });
 
   useEffect(() => {
@@ -50,8 +50,8 @@ export default function SettingsPage() {
 
       if (!user) return;
 
-      const { data: tenant, error } = await supabase
-        .from('tenants')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: tenant, error } = await (supabase.from('tenants') as any)
         .select('*')
         .eq('owner_id', user.id)
         .single();
@@ -60,8 +60,8 @@ export default function SettingsPage() {
 
       // Fetch design settings
       let themeOptions = null;
-      const { data: designData } = await supabase
-        .from('tenant_design_settings')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: designData } = await (supabase.from('tenant_design_settings') as any)
         .select('theme_config')
         .eq('tenant_id', tenant.id)
         .single();
@@ -103,46 +103,7 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    // Validate file type and size
-    if (!file.type.startsWith('image/')) {
-      alert('Per favore carica un\'immagine valida');
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-      alert('L\'immagine non può superare i 2MB');
-      return;
-    }
-
-    try {
-      const supabase = createClient();
-      const fileExt = file.name.split('.').pop();
-      const fileName = `logo-${Date.now()}.${fileExt}`;
-      // Use slug for folder path to ensure consistency with RLS policy
-      const filePath = `${formData.slug}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('logos') // Use correct 'logos' bucket
-        .upload(filePath, file, {
-          upsert: true
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('logos')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, logoUrl: data.publicUrl }));
-    } catch (error) {
-      console.error('Error uploading logo:', error);
-      alert('Errore durante il caricamento del logo');
-    }
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -151,10 +112,8 @@ export default function SettingsPage() {
     try {
       const supabase = createClient();
 
-      const { error } = await supabase
-        .from('tenants')
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - Supabase client type inference issue with generated Database types
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from('tenants') as any)
         .update({
           restaurant_name: formData.restaurantName,
           tagline: formData.tagline,
@@ -171,8 +130,8 @@ export default function SettingsPage() {
 
       // Update Design Settings
       if (formData.themeOptions) {
-        const { error: designError } = await supabase
-          .from('tenant_design_settings')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: designError } = await (supabase.from('tenant_design_settings') as any)
           .upsert({
             tenant_id: tenantId,
             theme_config: formData.themeOptions
@@ -184,10 +143,12 @@ export default function SettingsPage() {
       if (error) throw error;
 
       alert('✅ Impostazioni salvate con successo!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving settings:', err);
-      console.error('Error details:', JSON.stringify(err, null, 2));
-      alert('❌ Errore nel salvataggio: ' + (err?.message || 'Errore sconosciuto'));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.error('Error details:', JSON.stringify(err as any, null, 2));
+      const message = err instanceof Error ? err.message : 'Errore sconosciuto';
+      alert('❌ Errore nel salvataggio: ' + message);
     } finally {
       setSaving(false);
     }
@@ -340,11 +301,12 @@ export default function SettingsPage() {
             <h2 className="text-xl font-bold text-gray-900">
               Design & Branding 🎨
             </h2>
-            <p className="text-gray-500 text-sm">Personalizza l'aspetto del tuo menu con il nuovo editor visivo</p>
+            <p className="text-gray-500 text-sm">Personalizza l&apos;aspetto del tuo menu con il nuovo editor visivo</p>
           </div>
 
           <div className="h-[calc(100vh-140px)] min-h-[600px]">
-            <ThemeProvider initialTheme={formData.themeOptions}>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <ThemeProvider initialTheme={(formData.themeOptions || undefined) as any}>
               <BrandingDesignLab
                 formData={{
                   restaurant_name: formData.restaurantName,
@@ -356,7 +318,8 @@ export default function SettingsPage() {
                   hero_title_color: formData.heroTitleColor,
                   hero_tagline_color: formData.heroTaglineColor,
                   footer_data: formData.footerData,
-                  theme_options: formData.themeOptions
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  theme_options: (formData.themeOptions || undefined) as any
                 }}
                 onUpdate={(updates) => {
                   console.log('Design Lab Update:', updates);

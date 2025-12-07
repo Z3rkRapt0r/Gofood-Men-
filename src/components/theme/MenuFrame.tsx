@@ -7,25 +7,7 @@ export function MenuFrame({ children }: { children: React.ReactNode }) {
     const { currentTheme } = useTheme();
     const { frame, colors, rounded, shadows } = currentTheme;
 
-    const getFrameStyles = () => {
-        switch (frame) {
-            case 'simple':
-                return `border-4 border-[${colors.primary}]`;
-            case 'double':
-                return `border-4 border-[${colors.primary}] ring-4 ring-[${colors.secondary}] ring-offset-4 ring-offset-[${colors.background}]`;
-            case 'elegant':
-                return `border border-[${colors.primary}] shadow-[0_0_0_4px_${colors.secondary},0_0_0_8px_${colors.primary}]`;
-            case 'wooden':
-                return `border-[12px] border-[#8B4513] shadow-inner`;
-            case 'gold-leaf':
-                return `border-[2px] border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.5)]`;
-            case 'minimal':
-                return `border border-gray-200`;
-            case 'none':
-            default:
-                return '';
-        }
-    };
+
 
     const getShadowStyles = () => {
         switch (shadows) {
@@ -47,11 +29,6 @@ export function MenuFrame({ children }: { children: React.ReactNode }) {
             case 'full': return 'rounded-3xl'; // using 3xl for full menu card
             default: return 'rounded-none';
         }
-    };
-
-    // Inline styles for dynamic colors where tailwind arbitrary values might struggle with variable interpolation in strings
-    const frameStyle: React.CSSProperties = {
-        borderColor: frame === 'wooden' ? undefined : colors.primary
     };
 
     if (frame === 'double') {

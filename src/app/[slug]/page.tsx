@@ -42,8 +42,8 @@ async function getMenuData(slug: string) {
   const supabase = await createClient();
 
   // 1. Fetch tenant
-  const { data: tenant, error: tenantError } = await supabase
-    .from('tenants')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: tenant, error: tenantError } = await (supabase.from('tenants') as any)
     .select('*')
     .eq('slug', slug)
     .single();
@@ -55,8 +55,8 @@ async function getMenuData(slug: string) {
   const tenantData = tenant as Tenant;
 
   // 2. Fetch categories con piatti e allergeni
-  const { data: categories, error: categoriesError } = await supabase
-    .from('categories')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: categories, error: categoriesError } = await (supabase.from('categories') as any)
     .select(`
       *,
       dishes:dishes(
@@ -93,8 +93,8 @@ async function getMenuData(slug: string) {
   })) || [];
 
   // 3. Fetch Design Settings
-  const { data: designSettings } = await supabase
-    .from('tenant_design_settings')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: designSettings } = await (supabase.from('tenant_design_settings') as any)
     .select('theme_config')
     .eq('tenant_id', tenantData.id)
     .single();
@@ -134,8 +134,8 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: tenant } = await supabase
-    .from('tenants')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: tenant } = await (supabase.from('tenants') as any)
     .select('restaurant_name, city')
     .eq('slug', slug)
     .single();

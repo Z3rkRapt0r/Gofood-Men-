@@ -102,7 +102,7 @@ export interface FooterData {
 
 export interface TenantDesignSettings {
   tenant_id: string;
-  theme_config: any; // Typed as ThemeConfig in frontend
+  theme_config: Record<string, unknown>; // Typed as ThemeConfig in frontend
   created_at: string;
   updated_at: string;
 }
@@ -126,7 +126,6 @@ export interface Tenant {
   // Branding
   logo_url: string | null; // Supabase Storage URL
   // Branding
-  logo_url: string | null; // Supabase Storage URL
   // Colors and Theme Options moved to tenant_design_settings
 
   // Footer

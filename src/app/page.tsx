@@ -191,10 +191,11 @@ export default function LandingPage() {
                 <div className="absolute -left-4 bottom-24 bg-white rounded-2xl shadow-2xl p-2 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
                   <div className="flex items-center gap-2">
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-orange-100">
-                      <img
+                      <Image
                         src="/dish-preview.png"
                         alt="Foto HD"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <div>

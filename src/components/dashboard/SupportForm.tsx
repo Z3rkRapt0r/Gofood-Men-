@@ -59,10 +59,11 @@ export default function SupportForm({ userEmail }: SupportFormProps) {
             setFile(null);
             // Reset success message after 3 seconds
             setTimeout(() => setStatus('idle'), 3000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Submit error:', error);
             setStatus('error');
-            setErrorMessage(error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            setErrorMessage(message);
         } finally {
             setLoading(false);
         }
@@ -135,8 +136,8 @@ export default function SupportForm({ userEmail }: SupportFormProps) {
                         type="submit"
                         disabled={loading}
                         className={`w-full py-3 px-6 rounded-xl text-white font-bold transition-all ${loading
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-black hover:bg-gray-800 shadow-lg hover:shadow-xl'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-black hover:bg-gray-800 shadow-lg hover:shadow-xl'
                             }`}
                     >
                         {loading ? 'Invio in corso...' : 'Invia Richiesta'}

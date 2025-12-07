@@ -1,8 +1,9 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import Image from 'next/image';
 import LanguageSwitcher from './LanguageSwitcher';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
 
 interface HeaderProps {

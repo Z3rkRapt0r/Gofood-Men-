@@ -12,8 +12,8 @@ export default async function SupportPage() {
 
     // Fetch tenant info if needed, or just use user email
     // If we want the *restaurant* contact email, we should fetch the tenant.
-    const { data: tenant } = await supabase
-        .from('tenants')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: tenant } = await (supabase.from('tenants') as any)
         .select('contact_email')
         .eq('owner_id', user.id)
         .single();

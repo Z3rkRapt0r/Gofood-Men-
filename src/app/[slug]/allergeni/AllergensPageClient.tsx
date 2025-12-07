@@ -11,12 +11,13 @@ import allergensData from '@/data/allergens.json';
 import { AllergenData, Tenant } from '@/types/menu';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
 import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
+import { ThemeConfig } from '@/lib/theme-engine/types';
 
 type TabType = 'list' | 'legal';
 
 interface AllergensPageClientProps {
     tenant: Tenant;
-    initialTheme?: any;
+    initialTheme?: ThemeConfig;
 }
 
 export default function AllergensPageClient({ tenant, initialTheme }: AllergensPageClientProps) {

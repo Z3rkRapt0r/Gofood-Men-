@@ -45,7 +45,7 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
                 phone: locations[0].phone
             });
         }
-    }, [locations]); // We only want to notify parent, but avoid loops. Ideally onUpdate is stable.
+    }, [locations, onUpdate]); // We only want to notify parent, but avoid loops. Ideally onUpdate is stable.
 
     // Helper to update state and notify parent
     const updateFooterData = (newLocations: FooterLocation[], newSocials: FooterSocial[]) => {
@@ -210,7 +210,7 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
                                         <input
                                             type="url"
                                             value={activeSocial?.url || ''}
-                                            onChange={(e) => handleSocialChange(platform.id as any, e.target.value)}
+                                            onChange={(e) => handleSocialChange(platform.id as FooterSocial['platform'], e.target.value)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all placeholder:text-gray-400"
                                             placeholder={`Link al tuo profilo ${platform.label}`}
                                         />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { ThemeConfig, ThemePreset } from '@/lib/theme-engine/types';
 import { DEFAULT_THEME, THEME_PRESETS } from '@/lib/theme-engine/presets';
 

@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { useTheme } from './ThemeContext';
-import { FrameStyle, TextureType, PatternType } from '@/lib/theme-engine/types';
+import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
@@ -271,7 +271,7 @@ export function VisualEditorPanel({ logoUrl, onLogoChange }: VisualEditorPanelPr
                             <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>
                             <select
                                 value={currentTheme.dividerStyle || 'solid'}
-                                onChange={(e) => updateTheme({ dividerStyle: e.target.value as any })}
+                                onChange={(e) => updateTheme({ dividerStyle: e.target.value as DividerStyle })}
                                 className="styled-select"
                             >
                                 <option value="solid">Linea Solida</option>

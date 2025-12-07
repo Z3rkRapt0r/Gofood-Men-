@@ -1,9 +1,8 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 
 interface QRCodeCardProps {
@@ -13,7 +12,7 @@ interface QRCodeCardProps {
     tenantId: string;
 }
 
-export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: QRCodeCardProps) {
+export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     // QR State
@@ -25,8 +24,8 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
     const [logoPadding, setLogoPadding] = useState<number>(5);
 
     // UI State
+    // UI State
     const [saving, setSaving] = useState(false);
-    const [loadingSettings, setLoadingSettings] = useState(false);
 
     const [fullUrl, setFullUrl] = useState(`https://gofood.it/${slug}`);
 
@@ -38,38 +37,34 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
 
     // Load saved settings
     useEffect(() => {
+        const loadSettings = async () => {
+            if (!tenantId) return;
+            try {
+                const supabase = createClient();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data } = await (supabase.from('tenant_design_settings') as any)
+                    .select('theme_config')
+                    .eq('tenant_id', tenantId)
+                    .single();
+
+                if (data?.theme_config?.qrCode) {
+                    const config = data.theme_config.qrCode;
+                    if (config.qrColor) setQrColor(config.qrColor);
+                    if (config.bgColor) setBgColor(config.bgColor);
+                    if (config.includeLogo !== undefined) setIncludeLogo(config.includeLogo);
+                    if (config.logoWidth) setLogoWidth(config.logoWidth);
+                    if (config.logoHeight) setLogoHeight(config.logoHeight);
+                    if (config.logoPadding) setLogoPadding(config.logoPadding);
+                }
+            } catch (error: unknown) {
+                console.error('Error loading QR settings:', JSON.stringify(error, null, 2));
+            }
+        };
+
         if (tenantId) {
             loadSettings();
         }
     }, [tenantId]);
-
-    const loadSettings = async () => {
-        if (!tenantId) return;
-        setLoadingSettings(true);
-        try {
-            const supabase = createClient();
-            // @ts-ignore - Table not yet in types
-            const { data, error } = await supabase
-                .from('tenant_design_settings')
-                .select('theme_config')
-                .eq('tenant_id', tenantId)
-                .single();
-
-            if (data?.theme_config?.qrCode) {
-                const config = data.theme_config.qrCode;
-                if (config.qrColor) setQrColor(config.qrColor);
-                if (config.bgColor) setBgColor(config.bgColor);
-                if (config.includeLogo !== undefined) setIncludeLogo(config.includeLogo);
-                if (config.logoWidth) setLogoWidth(config.logoWidth);
-                if (config.logoHeight) setLogoHeight(config.logoHeight);
-                if (config.logoPadding) setLogoPadding(config.logoPadding);
-            }
-        } catch (error: any) {
-            console.error('Error loading QR settings:', JSON.stringify(error, null, 2));
-        } finally {
-            setLoadingSettings(false);
-        }
-    };
 
     const saveSettings = async () => {
         if (!tenantId) {
@@ -83,9 +78,8 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
             const supabase = createClient();
 
             // First get existing config to merge
-            // @ts-ignore - Table not yet in types
-            const { data: existingData } = await supabase
-                .from('tenant_design_settings')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: existingData } = await (supabase.from('tenant_design_settings') as any)
                 .select('theme_config')
                 .eq('tenant_id', tenantId)
                 .single();
@@ -104,9 +98,8 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
                 }
             };
 
-            // @ts-ignore - Table not yet in types
-            const { error } = await supabase
-                .from('tenant_design_settings')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { error } = await (supabase.from('tenant_design_settings') as any)
                 .upsert({
                     tenant_id: tenantId,
                     theme_config: newConfig,
@@ -119,9 +112,10 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
             }
 
             alert('Impostazioni salvate con successo! ✅');
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
             console.error('Error saving settings details:', error);
-            alert('Errore durante il salvataggio: ' + (error?.message || 'Errore sconosciuto'));
+            alert('Errore durante il salvataggio: ' + errorMessage);
         } finally {
             setSaving(false);
         }
@@ -169,21 +163,6 @@ export default function QRCodeCard({ slug, restaurantName, logoUrl, tenantId }: 
                         logoPaddingStyle="circle"
                         removeQrCodeBehindLogo={true}
                         qrStyle="dots"
-                        eyeRadius={10 * (120 / 280)} // Scale eye radius too for consistency? Or keep it fixed? 10 is usually pixels. 
-                        // Actually eyeRadius is relative to module size in some libs or pixels in others. react-qrcode-logo uses pixels for corner radius of the eye.
-                        // Let's keep eyeRadius fixed or scale it if it looks weird. 10 on 120 is very round. 10 on 280 is round. 
-                        // If I leave it 10, it might look different. Let's try scaling it too.
-                        // Wait, previous code had `eyeRadius={10}` on both.
-                        // If 10 is absolute pixels, 10px on 120px QR is huge compared to 10px on 280px QR.
-                        // I'll scale it to match visual appearance.
-                        eyeRadius={[
-                            10 * (120 / 280), // Top left outer
-                            10 * (120 / 280), // Top right outer
-                            10 * (120 / 280), // Bottom left outer
-                        ]}
-                        // Wait, `eyeRadius` can be number or array.
-                        // Let's just stick to `eyeRadius={10 * (120/280)}` or just 5 to be safe.
-                        // Actually, let's just make it proportional.
                         eyeRadius={5}
                         ecLevel="H"
                         id="dashboard-qr-preview"

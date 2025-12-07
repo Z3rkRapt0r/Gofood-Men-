@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
 import { ThemeDivider } from '@/components/theme/ThemeDivider';
+import { ThemeConfig } from '@/lib/theme-engine/types';
 
 interface Tenant {
   restaurant_name: string;
@@ -147,7 +148,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   );
 }
 
-export default function MenuPageClient({ tenant, categories, initialTheme }: { tenant: Tenant, categories: Category[], initialTheme?: any }) {
+export default function MenuPageClient({ tenant, categories, initialTheme }: { tenant: Tenant, categories: Category[], initialTheme?: ThemeConfig }) {
   return (
     <ThemeProvider initialTheme={initialTheme}>
       <ThemeWrapper>

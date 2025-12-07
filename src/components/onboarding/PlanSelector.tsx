@@ -1,10 +1,35 @@
 import { useEffect } from 'react';
+import type { SubscriptionTier } from '@/types/menu';
 
-// ... (existing helper function if any)
+interface PlanSelectorProps {
+  selectedPlan: SubscriptionTier;
+  onSelectPlan: (tier: SubscriptionTier) => void;
+  onNext: () => void;
+}
+
+interface Plan {
+  id: SubscriptionTier;
+  name: string;
+  price: string;
+  priceDetail?: string;
+  features: string[];
+}
 
 export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: PlanSelectorProps) {
-  const plans = [
-    // ...
+  const plans: Plan[] = [
+    {
+      id: 'free',
+      name: 'Base',
+      price: 'Gratis',
+      features: ['Menu Digitale', 'QR Code', 'Categorie Illimitate']
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      price: '€19',
+      priceDetail: 'mese',
+      features: ['Tutto incluso', 'Temi Personalizzati', 'Statistiche Avanzate', 'Supporto Prioritario']
+    }
   ];
 
   // Auto-select the only plan

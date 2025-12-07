@@ -11,8 +11,8 @@ interface PageProps {
 async function getTenantData(slug: string) {
     const supabase = await createClient();
 
-    const { data: tenant, error } = await supabase
-        .from('tenants')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: tenant, error } = await (supabase.from('tenants') as any)
         .select('*')
         .eq('slug', slug)
         .single();
@@ -22,15 +22,15 @@ async function getTenantData(slug: string) {
     }
 
     // Fetch Design Settings
-    const { data: designSettings } = await supabase
-        .from('tenant_design_settings')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: designData } = await (supabase.from('tenant_design_settings') as any)
         .select('theme_config')
         .eq('tenant_id', tenant.id)
         .single();
 
     return {
         tenant: tenant as Tenant,
-        themeConfig: designSettings?.theme_config || null
+        themeConfig: designData?.theme_config || null
     };
 }
 

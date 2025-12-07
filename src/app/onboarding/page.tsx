@@ -8,7 +8,6 @@ import { createClient } from '@/lib/supabase/client';
 import type { Tenant } from '@/types/menu';
 import StepIndicator from '@/components/onboarding/StepIndicator';
 import PlanSelector from '@/components/onboarding/PlanSelector';
-import BrandingCustomizer from '@/components/onboarding/BrandingCustomizer';
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
 import FooterConfigurator from '@/components/onboarding/FooterConfigurator';
@@ -33,9 +32,9 @@ export default function OnboardingPage() {
     phone: '',
     address: '',
     city: '',
-    city: '',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     theme_options: null as any,
-    footer_data: null as FooterData | null
+    footer_data: undefined as FooterData | undefined
   });
 
   // Load tenant data
@@ -64,10 +63,8 @@ export default function OnboardingPage() {
           const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
           const tempSlug = `restaurant-${user.id.substring(0, 8)}`;
 
-          const { data: newTenant, error: createError } = await supabase
-            .from('tenants')
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: newTenant, error: createError } = await (supabase.from('tenants') as any)
             .insert({
               owner_id: user.id,
               restaurant_name: restaurantName,
@@ -89,7 +86,8 @@ export default function OnboardingPage() {
 
           // Initialize empty design settings for new tenant
           if (tenantData) {
-            await supabase.from('tenant_design_settings').insert({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (supabase.from('tenant_design_settings') as any).insert({
               tenant_id: tenantData.id,
               theme_config: {}
             });
@@ -99,8 +97,8 @@ export default function OnboardingPage() {
         // Fetch design settings
         let themeOptions = null;
         if (tenantData) {
-          const { data: designData } = await supabase
-            .from('tenant_design_settings')
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: designData } = await (supabase.from('tenant_design_settings') as any)
             .select('theme_config')
             .eq('tenant_id', tenantData.id)
             .single();
@@ -129,7 +127,7 @@ export default function OnboardingPage() {
           phone: tenantData.phone || '',
           address: tenantData.address || '',
           city: tenantData.city || '',
-          footer_data: tenantData.footer_data || null,
+          footer_data: tenantData.footer_data || undefined,
           theme_options: themeOptions
         });
         setCurrentStep(tenantData.onboarding_step || 1);
@@ -149,17 +147,17 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient();
 
-      // Separate tenant updates from design updates
-      // Destructure legacy fields to prevent them from being sent to 'tenants' table
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       const {
         theme_options,
-        primary_color,
-        secondary_color,
-        hero_title_color,
-        hero_tagline_color,
-        background_color,
+        primary_color: _primary_color,
+        secondary_color: _secondary_color,
+        hero_title_color: _hero_title_color,
+        hero_tagline_color: _hero_tagline_color,
+        background_color: _background_color,
         ...tenantUpdates
-      } = updates as any; // Cast to any to handle untyped legacy fields in formData
+      } = updates as Record<string, unknown>;
+      /* eslint-enable @typescript-eslint/no-unused-vars */
 
       const updateData: Record<string, unknown> = {
         ...tenantUpdates,
@@ -170,10 +168,8 @@ export default function OnboardingPage() {
       console.log('[updateTenant] Updating tenants table with:', updateData);
 
       // 1. Update Tenant
-      const { error } = await supabase
-        .from('tenants')
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from('tenants') as any)
         .update(updateData)
         .eq('id', tenant.id);
 
@@ -185,8 +181,8 @@ export default function OnboardingPage() {
       // 2. Update Design Settings if theme_options is present
       if (theme_options) {
         console.log('[updateTenant] Updating design settings with:', theme_options);
-        const { error: designError } = await supabase
-          .from('tenant_design_settings')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: designError } = await (supabase.from('tenant_design_settings') as any)
           .upsert({
             tenant_id: tenant.id,
             theme_config: theme_options
@@ -206,7 +202,7 @@ export default function OnboardingPage() {
     }
   }
 
-  async function handleNext(dataOverride?: any) {
+  async function handleNext(dataOverride?: unknown) {
     let updates: Partial<typeof formData> = {};
 
     // Prepara gli update in base allo step corrente
@@ -221,7 +217,8 @@ export default function OnboardingPage() {
       };
       // Immediately update local state too in case navigation fails or delays
       if (dataOverride) {
-        setFormData(prev => ({ ...prev, theme_options: dataOverride }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setFormData(prev => ({ ...prev, theme_options: dataOverride as any }));
       }
     } else if (currentStep === 3) {
       updates = {
@@ -298,7 +295,7 @@ export default function OnboardingPage() {
           {currentStep === 1 && (
             <PlanSelector
               selectedPlan={formData.subscription_tier}
-              onSelectPlan={(tier) => setFormData({ ...formData, subscription_tier: tier })}
+              onSelectPlan={(tier: SubscriptionTier) => setFormData({ ...formData, subscription_tier: tier })}
               onNext={handleNext}
             />
           )}

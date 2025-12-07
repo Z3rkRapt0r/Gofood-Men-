@@ -43,8 +43,11 @@ const MOCK_CATEGORIES = [
 ];
 
 interface BrandingDesignLabProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formData: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onUpdate: (updates: any) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onNext: (themeConfig?: any) => void;
     onBack: () => void;
 }
@@ -116,9 +119,25 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
             <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50">
                 {/* Toolbar */}
                 <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Anteprima Live
-                    </span>
+                    <div className="flex items-center gap-4">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            Anteprima Live
+                        </span>
+                        <div className="flex bg-gray-100 rounded-lg p-0.5">
+                            <button
+                                onClick={() => setViewMode('mobile')}
+                                className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${viewMode === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                📱 Mobile
+                            </button>
+                            <button
+                                onClick={() => setViewMode('desktop')}
+                                className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${viewMode === 'desktop' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                💻 Desktop
+                            </button>
+                        </div>
+                    </div>
                     <div className="text-xs text-gray-400">
                         {formData.slug ? `gofoodmenu.it/${formData.slug}` : 'Anteprima'}
                     </div>

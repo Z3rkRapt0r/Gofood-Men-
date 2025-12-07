@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client inside handler to avoid build-time errors if key is missing
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
     try {
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.warn('RESEND_API_KEY is missing');
+            return Response.json({ error: 'Configuration error' }, { status: 500 });
+        }
+        const resend = new Resend(apiKey);
+
         const formData = await request.formData();
         const subject = formData.get('subject') as string;
         const message = formData.get('message') as string;
@@ -18,7 +26,7 @@ export async function POST(request: Request) {
             );
         }
 
-        let attachments = [];
+        const attachments = [];
         if (file && file.size > 0) {
             if (file.size > 2 * 1024 * 1024) {
                 return NextResponse.json(
@@ -38,7 +46,7 @@ export async function POST(request: Request) {
         const { data, error } = await resend.emails.send({
             from: 'Gofood Menu Support <onboarding@resend.dev>',
             to: ['gabrielebellante@gmail.com'], // Replace with actual support email
-            reply_to: email,
+            replyTo: email,
             subject: `[Assistenza] ${subject}`,
             text: `Nuova richiesta di assistenza da: ${email}\n\nMessaggio:\n${message}`,
             attachments,

@@ -224,9 +224,7 @@ export default function DashboardOverview() {
 function StatCard({
   title,
   value,
-  max,
   icon,
-  color,
   isLink,
 }: {
   title: string;
@@ -236,13 +234,6 @@ function StatCard({
   color: string;
   isLink?: boolean;
 }) {
-  const colors = {
-    orange: 'from-orange-500 to-amber-500',
-    green: 'from-green-500 to-emerald-500',
-    blue: 'from-blue-500 to-cyan-500',
-    purple: 'from-purple-500 to-pink-500',
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
