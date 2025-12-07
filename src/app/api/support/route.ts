@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         // Send email to Support Team
         const { data, error } = await resend.emails.send({
             from: 'Gofood Menu Support <onboarding@resend.dev>',
-            to: ['gabrielebellante@gmail.com'], // Replace with actual support email
+            to: ['help@gofoodmenu.it'],
             replyTo: email,
             subject: `[Assistenza] ${subject}`,
             text: `Nuova richiesta di assistenza da: ${email}\n\nMessaggio:\n${message}`,
