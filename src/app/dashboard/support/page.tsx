@@ -14,11 +14,12 @@ export default async function SupportPage() {
     // If we want the *restaurant* contact email, we should fetch the tenant.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: tenant } = await (supabase.from('tenants') as any)
-        .select('contact_email')
+        .select('contact_email, restaurant_name')
         .eq('owner_id', user.id)
         .single();
 
     const userEmail = tenant?.contact_email || user.email || '';
+    const restaurantName = tenant?.restaurant_name || 'Ristorante Sconosciuto';
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -32,7 +33,7 @@ export default async function SupportPage() {
                 </p>
             </div>
 
-            <SupportForm userEmail={userEmail} />
+            <SupportForm userEmail={userEmail} restaurantName={restaurantName} />
         </div>
     );
 }

@@ -5,9 +5,10 @@ import toast from 'react-hot-toast';
 
 interface SupportFormProps {
     userEmail: string;
+    restaurantName: string;
 }
 
-export default function SupportForm({ userEmail }: SupportFormProps) {
+export default function SupportForm({ userEmail, restaurantName }: SupportFormProps) {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
@@ -38,6 +39,7 @@ export default function SupportForm({ userEmail }: SupportFormProps) {
         try {
             const data = new FormData();
             data.append('email', userEmail);
+            data.append('restaurantName', restaurantName);
             data.append('subject', formData.subject);
             data.append('message', formData.message);
             if (file) {

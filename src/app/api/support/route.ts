@@ -14,6 +14,7 @@ export async function POST(request: Request) {
         const resend = new Resend(apiKey);
 
         const formData = await request.formData();
+        const restaurantName = formData.get('restaurantName') as string;
         const subject = formData.get('subject') as string;
         const message = formData.get('message') as string;
         const email = formData.get('email') as string;
@@ -47,8 +48,8 @@ export async function POST(request: Request) {
             from: 'Gofood Menu <noreply@gofoodmenu.it>',
             to: ['help@gofoodmenu.it'],
             replyTo: email,
-            subject: `[Assistenza] ${subject}`,
-            text: `Nuova richiesta di assistenza da: ${email}\n\nMessaggio:\n${message}`,
+            subject: `Nuova richiesta di assistenza da: ${restaurantName}`,
+            text: `Motivo:${subject}\n\nMessaggio:\n${message}`,
             attachments,
         });
 
