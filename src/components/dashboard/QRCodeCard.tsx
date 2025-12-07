@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
@@ -23,6 +23,7 @@ export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps)
     const [logoWidth, setLogoWidth] = useState<number>(60);
     const [logoHeight, setLogoHeight] = useState<number>(60);
     const [logoPadding, setLogoPadding] = useState<number>(5);
+    const [logoDataUrl, setLogoDataUrl] = useState<string | undefined>(undefined);
 
     // UI State
     // UI State
@@ -136,8 +137,34 @@ export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps)
         }
     };
 
-    // Always rely on the provided logoUrl (from Design Studio)
-    const activeLogo = includeLogo ? (logoUrl || '/logo-gofood.png') : undefined;
+    // Convert logoUrl to Data URL to prevent tainted canvas issues
+    useEffect(() => {
+        if (!logoUrl || !includeLogo) {
+            setLogoDataUrl(undefined);
+            return;
+        }
+
+        const convertToDataURL = async () => {
+            try {
+                const response = await fetch(logoUrl);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setLogoDataUrl(reader.result as string);
+                };
+                reader.readAsDataURL(blob);
+            } catch (error) {
+                console.error('Error converting logo to Data URL:', error);
+                // Fallback to original URL if conversion fails (might still error on download but better than nothing)
+                setLogoDataUrl(logoUrl);
+            }
+        };
+
+        convertToDataURL();
+    }, [logoUrl, includeLogo]);
+
+    // Use the Data URL version for the QR code
+    const activeLogo = includeLogo ? (logoDataUrl || '/logo-gofood.png') : undefined;
 
     return (
         <>
