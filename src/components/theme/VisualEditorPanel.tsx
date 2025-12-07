@@ -50,7 +50,19 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
             const fileName = `logo-${Date.now()}.${fileExt}`;
             const filePath = `${slug}/${fileName}`;
 
-            // Upload to Supabase Storage ('logos' bucket)
+            // 1. Clean up old logos for this slug (to save space)
+            const { data: existingFiles } = await supabase.storage
+                .from('logos')
+                .list(slug);
+
+            if (existingFiles && existingFiles.length > 0) {
+                const filesToRemove = existingFiles.map(f => `${slug}/${f.name}`);
+                await supabase.storage
+                    .from('logos')
+                    .remove(filesToRemove);
+            }
+
+            // 2. Upload to Supabase Storage ('logos' bucket)
             const { error: uploadError } = await supabase.storage
                 .from('logos')
                 .upload(filePath, file, {
