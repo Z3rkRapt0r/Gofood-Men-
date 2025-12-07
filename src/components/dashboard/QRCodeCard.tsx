@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 interface QRCodeCardProps {
     slug: string;
@@ -69,7 +70,7 @@ export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps)
     const saveSettings = async () => {
         if (!tenantId) {
             console.error('Save failed: Missing tenantId');
-            alert('Errore: Impossibile salvare, ID ristorante mancante. Riprova a ricaricare la pagina.');
+            toast.error('Errore: Impossibile salvare, ID ristorante mancante. Riprova a ricaricare la pagina.');
             return;
         }
 
@@ -111,11 +112,11 @@ export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps)
                 throw error;
             }
 
-            alert('Impostazioni salvate con successo! ✅');
+            toast.success('Impostazioni salvate con successo!');
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
             console.error('Error saving settings details:', error);
-            alert('Errore durante il salvataggio: ' + errorMessage);
+            toast.error('Errore durante il salvataggio: ' + errorMessage);
         } finally {
             setSaving(false);
         }

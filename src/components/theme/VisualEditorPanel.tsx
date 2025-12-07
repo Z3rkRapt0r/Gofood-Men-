@@ -3,6 +3,7 @@
 import React, { useRef } from 'react';
 import { useTheme } from './ThemeContext';
 import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
+import toast from 'react-hot-toast';
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
@@ -33,7 +34,7 @@ export function VisualEditorPanel({ logoUrl, onLogoChange }: VisualEditorPanelPr
         if (!file || !onLogoChange) return;
 
         if (file.size > 2 * 1024 * 1024) {
-            alert('Il logo deve essere inferiore a 2MB');
+            toast.error('Il logo deve essere inferiore a 2MB');
             return;
         }
 

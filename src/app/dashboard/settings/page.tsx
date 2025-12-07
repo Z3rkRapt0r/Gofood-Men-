@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { FooterData, FooterLocation, FooterLink, FooterSocial } from '@/types/menu';
+import toast from 'react-hot-toast';
 
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
@@ -142,13 +143,13 @@ export default function SettingsPage() {
 
       if (error) throw error;
 
-      alert('✅ Impostazioni salvate con successo!');
+      toast.success('Impostazioni salvate con successo!');
     } catch (err: unknown) {
       console.error('Error saving settings:', err);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.error('Error details:', JSON.stringify(err as any, null, 2));
       const message = err instanceof Error ? err.message : 'Errore sconosciuto';
-      alert('❌ Errore nel salvataggio: ' + message);
+      toast.error('Errore nel salvataggio: ' + message);
     } finally {
       setSaving(false);
     }
@@ -344,7 +345,7 @@ export default function SettingsPage() {
                   // User clicked "Salva e Continua" in the lab.
                   // We can treat this as a "Save" for the whole settings page, or just alert.
                   // Since we are in a form, maybe we don't auto-submit.
-                  alert('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.');
+                  toast.success('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.', { duration: 5000 });
                 }}
                 onBack={() => { }}
               />

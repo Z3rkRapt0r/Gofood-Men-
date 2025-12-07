@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
+import toast from 'react-hot-toast';
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
 type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
@@ -134,7 +135,7 @@ export default function CategoriesPage() {
       loadCategories();
     } catch (err) {
       console.error('Error saving category:', err);
-      alert(err instanceof Error ? err.message : 'Errore nel salvataggio della categoria');
+      toast.error(err instanceof Error ? err.message : 'Errore nel salvataggio della categoria');
     }
   }
 
@@ -154,7 +155,7 @@ export default function CategoriesPage() {
       loadCategories();
     } catch (err) {
       console.error('Error deleting category:', err);
-      alert('Errore durante l\'eliminazione della categoria');
+      toast.error('Errore durante l\'eliminazione della categoria');
     }
   }
 

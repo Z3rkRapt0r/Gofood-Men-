@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function RegisterPage() {
 
         // Mostra messaggio all'utente
         setError(null);
-        alert('✅ Account creato! Controlla la tua email per confermare la registrazione. Dopo la conferma potrai accedere e completare il setup.');
+        toast.success('Account creato! Controlla la tua email per confermare la registrazione.', { duration: 6000 });
         router.push('/login');
         return;
       }

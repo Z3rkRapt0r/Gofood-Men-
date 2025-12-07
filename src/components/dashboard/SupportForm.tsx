@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface SupportFormProps {
     userEmail: string;
@@ -21,7 +22,7 @@ export default function SupportForm({ userEmail }: SupportFormProps) {
         if (e.target.files && e.target.files[0]) {
             const selectedFile = e.target.files[0];
             if (selectedFile.size > 2 * 1024 * 1024) {
-                alert('Il file non può superare i 2MB');
+                toast.error('Il file non può superare i 2MB');
                 return;
             }
             setFile(selectedFile);

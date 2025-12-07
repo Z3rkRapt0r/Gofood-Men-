@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
+import toast from 'react-hot-toast';
 
 interface Dish {
   id: string;
@@ -131,7 +132,7 @@ export default function DishesPage() {
     e.preventDefault();
 
     if (!tenantId || !formData.categoryId) {
-      alert('Seleziona una categoria');
+      toast.error('Seleziona una categoria');
       return;
     }
 
@@ -193,7 +194,7 @@ export default function DishesPage() {
       loadData();
     } catch (err) {
       console.error('Error saving dish:', err);
-      alert(err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
+      toast.error(err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
     }
   }
 
@@ -213,7 +214,7 @@ export default function DishesPage() {
       loadData();
     } catch (err) {
       console.error('Error deleting dish:', err);
-      alert('Errore durante l\'eliminazione del piatto');
+      toast.error('Errore durante l\'eliminazione del piatto');
     }
   }
 
@@ -682,7 +683,7 @@ export default function DishesPage() {
         onClose={() => setShowImportModal(false)}
         onSuccess={() => {
           loadData();
-          alert('Piatti importati con successo!');
+          toast.success('Piatti importati con successo!');
         }}
         tenantId={tenantId}
         categories={categories}

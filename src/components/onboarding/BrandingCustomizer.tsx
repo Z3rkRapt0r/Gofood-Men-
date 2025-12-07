@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 interface BrandingCustomizerProps {
   formData: {
@@ -39,17 +40,17 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Per favore carica un\'immagine valida');
+      toast.error('Per favore carica un\'immagine valida');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      alert('L\'immagine deve essere inferiore a 2MB');
+      toast.error('L\'immagine deve essere inferiore a 2MB');
       return;
     }
 
     if (!formData.slug) {
-      alert("Inserisci prima il nome del ristorante per generare l'URL");
+      toast.error("Inserisci prima il nome del ristorante per generare l'URL");
       return;
     }
 
@@ -76,7 +77,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       onUpdate({ logo_url: data.publicUrl });
     } catch (err) {
       console.error('Error uploading logo:', err);
-      alert('Errore durante l\'upload del logo');
+      toast.error('Errore durante l\'upload del logo');
     } finally {
       setUploadingLogo(false);
     }
