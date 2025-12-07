@@ -55,7 +55,6 @@ interface BrandingDesignLabProps {
 export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }: BrandingDesignLabProps) {
     const { currentTheme } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string>('antipasti');
-    const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
     const mainRef = useRef<HTMLDivElement>(null);
 
     const handleCategoryClick = (categoryId: string) => {
@@ -124,20 +123,6 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                             Anteprima Live
                         </span>
-                        <div className="flex bg-gray-100 rounded-lg p-0.5">
-                            <button
-                                onClick={() => setViewMode('mobile')}
-                                className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${viewMode === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                📱 Mobile
-                            </button>
-                            <button
-                                onClick={() => setViewMode('desktop')}
-                                className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${viewMode === 'desktop' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                💻 Desktop
-                            </button>
-                        </div>
                     </div>
                     <div className="text-xs text-gray-400">
                         {formData.slug ? `gofoodmenu.it/${formData.slug}` : 'Anteprima'}
@@ -147,15 +132,9 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                 {/* Canvas */}
                 <div className="flex-1 overflow-auto p-4 md:p-8 flex flex-col items-center justify-start bg-gray-100/50">
                     <div
-                        className={`bg-white shadow-2xl transition-all duration-300 origin-top relative ${viewMode === 'mobile'
-                            ? 'w-full max-w-[400px] h-full rounded-3xl z-10 overflow-y-auto scrollbar-hide border border-gray-200'
-                            : 'w-[95%] max-w-6xl h-[600px] md:h-[700px] rounded-t-xl border-x-[12px] border-t-[12px] border-b-[24px] border-gray-800 z-10 flex flex-col' // Monitor Frame
-                            }`}
+                        className="bg-white shadow-2xl transition-all duration-300 origin-top relative w-full max-w-[400px] h-full rounded-3xl z-10 overflow-y-auto scrollbar-hide border border-gray-200"
                     >
-                        {/* Optional Webcam dot for monitor */}
-                        {viewMode === 'desktop' && (
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-gray-600 rounded-full mt-1 z-50"></div>
-                        )}
+
                         <ThemeWrapper>
                             <div
                                 ref={mainRef}
@@ -178,7 +157,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                     restaurantName={mockTenant.restaurant_name}
                                     logoUrl={mockTenant.logo_url}
                                     logoHeight={currentTheme.logoHeight}
-                                    forceMobile={viewMode === 'mobile'}
+                                    forceMobile={true}
                                 />
 
                                 <CategoryNav
@@ -198,7 +177,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                     />
                                     <div className="relative z-10 text-center px-4">
                                         <h1
-                                            className={`font-display font-bold mb-2 theme-heading ${viewMode === 'mobile' ? 'text-3xl' : 'text-3xl md:text-5xl'}`}
+                                            className="font-display font-bold mb-2 theme-heading text-3xl"
                                             style={{ color: mockTenant.hero_title_color }}
                                         >
                                             {mockTenant.restaurant_name}
@@ -223,7 +202,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                                 <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
                                             </div>
 
-                                            <div className={`grid gap-6 ${viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+                                            <div className="grid gap-6 grid-cols-1">
                                                 {category.dishes.map((dish) => (
                                                     <DishCard key={dish.id} dish={dish} />
                                                 ))}
@@ -248,13 +227,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                         </ThemeWrapper>
                     </div>
 
-                    {/* Monitor Stand */}
-                    {viewMode === 'desktop' && (
-                        <div className="flex flex-col items-center">
-                            <div className="w-32 h-16 bg-gradient-to-b from-gray-700 to-gray-800 mx-auto shadow-inner"></div>
-                            <div className="w-48 h-2 bg-gray-800 rounded-full shadow-xl"></div>
-                        </div>
-                    )}
+
                 </div>
             </div>
         </div >
