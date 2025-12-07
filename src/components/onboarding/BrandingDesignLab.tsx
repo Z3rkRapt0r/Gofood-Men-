@@ -95,6 +95,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
             <div className="w-96 flex flex-col border-r border-gray-200">
                 <VisualEditorPanel
                     logoUrl={formData.logo_url}
+                    slug={formData.slug}
                     onLogoChange={(url) => onUpdate({ logo_url: url })}
                 />
 

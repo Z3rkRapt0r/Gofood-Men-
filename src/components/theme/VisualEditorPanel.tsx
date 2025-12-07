@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useTheme } from './ThemeContext';
 import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
 import toast from 'react-hot-toast';
+import { createClient } from '@/lib/supabase/client';
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
+    slug: string;
     onLogoChange?: (url: string) => void;
 }
 
@@ -25,11 +27,12 @@ const FONT_OPTIONS = [
     { label: 'Space Mono (Tecnico)', value: 'Space Mono' },
 ];
 
-export function VisualEditorPanel({ logoUrl, onLogoChange }: VisualEditorPanelProps) {
+export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorPanelProps) {
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !onLogoChange) return;
 
@@ -38,11 +41,36 @@ export function VisualEditorPanel({ logoUrl, onLogoChange }: VisualEditorPanelPr
             return;
         }
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            onLogoChange(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        try {
+            setUploading(true);
+            const supabase = createClient();
+
+            // Generate clean filename
+            const fileExt = file.name.split('.').pop();
+            const fileName = `logo-${Date.now()}.${fileExt}`;
+            const filePath = `${slug}/${fileName}`;
+
+            // Upload to Supabase Storage ('logos' bucket)
+            const { error: uploadError } = await supabase.storage
+                .from('logos')
+                .upload(filePath, file, {
+                    upsert: true
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('logos')
+                .getPublicUrl(filePath);
+
+            onLogoChange(data.publicUrl);
+            toast.success('Logo caricato con successo!');
+        } catch (error) {
+            console.error('Error uploading logo:', error);
+            toast.error('Errore durante il caricamento del logo');
+        } finally {
+            setUploading(false);
+        }
     };
 
     return (
@@ -73,7 +101,7 @@ export function VisualEditorPanel({ logoUrl, onLogoChange }: VisualEditorPanelPr
                                     onClick={() => fileInputRef.current?.click()}
                                     className="text-xs font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors"
                                 >
-                                    {logoUrl ? 'Cambia Logo' : 'Carica Logo'}
+                                    {uploading ? 'Caricamento...' : (logoUrl ? 'Cambia Logo' : 'Carica Logo')}
                                 </button>
                                 <p className="text-[10px] text-gray-400 mt-1">Max 2MB (PNG, JPG)</p>
                                 <input
