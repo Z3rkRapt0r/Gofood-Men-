@@ -221,7 +221,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                     restaurantName={mockTenant.restaurant_name}
                                     slug={mockTenant.slug}
                                     logoUrl={mockTenant.logo_url}
-                                    forceMobile={viewMode === 'mobile'}
+                                    forceMobile={true}
                                 />
                             </div>
                         </ThemeWrapper>
