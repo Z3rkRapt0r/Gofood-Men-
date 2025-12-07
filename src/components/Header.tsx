@@ -8,31 +8,30 @@ import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
 interface HeaderProps {
   restaurantName?: string;
   logoUrl?: string;
+  forceMobile?: boolean;
+  logoHeight?: number;
 }
 
 export default function Header({
   restaurantName = 'Menu Digitale',
-  logoUrl = '/icon.svg'
+  logoUrl = '/favicon.svg',
+  forceMobile = false,
+  logoHeight = 40
 }: HeaderProps) {
   // Ensure logoUrl is properly encoded to handle spaces
-  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/icon.svg';
+  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/favicon.svg';
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
   return (
-    <header className="sticky top-0 z-50 bg-[var(--tenant-surface,#FFFFFF)]/95 backdrop-blur-md shadow-md border-b border-gray-200/50">
+    <header className="sticky top-0 z-50 bg-[var(--tenant-surface,#FFFFFF)] transition-all duration-200">
       <div className="container mx-auto px-4 py-3 md:py-4">
         {/* Layout mobile: logo sx, filtri dx */}
-        <div className="flex items-center justify-between md:hidden">
-          <img
-            src={sanitizedLogoUrl}
-            alt={restaurantName}
-            className="h-10 w-auto object-contain"
-          />
-
-          {/* Gruppo controlli: filtro + lingua */}
-          <div className="flex items-center gap-2">
-            {/* Pulsante filtro celiaci */}
+        {/* Layout mobile: filtro sx, logo centro, lingua dx */}
+        <div className={`flex items-center justify-between relative ${forceMobile ? 'w-full' : 'md:hidden'}`}>
+          {/* Pulsante filtro celiaci (Sinistra) */}
+          <div className="w-12 flex justify-start">
             <button
+              type="button"
               onClick={toggleGlutenFilter}
               className={`p-2 rounded-lg transition-colors ${isGlutenFree
                 ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'
@@ -49,29 +48,46 @@ export default function Header({
                 className="w-5 h-5"
               />
             </button>
+          </div>
 
-            <LanguageSwitcher />
+          {/* Logo (Centro) */}
+          <div className="flex-1 flex items-center justify-center px-2">
+            <img
+              src={sanitizedLogoUrl}
+              alt={restaurantName}
+              style={{ height: `${logoHeight}px` }}
+              className="w-auto max-w-[140px] object-contain transition-all duration-200"
+            />
+          </div>
+
+          {/* Lingua (Destra) */}
+          <div className="w-12 flex justify-end">
+            <LanguageSwitcher compact={true} />
           </div>
         </div>
 
         {/* Layout desktop: logo centrato, filtri dx */}
-        <div className="hidden md:flex items-center justify-between relative">
-          {/* Spacer per bilanciare il layout */}
-          <div className="w-[140px]"></div>
+        <div className={`hidden items-center justify-between relative ${forceMobile ? '' : 'md:flex'}`}>
+          {/* Spacer per bilanciare il layout (Sinistra) */}
+          <div className="w-[200px] flex justify-start">
+            {/* Optional: Add Left elements here if needed later */}
+          </div>
 
           {/* Logo centrato */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
+          <div className="flex-1 flex items-center justify-center">
             <img
               src={sanitizedLogoUrl}
               alt={restaurantName}
-              className="h-14 w-auto object-contain"
+              style={{ height: `${logoHeight}px` }}
+              className="w-auto object-contain transition-all duration-200"
             />
           </div>
 
           {/* Gruppo controlli a destra */}
-          <div className="flex items-center gap-3">
+          <div className="w-[200px] flex items-center justify-end gap-3">
             {/* Pulsante filtro celiaci */}
             <button
+              type="button"
               onClick={toggleGlutenFilter}
               className={`p-2.5 rounded-lg transition-colors ${isGlutenFree
                 ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'

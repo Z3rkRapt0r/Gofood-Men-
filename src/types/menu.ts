@@ -87,7 +87,7 @@ export interface FooterLink {
 }
 
 export interface FooterSocial {
-  platform: 'facebook' | 'instagram' | 'tripadvisor' | 'website' | 'other';
+  platform: 'facebook' | 'instagram' | 'website' | 'other';
   url: string;
   icon?: string; // Emoji
 }
@@ -98,6 +98,13 @@ export interface FooterData {
   socials: FooterSocial[];
   show_brand_column: boolean; // Toggle for the first column
   brand_description?: Translation; // Custom description for the brand column
+}
+
+export interface TenantDesignSettings {
+  tenant_id: string;
+  theme_config: any; // Typed as ThemeConfig in frontend
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Tenant {
@@ -118,12 +125,9 @@ export interface Tenant {
 
   // Branding
   logo_url: string | null; // Supabase Storage URL
-  primary_color: string; // Hex color (default: #8B0000)
-  secondary_color: string; // Hex color (default: #D4AF37)
-  background_color?: string; // Hex color (default: #FFF8E7)
-  surface_color?: string;
-  text_color?: string;
-  secondary_text_color?: string;
+  // Branding
+  logo_url: string | null; // Supabase Storage URL
+  // Colors and Theme Options moved to tenant_design_settings
 
   // Footer
   footer_data?: FooterData; // JSONB

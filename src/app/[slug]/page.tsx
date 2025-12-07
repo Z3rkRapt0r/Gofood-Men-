@@ -92,9 +92,17 @@ async function getMenuData(slug: string) {
       })) || []
   })) || [];
 
+  // 3. Fetch Design Settings
+  const { data: designSettings } = await supabase
+    .from('tenant_design_settings')
+    .select('theme_config')
+    .eq('tenant_id', tenantData.id)
+    .single();
+
   return {
     tenant: tenantData,
-    categories: transformedCategories
+    categories: transformedCategories,
+    themeConfig: designSettings?.theme_config || null
   };
 }
 
@@ -104,7 +112,7 @@ export default async function Page({ params }: PageProps) {
   if (!menuData) {
     notFound();
   }
-  const { tenant, categories } = menuData;
+  const { tenant, categories, themeConfig } = menuData;
 
   // Transform tenant to match expected interface
   const transformedTenant = {
@@ -113,7 +121,11 @@ export default async function Page({ params }: PageProps) {
   };
 
   return (
-    <MenuPageClient tenant={transformedTenant} categories={categories} />
+    <MenuPageClient
+      tenant={transformedTenant}
+      categories={categories}
+      initialTheme={themeConfig}
+    />
   );
 }
 

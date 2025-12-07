@@ -34,12 +34,10 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       .replace(/^-+|-+$/g, '');
   }
 
-  // Upload logo (placeholder - da implementare con Supabase Storage)
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validazione
     if (!file.type.startsWith('image/')) {
       alert('Per favore carica un\'immagine valida');
       return;
@@ -50,16 +48,32 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       return;
     }
 
+    if (!formData.slug) {
+      alert("Inserisci prima il nome del ristorante per generare l'URL");
+      return;
+    }
+
     setUploadingLogo(true);
 
     try {
-      // TODO: Implementare upload su Supabase Storage
-      // Per ora usa data URL come placeholder
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onUpdate({ logo_url: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `${formData.slug}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(filePath, file, {
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('logos')
+        .getPublicUrl(filePath);
+
+      onUpdate({ logo_url: data.publicUrl });
     } catch (err) {
       console.error('Error uploading logo:', err);
       alert('Errore durante l\'upload del logo');

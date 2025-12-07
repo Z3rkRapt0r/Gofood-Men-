@@ -21,7 +21,9 @@
     "pdfjs-dist": "^5.4.449",
     "prisma": "^7.0.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-qrcode-logo": "^4.0.0",
+    "resend": "^6.5.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

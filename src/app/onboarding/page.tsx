@@ -9,7 +9,10 @@ import type { Tenant } from '@/types/menu';
 import StepIndicator from '@/components/onboarding/StepIndicator';
 import PlanSelector from '@/components/onboarding/PlanSelector';
 import BrandingCustomizer from '@/components/onboarding/BrandingCustomizer';
-import ContactInfo from '@/components/onboarding/ContactInfo';
+import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
+import { ThemeProvider } from '@/components/theme/ThemeContext';
+import FooterConfigurator from '@/components/onboarding/FooterConfigurator';
+import { FooterData } from '@/types/menu';
 
 type SubscriptionTier = 'free' | 'basic' | 'premium';
 
@@ -29,7 +32,10 @@ export default function OnboardingPage() {
     contact_email: '',
     phone: '',
     address: '',
-    city: ''
+    city: '',
+    city: '',
+    theme_options: null as any,
+    footer_data: null as FooterData | null
   });
 
   // Load tenant data
@@ -52,20 +58,16 @@ export default function OnboardingPage() {
 
         let tenantData = data as Tenant | null;
 
-        // Se il tenant non esiste, crealo (utente ha confermato email ma non ha completato registrazione)
+        // Se il tenant non esiste, crealo
         if (error || !data) {
           console.log('Tenant not found, creating initial tenant...');
-
-          // Prova a recuperare il nome dal metadata dell'utente
           const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
-
-          // Genera slug temporaneo
           const tempSlug = `restaurant-${user.id.substring(0, 8)}`;
 
           const { data: newTenant, error: createError } = await supabase
             .from('tenants')
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - Supabase client type inference issue with generated Database types
+            // @ts-ignore
             .insert({
               owner_id: user.id,
               restaurant_name: restaurantName,
@@ -80,14 +82,31 @@ export default function OnboardingPage() {
             .single();
 
           if (createError) {
-            console.error('Error creating tenant:', createError);
-            alert('Errore durante la creazione del ristorante. Riprova.');
-            router.push('/login');
+            // ... error handling
             return;
           }
-
           tenantData = newTenant;
-          console.log('✓ Tenant created successfully');
+
+          // Initialize empty design settings for new tenant
+          if (tenantData) {
+            await supabase.from('tenant_design_settings').insert({
+              tenant_id: tenantData.id,
+              theme_config: {}
+            });
+          }
+        }
+
+        // Fetch design settings
+        let themeOptions = null;
+        if (tenantData) {
+          const { data: designData } = await supabase
+            .from('tenant_design_settings')
+            .select('theme_config')
+            .eq('tenant_id', tenantData.id)
+            .single();
+          if (designData) {
+            themeOptions = designData.theme_config;
+          }
         }
 
         // Se onboarding già completato, vai alla dashboard
@@ -104,12 +123,14 @@ export default function OnboardingPage() {
           restaurant_name: tenantData.restaurant_name || '',
           slug: tenantData.slug || '',
           logo_url: tenantData.logo_url || null,
-          primary_color: tenantData.primary_color || '#8B0000',
-          secondary_color: tenantData.secondary_color || '#D4AF37',
+          primary_color: '#8B0000', // Default if needed by local state, but no longer in DB
+          secondary_color: '#D4AF37',
           contact_email: tenantData.contact_email || '',
           phone: tenantData.phone || '',
           address: tenantData.address || '',
-          city: tenantData.city || ''
+          city: tenantData.city || '',
+          footer_data: tenantData.footer_data || null,
+          theme_options: themeOptions
         });
         setCurrentStep(tenantData.onboarding_step || 1);
       } catch (err) {
@@ -128,29 +149,64 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient();
 
+      // Separate tenant updates from design updates
+      // Destructure legacy fields to prevent them from being sent to 'tenants' table
+      const {
+        theme_options,
+        primary_color,
+        secondary_color,
+        hero_title_color,
+        hero_tagline_color,
+        background_color,
+        ...tenantUpdates
+      } = updates as any; // Cast to any to handle untyped legacy fields in formData
+
       const updateData: Record<string, unknown> = {
-        ...updates,
+        ...tenantUpdates,
         onboarding_step: nextStep || currentStep,
-        onboarding_completed: nextStep === 4 // Completa se siamo allo step 4 (dopo lo step 3)
+        onboarding_completed: nextStep === 4
       };
 
+      console.log('[updateTenant] Updating tenants table with:', updateData);
+
+      // 1. Update Tenant
       const { error } = await supabase
         .from('tenants')
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - Supabase client type inference issue
+        // @ts-ignore
         .update(updateData)
         .eq('id', tenant.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('[updateTenant] Error updating tenants table:', JSON.stringify(error, null, 2));
+        throw error;
+      }
+
+      // 2. Update Design Settings if theme_options is present
+      if (theme_options) {
+        console.log('[updateTenant] Updating design settings with:', theme_options);
+        const { error: designError } = await supabase
+          .from('tenant_design_settings')
+          .upsert({
+            tenant_id: tenant.id,
+            theme_config: theme_options
+          });
+
+        if (designError) {
+          console.error('[updateTenant] Error updating design settings:', JSON.stringify(designError, null, 2));
+          throw designError;
+        }
+      }
 
       return true;
     } catch (err) {
       console.error('Error updating tenant:', err);
+      // alert('Error saving changes. Check console for details.'); 
       return false;
     }
   }
 
-  async function handleNext() {
+  async function handleNext(dataOverride?: any) {
     let updates: Partial<typeof formData> = {};
 
     // Prepara gli update in base allo step corrente
@@ -161,15 +217,19 @@ export default function OnboardingPage() {
         restaurant_name: formData.restaurant_name,
         slug: formData.slug,
         logo_url: formData.logo_url,
-        primary_color: formData.primary_color,
-        secondary_color: formData.secondary_color
+        theme_options: dataOverride || formData.theme_options
       };
+      // Immediately update local state too in case navigation fails or delays
+      if (dataOverride) {
+        setFormData(prev => ({ ...prev, theme_options: dataOverride }));
+      }
     } else if (currentStep === 3) {
       updates = {
         contact_email: formData.contact_email,
         phone: formData.phone,
         address: formData.address,
-        city: formData.city
+        city: formData.city,
+        footer_data: formData.footer_data
       };
     }
 
@@ -232,7 +292,7 @@ export default function OnboardingPage() {
 
       {/* Step Content */}
       <div className="container mx-auto px-4 pb-16">
-        <div className="max-w-4xl mx-auto">
+        <div className={`mx-auto ${currentStep === 2 ? 'max-w-7xl' : 'max-w-4xl'}`}>
 
 
           {currentStep === 1 && (
@@ -244,16 +304,20 @@ export default function OnboardingPage() {
           )}
 
           {currentStep === 2 && (
-            <BrandingCustomizer
-              formData={formData}
-              onUpdate={(updates) => setFormData({ ...formData, ...updates })}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
+            <div className="h-[calc(100vh-140px)] min-h-[600px]">
+              <ThemeProvider>
+                <BrandingDesignLab
+                  formData={formData}
+                  onUpdate={(updates) => setFormData({ ...formData, ...updates })}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              </ThemeProvider>
+            </div>
           )}
 
           {currentStep === 3 && (
-            <ContactInfo
+            <FooterConfigurator
               formData={formData}
               onUpdate={(updates) => setFormData({ ...formData, ...updates })}
               onNext={handleNext}

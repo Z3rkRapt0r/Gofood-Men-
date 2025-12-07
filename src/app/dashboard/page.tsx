@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import QRCodeCard from '@/components/dashboard/QRCodeCard';
 
 interface Stats {
   totalDishes: number;
@@ -19,6 +20,8 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState('');
   const [slug, setSlug] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string>('');
+  const [tenantId, setTenantId] = useState<string>('');
 
   useEffect(() => {
     async function loadStats() {
@@ -26,31 +29,51 @@ export default function DashboardOverview() {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) return;
+        if (!user) {
+          console.log('No user found in Dashboard loadStats');
+          return;
+        }
+
+        console.log('Fetching tenant for user:', user.id);
 
         // Get tenant info
-        const { data: tenant } = await supabase
+        const { data: tenant, error: tenantError } = await supabase
           .from('tenants')
-          .select('id, restaurant_name, slug, max_dishes, max_categories')
+          .select('id, restaurant_name, slug, logo_url, max_dishes, max_categories')
           .eq('owner_id', user.id)
-          .single();
+          .maybeSingle(); // Use maybeSingle to not throw on 0 rows
+
+        if (tenantError) {
+          console.error('Error fetching tenant:', tenantError);
+          throw tenantError;
+        }
+
+        if (!tenant) {
+          console.error('No tenant found for user:', user.id);
+        }
 
         let tenantId = '';
 
         if (tenant) {
+          console.log('Tenant found:', tenant);
           const tenantData = tenant as {
             id: string;
             restaurant_name: string;
             slug: string;
+            logo_url: string;
             max_dishes: number;
             max_categories: number
           };
           tenantId = tenantData.id;
           setRestaurantName(tenantData.restaurant_name);
           setSlug(tenantData.slug);
+          setLogoUrl(tenantData.logo_url);
+          setTenantId(tenantData.id);
           setStats(prev => ({
             ...prev,
           }));
+        } else {
+          // Handle no tenant case if needed
         }
 
         // Get categories count
@@ -130,12 +153,11 @@ export default function DashboardOverview() {
           icon="📁"
           color="blue"
         />
-        <StatCard
-          title="Menu Pubblico"
-          value={slug}
-          icon="🔗"
-          color="purple"
-          isLink
+        <QRCodeCard
+          slug={slug}
+          restaurantName={restaurantName}
+          logoUrl={logoUrl}
+          tenantId={tenantId}
         />
       </div>
 

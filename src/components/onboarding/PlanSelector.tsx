@@ -1,40 +1,18 @@
-type SubscriptionTier = 'free' | 'basic' | 'premium';
+import { useEffect } from 'react';
 
-interface PlanSelectorProps {
-  selectedPlan: SubscriptionTier;
-  onSelectPlan: (tier: SubscriptionTier) => void;
-  onNext: () => void;
-}
+// ... (existing helper function if any)
 
 export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: PlanSelectorProps) {
   const plans = [
-    {
-      id: 'premium' as SubscriptionTier,
-      name: 'Pro',
-      price: '€19.90',
-      priceDetail: 'al mese',
-      color: 'border-orange-500',
-      features: [
-        'Piatti illimitati',
-        'Categorie illimitate',
-        'Menu bilingua (IT, EN)',
-        'Filtro allergeni avanzato',
-        'Foto in alta definizione',
-        'Ricerca piatti istantanea',
-        'Logo personalizzato',
-        'Colori personalizzati',
-        'QR Code dedicato',
-        'Supporto prioritario'
-      ],
-      limitations: [],
-      recommended: true
-    }
+    // ...
   ];
 
   // Auto-select the only plan
-  if (selectedPlan !== 'premium') {
-    onSelectPlan('premium');
-  }
+  useEffect(() => {
+    if (selectedPlan !== 'premium') {
+      onSelectPlan('premium');
+    }
+  }, [selectedPlan, onSelectPlan]);
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">

@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { FooterData, FooterLocation, FooterLink, FooterSocial } from '@/types/menu';
 
+import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
+import { ThemeProvider } from '@/components/theme/ThemeContext';
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -17,6 +20,7 @@ export default function SettingsPage() {
     phone: '',
     address: '',
     city: '',
+    // Legacy colors kept for compatibility but managed via themeOptions now
     primaryColor: '#8B0000',
     secondaryColor: '#D4AF37',
     backgroundColor: '#FFF8E7',
@@ -32,6 +36,7 @@ export default function SettingsPage() {
     logoUrl: '',
     heroTitleColor: '#FFFFFF',
     heroTaglineColor: '#E5E7EB',
+    themeOptions: null as any,
   });
 
   useEffect(() => {
@@ -53,51 +58,43 @@ export default function SettingsPage() {
 
       if (error || !tenant) return;
 
-      const tenantData = tenant as {
-        id: string;
-        restaurant_name: string;
-        tagline: string | null;
-        slug: string;
-        contact_email: string | null;
-        phone: string | null;
-        address: string | null;
-        city: string | null;
-        primary_color: string;
-        secondary_color: string;
-        background_color: string;
-        surface_color: string;
-        text_color: string;
-        secondary_text_color: string;
-        footer_data: FooterData | null;
-        logo_url: string | null;
-        hero_title_color: string | null;
-        hero_tagline_color: string | null;
-      };
+      // Fetch design settings
+      let themeOptions = null;
+      const { data: designData } = await supabase
+        .from('tenant_design_settings')
+        .select('theme_config')
+        .eq('tenant_id', tenant.id)
+        .single();
 
-      setTenantId(tenantData.id);
+      if (designData) {
+        themeOptions = designData.theme_config;
+      }
+
+      setTenantId(tenant.id);
       setFormData({
-        restaurantName: tenantData.restaurant_name || '',
-        tagline: tenantData.tagline || '',
-        slug: tenantData.slug || '',
-        contactEmail: tenantData.contact_email || '',
-        phone: tenantData.phone || '',
-        address: tenantData.address || '',
-        city: tenantData.city || '',
-        primaryColor: tenantData.primary_color || '#8B0000',
-        secondaryColor: tenantData.secondary_color || '#D4AF37',
-        backgroundColor: tenantData.background_color || '#FFF8E7',
-        surfaceColor: tenantData.surface_color || '#FFFFFF',
-        textColor: tenantData.text_color || '#171717',
-        secondaryTextColor: tenantData.secondary_text_color || '#4B5563',
-        footerData: tenantData.footer_data || {
+        restaurantName: tenant.restaurant_name || '',
+        tagline: tenant.tagline || '',
+        slug: tenant.slug || '',
+        contactEmail: tenant.contact_email || '',
+        phone: tenant.phone || '',
+        address: tenant.address || '',
+        city: tenant.city || '',
+        primaryColor: tenant.primary_color || '#8B0000',
+        secondaryColor: tenant.secondary_color || '#D4AF37',
+        backgroundColor: tenant.background_color || '#FFF8E7',
+        surfaceColor: tenant.surface_color || '#FFFFFF',
+        textColor: tenant.text_color || '#171717',
+        secondaryTextColor: tenant.secondary_text_color || '#4B5563',
+        footerData: tenant.footer_data || {
           locations: [],
           links: [],
           socials: [],
           show_brand_column: true,
         },
-        logoUrl: tenantData.logo_url || '',
-        heroTitleColor: tenantData.hero_title_color || '#FFFFFF',
-        heroTaglineColor: tenantData.hero_tagline_color || '#E5E7EB',
+        logoUrl: tenant.logo_url || '',
+        heroTitleColor: tenant.hero_title_color || '#FFFFFF',
+        heroTaglineColor: tenant.hero_tagline_color || '#E5E7EB',
+        themeOptions: themeOptions,
       });
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -124,25 +121,23 @@ export default function SettingsPage() {
     try {
       const supabase = createClient();
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const fileName = `logo-${Date.now()}.${fileExt}`;
       // Use slug for folder path to ensure consistency with RLS policy
-      const filePath = `${formData.slug}/logo/${fileName}`;
+      const filePath = `${formData.slug}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('Loghi Ristoratori') // Switch to 'Loghi Ristoratori' bucket
-        .upload(filePath, file);
+        .from('logos') // Use correct 'logos' bucket
+        .upload(filePath, file, {
+          upsert: true
+        });
 
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage
-        .from('Loghi Ristoratori')
+        .from('logos')
         .getPublicUrl(filePath);
 
-      // Manually encode the URL to handle spaces in bucket name
-      // Supabase getPublicUrl might not encode the bucket name part if it's part of the path
-      const publicUrl = data.publicUrl.replace('Loghi Ristoratori', 'Loghi%20Ristoratori');
-
-      setFormData(prev => ({ ...prev, logoUrl: publicUrl }));
+      setFormData(prev => ({ ...prev, logoUrl: data.publicUrl }));
     } catch (error) {
       console.error('Error uploading logo:', error);
       alert('Errore durante il caricamento del logo');
@@ -168,25 +163,31 @@ export default function SettingsPage() {
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
-          primary_color: formData.primaryColor,
-          secondary_color: formData.secondaryColor,
-          background_color: formData.backgroundColor,
-          surface_color: formData.surfaceColor,
-          text_color: formData.textColor,
-          secondary_text_color: formData.secondaryTextColor,
-          footer_data: formData.footerData,
           logo_url: formData.logoUrl,
-          hero_title_color: formData.heroTitleColor,
-          hero_tagline_color: formData.heroTaglineColor,
         })
         .eq('id', tenantId);
 
       if (error) throw error;
 
+      // Update Design Settings
+      if (formData.themeOptions) {
+        const { error: designError } = await supabase
+          .from('tenant_design_settings')
+          .upsert({
+            tenant_id: tenantId,
+            theme_config: formData.themeOptions
+          });
+
+        if (designError) throw designError;
+      }
+
+      if (error) throw error;
+
       alert('✅ Impostazioni salvate con successo!');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving settings:', err);
-      alert('❌ Errore nel salvataggio: ' + (err instanceof Error ? err.message : 'Riprova'));
+      console.error('Error details:', JSON.stringify(err, null, 2));
+      alert('❌ Errore nel salvataggio: ' + (err?.message || 'Errore sconosciuto'));
     } finally {
       setSaving(false);
     }
@@ -220,42 +221,7 @@ export default function SettingsPage() {
           </h2>
 
           <div className="space-y-4">
-            {/* Logo Upload */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Logo Ristorante
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="relative w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden group">
-                  {formData.logoUrl ? (
-                    <img
-                      src={formData.logoUrl}
-                      alt="Logo Preview"
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-2xl text-gray-400">📷</span>
-                  )}
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-white text-xs font-bold">Modifica</span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">
-                    Carica il logo del tuo ristorante (PNG, JPG, WEBP)
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Consigliato: 512x512px, Max 2MB
-                  </p>
-                </div>
-              </div>
-            </div>
+
 
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">
@@ -368,237 +334,58 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Branding */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Personalizzazione
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Primario
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.primaryColor}
-                  onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.primaryColor}
-                    onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Usato per header e accenti
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Secondario
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.secondaryColor}
-                  onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.secondaryColor}
-                    onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Usato per badge e decorazioni
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Sfondo
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.backgroundColor}
-                  onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.backgroundColor}
-                    onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Colore di sfondo principale
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Titolo Hero
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.heroTitleColor}
-                  onChange={(e) => setFormData({ ...formData, heroTitleColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.heroTitleColor}
-                    onChange={(e) => setFormData({ ...formData, heroTitleColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Colore del nome ristorante
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Slogan Hero
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.heroTaglineColor}
-                  onChange={(e) => setFormData({ ...formData, heroTaglineColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.heroTaglineColor}
-                    onChange={(e) => setFormData({ ...formData, heroTaglineColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Colore della descrizione sotto il nome
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Superfici (Card/Header)
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.surfaceColor}
-                  onChange={(e) => setFormData({ ...formData, surfaceColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.surfaceColor}
-                    onChange={(e) => setFormData({ ...formData, surfaceColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Sfondo di card e header
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Testo Principale
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.textColor}
-                  onChange={(e) => setFormData({ ...formData, textColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.textColor}
-                    onChange={(e) => setFormData({ ...formData, textColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Titoli e testo principale
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Colore Testo Secondario
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={formData.secondaryTextColor}
-                  onChange={(e) => setFormData({ ...formData, secondaryTextColor: e.target.value })}
-                  className="w-16 h-16 rounded-lg border-2 border-gray-200 cursor-pointer"
-                />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={formData.secondaryTextColor}
-                    onChange={(e) => setFormData({ ...formData, secondaryTextColor: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Descrizioni e dettagli
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Design Lab */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900">
+              Design & Branding 🎨
+            </h2>
+            <p className="text-gray-500 text-sm">Personalizza l'aspetto del tuo menu con il nuovo editor visivo</p>
           </div>
 
-          {/* Preview */}
-          <div className="mt-6 p-4 rounded-xl border-2 border-gray-200 bg-gray-50">
-            <p className="text-sm font-bold text-gray-700 mb-3">Anteprima Colori:</p>
-            <div className="flex gap-3">
-              <div
-                className="flex-1 h-20 rounded-lg shadow-sm flex items-center justify-center text-white font-bold"
-                style={{ backgroundColor: formData.primaryColor }}
-              >
-                Primario
-              </div>
-              <div
-                className="flex-1 h-20 rounded-lg shadow-sm flex items-center justify-center text-white font-bold"
-                style={{ backgroundColor: formData.secondaryColor }}
-              >
-                Secondario
-              </div>
-              <div
-                className="flex-1 h-20 rounded-lg shadow-sm flex items-center justify-center text-gray-900 font-bold border border-gray-200"
-                style={{ backgroundColor: formData.backgroundColor }}
-              >
-                Sfondo
-              </div>
-            </div>
+          <div className="h-[calc(100vh-140px)] min-h-[600px]">
+            <ThemeProvider initialTheme={formData.themeOptions}>
+              <BrandingDesignLab
+                formData={{
+                  restaurant_name: formData.restaurantName,
+                  slug: formData.slug,
+                  logo_url: formData.logoUrl,
+                  primary_color: formData.primaryColor,
+                  secondary_color: formData.secondaryColor,
+                  background_color: formData.backgroundColor,
+                  hero_title_color: formData.heroTitleColor,
+                  hero_tagline_color: formData.heroTaglineColor,
+                  footer_data: formData.footerData,
+                  theme_options: formData.themeOptions
+                }}
+                onUpdate={(updates) => {
+                  console.log('Design Lab Update:', updates);
+                  // Update local state based on what changed
+                  setFormData(prev => {
+                    const newData = { ...prev };
+                    if (updates.theme_options) newData.themeOptions = updates.theme_options;
+                    if (updates.logo_url) newData.logoUrl = updates.logo_url;
+                    // Sync legacy colors if changed (optional, but good for consistency)
+                    if (updates.theme_options && updates.theme_options.colors) {
+                      const c = updates.theme_options.colors;
+                      if (c.primary) newData.primaryColor = c.primary;
+                      if (c.secondary) newData.secondaryColor = c.secondary;
+                      if (c.background) newData.backgroundColor = c.background;
+                      if (c.surface) newData.surfaceColor = c.surface;
+                      if (c.text) newData.textColor = c.text;
+                    }
+                    return newData;
+                  });
+                }}
+                onNext={() => {
+                  // User clicked "Salva e Continua" in the lab.
+                  // We can treat this as a "Save" for the whole settings page, or just alert.
+                  // Since we are in a form, maybe we don't auto-submit.
+                  alert('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.');
+                }}
+                onBack={() => { }}
+              />
+            </ThemeProvider>
           </div>
         </div>
 
@@ -918,7 +705,7 @@ export default function SettingsPage() {
             )}
           </button>
         </div>
-      </form >
-    </div >
+      </form>
+    </div>
   );
 }

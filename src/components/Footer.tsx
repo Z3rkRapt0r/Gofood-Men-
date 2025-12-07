@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
+import { SocialIcon } from './SocialIcon';
 
 import { FooterData } from '@/types/menu';
 
@@ -11,12 +12,13 @@ interface FooterProps {
   restaurantName?: string;
   logoUrl?: string;
   slug?: string;
+  forceMobile?: boolean;
 }
 
-export default function Footer({ footerData, restaurantName, logoUrl, slug }: FooterProps) {
+export default function Footer({ footerData, restaurantName, logoUrl, slug, forceMobile = false }: FooterProps) {
   const { language } = useTranslation();
   // Ensure logoUrl is properly encoded to handle spaces
-  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/icon.svg';
+  const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/favicon.svg';
 
   // Default locations if no footer data is provided
   const defaultLocations: { city: string; address: string; phone?: string }[] = [];
@@ -33,14 +35,14 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
     <footer className="bg-gradient-to-b from-[var(--tenant-surface,#FFFFFF)] to-[var(--tenant-background,#FFF8E7)] border-t-2 border-[var(--tenant-secondary,#D4AF37)] mt-16">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className={`grid grid-cols-2 gap-8 mb-8 ${forceMobile ? '' : 'md:grid-cols-3'}`}>
           {/* Brand Section */}
           {showBrandColumn && (
-            <div className="text-center md:text-left">
+            <div className={`col-span-2 text-center ${forceMobile ? '' : 'md:col-span-1 md:text-left'}`}>
               <img
                 src={sanitizedLogoUrl}
                 alt={`${restaurantName || 'Menu Digitale'} Logo`}
-                className="h-12 w-auto mx-auto md:mx-0 mb-3 object-contain"
+                className={`h-12 w-auto mx-auto mb-3 object-contain ${forceMobile ? '' : 'md:mx-0'}`}
               />
               <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)] mb-4">
                 {language === 'it'
@@ -56,7 +58,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
           )}
 
           {/* Le Nostre Sedi */}
-          <div className="text-center md:text-left">
+          <div className={`text-center ${forceMobile ? '' : 'md:text-left'}`}>
             <h4 className="text-lg font-bold text-[var(--tenant-text,#171717)] mb-4">
               {language === 'it' ? 'Le Nostre Sedi' : 'Our Locations'}
             </h4>
@@ -79,7 +81,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
           </div>
 
           {/* Links Utili */}
-          <div className="text-center md:text-left">
+          <div className={`text-center ${forceMobile ? '' : 'md:text-left'}`}>
             <h4 className="text-lg font-bold text-[var(--tenant-text,#171717)] mb-4">
               {language === 'it' ? 'Informazioni' : 'Information'}
             </h4>
@@ -125,7 +127,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
               <h5 className="text-sm font-semibold text-[var(--tenant-text,#171717)] mb-3">
                 {language === 'it' ? 'Seguici' : 'Follow Us'}
               </h5>
-              <div className="flex gap-3 justify-center md:justify-start">
+              <div className={`flex gap-3 justify-center ${forceMobile ? '' : 'md:justify-start'}`}>
                 {socials.length > 0 ? (
                   socials.map((social, index) => (
                     <a
@@ -133,14 +135,10 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug }: Fo
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-2xl hover:text-[var(--tenant-primary,#8B0000)] transition-colors"
+                      className="text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors hover:scale-110 transform duration-200"
                       aria-label={social.platform}
                     >
-                      {social.platform === 'facebook' && '📘'}
-                      {social.platform === 'instagram' && '📸'}
-                      {social.platform === 'tripadvisor' && '🦉'}
-                      {social.platform === 'website' && '🌐'}
-                      {social.platform === 'other' && '🔗'}
+                      <SocialIcon platform={social.platform} className="w-6 h-6" />
                     </a>
                   ))
                 ) : (

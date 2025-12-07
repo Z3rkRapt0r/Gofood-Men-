@@ -1,26 +1,22 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { FooterData } from '@/types/menu';
 import Header from '@/components/Header';
 import CategoryNav from '@/components/CategoryNav';
 import DishCard from '@/components/DishCard';
 import ScrollToTop from '@/components/ScrollToTop';
 import Footer from '@/components/Footer';
+import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
+import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
+import { ThemeDivider } from '@/components/theme/ThemeDivider';
 
 interface Tenant {
   restaurant_name: string;
   logo_url?: string;
-  primary_color: string;
-  secondary_color: string;
-  background_color?: string;
-  surface_color?: string;
-  text_color?: string;
-  secondary_text_color?: string;
-  footer_data?: FooterData;
   slug: string;
   tagline?: string;
-  hero_title_color?: string;
-  hero_tagline_color?: string;
+  footer_data?: FooterData;
+  // Legacy fields are ignored now
 }
 
 interface Dish {
@@ -38,7 +34,8 @@ interface Category {
   dishes: Dish[];
 }
 
-export default function MenuPageClient({ tenant, categories }: { tenant: Tenant, categories: Category[] }) {
+function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Category[] }) {
+  const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
   const mainRef = useRef<HTMLDivElement>(null);
 
@@ -57,68 +54,78 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
       ref={mainRef}
       className="min-h-screen"
       style={{
-        backgroundColor: tenant.background_color || '#FFF8E7',
-        '--tenant-primary': tenant.primary_color,
-        '--tenant-secondary': tenant.secondary_color,
-        '--tenant-background': tenant.background_color || '#FFF8E7',
-        '--tenant-surface': tenant.surface_color || '#FFFFFF',
-        '--tenant-text': tenant.text_color || '#171717',
-        '--tenant-text-secondary': tenant.secondary_text_color || '#4B5563',
+        backgroundColor: currentTheme.colors.background,
+        color: currentTheme.colors.text,
+        '--tenant-primary': currentTheme.colors.primary,
+        '--tenant-secondary': currentTheme.colors.secondary,
+        '--tenant-background': currentTheme.colors.background,
+        '--tenant-surface': currentTheme.colors.surface,
+        '--tenant-text': currentTheme.colors.text,
+        '--tenant-text-secondary': currentTheme.colors.textSecondary,
+        '--tenant-border': currentTheme.colors.border,
+        '--tenant-price': currentTheme.colors.price,
+        '--tenant-accent': currentTheme.colors.accent,
       } as React.CSSProperties}
     >
-      <Header restaurantName={tenant.restaurant_name} logoUrl={tenant.logo_url || undefined} />
+      <Header
+        restaurantName={tenant.restaurant_name}
+        logoUrl={tenant.logo_url}
+        logoHeight={currentTheme.logoHeight}
+      />
+
       <CategoryNav
         categories={categories}
         activeCategory={activeCategory}
         onCategoryClick={handleCategoryClick}
       />
+
       {/* Hero Section */}
       <section className="relative h-[25vh] sm:h-[35vh] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/images/hero-bg.jpg)', filter: 'brightness(0.7)' }}
+          style={{
+            backgroundColor: currentTheme.colors.primary,
+            opacity: 0.1
+          }}
         />
-        <div className="relative z-10 text-center text-white px-4">
+        {/* Optional: Add a real image back if available, currently using color overlay pattern */}
+
+        <div className="relative z-10 text-center px-4">
           <h1
-            className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
-            style={{ color: tenant.hero_title_color || '#FFFFFF' }}
+            className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-4 theme-heading"
+            style={{ color: currentTheme.colors.primary }} // Or specific hero color? Using primary for now
           >
             {tenant.restaurant_name}
           </h1>
           <p
-            className="text-lg sm:text-xl max-w-2xl mx-auto"
-            style={{ color: tenant.hero_tagline_color || '#E5E7EB' }}
+            className="text-lg sm:text-xl max-w-2xl mx-auto theme-body"
+            style={{ color: currentTheme.colors.secondary }}
           >
             {tenant.tagline || 'Autentica cucina romana nel cuore della città'}
           </p>
         </div>
       </section>
+
       {/* Menu Sections */}
-      <main className="container mx-auto px-4 py-4">
+      <main className="container mx-auto px-4 py-4 space-y-16">
         {categories.map((category) => (
           <section
             key={category.id}
             id={category.id}
-            className="mb-16 scroll-mt-32"
+            className="scroll-mt-32"
           >
-            {/* Category Title */}
-            {/* Category Title */}
-            <div className="flex items-center justify-center gap-6 mb-8">
-              <div
-                className="flex-1 h-[3px] bg-gradient-to-r from-transparent via-current to-transparent opacity-80 max-w-xs sm:max-w-sm"
-                style={{ color: tenant.secondary_color }}
-              />
+            {/* Category Title with Dividers */}
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
               <h2
-                className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4"
-                style={{ color: tenant.primary_color }}
+                className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
+                style={{ color: currentTheme.colors.primary }}
               >
                 {category.name.it}
               </h2>
-              <div
-                className="flex-1 h-[3px] bg-gradient-to-r from-transparent via-current to-transparent opacity-80 max-w-xs sm:max-w-sm"
-                style={{ color: tenant.secondary_color }}
-              />
+              <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
             </div>
+
             {/* Dishes Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {category.dishes.map((dish) => (
@@ -128,6 +135,7 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
           </section>
         ))}
       </main>
+
       <Footer
         footerData={tenant.footer_data}
         restaurantName={tenant.restaurant_name}
@@ -136,5 +144,15 @@ export default function MenuPageClient({ tenant, categories }: { tenant: Tenant,
       />
       <ScrollToTop />
     </div>
+  );
+}
+
+export default function MenuPageClient({ tenant, categories, initialTheme }: { tenant: Tenant, categories: Category[], initialTheme?: any }) {
+  return (
+    <ThemeProvider initialTheme={initialTheme}>
+      <ThemeWrapper>
+        <MenuContent tenant={tenant} categories={categories} />
+      </ThemeWrapper>
+    </ThemeProvider>
   );
 }

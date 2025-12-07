@@ -34,7 +34,7 @@ export default function DishCard({ dish }: DishCardProps) {
   const { isGlutenFree } = useGlutenFilter();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const placeholderImage = '/icon.svg';
+  const placeholderImage = '/favicon.svg';
 
   // Verifica se il piatto contiene glutine
   const containsGluten = dish.allergens?.includes('glutine') || false;
@@ -95,7 +95,10 @@ export default function DishCard({ dish }: DishCardProps) {
           </>
         )}
         {/* Price badge */}
-        <div className="absolute top-4 right-4 bg-gradient-to-r from-[var(--tenant-secondary,#D4AF37)] to-[#C4A037] text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+        <div
+          className="absolute top-4 right-4 text-[var(--tenant-background,#FFFFFF)] px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm"
+          style={{ backgroundColor: 'var(--tenant-price, var(--tenant-secondary, #D4AF37))' }}
+        >
           <span className="font-bold text-base">€{dish.price}</span>
         </div>
 
@@ -125,7 +128,12 @@ export default function DishCard({ dish }: DishCardProps) {
               {dish.allergens.map((allergen) => (
                 <span
                   key={allergen}
-                  className="text-xs px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full border border-amber-200"
+                  className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                  style={{
+                    backgroundColor: 'color-mix(in srgb, var(--tenant-accent, #d97706) 10%, transparent)',
+                    color: 'var(--tenant-accent, #d97706)',
+                    borderColor: 'color-mix(in srgb, var(--tenant-accent, #d97706) 30%, transparent)'
+                  }}
                 >
                   {allergenTranslations[allergen]?.[language] || allergen}
                 </span>
@@ -133,7 +141,8 @@ export default function DishCard({ dish }: DishCardProps) {
             </div>
             <Link
               href="/allergeni"
-              className="inline-flex items-center gap-1.5 text-sm text-[var(--tenant-primary,#8B0000)] hover:brightness-75 font-medium transition-all"
+              className="inline-flex items-center gap-1.5 text-sm hover:brightness-75 font-medium transition-all"
+              style={{ color: 'var(--tenant-accent, #8B0000)' }}
             >
               <span>ℹ️</span>
               {language === 'it' ? 'Vedi info allergeni' : 'See allergen info'}

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
-import MenuImportModal from '@/components/dashboard/MenuImportModal';
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
 type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
@@ -22,7 +21,6 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [tenantId, setTenantId] = useState('');
 
@@ -204,15 +202,6 @@ export default function CategoriesPage() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => setShowImportModal(true)}
-            className="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-6 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-            <span>Importa il tuo menù con AI</span>
-          </button>
-          <button
             onClick={() => {
               setEditingCategory(null);
               setFormData({
@@ -292,22 +281,7 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              {/* Slug */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Slug (URL)
-                </label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
-                  placeholder="generato automaticamente"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Lascia vuoto per generarlo automaticamente dal nome
-                </p>
-              </div>
+
 
               {/* Visibility */}
               <div className="flex items-center gap-3">
@@ -417,16 +391,6 @@ export default function CategoriesPage() {
           ))}
         </div>
       )}
-      <MenuImportModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onSuccess={() => {
-          loadCategories();
-          alert('Menu importato con successo!');
-        }}
-        tenantId={tenantId}
-        categories={categories}
-      />
     </div>
   );
 }

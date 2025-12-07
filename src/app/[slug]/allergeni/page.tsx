@@ -21,18 +21,30 @@ async function getTenantData(slug: string) {
         return null;
     }
 
-    return tenant as Tenant;
+    // Fetch Design Settings
+    const { data: designSettings } = await supabase
+        .from('tenant_design_settings')
+        .select('theme_config')
+        .eq('tenant_id', tenant.id)
+        .single();
+
+    return {
+        tenant: tenant as Tenant,
+        themeConfig: designSettings?.theme_config || null
+    };
 }
 
 export default async function Page({ params }: PageProps) {
     const { slug } = await params;
-    const tenant = await getTenantData(slug);
+    const data = await getTenantData(slug);
 
-    if (!tenant) {
+    if (!data) {
         notFound();
     }
 
-    return <AllergensPageClient tenant={tenant} />;
+    const { tenant, themeConfig } = data;
+
+    return <AllergensPageClient tenant={tenant} initialTheme={themeConfig} />;
 }
 
 // Metadata dinamici per SEO
