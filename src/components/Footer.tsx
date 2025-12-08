@@ -28,7 +28,6 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
     ? footerData.locations
     : defaultLocations;
 
-  const showBrandColumn = footerData?.show_brand_column ?? true;
   const links = footerData?.links || [];
   const socials = footerData?.socials || [];
 
@@ -38,25 +37,18 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
         {/* Main Footer Content */}
         <div className={`grid grid-cols-2 gap-8 mb-8 ${forceMobile ? '' : 'md:grid-cols-3'}`}>
           {/* Brand Section */}
-          {showBrandColumn && (
-            <div className={`col-span-2 text-center ${forceMobile ? '' : 'md:col-span-1 md:text-left'}`}>
-              <img
-                src={sanitizedLogoUrl}
-                alt={`${restaurantName || 'Menu Digitale'} Logo`}
-                className={`h-12 w-auto mx-auto mb-3 object-contain ${forceMobile ? '' : 'md:mx-0'}`}
-              />
-              <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)] mb-4">
-                {language === 'it'
-                  ? 'Il tuo Menu Digitale'
-                  : 'Your Digital Menu'}
-              </p>
-              <p className="text-sm text-[var(--tenant-text,#171717)] leading-relaxed mb-4">
-                {footerData?.brand_description?.[language as 'it' | 'en'] || footerData?.brand_description?.it || (language === 'it'
-                  ? 'Scopri i nostri piatti e le nostre specialità.'
-                  : 'Discover our dishes and specialties.')}
-              </p>
-            </div>
-          )}
+          <div className={`col-span-2 text-center ${forceMobile ? '' : 'md:col-span-1 md:text-left'}`}>
+            <img
+              src={sanitizedLogoUrl}
+              alt={`${restaurantName || 'Menu Digitale'} Logo`}
+              className={`h-12 w-auto mx-auto mb-3 object-contain ${forceMobile ? '' : 'md:mx-0'}`}
+            />
+            <p className="text-sm text-[var(--tenant-text,#171717)] leading-relaxed mb-4">
+              {footerData?.brand_description?.[language as 'it' | 'en'] || footerData?.brand_description?.it || (language === 'it'
+                ? 'Scopri i nostri piatti e le nostre specialità.'
+                : 'Discover our dishes and specialties.')}
+            </p>
+          </div>
 
           {/* Le Nostre Sedi */}
           <div className={`text-center ${forceMobile ? '' : 'md:text-left'}`}>
