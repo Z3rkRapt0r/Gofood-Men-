@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SocialIcon } from './SocialIcon';
 
-import { FooterData } from '@/types/menu';
+import { FooterData, FooterLocation } from '@/types/menu';
 
 interface FooterProps {
   footerData?: FooterData;
@@ -22,7 +22,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
   const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/favicon.svg';
 
   // Default locations if no footer data is provided
-  const defaultLocations: { city: string; address: string; phone?: string }[] = [];
+  const defaultLocations: FooterLocation[] = [];
 
   const locations = footerData?.locations && footerData.locations.length > 0
     ? footerData.locations
@@ -74,6 +74,9 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
                     <span className="text-xs block">{location.address}</span>
                     {location.phone && (
                       <span className="text-xs block">📞 {location.phone}</span>
+                    )}
+                    {location.opening_hours && (
+                      <span className="text-xs block">🕒 {location.opening_hours}</span>
                     )}
                   </li>
                 ))}

@@ -78,6 +78,7 @@ export interface FooterLocation {
   city: string;
   address: string;
   phone?: string;
+  opening_hours?: string;
 }
 
 export interface FooterLink {
@@ -107,6 +108,22 @@ export interface TenantDesignSettings {
   updated_at: string;
 }
 
+// ============================================================
+// TYPES: Locations (Database)
+// ============================================================
+
+export interface TenantLocationDB {
+  id: string; // UUID
+  tenant_id: string;
+  address: string;
+  city: string;
+  phone: string | null;
+  opening_hours: string | null;
+  is_primary: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Tenant {
   id: string; // UUID
   owner_id: string; // UUID ref to profiles.id
@@ -118,9 +135,7 @@ export interface Tenant {
 
   // Contact
   contact_email: string | null;
-  phone: string | null;
-  address: string | null;
-  city: string | null;
+
   country: string; // Default: 'IT'
 
   // Branding
@@ -130,6 +145,9 @@ export interface Tenant {
 
   // Footer
   footer_data?: FooterData; // JSONB
+
+  // Locations
+  tenant_locations?: TenantLocationDB[];
 
   // Menu settings
   default_language: Language;

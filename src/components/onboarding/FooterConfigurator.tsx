@@ -7,12 +7,9 @@ import { SocialIcon } from '../SocialIcon';
 interface FooterConfiguratorProps {
     formData: {
         contact_email: string;
-        phone: string;
-        address: string;
-        city: string;
         footer_data?: FooterData;
     };
-    onUpdate: (updates: Partial<FooterConfiguratorProps['formData']>) => void;
+    onUpdate: (updates: Partial<any>) => void;
     onNext: () => void;
     onBack: () => void;
 }
@@ -29,23 +26,12 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
     const [locations, setLocations] = useState<FooterLocation[]>(
         formData.footer_data?.locations && formData.footer_data.locations.length > 0
             ? formData.footer_data.locations
-            : [{ city: formData.city || '', address: formData.address || '', phone: formData.phone || '' }]
+            : [{ city: '', address: '', phone: '', opening_hours: '' }]
     );
 
     const [socials, setSocials] = useState<FooterSocial[]>(
         formData.footer_data?.socials || []
     );
-
-    // Sync primary location changes back to root formData (for backward compatibility)
-    useEffect(() => {
-        if (locations.length > 0) {
-            onUpdate({
-                city: locations[0].city,
-                address: locations[0].address,
-                phone: locations[0].phone
-            });
-        }
-    }, [locations, onUpdate]); // We only want to notify parent, but avoid loops. Ideally onUpdate is stable.
 
     // Helper to update state and notify parent
     const updateFooterData = (newLocations: FooterLocation[], newSocials: FooterSocial[]) => {
@@ -60,7 +46,7 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
     };
 
     const handleAddLocation = () => {
-        const newLocations = [...locations, { city: '', address: '', phone: '' }];
+        const newLocations = [...locations, { city: '', address: '', phone: '', opening_hours: '' }];
         setLocations(newLocations);
         updateFooterData(newLocations, socials);
     };
@@ -177,6 +163,16 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
                                             onChange={(e) => handleLocationChange(index, 'phone', e.target.value)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none"
                                             placeholder="+39 ..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Orari Apertura</label>
+                                        <input
+                                            type="text"
+                                            value={loc.opening_hours || ''}
+                                            onChange={(e) => handleLocationChange(index, 'opening_hours', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                                            placeholder="Lun-Dom: 12-23"
                                         />
                                     </div>
                                     <div className="col-span-1 md:col-span-2">

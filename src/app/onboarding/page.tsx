@@ -29,9 +29,6 @@ export default function OnboardingPage() {
     primary_color: '#8B0000',
     secondary_color: '#D4AF37',
     contact_email: '',
-    phone: '',
-    address: '',
-    city: '',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     theme_options: null as any,
     footer_data: undefined as FooterData | undefined
@@ -51,11 +48,12 @@ export default function OnboardingPage() {
 
         const { data, error } = await supabase
           .from('tenants')
-          .select('*')
+          .select('*, tenant_locations(*)')
           .eq('owner_id', user.id)
           .single();
 
-        let tenantData = data as Tenant | null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let tenantData = data as any;
 
         // Se il tenant non esiste, crealo
         if (error || !data) {
@@ -75,7 +73,7 @@ export default function OnboardingPage() {
               max_dishes: 9999,
               max_categories: 9999
             })
-            .select()
+            .select() // Initial insert probably won't have locations
             .single();
 
           if (createError) {
@@ -115,6 +113,22 @@ export default function OnboardingPage() {
 
         if (!tenantData) return;
 
+        // Map DB locations to UI
+        const dbLocations = tenantData.tenant_locations || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const uiLocations = dbLocations.map((l: any) => ({
+          city: l.city,
+          address: l.address,
+          phone: l.phone || '',
+          opening_hours: l.opening_hours || ''
+        }));
+
+        const existingFooterData = tenantData.footer_data || { links: [], socials: [], show_brand_column: true };
+        const mergedFooterData = {
+          ...existingFooterData,
+          locations: uiLocations.length > 0 ? uiLocations : (existingFooterData.locations || [])
+        };
+
         setTenant(tenantData);
         setFormData({
           subscription_tier: tenantData.subscription_tier || 'free',
@@ -124,10 +138,7 @@ export default function OnboardingPage() {
           primary_color: '#8B0000', // Default if needed by local state, but no longer in DB
           secondary_color: '#D4AF37',
           contact_email: tenantData.contact_email || '',
-          phone: tenantData.phone || '',
-          address: tenantData.address || '',
-          city: tenantData.city || '',
-          footer_data: tenantData.footer_data || undefined,
+          footer_data: mergedFooterData,
           theme_options: themeOptions
         });
         setCurrentStep(tenantData.onboarding_step || 1);
@@ -155,15 +166,33 @@ export default function OnboardingPage() {
         hero_title_color: _hero_title_color,
         hero_tagline_color: _hero_tagline_color,
         background_color: _background_color,
+        footer_data, // Extract footer_data to handle locations separately
         ...tenantUpdates
       } = updates as Record<string, unknown>;
       /* eslint-enable @typescript-eslint/no-unused-vars */
+
+      // If we are updating footer_data, we should remove 'locations' from the JSON stored in 'tenants'
+      // to rely on 'tenant_locations' table.
+      let finalFooterData = footer_data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const locationsToSave = (footer_data as any)?.locations;
+
+      if (footer_data && locationsToSave) {
+        finalFooterData = {
+          ...(footer_data as object),
+          locations: [] // Clear from JSON
+        };
+      }
 
       const updateData: Record<string, unknown> = {
         ...tenantUpdates,
         onboarding_step: nextStep || currentStep,
         onboarding_completed: nextStep === 4
       };
+
+      if (finalFooterData) {
+        updateData.footer_data = finalFooterData;
+      }
 
       console.log('[updateTenant] Updating tenants table with:', updateData);
 
@@ -178,7 +207,31 @@ export default function OnboardingPage() {
         throw error;
       }
 
-      // 2. Update Design Settings if theme_options is present
+      // 2. Update Tenant Locations if present in updates
+      if (locationsToSave) {
+        // Delete existing
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('tenant_locations') as any).delete().eq('tenant_id', tenant.id);
+
+        // Insert new
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const locationsInsert = locationsToSave.map((l: any, idx: number) => ({
+          tenant_id: tenant.id,
+          city: l.city,
+          address: l.address,
+          phone: l.phone || null,
+          opening_hours: l.opening_hours || null,
+          is_primary: idx === 0
+        }));
+
+        if (locationsInsert.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error: locError } = await (supabase.from('tenant_locations') as any).insert(locationsInsert);
+          if (locError) throw locError;
+        }
+      }
+
+      // 3. Update Design Settings if theme_options is present
       if (theme_options) {
         console.log('[updateTenant] Updating design settings with:', theme_options);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,9 +276,6 @@ export default function OnboardingPage() {
     } else if (currentStep === 3) {
       updates = {
         contact_email: formData.contact_email,
-        phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
         footer_data: formData.footer_data
       };
     }

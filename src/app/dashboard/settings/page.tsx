@@ -18,9 +18,6 @@ export default function SettingsPage() {
     tagline: '',
     slug: '',
     contactEmail: '',
-    phone: '',
-    address: '',
-    city: '',
     // Legacy colors kept for compatibility but managed via themeOptions now
     primaryColor: '#8B0000',
     secondaryColor: '#D4AF37',
@@ -53,7 +50,7 @@ export default function SettingsPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: tenant, error } = await (supabase.from('tenants') as any)
-        .select('*')
+        .select('*, tenant_locations(*)')
         .eq('owner_id', user.id)
         .single();
 
@@ -72,25 +69,36 @@ export default function SettingsPage() {
       }
 
       setTenantId(tenant.id);
+
+      // Map tenant_locations to FooterLocation format for UI
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dbLocations = tenant.tenant_locations || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const uiLocations: FooterLocation[] = dbLocations.map((l: any) => ({
+        city: l.city,
+        address: l.address,
+        phone: l.phone || '',
+        opening_hours: l.opening_hours || ''
+      }));
+
       setFormData({
         restaurantName: tenant.restaurant_name || '',
         tagline: tenant.tagline || '',
         slug: tenant.slug || '',
         contactEmail: tenant.contact_email || '',
-        phone: tenant.phone || '',
-        address: tenant.address || '',
-        city: tenant.city || '',
         primaryColor: tenant.primary_color || '#8B0000',
         secondaryColor: tenant.secondary_color || '#D4AF37',
         backgroundColor: tenant.background_color || '#FFF8E7',
         surfaceColor: tenant.surface_color || '#FFFFFF',
         textColor: tenant.text_color || '#171717',
         secondaryTextColor: tenant.secondary_text_color || '#4B5563',
-        footerData: tenant.footer_data || {
-          locations: [],
-          links: [],
-          socials: [],
-          show_brand_column: true,
+        footerData: {
+          ...(tenant.footer_data || {
+            links: [],
+            socials: [],
+            show_brand_column: true,
+          }),
+          locations: uiLocations,
         },
         logoUrl: tenant.logo_url || '',
         heroTitleColor: tenant.hero_title_color || '#FFFFFF',
@@ -120,14 +128,43 @@ export default function SettingsPage() {
           tagline: formData.tagline,
           slug: formData.slug,
           contact_email: formData.contactEmail,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
           logo_url: formData.logoUrl,
+          // Update footer data excluding locations (they are separate now)
+          footer_data: {
+            ...formData.footerData,
+            locations: []
+          }
         })
         .eq('id', tenantId);
 
       if (error) throw error;
+
+      // Update Tenant Locations
+      // Strategy: Delete all for this tenant and insert new ones
+      // This is simple and effective for a small list
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: deleteError } = await (supabase.from('tenant_locations') as any)
+        .delete()
+        .eq('tenant_id', tenantId);
+
+      if (deleteError) throw deleteError;
+
+      const locationsToInsert = formData.footerData.locations.map((loc, idx) => ({
+        tenant_id: tenantId,
+        city: loc.city,
+        address: loc.address,
+        phone: loc.phone || null,
+        opening_hours: loc.opening_hours || null,
+        is_primary: idx === 0 // First one is primary
+      }));
+
+      if (locationsToInsert.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: insertError } = await (supabase.from('tenant_locations') as any)
+          .insert(locationsToInsert);
+
+        if (insertError) throw insertError;
+      }
 
       // Update Design Settings
       if (formData.themeOptions) {
@@ -140,8 +177,6 @@ export default function SettingsPage() {
 
         if (designError) throw designError;
       }
-
-      if (error) throw error;
 
       toast.success('Impostazioni salvate con successo!');
     } catch (err: unknown) {
@@ -254,44 +289,11 @@ export default function SettingsPage() {
                 placeholder="info@ristorante.it"
               />
             </div>
-
+            {/* Phone, Address, City REMOVED - now managed in Locations */}
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Telefono
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="+39 06 1234567"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Indirizzo
-              </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="Via Roma, 123"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Città
-              </label>
-              <input
-                type="text"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="Roma"
-              />
+              <p className="text-sm text-gray-500 mt-8">
+                Gli altri dettagli di contatto (Indirizzo, Telefono) sono gestiti nella sezione <strong>Sedi</strong>.
+              </p>
             </div>
           </div>
         </div>
@@ -434,7 +436,7 @@ export default function SettingsPage() {
                     ...formData,
                     footerData: {
                       ...formData.footerData,
-                      locations: [...formData.footerData.locations, { city: '', address: '', phone: '' }]
+                      locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
                     }
                   })}
                   className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
@@ -475,6 +477,17 @@ export default function SettingsPage() {
                         onChange={(e) => {
                           const newLocs = [...formData.footerData.locations];
                           newLocs[index].phone = e.target.value;
+                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Orari (es. Lun-Dom: 12-23)"
+                        value={loc.opening_hours || ''}
+                        onChange={(e) => {
+                          const newLocs = [...formData.footerData.locations];
+                          newLocs[index].opening_hours = e.target.value;
                           setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
                         }}
                         className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
