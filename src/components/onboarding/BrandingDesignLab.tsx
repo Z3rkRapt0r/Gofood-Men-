@@ -158,12 +158,14 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                     logoUrl={mockTenant.logo_url}
                                     logoHeight={currentTheme.logoHeight}
                                     forceMobile={true}
+                                    className="sticky top-0 z-20 w-full"
                                 />
 
                                 <CategoryNav
                                     categories={MOCK_CATEGORIES}
                                     activeCategory={activeCategory}
                                     onCategoryClick={handleCategoryClick}
+                                    className="sticky top-[72px] z-10 w-full"
                                 />
 
                                 {/* Hero */}

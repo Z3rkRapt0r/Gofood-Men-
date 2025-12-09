@@ -183,7 +183,7 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
+        <header className="sticky top-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden text-gray-700 hover:text-orange-600"

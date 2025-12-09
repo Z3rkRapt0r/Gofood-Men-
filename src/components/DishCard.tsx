@@ -1,10 +1,10 @@
 'use client';
 
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Dish } from '@/types/menu';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useState } from 'react';
 import { parseIngredients } from '@/utils/ingredientParser';
 import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
 

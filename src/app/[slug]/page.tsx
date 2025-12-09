@@ -19,6 +19,7 @@ interface PageProps {
 interface DbCategory {
   slug: string;
   name: string;
+  description?: string;
   dishes?: DbDish[];
 }
 
@@ -97,6 +98,7 @@ async function getMenuData(slug: string) {
   const transformedCategories = (categories as DbCategory[])?.map((cat) => ({
     id: cat.slug,
     name: cat.name,
+    description: cat.description,
     dishes: cat.dishes
       ?.filter((dish) => dish.is_visible)
       .sort((a, b) => a.display_order - b.display_order)

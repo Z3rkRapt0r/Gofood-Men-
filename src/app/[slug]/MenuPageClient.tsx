@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FooterData } from '@/types/menu';
 import Header from '@/components/Header';
 import CategoryNav from '@/components/CategoryNav';
@@ -32,6 +32,7 @@ interface Dish {
 interface Category {
   id: string;
   name: string;
+  description?: string;
   dishes: Dish[];
 }
 
@@ -39,30 +40,6 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
   const mainRef = useRef<HTMLDivElement>(null);
-
-  // Scroll Spy Logic
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveCategory(entry.target.id);
-          }
-        });
-      },
-      {
-        rootMargin: '-20% 0px -60% 0px', // Trigger when section is near the top area
-        threshold: 0
-      }
-    );
-
-    categories.forEach((cat) => {
-      const element = document.getElementById(cat.id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, [categories]);
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
@@ -74,10 +51,32 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     }
   };
 
+  useEffect(() => {
+    const options = {
+      rootMargin: '-150px 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveCategory(entry.target.id);
+        }
+      });
+    }, options);
+
+    categories.forEach((category) => {
+      const element = document.getElementById(category.id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [categories]);
+
   return (
     <div
       ref={mainRef}
-      className="min-h-screen w-full"
+      className="min-h-screen pt-[135px]"
       style={{
         backgroundColor: currentTheme.colors.background,
         color: currentTheme.colors.text,
@@ -102,7 +101,6 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
         categories={categories}
         activeCategory={activeCategory}
         onCategoryClick={handleCategoryClick}
-        logoHeight={currentTheme.logoHeight}
       />
 
       {/* Hero Section */}
@@ -151,6 +149,13 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
               </h2>
               <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
             </div>
+
+            {/* Category Description */}
+            {category.description && (
+              <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
+                {category.description}
+              </p>
+            )}
 
             {/* Dishes Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
