@@ -540,17 +540,6 @@ export default function DishesPage() {
                         <span className="text-2xl mb-1">🌱</span>
                         <span className="text-xs font-bold">Vegano</span>
                       </label>
-
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isGlutenFree ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-amber-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isGlutenFree}
-                          onChange={(e) => setFormData({ ...formData, isGlutenFree: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">🌾</span>
-                        <span className="text-xs font-bold">No Glutine</span>
-                      </label>
                     </div>
                   </div>
 
