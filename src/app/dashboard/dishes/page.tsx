@@ -502,10 +502,10 @@ export default function DishesPage() {
                     </label>
                   </div>
 
-                  {/* Dietary Tags */}
+                  {/* Filtri Speciali */}
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-3">
-                      Etichette (Diete Speciali)
+                      Filtri Speciali
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
@@ -518,6 +518,31 @@ export default function DishesPage() {
                         <span className="text-2xl mb-1">🍂</span>
                         <span className="text-xs font-bold">Stagionale</span>
                       </label>
+
+                      {/* Manual placement of "Glutine" allergen if available */}
+                      {allergens.filter(a => a.id === 'glutine').map(glutine => (
+                        <label
+                          key={glutine.id}
+                          className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.selectedAllergens.includes(glutine.id)
+                              ? 'border-red-500 bg-red-50 text-red-700'
+                              : 'border-gray-200 hover:border-red-200 text-gray-600'
+                            }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={formData.selectedAllergens.includes(glutine.id)}
+                            onChange={(e) => {
+                              const newSelected = e.target.checked
+                                ? [...formData.selectedAllergens, glutine.id]
+                                : formData.selectedAllergens.filter(id => id !== glutine.id);
+                              setFormData({ ...formData, selectedAllergens: newSelected });
+                            }}
+                          />
+                          <span className="text-2xl mb-1">{glutine.icon}</span>
+                          <span className="text-xs font-bold text-center leading-tight">Contiene Glutine</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
 
@@ -529,7 +554,7 @@ export default function DishesPage() {
                     <p className="text-xs text-gray-500 mb-3">Seleziona gli allergeni da segnalare obbligatoriamente se presenti nel piatto.</p>
 
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                      {allergens.map((allergen) => (
+                      {allergens.filter(a => a.id !== 'glutine').map((allergen) => (
                         <label
                           key={allergen.id}
                           className={`relative flex flex-col items-center justify-center p-2 rounded-xl border-2 cursor-pointer transition-all h-24 ${formData.selectedAllergens.includes(allergen.id)
