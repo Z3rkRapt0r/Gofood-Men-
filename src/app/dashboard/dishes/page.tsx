@@ -461,57 +461,77 @@ export default function DishesPage() {
                   </div>
                 </div>
 
-                {/* Flags */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-gray-900">
-                    Caratteristiche
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.isVisible}
-                        onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      <span className="text-sm">👁️ Visibile</span>
+                {/* Status & Flags */}
+                <div className="space-y-6">
+                  {/* Visibility Toggle */}
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={formData.isVisible}
+                          onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
+                          className="peer sr-only"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                      </div>
+                      <div>
+                        <span className="block text-sm font-bold text-gray-900">Visibile nel menu</span>
+                        <span className="block text-xs text-gray-500">Se disattivato, il piatto sarà nascosto ai clienti</span>
+                      </div>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.isSeasonal}
-                        onChange={(e) => setFormData({ ...formData, isSeasonal: e.target.checked })}
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      <span className="text-sm">🍂 Stagionale</span>
+                  </div>
+
+                  {/* Dietary Tags */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">
+                      Etichette e Allergeni
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.isVegetarian}
-                        onChange={(e) => setFormData({ ...formData, isVegetarian: e.target.checked })}
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      <span className="text-sm">🥬 Vegetariano</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.isVegan}
-                        onChange={(e) => setFormData({ ...formData, isVegan: e.target.checked })}
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      <span className="text-sm">🌱 Vegano</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.isGlutenFree}
-                        onChange={(e) => setFormData({ ...formData, isGlutenFree: e.target.checked })}
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      <span className="text-sm">🌾 Senza Glutine</span>
-                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isSeasonal}
+                          onChange={(e) => setFormData({ ...formData, isSeasonal: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">🍂</span>
+                        <span className="text-xs font-bold">Stagionale</span>
+                      </label>
+
+                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegetarian ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isVegetarian}
+                          onChange={(e) => setFormData({ ...formData, isVegetarian: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">🥬</span>
+                        <span className="text-xs font-bold">Vegetariano</span>
+                      </label>
+
+                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegan ? 'border-green-600 bg-green-50 text-green-800' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isVegan}
+                          onChange={(e) => setFormData({ ...formData, isVegan: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">🌱</span>
+                        <span className="text-xs font-bold">Vegano</span>
+                      </label>
+
+                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isGlutenFree ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-amber-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isGlutenFree}
+                          onChange={(e) => setFormData({ ...formData, isGlutenFree: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">🌾</span>
+                        <span className="text-xs font-bold">No Glutine</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
