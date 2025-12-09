@@ -381,12 +381,14 @@ export default function SettingsPage() {
 
             {/* Brand Description */}
             {formData.footerData.show_brand_column && (
-              <div className="grid md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <div className="md:col-span-2">
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="mb-4">
                   <h3 className="text-sm font-bold text-gray-900 mb-2">Descrizione Brand</h3>
+                  <p className="text-xs text-gray-500">
+                    Questa descrizione apparirà nel footer sotto il logo.
+                  </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Italiano</label>
                   <textarea
                     value={formData.footerData.brand_description?.it || ''}
                     onChange={(e) => setFormData({
@@ -396,31 +398,14 @@ export default function SettingsPage() {
                         brand_description: {
                           ...formData.footerData.brand_description,
                           it: e.target.value,
-                          en: formData.footerData.brand_description?.en || ''
+                          // Sync English to match Italian (or keep empty/legacy) to avoid holes, 
+                          // but effectively we ignore it in UI now.
+                          en: e.target.value
                         }
                       }
                     })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-20 resize-none"
-                    placeholder="Scopri i nostri piatti..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Inglese</label>
-                  <textarea
-                    value={formData.footerData.brand_description?.en || ''}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      footerData: {
-                        ...formData.footerData,
-                        brand_description: {
-                          ...formData.footerData.brand_description,
-                          en: e.target.value,
-                          it: formData.footerData.brand_description?.it || ''
-                        }
-                      }
-                    })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-20 resize-none"
-                    placeholder="Discover our dishes..."
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-24 resize-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="Scopri i nostri piatti e le nostre specialità..."
                   />
                 </div>
               </div>
