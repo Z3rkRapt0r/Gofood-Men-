@@ -518,28 +518,6 @@ export default function DishesPage() {
                         <span className="text-2xl mb-1">🍂</span>
                         <span className="text-xs font-bold">Stagionale</span>
                       </label>
-
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegetarian ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isVegetarian}
-                          onChange={(e) => setFormData({ ...formData, isVegetarian: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">🥬</span>
-                        <span className="text-xs font-bold">Vegetariano</span>
-                      </label>
-
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegan ? 'border-green-600 bg-green-50 text-green-800' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isVegan}
-                          onChange={(e) => setFormData({ ...formData, isVegan: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">🌱</span>
-                        <span className="text-xs font-bold">Vegano</span>
-                      </label>
                     </div>
                   </div>
 
