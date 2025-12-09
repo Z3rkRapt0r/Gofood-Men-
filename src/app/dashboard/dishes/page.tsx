@@ -18,6 +18,7 @@ interface Dish {
   is_vegetarian: boolean;
   is_vegan: boolean;
   is_gluten_free: boolean;
+  dish_allergens?: { allergen_id: string }[];
 }
 
 interface Category {
@@ -25,9 +26,16 @@ interface Category {
   name: string;
 }
 
+interface Allergen {
+  id: string;
+  name: string;
+  icon: string;
+}
+
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allergens, setAllergens] = useState<Allergen[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -47,6 +55,7 @@ export default function DishesPage() {
     isVegan: false,
     isGlutenFree: false,
     image: null as File | null,
+    selectedAllergens: [] as string[],
   });
 
   useEffect(() => {
@@ -80,10 +89,18 @@ export default function DishesPage() {
 
       setCategories(categoriesData || []);
 
-      // Load dishes
+      // Load allergens
+      const { data: allergensData } = await supabase
+        .from('allergens')
+        .select('id, name, icon')
+        .order('name');
+
+      setAllergens(allergensData || []);
+
+      // Load dishes with allergens
       const { data: dishesData } = await supabase
         .from('dishes')
-        .select('*')
+        .select('*, dish_allergens(allergen_id)')
         .eq('tenant_id', tenantData.id)
         .order('display_order');
 
@@ -169,6 +186,8 @@ export default function DishesPage() {
         display_order: dishes.length,
       };
 
+      let dishId: string | undefined = editingDish?.id;
+
       if (editingDish) {
         const { error } = await supabase
           .from('dishes')
@@ -179,13 +198,44 @@ export default function DishesPage() {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data: newDish, error } = await supabase
           .from('dishes')
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - Supabase client type inference issue with generated Database types
-          .insert([dishData]);
+          .insert([dishData])
+          .select('id')
+          .single();
 
         if (error) throw error;
+        dishId = (newDish as { id: string })?.id;
+      }
+
+      // Handle Allergens Association
+      if (dishId) {
+        // 1. Delete existing for this dish (simple replacement strategy)
+        if (editingDish) {
+          await supabase
+            .from('dish_allergens')
+            .delete()
+            .eq('dish_id', dishId);
+        }
+
+        // 2. Insert new
+        if (formData.selectedAllergens.length > 0) {
+          const allergenInserts = formData.selectedAllergens.map(id => ({
+            dish_id: dishId as string,
+            allergen_id: id,
+            tenant_id: tenantId
+          }));
+
+          const { error: allergensError } = await supabase
+            .from('dish_allergens')
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            .insert(allergenInserts);
+
+          if (allergensError) throw allergensError;
+        }
       }
 
       resetForm();
@@ -230,6 +280,7 @@ export default function DishesPage() {
       isVegan: dish.is_vegan,
       isGlutenFree: dish.is_gluten_free,
       image: null,
+      selectedAllergens: dish.dish_allergens?.map(da => da.allergen_id) || [],
     });
     setShowForm(true);
   }
@@ -247,6 +298,7 @@ export default function DishesPage() {
       isVegan: false,
       isGlutenFree: false,
       image: null,
+      selectedAllergens: [],
     });
     setShowForm(false);
     setEditingDish(null);
@@ -485,7 +537,7 @@ export default function DishesPage() {
                   {/* Dietary Tags */}
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-3">
-                      Etichette e Allergeni
+                      Etichette (Diete Speciali)
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
@@ -531,6 +583,41 @@ export default function DishesPage() {
                         <span className="text-2xl mb-1">🌾</span>
                         <span className="text-xs font-bold">No Glutine</span>
                       </label>
+                    </div>
+                  </div>
+
+                  {/* Allergens Section */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">
+                      Allergeni Presenti
+                    </label>
+                    <p className="text-xs text-gray-500 mb-3">Seleziona gli allergeni da segnalare obbligatoriamente se presenti nel piatto.</p>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                      {allergens.map((allergen) => (
+                        <label
+                          key={allergen.id}
+                          className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 cursor-pointer transition-all h-24 ${formData.selectedAllergens.includes(allergen.id)
+                            ? 'border-red-500 bg-red-50 text-red-700'
+                            : 'border-gray-200 hover:border-red-200 text-gray-600'
+                            }`}
+                          title={allergen.name}
+                        >
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={formData.selectedAllergens.includes(allergen.id)}
+                            onChange={(e) => {
+                              const newSelected = e.target.checked
+                                ? [...formData.selectedAllergens, allergen.id]
+                                : formData.selectedAllergens.filter(id => id !== allergen.id);
+                              setFormData({ ...formData, selectedAllergens: newSelected });
+                            }}
+                          />
+                          <span className="text-2xl mb-1">{allergen.icon}</span>
+                          <span className="text-[10px] font-bold text-center leading-tight line-clamp-2">{allergen.name}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 </div>
