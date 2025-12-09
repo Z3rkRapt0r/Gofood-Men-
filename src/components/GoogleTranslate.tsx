@@ -81,15 +81,14 @@ export default function GoogleTranslate() {
         const cookieDomain = domain === 'localhost' ? '' : `domain=.${domain};`;
 
         if (lang === 'it') {
-            // 1. Try to clear existing cookies first
+            // Force Clear Cookie - try multiple paths/domains
             document.cookie = `googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
             document.cookie = `googtrans=; path=/; ${cookieDomain} expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
 
-            // 2. FORCE overwrite with /it/it
-            // This tells Google to "translate" Italian to Italian, which effectively shows the original text.
-            // Since we hid the banner, this is a safe and robust way to ensure we don't stay in English.
-            document.cookie = `googtrans=/it/it; path=/;`;
-            document.cookie = `googtrans=/it/it; path=/; ${cookieDomain}`;
+            // Also explicitly set to /it/it (Original) just in case clearing fails
+            // document.cookie = `googtrans=/it/it; path=/; ${cookieDomain}`; 
+            // Setting /it/it sometimes causes the "translated to Italian" banner. 
+            // Clearing is better for "Original".
         } else {
             const cookieValue = `/it/${lang}`;
             document.cookie = `googtrans=${cookieValue}; path=/;`;
