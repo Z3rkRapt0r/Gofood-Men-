@@ -4,212 +4,106 @@
       "id": "glutine",
       "number": 1,
       "icon": "🌾",
-      "name": {
-        "it": "Cereali contenenti glutine",
-        "en": "Cereals containing gluten"
-      },
-      "description": {
-        "it": "Grano, segale, orzo, avena, farro, kamut o loro ceppi ibridati, e prodotti derivati",
-        "en": "Wheat, rye, barley, oats, spelt, kamut or their hybridised strains, and products thereof"
-      }
+      "name": "Cereali contenenti glutine",
+      "description": "Grano, segale, orzo, avena, farro, kamut o loro ceppi ibridati, e prodotti derivati"
     },
     {
       "id": "crostacei",
       "number": 2,
       "icon": "🦐",
-      "name": {
-        "it": "Crostacei e prodotti a base di crostacei",
-        "en": "Crustaceans and products thereof"
-      },
-      "description": {
-        "it": "Gamberi, scampi, aragoste, granchi e prodotti derivati",
-        "en": "Prawns, shrimp, lobsters, crabs and products thereof"
-      }
+      "name": "Crostacei e prodotti a base di crostacei",
+      "description": "Gamberi, scampi, aragoste, granchi e prodotti derivati"
     },
     {
       "id": "uova",
       "number": 3,
       "icon": "🥚",
-      "name": {
-        "it": "Uova e prodotti a base di uova",
-        "en": "Eggs and products thereof"
-      },
-      "description": {
-        "it": "Tutte le preparazioni contenenti uova",
-        "en": "All preparations containing eggs"
-      }
+      "name": "Uova e prodotti a base di uova",
+      "description": "Tutte le preparazioni contenenti uova"
     },
     {
       "id": "pesce",
       "number": 4,
       "icon": "🐟",
-      "name": {
-        "it": "Pesce e prodotti a base di pesce",
-        "en": "Fish and products thereof"
-      },
-      "description": {
-        "it": "Tutti i tipi di pesce e preparazioni derivate, eccetto gelatina di pesce",
-        "en": "All types of fish and derived preparations, except fish gelatine"
-      }
+      "name": "Pesce e prodotti a base di pesce",
+      "description": "Tutti i tipi di pesce e preparazioni derivate, eccetto gelatina di pesce"
     },
     {
       "id": "arachidi",
       "number": 5,
       "icon": "🥜",
-      "name": {
-        "it": "Arachidi e prodotti a base di arachidi",
-        "en": "Peanuts and products thereof"
-      },
-      "description": {
-        "it": "Noccioline americane e tutti i prodotti derivati",
-        "en": "Peanuts and all derived products"
-      }
+      "name": "Arachidi e prodotti a base di arachidi",
+      "description": "Noccioline americane e tutti i prodotti derivati"
     },
     {
       "id": "soia",
       "number": 6,
       "icon": "🫘",
-      "name": {
-        "it": "Soia e prodotti a base di soia",
-        "en": "Soybeans and products thereof"
-      },
-      "description": {
-        "it": "Fagioli di soia e prodotti derivati, eccetto alcuni oli raffinati",
-        "en": "Soybeans and derived products, except certain refined oils"
-      }
+      "name": "Soia e prodotti a base di soia",
+      "description": "Fagioli di soia e prodotti derivati, eccetto alcuni oli raffinati"
     },
     {
       "id": "lattosio",
       "number": 7,
       "icon": "🥛",
-      "name": {
-        "it": "Latte e prodotti a base di latte",
-        "en": "Milk and products thereof"
-      },
-      "description": {
-        "it": "Incluso il lattosio, formaggi, burro, yogurt e derivati",
-        "en": "Including lactose, cheese, butter, yogurt and derivatives"
-      }
+      "name": "Latte e prodotti a base di latte",
+      "description": "Incluso il lattosio, formaggi, burro, yogurt e derivati"
     },
     {
       "id": "frutta-secca",
       "number": 8,
       "icon": "🌰",
-      "name": {
-        "it": "Frutta a guscio",
-        "en": "Nuts"
-      },
-      "description": {
-        "it": "Mandorle, nocciole, noci, anacardi, pecan, noci del Brasile, pistacchi, noci macadamia, noci del Queensland e prodotti derivati",
-        "en": "Almonds, hazelnuts, walnuts, cashews, pecans, Brazil nuts, pistachios, macadamia nuts, Queensland nuts and products thereof"
-      }
+      "name": "Frutta a guscio",
+      "description": "Mandorle, nocciole, noci, anacardi, pecan, noci del Brasile, pistacchi, noci macadamia, noci del Queensland e prodotti derivati"
     },
     {
       "id": "sedano",
       "number": 9,
       "icon": "🌿",
-      "name": {
-        "it": "Sedano e prodotti a base di sedano",
-        "en": "Celery and products thereof"
-      },
-      "description": {
-        "it": "Sedano e preparazioni derivate",
-        "en": "Celery and derived preparations"
-      }
+      "name": "Sedano e prodotti a base di sedano",
+      "description": "Sedano e preparazioni derivate"
     },
     {
       "id": "senape",
       "number": 10,
       "icon": "🌭",
-      "name": {
-        "it": "Senape e prodotti a base di senape",
-        "en": "Mustard and products thereof"
-      },
-      "description": {
-        "it": "Semi di senape e prodotti derivati",
-        "en": "Mustard seeds and derived products"
-      }
+      "name": "Senape e prodotti a base di senape",
+      "description": "Semi di senape e prodotti derivati"
     },
     {
       "id": "sesamo",
       "number": 11,
       "icon": "○",
-      "name": {
-        "it": "Semi di sesamo e prodotti a base di semi di sesamo",
-        "en": "Sesame seeds and products thereof"
-      },
-      "description": {
-        "it": "Semi di sesamo e prodotti derivati",
-        "en": "Sesame seeds and derived products"
-      }
+      "name": "Semi di sesamo e prodotti a base di semi di sesamo",
+      "description": "Semi di sesamo e prodotti derivati"
     },
     {
       "id": "solfiti",
       "number": 12,
       "icon": "⚗️",
-      "name": {
-        "it": "Anidride solforosa e solfiti",
-        "en": "Sulphur dioxide and sulphites"
-      },
-      "description": {
-        "it": "In concentrazioni superiori a 10 mg/kg o 10 mg/litro in termini di SO₂ totale",
-        "en": "At concentrations of more than 10 mg/kg or 10 mg/litre in terms of total SO₂"
-      }
+      "name": "Anidride solforosa e solfiti",
+      "description": "In concentrazioni superiori a 10 mg/kg o 10 mg/litro in termini di SO₂ totale"
     },
     {
       "id": "lupini",
       "number": 13,
       "icon": "🫘",
-      "name": {
-        "it": "Lupini e prodotti a base di lupini",
-        "en": "Lupin and products thereof"
-      },
-      "description": {
-        "it": "Lupini e prodotti derivati",
-        "en": "Lupin and derived products"
-      }
+      "name": "Lupini e prodotti a base di lupini",
+      "description": "Lupini e prodotti derivati"
     },
     {
       "id": "molluschi",
       "number": 14,
       "icon": "🦪",
-      "name": {
-        "it": "Molluschi e prodotti a base di molluschi",
-        "en": "Molluscs and products thereof"
-      },
-      "description": {
-        "it": "Vongole, cozze, ostriche, calamari e prodotti derivati",
-        "en": "Clams, mussels, oysters, squid and derived products"
-      }
+      "name": "Molluschi e prodotti a base di molluschi",
+      "description": "Vongole, cozze, ostriche, calamari e prodotti derivati"
     }
   ],
-  "legalText": {
-    "it": "Comunichiamo l'elenco degli allergeni utilizzati in questo esercizio per i quali sussiste l'obbligo di indicazione, per una corretta informazione verso i nostri preziosissimi Clienti:",
-    "en": "We communicate the list of allergens used in this establishment for which there is an obligation to indicate, for correct information to our valued customers:"
-  },
-  "regulationTitle": {
-    "it": "REGOLAMENTO (UE) N. 1169/2011",
-    "en": "REGULATION (EU) No 1169/2011"
-  },
-  "regulationText": {
-    "it": "Nel nostro menù, in assenza del reperimento del prodotto fresco, alcuni prodotti sono provenienti da congelamento effettuato all'origine",
-    "en": "In our menu, in the absence of fresh products, some products come from freezing carried out at source"
-  },
-  "rapidCooling": {
-    "it": "Nel nostro menù, in assenza del reperimento del prodotto fresco, alcuni prodotti sono congelati in loco mediante abbattimento rapido di temperatura",
-    "en": "In our menu, in the absence of fresh products, some products are frozen on-site through rapid temperature reduction"
-  },
-  "note": {
-    "it": "Salsa pomodoro San Marzano: pomodoro, cipolla, olio e.v.o., basilico, sale, zucchero. Crema al radicchio: radicchio, cipolla, olio e.v.o., zucchero, aceto",
-    "en": "San Marzano tomato sauce: tomato, onion, e.v.o. oil, basil, salt, sugar. Radicchio cream: radicchio, onion, e.v.o. oil, sugar, vinegar"
-  },
-  "contactText": {
-    "it": "Come previsto dall'Articolo 9 del Regolamento (UE) N. 1163/2011 del Parlamento europeo e del Consiglio del 25 Ottobre 2011, le informazioni sugli ingredienti allergenici sono disponibili rivolgendosi al personale.",
-    "en": "As provided for in Article 9 of Regulation (EU) No 1163/2011 of the European Parliament and of the Council of 25 October 2011, information on allergenic ingredients is available by contacting the staff."
-  },
-  "coverCharge": {
-    "it": "Servizio e coperto €2.50",
-    "en": "Bread and Service €2.50"
-  }
+  "legalText": "Comunichiamo l'elenco degli allergeni utilizzati in questo esercizio per i quali sussiste l'obbligo di indicazione, per una corretta informazione verso i nostri preziosissimi Clienti",
+  "regulationTitle": "REGOLAMENTO (UE) N. 1169/2011",
+  "regulationText": "Nel nostro menù, in assenza del reperimento del prodotto fresco, alcuni prodotti sono provenienti da congelamento effettuato all'origine",
+  "rapidCooling": "Nel nostro menù, in assenza del reperimento del prodotto fresco, alcuni prodotti sono congelati in loco mediante abbattimento rapido di temperatura",
+  "note": "Salsa pomodoro San Marzano: pomodoro, cipolla, olio e.v.o., basilico, sale, zucchero. Crema al radicchio: radicchio, cipolla, olio e.v.o., zucchero, aceto",
+  "contactText": "Come previsto dall'Articolo 9 del Regolamento (UE) N. 1163/2011 del Parlamento europeo e del Consiglio del 25 Ottobre 2011, le informazioni sugli ingredienti allergenici sono disponibili rivolgendosi al personale.",
+  "coverCharge": "Servizio e coperto €2.50"
 }
-

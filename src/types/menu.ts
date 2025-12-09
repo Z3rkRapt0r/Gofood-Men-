@@ -36,13 +36,13 @@ export interface Allergen {
 
 export interface AllergenData {
   allergens: Allergen[];
-  legalText: Translation;
-  regulationTitle: Translation;
-  regulationText: Translation;
-  rapidCooling: Translation;
-  note: Translation;
-  contactText: Translation;
-  coverCharge: Translation;
+  legalText: string;
+  regulationTitle: string;
+  regulationText: string;
+  rapidCooling: string;
+  note: string;
+  contactText: string;
+  coverCharge: string;
 }
 
 export type Language = 'it' | 'en';
@@ -206,7 +206,7 @@ export interface DishDB {
 
   is_visible: boolean;
   is_seasonal: boolean;
-  seasonal_note?: Translation; // JSONB
+  seasonal_note?: string; // JSONB
   is_gluten_free: boolean;
   is_vegetarian: boolean;
   is_vegan: boolean;
