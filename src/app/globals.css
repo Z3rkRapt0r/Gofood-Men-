@@ -52,6 +52,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -67,6 +68,7 @@ body {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -74,12 +76,44 @@ body {
 
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
-  background: linear-gradient(
-    to right,
-    #f0f0f0 0%,
-    #e0e0e0 20%,
-    #f0f0f0 40%,
-    #f0f0f0 100%
-  );
+  background: linear-gradient(to right,
+      #f0f0f0 0%,
+      #e0e0e0 20%,
+      #f0f0f0 40%,
+      #f0f0f0 100%);
   background-size: 1000px 100%;
+}
+
+/* Google Translate Banner Removal */
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+iframe.goog-te-banner-frame {
+  visibility: hidden !important;
+  height: 0 !important;
+  display: none !important;
+  width: 0 !important;
+  z-index: -1000 !important;
+  position: absolute !important;
+  top: -1000px !important;
+}
+
+body.goog-te-banner-show {
+  margin-top: 0 !important;
+}
+
+/* Hide the widget icon/tooltip if they appear */
+.goog-te-gadget-icon,
+#goog-gt-tt {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+  display: none !important;
 }
