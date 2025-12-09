@@ -27,12 +27,12 @@ export default function AllergensList({ allergens }: AllergensListProps) {
                   {allergen.number}
                 </span>
                 <h3 className="text-lg font-bold text-[var(--tenant-text,#171717)] leading-tight">
-                  {t(allergen.name)}
+                  {allergen.name}
                 </h3>
               </div>
               {allergen.description && (
                 <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)] leading-relaxed">
-                  {t(allergen.description)}
+                  {allergen.description}
                 </p>
               )}
             </div>
