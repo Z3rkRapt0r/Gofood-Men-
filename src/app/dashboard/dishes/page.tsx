@@ -508,7 +508,7 @@ export default function DishesPage() {
                       Etichette (Diete Speciali)
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
                         <input
                           type="checkbox"
                           className="sr-only"
@@ -519,7 +519,7 @@ export default function DishesPage() {
                         <span className="text-xs font-bold">Stagionale</span>
                       </label>
 
-                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegetarian ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegetarian ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
                         <input
                           type="checkbox"
                           className="sr-only"
@@ -530,7 +530,7 @@ export default function DishesPage() {
                         <span className="text-xs font-bold">Vegetariano</span>
                       </label>
 
-                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegan ? 'border-green-600 bg-green-50 text-green-800' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isVegan ? 'border-green-600 bg-green-50 text-green-800' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}>
                         <input
                           type="checkbox"
                           className="sr-only"
@@ -541,7 +541,7 @@ export default function DishesPage() {
                         <span className="text-xs font-bold">Vegano</span>
                       </label>
 
-                      <label className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isGlutenFree ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-amber-200 text-gray-600'}`}>
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isGlutenFree ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-200 hover:border-amber-200 text-gray-600'}`}>
                         <input
                           type="checkbox"
                           className="sr-only"
@@ -565,7 +565,7 @@ export default function DishesPage() {
                       {allergens.map((allergen) => (
                         <label
                           key={allergen.id}
-                          className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 cursor-pointer transition-all h-24 ${formData.selectedAllergens.includes(allergen.id)
+                          className={`relative flex flex-col items-center justify-center p-2 rounded-xl border-2 cursor-pointer transition-all h-24 ${formData.selectedAllergens.includes(allergen.id)
                             ? 'border-red-500 bg-red-50 text-red-700'
                             : 'border-gray-200 hover:border-red-200 text-gray-600'
                             }`}
