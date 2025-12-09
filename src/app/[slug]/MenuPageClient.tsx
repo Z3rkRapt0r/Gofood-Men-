@@ -22,8 +22,8 @@ interface Tenant {
 
 interface Dish {
   id: string;
-  name: { it: string; en: string };
-  description: { it: string; en: string };
+  name: string;
+  description: string;
   price: string;
   image: string;
   allergens: string[];
@@ -31,7 +31,7 @@ interface Dish {
 
 interface Category {
   id: string;
-  name: { it: string; en: string };
+  name: string;
   dishes: Dish[];
 }
 
@@ -122,7 +122,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
                 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
                 style={{ color: currentTheme.colors.primary }}
               >
-                {category.name.it}
+                {category.name}
               </h2>
               <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
             </div>

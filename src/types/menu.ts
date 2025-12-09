@@ -9,8 +9,8 @@ export interface Translation {
 
 export interface Dish {
   id: string;
-  name: Translation;
-  description: Translation;
+  name: string;
+  description: string;
   price: string;
   image: string;
   allergens?: string[];
@@ -18,7 +18,7 @@ export interface Dish {
 
 export interface Category {
   id: string;
-  name: Translation;
+  name: string;
   dishes: Dish[];
 }
 
@@ -30,8 +30,8 @@ export interface Allergen {
   id: string;
   number: number;
   icon: string;
-  name: Translation;
-  description?: Translation;
+  name: string;
+  description?: string;
 }
 
 export interface AllergenData {
@@ -178,9 +178,9 @@ export interface CategoryDB {
   id: string; // UUID
   tenant_id: string; // UUID ref to tenants.id
 
-  name: Translation; // JSONB
+  name: string;
   slug: string;
-  description?: Translation; // JSONB
+  description?: string;
 
   display_order: number;
   is_visible: boolean;
@@ -197,8 +197,8 @@ export interface DishDB {
   tenant_id: string; // UUID ref to tenants.id
   category_id: string; // UUID ref to categories.id
 
-  name: Translation; // JSONB
-  description: Translation; // JSONB
+  name: string;
+  description: string;
   slug: string;
 
   price: number; // DECIMAL(10,2)
@@ -224,8 +224,8 @@ export interface AllergenDB {
   id: string; // Text: glutine, lattosio, etc.
   number: number; // 1-14 (EU)
   icon: string; // Emoji
-  name: Translation; // JSONB
-  description?: Translation; // JSONB
+  name: string;
+  description?: string;
   created_at: string;
 }
 

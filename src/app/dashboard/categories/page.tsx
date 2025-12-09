@@ -10,9 +10,9 @@ type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
 
 interface Category {
   id: string;
-  name: { it: string; en: string };
+  name: string;
   slug: string;
-  description?: { it: string; en: string };
+  description?: string;
   display_order: number;
   is_visible: boolean;
   created_at: string;
@@ -26,10 +26,8 @@ export default function CategoriesPage() {
   const [tenantId, setTenantId] = useState('');
 
   const [formData, setFormData] = useState({
-    nameIt: '',
-    nameEn: '',
-    descriptionIt: '',
-    descriptionEn: '',
+    name: '',
+    description: '',
     slug: '',
     isVisible: true,
   });
@@ -83,11 +81,9 @@ export default function CategoriesPage() {
         // Update
         const updateData: CategoryUpdate = {
           tenant_id: tenantId,
-          name: { it: formData.nameIt, en: formData.nameEn },
-          slug: formData.slug || generateSlug(formData.nameIt),
-          description: formData.descriptionIt || formData.descriptionEn
-            ? { it: formData.descriptionIt, en: formData.descriptionEn }
-            : null,
+          name: formData.name,
+          slug: formData.slug || generateSlug(formData.name),
+          description: formData.description || null,
           is_visible: formData.isVisible,
           display_order: categories.length,
         };
@@ -104,11 +100,9 @@ export default function CategoriesPage() {
         // Create
         const insertData: CategoryInsert = {
           tenant_id: tenantId,
-          name: { it: formData.nameIt, en: formData.nameEn },
-          slug: formData.slug || generateSlug(formData.nameIt),
-          description: formData.descriptionIt || formData.descriptionEn
-            ? { it: formData.descriptionIt, en: formData.descriptionEn }
-            : null,
+          name: formData.name,
+          slug: formData.slug || generateSlug(formData.name),
+          description: formData.description || null,
           is_visible: formData.isVisible,
           display_order: categories.length,
         };
@@ -123,10 +117,8 @@ export default function CategoriesPage() {
       }
 
       setFormData({
-        nameIt: '',
-        nameEn: '',
-        descriptionIt: '',
-        descriptionEn: '',
+        name: '',
+        description: '',
         slug: '',
         isVisible: true,
       });
@@ -162,10 +154,8 @@ export default function CategoriesPage() {
   function handleEdit(category: Category) {
     setEditingCategory(category);
     setFormData({
-      nameIt: category.name.it,
-      nameEn: category.name.en,
-      descriptionIt: category.description?.it || '',
-      descriptionEn: category.description?.en || '',
+      name: category.name,
+      description: category.description || '',
       slug: category.slug,
       isVisible: category.is_visible,
     });
@@ -206,10 +196,8 @@ export default function CategoriesPage() {
             onClick={() => {
               setEditingCategory(null);
               setFormData({
-                nameIt: '',
-                nameEn: '',
-                descriptionIt: '',
-                descriptionEn: '',
+                name: '',
+                description: '',
                 slug: '',
                 isVisible: true,
               });
@@ -247,17 +235,17 @@ export default function CategoriesPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Nome Italiano */}
+              {/* Nome */}
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Nome (Italiano) *
+                  Nome *
                 </label>
                 <input
                   type="text"
                   required
-                  value={formData.nameIt}
+                  value={formData.name}
                   onChange={(e) => {
-                    setFormData({ ...formData, nameIt: e.target.value });
+                    setFormData({ ...formData, name: e.target.value });
                     if (!editingCategory) {
                       setFormData(prev => ({ ...prev, slug: generateSlug(e.target.value) }));
                     }
@@ -267,18 +255,17 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              {/* Nome Inglese */}
+              {/* Descrizione */}
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Nome (English) *
+                  Descrizione
                 </label>
                 <input
                   type="text"
-                  required
-                  value={formData.nameEn}
-                  onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                  placeholder="e.g. Starters"
+                  placeholder="es. I nostri deliziosi antipasti"
                 />
               </div>
 
@@ -351,7 +338,7 @@ export default function CategoriesPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-xl font-bold text-gray-900">
-                      {category.name.it}
+                      {category.name}
                     </h3>
                     {!category.is_visible && (
                       <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
@@ -359,9 +346,11 @@ export default function CategoriesPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">
-                    🇬🇧 {category.name.en}
-                  </p>
+                  {category.description && (
+                    <p className="text-sm text-gray-600 mb-1">
+                      {category.description}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 font-mono">
                     /{category.slug}
                   </p>

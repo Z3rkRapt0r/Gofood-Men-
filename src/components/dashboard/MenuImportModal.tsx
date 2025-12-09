@@ -181,8 +181,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                         dishesToImport.map(dish => ({
                             tenant_id: tenantId,
                             category_id: selectedCategoryId,
-                            name: { it: dish.name, en: dish.name },
-                            description: { it: dish.description, en: dish.description },
+                            name: dish.name,
+                            description: dish.description,
                             price: dish.price,
                             is_visible: true,
                             slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -241,7 +241,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                                     <option value="">-- Seleziona una categoria --</option>
                                     {categories.map((cat) => (
                                         <option key={cat.id} value={cat.id}>
-                                            {cat.name.it}
+                                            {cat.name}
                                         </option>
                                     ))}
                                 </select>

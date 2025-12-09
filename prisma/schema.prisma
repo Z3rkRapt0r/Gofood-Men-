@@ -408,9 +408,9 @@ model allergens {
   id             String           @id
   number         Int              @unique
   icon           String
-  name           Json
-  description    Json?
   created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  name           String?
+  description    String?
   dish_allergens dish_allergens[]
 
   @@schema("public")
@@ -422,13 +422,13 @@ model allergens {
 model categories {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenant_id     String   @db.Uuid
-  name          Json
   slug          String
-  description   Json?
   display_order Int      @default(0)
   is_visible    Boolean  @default(true)
   created_at    DateTime @default(now()) @db.Timestamptz(6)
   updated_at    DateTime @default(now()) @db.Timestamptz(6)
+  name          String?
+  description   String?
   tenants       tenants  @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   dishes        dishes[]
 
@@ -464,8 +464,6 @@ model dishes {
   id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenant_id      String           @db.Uuid
   category_id    String           @db.Uuid
-  name           Json
-  description    Json
   slug           String
   price          Decimal          @db.Decimal(10, 2)
   image_url      String?
@@ -478,6 +476,8 @@ model dishes {
   display_order  Int              @default(0)
   created_at     DateTime         @default(now()) @db.Timestamptz(6)
   updated_at     DateTime         @default(now()) @db.Timestamptz(6)
+  name           String?
+  description    String?
   dish_allergens dish_allergens[]
   categories     categories       @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenants        tenants          @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -509,38 +509,36 @@ model profiles {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model tenants {
-  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  owner_id             String           @db.Uuid
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner_id             String             @db.Uuid
   restaurant_name      String
-  slug                 String           @unique
+  slug                 String             @unique
   contact_email        String?
-  country              String?          @default("IT")
-  logo_url             String?
-  primary_color        String?          @default("#8B0000")
-  secondary_color      String?          @default("#D4AF37")
-  background_color     String?          @default("#FFF8E7")
-  surface_color        String?          @default("#FFFFFF")
-  text_color           String?          @default("#171717")
-  secondary_text_color String?          @default("#4B5563")
+  country              String?            @default("IT")
+  currency             String             @default("EUR")
+  cover_charge         Decimal?           @default(2.50) @db.Decimal(10, 2)
+  subscription_tier    String             @default("free")
+  subscription_status  String             @default("active")
+  max_dishes           Int                @default(50)
+  max_categories       Int                @default(10)
+  onboarding_completed Boolean            @default(false)
+  onboarding_step      Int?               @default(1)
+  created_at           DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime           @default(now()) @db.Timestamptz(6)
+  footer_data          Json?
   tagline              String?
-  footer_data          Json?            // JSONB for flexible footer config
-  default_language     String           @default("it")
-  supported_languages  String[]         @default(["it", "en"])
-  currency             String           @default("EUR")
-  cover_charge         Decimal?         @default(2.50) @db.Decimal(10, 2)
-  subscription_tier    String           @default("free")
-  subscription_status  String           @default("active")
-  max_dishes           Int              @default(50)
-  max_categories       Int              @default(10)
-  onboarding_completed Boolean          @default(false)
-  onboarding_step      Int?             @default(1)
-  created_at           DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime         @default(now()) @db.Timestamptz(6)
+  logo_url             String?
+  background_color     String?            @default("#FFF8E7")
+  primary_color        String?            @default("#8B0000")
+  secondary_color      String?            @default("#D4AF37")
+  secondary_text_color String?            @default("#4B5563")
+  surface_color        String?            @default("#FFFFFF")
+  text_color           String?            @default("#171717")
   categories           categories[]
   dish_allergens       dish_allergens[]
   dishes               dishes[]
   tenant_locations     tenant_locations[]
-  profiles             profiles         @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
+  profiles             profiles           @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
 
   @@index([owner_id], map: "idx_tenants_owner_id")
   @@index([slug], map: "idx_tenants_slug")
@@ -554,10 +552,10 @@ model tenant_locations {
   address       String
   city          String
   phone         String?
-  opening_hours String?
   is_primary    Boolean  @default(false)
   created_at    DateTime @default(now()) @db.Timestamptz(6)
   updated_at    DateTime @default(now()) @db.Timestamptz(6)
+  opening_hours String?
   tenants       tenants  @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([tenant_id], map: "idx_tenant_locations_tenant_id")

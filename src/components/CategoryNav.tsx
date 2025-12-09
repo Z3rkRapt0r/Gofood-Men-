@@ -11,7 +11,6 @@ interface CategoryNavProps {
 }
 
 export default function CategoryNav({ categories, activeCategory, onCategoryClick }: CategoryNavProps) {
-  const { t } = useTranslation();
   const navRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
@@ -53,7 +52,7 @@ export default function CategoryNav({ categories, activeCategory, onCategoryClic
                 : 'bg-[var(--tenant-surface,#FFFFFF)] text-[var(--tenant-text-secondary,#4B5563)] hover:bg-gray-100 active:bg-gray-200 border border-gray-200'
                 }`}
             >
-              {t(category.name)}
+              {category.name}
             </button>
           ))}
         </div>

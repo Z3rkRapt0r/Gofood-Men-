@@ -18,14 +18,14 @@ interface PageProps {
 
 interface DbCategory {
   slug: string;
-  name: { it: string; en: string };
+  name: string;
   dishes?: DbDish[];
 }
 
 interface DbDish {
   slug: string;
-  name: { it: string; en: string };
-  description: { it: string; en: string };
+  name: string;
+  description: string;
   price: number;
   image_url?: string;
   is_visible: boolean;

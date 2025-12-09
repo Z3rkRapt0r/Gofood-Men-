@@ -8,8 +8,8 @@ import toast from 'react-hot-toast';
 
 interface Dish {
   id: string;
-  name: { it: string; en: string };
-  description: { it: string; en: string };
+  name: string;
+  description: string;
   price: number;
   category_id: string;
   image_url?: string;
@@ -22,7 +22,7 @@ interface Dish {
 
 interface Category {
   id: string;
-  name: { it: string; en: string };
+  name: string;
 }
 
 export default function DishesPage() {
@@ -36,10 +36,8 @@ export default function DishesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const [formData, setFormData] = useState({
-    nameIt: '',
-    nameEn: '',
-    descriptionIt: '',
-    descriptionEn: '',
+    name: '',
+    description: '',
     price: '',
     categoryId: '',
     slug: '',
@@ -158,11 +156,11 @@ export default function DishesPage() {
       const dishData = {
         tenant_id: tenantId,
         category_id: formData.categoryId,
-        name: { it: formData.nameIt, en: formData.nameEn },
-        description: { it: formData.descriptionIt, en: formData.descriptionEn },
+        name: formData.name,
+        description: formData.description,
         price: parseFloat(formData.price),
         image_url: imageUrl,
-        slug: formData.slug || generateSlug(formData.nameIt),
+        slug: formData.slug || generateSlug(formData.name),
         is_visible: formData.isVisible,
         is_seasonal: formData.isSeasonal,
         is_vegetarian: formData.isVegetarian,
@@ -221,10 +219,8 @@ export default function DishesPage() {
   function handleEdit(dish: Dish) {
     setEditingDish(dish);
     setFormData({
-      nameIt: dish.name.it,
-      nameEn: dish.name.en,
-      descriptionIt: dish.description.it,
-      descriptionEn: dish.description.en,
+      name: dish.name,
+      description: dish.description,
       price: dish.price.toString(),
       categoryId: dish.category_id,
       slug: '',
@@ -240,10 +236,8 @@ export default function DishesPage() {
 
   function resetForm() {
     setFormData({
-      nameIt: '',
-      nameEn: '',
-      descriptionIt: '',
-      descriptionEn: '',
+      name: '',
+      description: '',
       price: '',
       categoryId: '',
       slug: '',
@@ -348,7 +342,7 @@ export default function DishesPage() {
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
-            {cat.name.it} ({dishes.filter(d => d.category_id === cat.id).length})
+            {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
           </button>
         ))}
       </div>
@@ -387,71 +381,39 @@ export default function DishesPage() {
                     <option value="">Seleziona categoria...</option>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
-                        {cat.name.it}
+                        {cat.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Nome IT */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Nome (Italiano) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.nameIt}
-                      onChange={(e) => setFormData({ ...formData, nameIt: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                      placeholder="es. Carbonara"
-                    />
-                  </div>
-
-                  {/* Nome EN */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                      Nome (English) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.nameEn}
-                      onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                      placeholder="e.g. Carbonara"
-                    />
-                  </div>
-                </div>
-
-                {/* Descrizione IT */}
+                {/* Nome */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Descrizione (Italiano) *
+                    Nome *
                   </label>
-                  <textarea
+                  <input
+                    type="text"
                     required
-                    value={formData.descriptionIt}
-                    onChange={(e) => setFormData({ ...formData, descriptionIt: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
-                    placeholder="Descrivi il piatto..."
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    placeholder="es. Carbonara"
                   />
                 </div>
 
-                {/* Descrizione EN */}
+                {/* Descrizione */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Descrizione (English) *
+                    Descrizione *
                   </label>
                   <textarea
                     required
-                    value={formData.descriptionEn}
-                    onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
-                    placeholder="Describe the dish..."
+                    placeholder="Descrivi il piatto..."
                   />
                 </div>
 
@@ -611,14 +573,14 @@ export default function DishesPage() {
                         {dish.image_url && (
                           <img
                             src={dish.image_url}
-                            alt={dish.name.it}
+                            alt={dish.name}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                           />
                         )}
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="text-xl font-bold text-gray-900">
-                              {dish.name.it}
+                              {dish.name}
                             </h3>
                             {!dish.is_visible && (
                               <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
@@ -639,12 +601,12 @@ export default function DishesPage() {
                             )}
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
-                            {dish.description.it}
+                            {dish.description}
                           </p>
                           <div className="flex items-center gap-3 text-sm">
                             <span className="font-bold text-orange-600">€{dish.price.toFixed(2)}</span>
                             {category && (
-                              <span className="text-gray-500">• {category.name.it}</span>
+                              <span className="text-gray-500">• {category.name}</span>
                             )}
                           </div>
                         </div>
