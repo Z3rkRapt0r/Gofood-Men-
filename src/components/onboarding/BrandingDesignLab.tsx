@@ -204,7 +204,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
 
                                             <div className="grid gap-6 grid-cols-1">
                                                 {category.dishes.map((dish) => (
-                                                    <DishCard key={dish.id} dish={dish} />
+                                                    <DishCard key={dish.id} dish={dish} tenantSlug={mockTenant.slug} />
                                                 ))}
                                             </div>
                                         </section>

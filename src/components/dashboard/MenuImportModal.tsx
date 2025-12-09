@@ -254,27 +254,27 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
 
     const handleSave = async () => {
         try {
-            const supabase = createClient() as SupabaseClient<Database>;
+            const supabase = createClient();
 
+            // Filter selected items and valid categories
             // Filter selected items and valid categories
             const dishesToImport = analyzedDishes.filter(d => d.selected && d.categoryId);
 
             if (dishesToImport.length > 0) {
                 // 1. Prepare items with slugs
-                const preparedItems = dishesToImport.map(dish => ({
+                const preparedItems: Database['public']['Tables']['dishes']['Insert'][] = dishesToImport.map(dish => ({
                     tenant_id: tenantId,
-                    category_id: dish.categoryId,
+                    category_id: dish.categoryId!, // Checked in filter
                     name: dish.name,
                     description: dish.description,
                     price: dish.price,
                     is_visible: true,
                     slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                })) as any[];
+                }));
 
                 // 2. Deduplicate within the batch (prefer last or first? First is fine)
                 // We key by `${category_id}-${slug}` to ensure uniqueness per category
-                const uniqueItemsMap = new Map();
+                const uniqueItemsMap = new Map<string, Database['public']['Tables']['dishes']['Insert']>();
                 preparedItems.forEach(item => {
                     const key = `${item.category_id}-${item.slug}`;
                     if (!uniqueItemsMap.has(key)) {
@@ -284,9 +284,10 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                 const uniqueItems = Array.from(uniqueItemsMap.values());
 
                 // 3. Insert with ignoreDuplicates to skip existing DB items
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { error: dishesError } = await supabase
                     .from('dishes')
-                    .upsert(uniqueItems, {
+                    .upsert(uniqueItems as any, {
                         onConflict: 'tenant_id,category_id,slug',
                         ignoreDuplicates: true
                     });
