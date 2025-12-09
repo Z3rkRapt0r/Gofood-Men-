@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FooterData } from '@/types/menu';
 import Header from '@/components/Header';
 import CategoryNav from '@/components/CategoryNav';
@@ -40,6 +40,30 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
   const mainRef = useRef<HTMLDivElement>(null);
 
+  // Scroll Spy Logic
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveCategory(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: '-20% 0px -60% 0px', // Trigger when section is near the top area
+        threshold: 0
+      }
+    );
+
+    categories.forEach((cat) => {
+      const element = document.getElementById(cat.id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [categories]);
+
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
     if (mainRef.current) {
@@ -53,7 +77,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   return (
     <div
       ref={mainRef}
-      className="min-h-screen"
+      className="min-h-screen w-full"
       style={{
         backgroundColor: currentTheme.colors.background,
         color: currentTheme.colors.text,
@@ -78,6 +102,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
         categories={categories}
         activeCategory={activeCategory}
         onCategoryClick={handleCategoryClick}
+        logoHeight={currentTheme.logoHeight}
       />
 
       {/* Hero Section */}

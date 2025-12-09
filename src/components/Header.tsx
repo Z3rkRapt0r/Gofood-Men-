@@ -24,7 +24,7 @@ export default function Header({
   const { isGlutenFree, toggleGlutenFilter } = useGlutenFilter();
 
   return (
-    <header className="sticky top-0 z-50 bg-[var(--tenant-surface,#FFFFFF)] transition-all duration-200">
+    <header className="sticky top-0 z-50 bg-[var(--tenant-surface,#FFFFFF)] transition-colors duration-200 max-w-full">
       <div className="container mx-auto px-4 py-3 md:py-4">
         {/* Layout mobile: logo sx, filtri dx */}
         {/* Layout mobile: filtro sx, logo centro, lingua dx */}

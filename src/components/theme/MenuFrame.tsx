@@ -42,8 +42,7 @@ export function MenuFrame({ children }: { children: React.ReactNode }) {
         relative w-full mx-auto 
         ${getShadowStyles()}
         ${getRoundedClass()}
-        overflow-hidden
-        transition-all duration-300
+        duration-300
       `}
             style={{
                 boxShadow: shadows === 'floating' ? `0 25px 50px -12px ${colors.primary}20` : undefined

@@ -33,7 +33,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
   const socials = footerData?.socials || [];
 
   return (
-    <footer className="bg-gradient-to-b from-[var(--tenant-surface,#FFFFFF)] to-[var(--tenant-background,#FFF8E7)] border-t-2 border-[var(--tenant-secondary,#D4AF37)] mt-16">
+    <footer className="bg-gradient-to-b from-[var(--tenant-surface,#FFFFFF)] to-[var(--tenant-background,#FFF8E7)] border-t-2 border-[var(--tenant-secondary,#D4AF37)] mt-16 max-w-full">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         {/* Main Footer Content */}
         <div className={`grid grid-cols-2 gap-8 mb-8 ${forceMobile ? '' : 'md:grid-cols-3'}`}>
