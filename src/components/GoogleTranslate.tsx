@@ -22,6 +22,7 @@ export default function GoogleTranslate() {
                     pageLanguage: 'it',
                     includedLanguages: 'it,en',
                     autoDisplay: false,
+                    layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
                 },
                 'google_translate_element'
             );
@@ -37,11 +38,42 @@ export default function GoogleTranslate() {
             document.body.appendChild(script);
         }
 
+        // MutationObserver to aggressively hide the banner
+        const observer = new MutationObserver(() => {
+            const bannerFrame = document.querySelector('.goog-te-banner-frame');
+            const bannerFrame2 = document.querySelector('iframe.goog-te-banner-frame');
+
+            if (bannerFrame) {
+                bannerFrame.setAttribute('style', 'display: none !important; height: 0 !important; visibility: hidden !important;');
+            }
+            if (bannerFrame2) {
+                bannerFrame2.setAttribute('style', 'display: none !important; height: 0 !important; visibility: hidden !important;');
+            }
+
+            if (document.body.style.top !== '0px') {
+                document.body.style.top = '0px';
+                document.body.style.position = 'static';
+            }
+
+            if (document.body.classList.contains('goog-te-banner-show')) {
+                document.body.classList.remove('goog-te-banner-show');
+            }
+        });
+
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+
         // Check existing cookie
         const match = document.cookie.match(/googtrans=\/it\/([a-z]{2})/);
         if (match) {
             setCurrentLang(match[1]);
         }
+
+        return () => observer.disconnect();
     }, []);
 
     const handleLanguageChange = (lang: string) => {
