@@ -6,9 +6,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 interface AllergensLegalProps {
   data: AllergenData;
+  logoUrl?: string; // Optional restaurant logo
 }
 
-export default function AllergensLegal({ data }: AllergensLegalProps) {
+export default function AllergensLegal({ data, logoUrl }: AllergensLegalProps) {
   const { t } = useTranslation();
 
   return (
@@ -17,11 +18,11 @@ export default function AllergensLegal({ data }: AllergensLegalProps) {
       <div className="bg-gradient-to-r from-[var(--tenant-primary,#8B0000)] to-[var(--tenant-primary,#8B0000)] text-center py-8 px-6">
         <div className="inline-block bg-white/10 backdrop-blur-sm border-2 border-[var(--tenant-secondary,#D4AF37)] rounded-lg px-8 py-6">
           <Image
-            src="/icon.svg"
-            alt="Menu Digitale Logo"
+            src={logoUrl || '/icon.svg'}
+            alt="Restaurant Logo"
             width={60}
             height={60}
-            className="h-16 w-auto mx-auto mb-2"
+            className="h-16 w-auto mx-auto mb-2 object-contain"
           />
           <p className="text-sm text-white/90 uppercase tracking-wider">
             Menu Digitale

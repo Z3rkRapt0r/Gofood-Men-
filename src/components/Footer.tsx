@@ -45,11 +45,6 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
                 alt={`${restaurantName || 'Menu Digitale'} Logo`}
                 className={`h-12 w-auto mx-auto mb-3 object-contain ${forceMobile ? '' : 'md:mx-0'}`}
               />
-              <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)] mb-4">
-                {language === 'it'
-                  ? 'Il tuo Menu Digitale'
-                  : 'Your Digital Menu'}
-              </p>
               <p className="text-sm text-[var(--tenant-text,#171717)] leading-relaxed mb-4">
                 {footerData?.brand_description?.[language as 'it' | 'en'] || footerData?.brand_description?.it || (language === 'it'
                   ? 'Scopri i nostri piatti e le nostre specialità.'
@@ -105,7 +100,6 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
                     href={link.url}
                     className="inline-flex items-center gap-2 text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors"
                   >
-                    <span className="text-lg">🔗</span>
                     {link.label[language as 'it' | 'en'] || link.label.it}
                   </Link>
                 </li>
@@ -159,13 +153,8 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
 
         {/* Bottom Footer */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-[var(--tenant-text-secondary,#4B5563)]">
-            {language === 'it'
-              ? 'Chiamare il cameriere per ordinare'
-              : 'Call the waiter to order'}
-          </p>
           <p className="text-xs text-[var(--tenant-text-secondary,#4B5563)]">
-            © {new Date().getFullYear()} {restaurantName || 'Gofood Menù'} - {language === 'it' ? 'Tutti i diritti riservati' : 'All rights reserved'}
+            &copy; {new Date().getFullYear()} Go!Food | <a href="mailto:info@gofoodmenu.it" className="hover:text-[var(--tenant-primary,#8B0000)]">info@gofoodmenu.it</a> | <a href="https://www.gofoodmenu.it" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--tenant-primary,#8B0000)]">gofoodmenu.it</a>
           </p>
         </div>
       </div>

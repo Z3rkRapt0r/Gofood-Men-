@@ -117,19 +117,20 @@ export default function SettingsPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const supabase = createClient();
 
     try {
-      const supabase = createClient();
+      console.log('Starting save process...');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from('tenants') as any)
+      // 1. Update Tenant Info
+      console.log('Updating tenant info...');
+      const { error: tenantError } = await (supabase.from('tenants') as any)
         .update({
           restaurant_name: formData.restaurantName,
           tagline: formData.tagline,
           slug: formData.slug,
           contact_email: formData.contactEmail,
           logo_url: formData.logoUrl,
-          // Update footer data excluding locations (they are separate now)
           footer_data: {
             ...formData.footerData,
             locations: []
@@ -137,54 +138,71 @@ export default function SettingsPage() {
         })
         .eq('id', tenantId);
 
-      if (error) throw error;
+      if (tenantError) {
+        console.error('Tenant update failed:', tenantError);
+        throw new Error(`Tenant Update Error: ${tenantError.message || JSON.stringify(tenantError)}`);
+      }
+      console.log('Tenant info updated.');
 
-      // Update Tenant Locations
-      // Strategy: Delete all for this tenant and insert new ones
-      // This is simple and effective for a small list
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // 2. Update Locations
+      console.log('Updating locations...');
+      // Delete old
       const { error: deleteError } = await (supabase.from('tenant_locations') as any)
         .delete()
         .eq('tenant_id', tenantId);
 
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.error('Location delete failed:', deleteError);
+        throw new Error(`Locations Delete Error: ${deleteError.message || JSON.stringify(deleteError)}`);
+      }
 
+      // Insert new
       const locationsToInsert = formData.footerData.locations.map((loc, idx) => ({
         tenant_id: tenantId,
         city: loc.city,
         address: loc.address,
         phone: loc.phone || null,
         opening_hours: loc.opening_hours || null,
-        is_primary: idx === 0 // First one is primary
+        is_primary: idx === 0
       }));
 
       if (locationsToInsert.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: insertError } = await (supabase.from('tenant_locations') as any)
           .insert(locationsToInsert);
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Location insert failed:', insertError);
+          throw new Error(`Locations Insert Error: ${insertError.message || JSON.stringify(insertError)}`);
+        }
       }
+      console.log('Locations updated.');
 
-      // Update Design Settings
+      // 3. Update Design Settings
+      console.log('Updating design settings...');
       if (formData.themeOptions) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: designError } = await (supabase.from('tenant_design_settings') as any)
           .upsert({
             tenant_id: tenantId,
             theme_config: formData.themeOptions
           });
 
-        if (designError) throw designError;
+        if (designError) {
+          console.error('Design update failed:', designError);
+          throw new Error(`Design Settings Error: ${designError.message || JSON.stringify(designError)}`);
+        }
       }
+      console.log('Design settings updated.');
 
       toast.success('Impostazioni salvate con successo!');
-    } catch (err: unknown) {
-      console.error('Error saving settings:', err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      console.error('Error details:', JSON.stringify(err as any, null, 2));
-      const message = err instanceof Error ? err.message : 'Errore sconosciuto';
-      toast.error('Errore nel salvataggio: ' + message);
+    } catch (err: any) {
+      console.error('Full Error saving settings:', err);
+      console.error('Error stringified:', JSON.stringify(err, null, 2));
+
+      let message = 'Errore durante il salvataggio.';
+      if (err instanceof Error) message = err.message;
+      else if (typeof err === 'object') message = JSON.stringify(err);
+
+      toast.error(message);
     } finally {
       setSaving(false);
     }

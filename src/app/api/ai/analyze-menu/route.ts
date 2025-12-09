@@ -14,7 +14,7 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { images } = body;
+        const { images, categories } = body;
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return NextResponse.json(
@@ -23,24 +23,37 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        const categoryContext = categories && Array.isArray(categories) && categories.length > 0
+            ? `
+Le categorie disponibili sono:
+${categories.map((c: any) => `- ${c.name} (ID: ${c.id})`).join('\n')}
+
+Per ogni piatto, DEVI assegnarlo alla categoria corretta usando il suo ID esatto.
+Se un piatto non sembra appartenere a nessuna categoria specifica, assegnalo alla categoria più generica o appropriata.`
+            : 'Non ci sono categorie specifiche fornite.';
+
         const prompt = `
-      Analizza queste immagini di un menu ristorante.
-      Estrai tutti i piatti presenti.
+      Analizza questo menu (immagini) e estrai TUTTI i piatti.
       
-      Restituisci SOLO un oggetto JSON valido con questa struttura esatta, senza markdown o altro testo:
+      ${categoryContext}
+      
+      Restituisci SOLO un oggetto JSON valido con questa struttura esatta:
         {
             "dishes": [
                 {
                     "name": "Nome Piatto",
-                    "description": "Descrizione del piatto (se presente)",
-                    "price": 12.50
+                    "description": "Descrizione (o stringa vuota)",
+                    "price": 12.50,
+                    "categoryId": "ID_CATEGORIA_CORRISPONDENTE"
                 }
             ]
         }
 
-      Se non trovi prezzi, metti 0.
-      Se non trovi descrizioni, metti stringa vuota.
-      Mantieni i nomi dei piatti originali.
+      Regole:
+      1. Se non trovi prezzi, metti 0.
+      2. Se non trovi descrizioni, metti stringa vuota.
+      3. Mantieni i nomi dei piatti originali.
+      4. "categoryId" è OBBLIGATORIO se hai ricevuto le categorie. Cerca di indovinare la migliore.
     `;
 
         const contentParts = [

@@ -130,7 +130,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
             {/* Dishes Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {category.dishes.map((dish) => (
-                <DishCard key={dish.id} dish={dish} />
+                <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
               ))}
             </div>
           </section>

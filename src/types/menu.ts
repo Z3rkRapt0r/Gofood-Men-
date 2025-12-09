@@ -14,6 +14,7 @@ export interface Dish {
   price: string;
   image: string;
   allergens?: string[];
+  is_seasonal?: boolean;
 }
 
 export interface Category {

@@ -10,6 +10,7 @@ import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
 
 interface DishCardProps {
   dish: Dish;
+  tenantSlug: string;
 }
 
 const allergenTranslations: Record<string, { it: string; en: string }> = {
@@ -29,7 +30,7 @@ const allergenTranslations: Record<string, { it: string; en: string }> = {
   molluschi: { it: 'Molluschi', en: 'Molluscs' },
 };
 
-export default function DishCard({ dish }: DishCardProps) {
+export default function DishCard({ dish, tenantSlug }: DishCardProps) {
   const { isGlutenFree } = useGlutenFilter();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -42,8 +43,10 @@ export default function DishCard({ dish }: DishCardProps) {
   const isDisabled = isGlutenFree && containsGluten;
 
   // Piatti stagionali che mostrano "fuori stagione" invece dell'immagine
-  const seasonalDishes = ['carciofi-romana', 'carciofo-giudia'];
-  const isSeasonalDish = seasonalDishes.includes(dish.id);
+  const isSeasonalDish = dish.is_seasonal || false;
+
+  // Determine if we should show placeholder
+  const showPlaceholder = !dish.image || imageError;
 
   return (
     <div className={`bg-[var(--tenant-surface,#FFFFFF)] rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${isDisabled
@@ -66,21 +69,20 @@ export default function DishCard({ dish }: DishCardProps) {
           </div>
         ) : (
           <>
-            {/* Skeleton Loader - visibile solo durante il caricamento */}
-            {!imageLoaded && !imageError && (
+            {/* Skeleton Loader - visibile solo durante il caricamento e se non è placeholder */}
+            {!imageLoaded && !showPlaceholder && (
               <div className="absolute inset-0 animate-shimmer" />
             )}
 
-            {/* Immagine */}
+            {/* Immagine o Placeholder */}
             <Image
-              src={imageError ? placeholderImage : dish.image}
+              src={showPlaceholder ? placeholderImage : dish.image!}
               alt={dish.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className={`
-                ${imageError ? 'object-contain p-8' : 'object-cover'} 
+                ${showPlaceholder ? 'object-contain p-12 opacity-50 grayscale' : 'object-cover opacity-100'} 
                 hover:scale-105 transition-transform duration-500
-                ${imageLoaded ? 'opacity-100' : 'opacity-0'}
               `}
               priority={false}
               onLoad={() => setImageLoaded(true)}
@@ -137,7 +139,7 @@ export default function DishCard({ dish }: DishCardProps) {
               ))}
             </div>
             <Link
-              href="/allergeni"
+              href={`/${tenantSlug}/allergeni`}
               className="inline-flex items-center gap-1.5 text-sm hover:brightness-75 font-medium transition-all"
               style={{ color: 'var(--tenant-accent, #8B0000)' }}
             >

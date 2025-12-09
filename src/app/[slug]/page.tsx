@@ -29,6 +29,7 @@ interface DbDish {
   price: number;
   image_url?: string;
   is_visible: boolean;
+  is_seasonal: boolean;
   display_order: number;
   allergen_ids?: string[];
 }
@@ -105,7 +106,8 @@ async function getMenuData(slug: string) {
         description: dish.description,
         price: dish.price.toFixed(2),
         image: dish.image_url || '/icon.svg',
-        allergens: dish.allergen_ids || []
+        allergens: dish.allergen_ids || [],
+        is_seasonal: dish.is_seasonal,
       })) || []
   })) || [];
 

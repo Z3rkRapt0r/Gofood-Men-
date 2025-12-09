@@ -504,9 +504,21 @@ export default function DishesPage() {
 
                   {/* Filtri Speciali */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">
-                      Filtri Speciali
-                    </label>
+                    <div className="flex items-center gap-2 mb-3">
+                      <label className="block text-sm font-bold text-gray-900">
+                        Filtri Speciali
+                      </label>
+                      <div className="group relative flex items-center">
+                        <span className="cursor-help text-gray-400 hover:text-gray-600 transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                        <div className="absolute left-full ml-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                          Questi filtri influenzano la visibilità del piatto nel menu (es. immagine stagionale) o avvertenze critiche (es. icona glutine).
+                        </div>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
                         <input
@@ -524,8 +536,8 @@ export default function DishesPage() {
                         <label
                           key={glutine.id}
                           className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.selectedAllergens.includes(glutine.id)
-                              ? 'border-red-500 bg-red-50 text-red-700'
-                              : 'border-gray-200 hover:border-red-200 text-gray-600'
+                            ? 'border-red-500 bg-red-50 text-red-700'
+                            : 'border-gray-200 hover:border-red-200 text-gray-600'
                             }`}
                         >
                           <input
