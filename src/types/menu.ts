@@ -211,6 +211,8 @@ export interface DishDB {
   is_vegetarian: boolean;
   is_vegan: boolean;
 
+  allergen_ids: string[]; // Array of Strings (New Schema)
+
   display_order: number;
 
   created_at: string;
@@ -229,15 +231,6 @@ export interface AllergenDB {
   created_at: string;
 }
 
-/**
- * Dish-Allergen junction (many-to-many)
- */
-export interface DishAllergenDB {
-  dish_id: string; // UUID ref to dishes.id
-  allergen_id: string; // Text ref to allergens.id
-  tenant_id: string; // UUID ref to tenants.id
-  created_at: string;
-}
 
 // ============================================================
 // TYPES: Menu completo con relazioni (per query)

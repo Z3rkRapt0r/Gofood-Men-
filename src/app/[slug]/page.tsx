@@ -30,7 +30,7 @@ interface DbDish {
   image_url?: string;
   is_visible: boolean;
   display_order: number;
-  dish_allergens?: DbDishAllergen[];
+  allergen_ids?: string[];
 }
 
 interface DbDishAllergen {
@@ -76,17 +76,12 @@ async function getMenuData(slug: string) {
 
   const tenantData = tenant as Tenant;
 
-  // 2. Fetch categories con piatti e allergeni
+  // 2. Fetch categories con piatti
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: categories, error: categoriesError } = await (supabase.from('categories') as any)
     .select(`
       *,
-      dishes:dishes(
-        *,
-        dish_allergens(
-          allergen:allergens(*)
-        )
-      )
+      dishes:dishes(*)
     `)
     .eq('tenant_id', tenantData.id)
     .eq('is_visible', true)
@@ -110,7 +105,7 @@ async function getMenuData(slug: string) {
         description: dish.description,
         price: dish.price.toFixed(2),
         image: dish.image_url || '/icon.svg',
-        allergens: dish.dish_allergens?.map((da) => da.allergen.id) || []
+        allergens: dish.allergen_ids || []
       })) || []
   })) || [];
 

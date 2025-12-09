@@ -18,7 +18,7 @@ interface Dish {
   is_vegetarian: boolean;
   is_vegan: boolean;
   is_gluten_free: boolean;
-  dish_allergens?: { allergen_id: string }[];
+  allergen_ids: string[];
 }
 
 interface Category {
@@ -100,7 +100,7 @@ export default function DishesPage() {
       // Load dishes with allergens
       const { data: dishesData } = await supabase
         .from('dishes')
-        .select('*, dish_allergens(allergen_id)')
+        .select('*')
         .eq('tenant_id', tenantData.id)
         .order('display_order');
 
@@ -184,9 +184,8 @@ export default function DishesPage() {
         is_vegan: formData.isVegan,
         is_gluten_free: formData.isGlutenFree,
         display_order: dishes.length,
+        allergen_ids: formData.selectedAllergens,
       };
-
-      let dishId: string | undefined = editingDish?.id;
 
       if (editingDish) {
         const { error } = await supabase
@@ -198,44 +197,13 @@ export default function DishesPage() {
 
         if (error) throw error;
       } else {
-        const { data: newDish, error } = await supabase
+        const { error } = await supabase
           .from('dishes')
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - Supabase client type inference issue with generated Database types
-          .insert([dishData])
-          .select('id')
-          .single();
+          .insert([dishData]);
 
         if (error) throw error;
-        dishId = (newDish as { id: string })?.id;
-      }
-
-      // Handle Allergens Association
-      if (dishId) {
-        // 1. Delete existing for this dish (simple replacement strategy)
-        if (editingDish) {
-          await supabase
-            .from('dish_allergens')
-            .delete()
-            .eq('dish_id', dishId);
-        }
-
-        // 2. Insert new
-        if (formData.selectedAllergens.length > 0) {
-          const allergenInserts = formData.selectedAllergens.map(id => ({
-            dish_id: dishId as string,
-            allergen_id: id,
-            tenant_id: tenantId
-          }));
-
-          const { error: allergensError } = await supabase
-            .from('dish_allergens')
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            .insert(allergenInserts);
-
-          if (allergensError) throw allergensError;
-        }
       }
 
       resetForm();
@@ -280,7 +248,7 @@ export default function DishesPage() {
       isVegan: dish.is_vegan,
       isGlutenFree: dish.is_gluten_free,
       image: null,
-      selectedAllergens: dish.dish_allergens?.map(da => da.allergen_id) || [],
+      selectedAllergens: dish.allergen_ids || [],
     });
     setShowForm(true);
   }
