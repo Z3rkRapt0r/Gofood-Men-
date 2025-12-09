@@ -14,12 +14,12 @@ import Footer from '@/components/Footer';
 const MOCK_CATEGORIES = [
     {
         id: 'antipasti',
-        name: { it: 'Antipasti', en: 'Starters' },
+        name: 'Antipasti',
         dishes: [
             {
                 id: 'd1',
-                name: { it: 'Tartare di Tonno', en: 'Tuna Tartare' },
-                description: { it: 'Tonno fresco, avocado, lime e sesamo.', en: 'Fresh tuna, avocado, lime and sesame.' },
+                name: 'Tartare di Tonno',
+                description: 'Tonno fresco, avocado, lime e sesamo.',
                 price: '18.00',
                 image: '/images/dish-placeholder.jpg',
                 allergens: ['fish', 'sesame']
@@ -28,12 +28,12 @@ const MOCK_CATEGORIES = [
     },
     {
         id: 'primi',
-        name: { it: 'Primi Piatti', en: 'First Courses' },
+        name: 'Primi Piatti',
         dishes: [
             {
                 id: 'd3',
-                name: { it: 'Carbonara', en: 'Carbonara' },
-                description: { it: 'Spaghetti, guanciale croccante, pecorino, uovo.', en: 'Spaghetti, crispy guanciale, pecorino cheese, egg.' },
+                name: 'Carbonara',
+                description: 'Spaghetti, guanciale croccante, pecorino, uovo.',
                 price: '14.00',
                 image: '/images/dish-placeholder.jpg',
                 allergens: ['gluten', 'egg', 'milk']
@@ -197,7 +197,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                             <div className="flex items-center justify-center gap-4 mb-4">
                                                 <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
                                                 <h2 className="font-display text-xl font-bold text-center shrink-0 px-2 theme-heading" style={{ color: mockTenant.primary_color }}>
-                                                    {category.name.it}
+                                                    {category.name}
                                                 </h2>
                                                 <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
                                             </div>

@@ -273,9 +273,9 @@ export interface TenantMenu {
  * Form input per creazione categoria
  */
 export interface CategoryInput {
-  name: Translation;
+  name: string;
   slug: string;
-  description?: Translation;
+  description?: string;
   display_order?: number;
   is_visible?: boolean;
 }
@@ -285,14 +285,14 @@ export interface CategoryInput {
  */
 export interface DishInput {
   category_id: string;
-  name: Translation;
-  description: Translation;
+  name: string;
+  description: string;
   slug: string;
   price: number;
   image_url?: string;
   allergen_ids?: string[];
   is_seasonal?: boolean;
-  seasonal_note?: Translation;
+  seasonal_note?: string;
   is_gluten_free?: boolean;
   is_vegetarian?: boolean;
   is_vegan?: boolean;
