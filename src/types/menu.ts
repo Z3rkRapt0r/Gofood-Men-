@@ -96,7 +96,6 @@ export interface FooterSocial {
 
 export interface FooterData {
   locations: FooterLocation[];
-  links: FooterLink[];
   socials: FooterSocial[];
   show_brand_column: boolean; // Toggle for the first column
   brand_description?: Translation; // Custom description for the brand column

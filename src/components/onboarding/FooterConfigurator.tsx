@@ -38,7 +38,7 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
         const footerData: FooterData = {
             locations: newLocations,
             socials: newSocials,
-            links: formData.footer_data?.links || [],
+            // links removed
             show_brand_column: true,
             brand_description: formData.footer_data?.brand_description
         };

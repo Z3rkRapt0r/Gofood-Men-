@@ -30,7 +30,6 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
     : defaultLocations;
 
   const showBrandColumn = footerData?.show_brand_column ?? true;
-  const links = footerData?.links || [];
   const socials = footerData?.socials || [];
 
   return (
@@ -80,7 +79,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
             )}
           </div>
 
-          {/* Links Utili */}
+          {/* Links Utili - REMOVED */}
           <div className={`text-center ${forceMobile ? '' : 'md:text-left'}`}>
             <h4 className="text-lg font-bold text-[var(--tenant-text,#171717)] mb-4">
               {language === 'it' ? 'Informazioni' : 'Information'}
@@ -95,30 +94,6 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
                   {language === 'it' ? 'Allergeni' : 'Allergens'}
                 </Link>
               </li>
-              {links.map((link, index) => (
-                <li key={index}>
-                  <Link
-                    href={link.url}
-                    className="inline-flex items-center gap-2 text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors"
-                  >
-                    {link.label[language as 'it' | 'en'] || link.label.it}
-                  </Link>
-                </li>
-              ))}
-              {/* Default links if no custom links provided and not using footerData (legacy fallback) */}
-              {!footerData && (
-                <>
-                  <li>
-                    <Link
-                      href="/"
-                      className="inline-flex items-center gap-2 text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors"
-                    >
-                      <span className="text-lg">🍝</span>
-                      {language === 'it' ? 'Menu' : 'Menu'}
-                    </Link>
-                  </li>
-                </>
-              )}
             </ul>
 
             {/* Social Media */}
@@ -128,18 +103,24 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
               </h5>
               <div className={`flex gap-3 justify-center ${forceMobile ? '' : 'md:justify-start'}`}>
                 {socials.length > 0 ? (
-                  socials.map((social, index) => (
-                    <a
-                      key={index}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors hover:scale-110 transform duration-200"
-                      aria-label={social.platform}
-                    >
-                      <SocialIcon platform={social.platform} className="w-6 h-6" />
-                    </a>
-                  ))
+                  socials.map((social, index) => {
+                    // Ensure URL is absolute
+                    const rawUrl = social.url || '';
+                    const absoluteUrl = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+
+                    return (
+                      <a
+                        key={index}
+                        href={absoluteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[var(--tenant-text-secondary,#4B5563)] hover:text-[var(--tenant-primary,#8B0000)] transition-colors hover:scale-110 transform duration-200"
+                        aria-label={social.platform}
+                      >
+                        <SocialIcon platform={social.platform} className="w-6 h-6" />
+                      </a>
+                    );
+                  })
                 ) : (
                   // Default socials if no custom socials provided
                   null

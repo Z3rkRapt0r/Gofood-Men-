@@ -27,7 +27,6 @@ export default function SettingsPage() {
     secondaryTextColor: '#4B5563',
     footerData: {
       locations: [] as FooterLocation[],
-      links: [] as FooterLink[],
       socials: [] as FooterSocial[],
       show_brand_column: true,
     } as FooterData,
@@ -94,7 +93,6 @@ export default function SettingsPage() {
         secondaryTextColor: tenant.secondary_text_color || '#4B5563',
         footerData: {
           ...(tenant.footer_data || {
-            links: [],
             socials: [],
             show_brand_column: true,
           }),
@@ -495,81 +493,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Links */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-gray-900">Link Utili</h3>
-                <button
-                  type="button"
-                  onClick={() => setFormData({
-                    ...formData,
-                    footerData: {
-                      ...formData.footerData,
-                      links: [...formData.footerData.links, { label: { it: '', en: '' }, url: '' }]
-                    }
-                  })}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
-                >
-                  + Aggiungi Link
-                </button>
-              </div>
-              <div className="space-y-3">
-                {formData.footerData.links.map((link, index) => (
-                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <div className="flex-1 space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          placeholder="Etichetta (IT)"
-                          value={link.label.it}
-                          onChange={(e) => {
-                            const newLinks = [...formData.footerData.links];
-                            newLinks[index].label.it = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
-                          }}
-                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Label (EN)"
-                          value={link.label.en}
-                          onChange={(e) => {
-                            const newLinks = [...formData.footerData.links];
-                            newLinks[index].label.en = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
-                          }}
-                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                        />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="URL (es. /menu o https://...)"
-                        value={link.url}
-                        onChange={(e) => {
-                          const newLinks = [...formData.footerData.links];
-                          newLinks[index].url = e.target.value;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
-                        }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newLinks = formData.footerData.links.filter((_, i) => i !== index);
-                        setFormData({ ...formData, footerData: { ...formData.footerData, links: newLinks } });
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                ))}
-                {formData.footerData.links.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">Nessun link aggiunto.</p>
-                )}
-              </div>
-            </div>
+            {/* Links Section Removed */}
+
 
             {/* Socials */}
             <div>
