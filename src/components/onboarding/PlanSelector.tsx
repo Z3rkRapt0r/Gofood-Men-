@@ -28,8 +28,10 @@ export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: Pla
 
   // Auto-select the only plan
   useEffect(() => {
-    onSelectPlan('premium');
-  }, [onSelectPlan]);
+    if (selectedPlan !== 'premium') {
+      onSelectPlan('premium');
+    }
+  }, [selectedPlan, onSelectPlan]);
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">
