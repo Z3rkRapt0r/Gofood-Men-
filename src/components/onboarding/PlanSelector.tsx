@@ -18,15 +18,9 @@ interface Plan {
 export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: PlanSelectorProps) {
   const plans: Plan[] = [
     {
-      id: 'free',
-      name: 'Base',
-      price: 'Gratis',
-      features: ['Menu Digitale', 'QR Code', 'Categorie Illimitate']
-    },
-    {
       id: 'premium',
       name: 'Premium',
-      price: '€19',
+      price: '€19,90',
       priceDetail: 'mese',
       features: ['Tutto incluso', 'Temi Personalizzati', 'Statistiche Avanzate', 'Supporto Prioritario']
     }
@@ -34,10 +28,8 @@ export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: Pla
 
   // Auto-select the only plan
   useEffect(() => {
-    if (selectedPlan !== 'premium') {
-      onSelectPlan('premium');
-    }
-  }, [selectedPlan, onSelectPlan]);
+    onSelectPlan('premium');
+  }, [onSelectPlan]);
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100">
@@ -118,17 +110,17 @@ export default function PlanSelector({ selectedPlan, onSelectPlan, onNext }: Pla
 
       {/* Next Button */}
       <div className="max-w-md mx-auto">
-        <button
-          onClick={onNext}
+        <a
+          href="https://buy.stripe.com/test_9B65kD0dt3ed9FkgJcf3a00"
           className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2"
         >
           <span>Attiva Abbonamento</span>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
-        </button>
+        </a>
         <p className="text-xs text-center text-gray-500 mt-4">
-          Cliccando su &quot;Attiva Abbonamento&quot; verrai reindirizzato al pagamento sicuro (Prossimamente)
+          Cliccando verrai reindirizzato al pagamento sicuro su Stripe.
         </p>
       </div>
     </div>

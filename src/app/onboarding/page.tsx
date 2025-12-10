@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -17,9 +17,33 @@ type SubscriptionTier = 'free' | 'basic' | 'premium';
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [tenant, setTenant] = useState<Tenant | null>(null);
+
+  // Handle payment success callback from Stripe
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success' && tenant) {
+      if (currentStep === 1) {
+        // Upgrade to premium and move to next step
+        const upgradeTenant = async () => {
+          console.log('Payment successful! Upgrading to premium...');
+          try {
+            const supabase = createClient();
+            await supabase.from('tenants').update({ subscription_tier: 'premium' }).eq('id', tenant.id);
+            setFormData(prev => ({ ...prev, subscription_tier: 'premium' }));
+            setCurrentStep(2);
+            // Clean URL
+            router.replace('/onboarding');
+          } catch (err) {
+            console.error('Error upgrading tenant:', err);
+          }
+        };
+        upgradeTenant();
+      }
+    }
+  }, [searchParams, tenant, currentStep, router]);
 
   const [formData, setFormData] = useState({
     subscription_tier: 'free' as SubscriptionTier,
