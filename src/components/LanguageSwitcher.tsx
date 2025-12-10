@@ -61,15 +61,28 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     setIsChanging(true);
 
     if (lang === 'it') {
-      // Clear google translate cookie to restore original language
-      document.cookie = `googtrans=; path=/; domain=${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-      document.cookie = `googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-    } else {
-      // Set google translate cookie
-      // Format: /source/target (e.g. /it/en)
-      const cookieValue = `/it/${lang}`;
+      // Aggressive cookie clearing strategies
+      const domain = window.location.hostname;
+      const domainParts = domain.split('.');
 
-      // Set cookie for root domain and path
+      // 1. Clear for current domain (localhost or specific host)
+      document.cookie = `googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+      document.cookie = `googtrans=; path=/; domain=${domain}; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+
+      // 2. Clear for root domain (e.g. .gofood.it) if applicable
+      if (domainParts.length > 1) {
+        const rootDomain = `.${domainParts.slice(-2).join('.')}`;
+        document.cookie = `googtrans=; path=/; domain=${rootDomain}; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+      }
+
+      // 3. Clear specifically for .localhost for development
+      if (domain === 'localhost') {
+        document.cookie = `googtrans=; path=/; domain=localhost; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+      }
+
+    } else {
+      // Set google translate cookie normally
+      const cookieValue = `/it/${lang}`;
       document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}`;
       document.cookie = `googtrans=${cookieValue}; path=/;`;
     }
