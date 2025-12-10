@@ -178,7 +178,7 @@ export default function RegisterPage() {
               Inizia Ora
             </h1>
             <p className="text-gray-600 text-sm">
-              Solo <span className="font-bold text-orange-600">€19.90/mese</span> · Cancella quando vuoi
+              <span className="font-bold text-orange-600">Prova Gratuita</span> · Cancella quando vuoi
             </p>
           </div>
 
@@ -331,41 +331,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Benefits */}
-        <div className="mt-6 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <h3 className="font-black text-gray-900 text-lg">
-              Tutto incluso a €19.90/mese
-            </h3>
-          </div>
-          <ul className="space-y-3 text-sm">
-            <li className="flex items-start gap-3 text-gray-700">
-              <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Piatti e categorie illimitati</span>
-            </li>
-            <li className="flex items-start gap-3 text-gray-700">
-              <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Menu multilingua (IT, EN)</span>
-            </li>
-            <li className="flex items-start gap-3 text-gray-700">
-              <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Personalizzazione completa</span>
-            </li>
-            <li className="flex items-start gap-3 text-gray-700">
-              <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Gestione allergeni EU</span>
-            </li>
-            <li className="flex items-start gap-3 text-gray-700">
-              <span className="text-orange-600 font-black text-lg">✓</span>
-              <span className="font-semibold">Cancella quando vuoi</span>
-            </li>
-          </ul>
-        </div>
+
       </div>
     </div>
   );
