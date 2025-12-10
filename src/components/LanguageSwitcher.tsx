@@ -60,13 +60,19 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     if (lang === currentLang) return;
     setIsChanging(true);
 
-    // Set google translate cookie
-    // Format: /source/target (e.g. /it/en)
-    const cookieValue = `/it/${lang}`;
+    if (lang === 'it') {
+      // Clear google translate cookie to restore original language
+      document.cookie = `googtrans=; path=/; domain=${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+      document.cookie = `googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+    } else {
+      // Set google translate cookie
+      // Format: /source/target (e.g. /it/en)
+      const cookieValue = `/it/${lang}`;
 
-    // Set cookie for root domain and path
-    document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}`;
-    document.cookie = `googtrans=${cookieValue}; path=/;`;
+      // Set cookie for root domain and path
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}`;
+      document.cookie = `googtrans=${cookieValue}; path=/;`;
+    }
 
     setCurrentLang(lang);
     window.location.reload();

@@ -34,7 +34,7 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
   const { isGlutenFree } = useGlutenFilter();
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const placeholderImage = '/favicon.svg';
+  const placeholderImage = '/no-image.svg';
 
   // Verifica se il piatto contiene glutine
   const containsGluten = dish.allergens?.includes('glutine') || false;
@@ -46,7 +46,8 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
   const isSeasonalDish = dish.is_seasonal || false;
 
   // Determine if we should show placeholder
-  const showPlaceholder = !dish.image || imageError;
+  const isLegacyPlaceholder = dish.image?.includes('icon.svg') || dish.image?.includes('favicon.svg');
+  const showPlaceholder = !dish.image || imageError || isLegacyPlaceholder;
 
   return (
     <div className={`bg-[var(--tenant-surface,#FFFFFF)] rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ${isDisabled
@@ -74,16 +75,15 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
               <div className="absolute inset-0 animate-shimmer" />
             )}
 
-            {/* Immagine o Placeholder */}
             <Image
               src={showPlaceholder ? placeholderImage : dish.image!}
               alt={dish.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className={`
-                ${showPlaceholder ? 'object-contain p-12 opacity-50 grayscale' : 'object-cover opacity-100'} 
-                hover:scale-105 transition-transform duration-500
-              `}
+                  ${showPlaceholder ? 'object-contain p-12 opacity-40 grayscale' : 'object-cover opacity-100'} 
+                  hover:scale-105 transition-transform duration-500
+                `}
               priority={false}
               onLoad={() => setImageLoaded(true)}
               onError={() => {
