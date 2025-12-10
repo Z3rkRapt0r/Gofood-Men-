@@ -128,21 +128,41 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
 
                         {logoUrl && (
                             <div className="mt-4 px-1">
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="text-xs font-semibold text-gray-500">Dimensione Logo</label>
-                                    <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-mono">
-                                        {currentTheme.logoHeight || 60}px
-                                    </span>
+                                <label className="text-xs font-semibold text-gray-500 mb-2 block">Layout Mobile</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
+                                        className={`p-2 rounded border text-xs flex flex-col items-center gap-1 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
+                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500'
+                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                            }`}
+                                    >
+                                        <div className="flex w-full items-center justify-between px-1 mb-1 opacity-50">
+                                            <div className="w-4 h-3 bg-current rounded-sm"></div>
+                                            <div className="flex gap-1">
+                                                <div className="w-1 h-3 bg-current rounded-sm"></div>
+                                                <div className="w-1 h-3 bg-current rounded-sm"></div>
+                                            </div>
+                                        </div>
+                                        A Sinistra
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
+                                        className={`p-2 rounded border text-xs flex flex-col items-center gap-1 transition-all ${currentTheme.mobileHeaderStyle === 'center'
+                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500'
+                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                            }`}
+                                    >
+                                        <div className="flex w-full items-center justify-between px-1 mb-1 opacity-50">
+                                            <div className="w-1 h-3 bg-current rounded-sm"></div>
+                                            <div className="w-4 h-3 bg-current rounded-sm"></div>
+                                            <div className="w-1 h-3 bg-current rounded-sm"></div>
+                                        </div>
+                                        Centrato
+                                    </button>
                                 </div>
-                                <input
-                                    type="range"
-                                    min="20"
-                                    max="150"
-                                    step="5"
-                                    value={currentTheme.logoHeight || 60}
-                                    onChange={(e) => updateTheme({ logoHeight: parseInt(e.target.value) })}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                                />
                             </div>
                         )}
                     </div>

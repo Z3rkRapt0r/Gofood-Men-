@@ -40,15 +40,28 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const isManualScroll = useRef(false);
+  const scrollTimeout = useRef<NodeJS.Timeout>(undefined);
 
   const handleCategoryClick = (categoryId: string) => {
+    // Set manual scroll flag to prevent IntersectionObserver from fighting back
+    isManualScroll.current = true;
     setActiveCategory(categoryId);
+
+    // Clear existing timeout
+    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+
     if (mainRef.current) {
       const section = mainRef.current.querySelector(`#${categoryId}`) as HTMLElement;
       if (section) {
         section.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
+
+    // Release lock after animation (approx 1s)
+    scrollTimeout.current = setTimeout(() => {
+      isManualScroll.current = false;
+    }, 1000);
   };
 
   useEffect(() => {
@@ -58,6 +71,9 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     };
 
     const observer = new IntersectionObserver((entries) => {
+      // Skip updates if we are manually scrolling
+      if (isManualScroll.current) return;
+
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setActiveCategory(entry.target.id);
@@ -70,7 +86,10 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
       if (element) observer.observe(element);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    };
   }, [categories]);
 
   return (
@@ -95,6 +114,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
         restaurantName={tenant.restaurant_name}
         logoUrl={tenant.logo_url}
         logoHeight={currentTheme.logoHeight}
+        mobileHeaderStyle={currentTheme.mobileHeaderStyle}
       />
 
       <CategoryNav

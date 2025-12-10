@@ -84,7 +84,7 @@ export default function CategoriesPage() {
           name: formData.name,
           slug: formData.slug || generateSlug(formData.name),
           description: formData.description || null,
-          is_visible: formData.isVisible,
+          is_visible: true, // Always visible
           display_order: categories.length,
         };
 
@@ -103,7 +103,7 @@ export default function CategoriesPage() {
           name: formData.name,
           slug: formData.slug || generateSlug(formData.name),
           description: formData.description || null,
-          is_visible: formData.isVisible,
+          is_visible: true, // Always visible
           display_order: categories.length,
         };
 
@@ -271,19 +271,8 @@ export default function CategoriesPage() {
 
 
 
-              {/* Visibility */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="visible"
-                  checked={formData.isVisible}
-                  onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                  className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500"
-                />
-                <label htmlFor="visible" className="text-sm font-semibold text-gray-900">
-                  Visibile nel menu pubblico
-                </label>
-              </div>
+              {/* Visibility - Removed as requested */}
+
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-4 border-t border-gray-200">

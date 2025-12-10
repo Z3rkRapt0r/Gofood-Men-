@@ -32,6 +32,7 @@ export interface ThemeConfig {
     shadows: 'none' | 'soft' | 'hard' | 'floating';
     dividerStyle: DividerStyle;
     logoHeight?: number; // Pixel height for logo (default 40-50)
+    mobileHeaderStyle?: 'center' | 'left';
 }
 
 export interface ThemePreset extends ThemeConfig {

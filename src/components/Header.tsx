@@ -13,6 +13,7 @@ interface HeaderProps {
   forceMobile?: boolean;
   logoHeight?: number;
   className?: string;
+  mobileHeaderStyle?: 'center' | 'left';
 }
 
 export default function Header({
@@ -20,7 +21,8 @@ export default function Header({
   logoUrl = '/favicon.svg',
   forceMobile = false,
   logoHeight = 40,
-  className
+  className,
+  mobileHeaderStyle = 'left'
 }: HeaderProps) {
   // Ensure logoUrl is properly encoded to handle spaces
   const sanitizedLogoUrl = logoUrl?.replace(/ /g, '%20') || '/favicon.svg';
@@ -35,42 +37,57 @@ export default function Header({
         {/* Layout mobile: logo sx, filtri dx */}
         {/* Layout mobile: filtro sx, logo centro, lingua dx */}
         <div className={`flex items-center justify-between h-full relative ${forceMobile ? 'w-full' : 'md:hidden'}`}>
-          {/* Pulsante filtro celiaci (Sinistra) */}
-          <div className="w-12 flex justify-start">
-            <button
-              type="button"
-              onClick={toggleGlutenFilter}
-              className={`p-2 rounded-lg transition-colors ${isGlutenFree
-                ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'
-                : 'hover:bg-gray-100'
-                }`}
-              aria-label="Filtro senza glutine"
-              aria-pressed={isGlutenFree}
-            >
-              <Image
-                src="/gluten-free.png"
-                alt="Filtro senza glutine"
-                width={20}
-                height={20}
-                className="w-5 h-5"
-              />
-            </button>
-          </div>
 
-          {/* Logo (Centro) */}
-          <div className="flex-1 flex items-center justify-center px-2">
-            <img
-              src={sanitizedLogoUrl}
-              alt={restaurantName}
-              style={{ height: `${logoHeight}px` }}
-              className="w-auto max-w-[140px] object-contain transition-all duration-200"
-            />
-          </div>
+          {mobileHeaderStyle === 'center' ? (
+            /* --- STYLE CURRENT (CENTER) --- */
+            <>
+              {/* Pulsante filtro celiaci (Sinistra) */}
+              <div className="w-12 flex justify-start">
+                <button
+                  type="button"
+                  onClick={toggleGlutenFilter}
+                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30' : 'hover:bg-gray-100'}`}
+                  aria-label="Filtro senza glutine"
+                  aria-pressed={isGlutenFree}
+                >
+                  <Image src="/gluten-free.png" alt="Filtro senza glutine" width={20} height={20} className="w-5 h-5" />
+                </button>
+              </div>
 
-          {/* Lingua (Destra) */}
-          <div className="w-12 flex justify-end">
-            <LanguageSwitcher compact={true} />
-          </div>
+              {/* Logo (Centro) */}
+              <div className="flex-1 flex items-center justify-center px-2">
+                <img src={sanitizedLogoUrl} alt={restaurantName} className="w-auto h-auto max-h-[56px] max-w-[180px] object-contain transition-all duration-200" />
+              </div>
+
+              {/* Lingua (Destra) */}
+              <div className="w-12 flex justify-end">
+                <LanguageSwitcher compact={true} />
+              </div>
+            </>
+          ) : (
+            /* --- STYLE NEW (LEFT) --- */
+            <>
+              {/* Logo (Sinistra) */}
+              <div className="flex-1 flex justify-start items-center">
+                <img src={sanitizedLogoUrl} alt={restaurantName} className="w-auto h-auto max-h-[56px] max-w-[150px] object-contain transition-all duration-200 object-left" />
+              </div>
+
+              {/* Controlli (Destra) - Uniti */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleGlutenFilter}
+                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30' : 'hover:bg-gray-100'}`}
+                  aria-label="Filtro senza glutine"
+                  aria-pressed={isGlutenFree}
+                >
+                  <Image src="/gluten-free.png" alt="Filtro senza glutine" width={20} height={20} className="w-5 h-5" />
+                </button>
+                <LanguageSwitcher compact={false} />
+              </div>
+            </>
+          )}
+
         </div>
 
         {/* Layout desktop: logo centrato, filtri dx */}
@@ -81,12 +98,11 @@ export default function Header({
           </div>
 
           {/* Logo centrato ASSOLUTO */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-[280px] h-full pointer-events-none">
             <img
               src={sanitizedLogoUrl}
               alt={restaurantName}
-              style={{ height: `${logoHeight}px` }}
-              className="w-auto object-contain transition-all duration-200"
+              className="w-auto h-auto max-h-[64px] max-w-full object-contain transition-all duration-200"
             />
           </div>
 

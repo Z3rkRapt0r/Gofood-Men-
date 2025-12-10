@@ -159,6 +159,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                     logoHeight={currentTheme.logoHeight}
                                     forceMobile={true}
                                     className="sticky top-0 z-20 w-full"
+                                    mobileHeaderStyle={currentTheme.mobileHeaderStyle}
                                 />
 
                                 <CategoryNav
