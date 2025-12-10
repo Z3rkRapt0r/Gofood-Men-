@@ -217,7 +217,6 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                                 <Footer
                                     footerData={{
                                         locations: [{ city: 'Roma', address: 'Via Roma 1' }],
-                                        links: [],
                                         socials: [],
                                         show_brand_column: true
                                     }}
