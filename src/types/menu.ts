@@ -89,7 +89,7 @@ export interface FooterLink {
 }
 
 export interface FooterSocial {
-  platform: 'facebook' | 'instagram' | 'website' | 'other';
+  platform: 'facebook' | 'instagram' | 'tripadvisor' | 'website' | 'other';
   url: string;
   icon?: string; // Emoji
 }

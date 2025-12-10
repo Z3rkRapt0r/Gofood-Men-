@@ -157,7 +157,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: tenant } = await (supabase.from('tenants') as any)
-    .select('restaurant_name, city')
+    .select('restaurant_name')
     .eq('slug', slug)
     .single();
 
@@ -167,7 +167,7 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
-  const tenantData = tenant as { restaurant_name: string; city: string | null };
+  const tenantData = tenant as { restaurant_name: string };
 
   return {
     title: `${tenantData.restaurant_name} - Menu Digitale`,

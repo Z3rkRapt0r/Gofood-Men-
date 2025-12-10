@@ -17,6 +17,7 @@ interface FooterConfiguratorProps {
 const SOCIAL_PLATFORMS = [
     { id: 'facebook', label: 'Facebook', icon: '📘' },
     { id: 'instagram', label: 'Instagram', icon: '📸' },
+    { id: 'tripadvisor', label: 'TripAdvisor', icon: '🦉' },
     { id: 'website', label: 'Sito Web', icon: '🌐' },
     { id: 'other', label: 'Altro Link', icon: '🔗' },
 ] as const;
