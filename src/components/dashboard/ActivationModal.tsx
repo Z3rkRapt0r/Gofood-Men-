@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import toast from 'react-hot-toast';
 
@@ -14,12 +14,14 @@ export default function ActivationModal({ isOpen, onClose, restaurantName }: Act
     const [slug, setSlug] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Auto-generate slug suggestion from restaurant name if slug is empty
-    const handleOpen = () => {
-        if (!slug && restaurantName) {
+
+    // Auto-generate slug suggestion from restaurant name when modal opens
+    // Use useEffect because onOpenChange from custom Dialog might not trigger for opening
+    useEffect(() => {
+        if (isOpen && restaurantName && !slug) {
             setSlug(restaurantName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''));
         }
-    };
+    }, [isOpen, restaurantName, slug]);
 
 
 
@@ -55,7 +57,7 @@ export default function ActivationModal({ isOpen, onClose, restaurantName }: Act
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); else handleOpen(); }}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Attiva il tuo Menu Digitale 🚀</DialogTitle>
@@ -107,7 +109,7 @@ export default function ActivationModal({ isOpen, onClose, restaurantName }: Act
                         ) : (
                             <>
                                 <span>Procedi al Pagamento</span>
-                                <span className="text-sm opacity-90 px-2 bg-white/20 rounded-full">€15/mese</span>
+                                <span className="text-sm opacity-90 px-2 bg-white/20 rounded-full">€19,90/mese</span>
                             </>
                         )}
                     </button>
