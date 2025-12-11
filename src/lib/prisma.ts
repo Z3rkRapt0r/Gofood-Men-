@@ -1,7 +1,7 @@
-import { PrismaClient } from '../generated/prisma/client';
+// @ts-ignore
+import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-  // @ts-expect-error - generated client constructor issue
   return new PrismaClient();
 };
 

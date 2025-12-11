@@ -128,7 +128,7 @@ export default function LandingPage() {
 
                 {/* Phone Mockup */}
                 {/* Phone Mockup */}
-                <div className="relative z-10 mx-auto max-w-[220px] md:max-w-[300px] transform hover:scale-105 transition-transform duration-500">
+                <div className="relative z-10 mx-auto w-[220px] md:w-[300px] transform hover:scale-105 transition-transform duration-500">
                   {/* Phone Frame */}
                   <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-gray-900 bg-black">
                     {/* Screen Content */}
@@ -149,14 +149,14 @@ export default function LandingPage() {
                 </div>
 
                 {/* Floating Badges */}
-                <div className="absolute -left-4 top-8 md:top-20 md:-left-8 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="absolute -left-20 top-8 md:top-20 md:-left-28 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce z-20" style={{ animationDuration: '3s' }}>
                   <div className="text-center">
                     <div className="text-base md:text-3xl font-black text-orange-600">QR</div>
                     <div className="text-[9px] md:text-xs text-gray-600 font-semibold">Incluso</div>
                   </div>
                 </div>
 
-                <div className="absolute -right-4 bottom-16 md:bottom-32 md:-right-8 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }}>
+                <div className="absolute -right-20 bottom-16 md:bottom-32 md:-right-32 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce z-20" style={{ animationDuration: '2s', animationDelay: '0.5s' }}>
                   <div className="flex items-center gap-1 md:gap-2">
                     <span className="text-base md:text-2xl">🌍</span>
                     <div>
@@ -166,7 +166,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="absolute -right-4 top-4 md:top-12 md:-right-6 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-3 border border-orange-100 animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1s' }}>
+                <div className="absolute -right-20 top-4 md:top-12 md:-right-34 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-3 border border-orange-100 animate-bounce z-20" style={{ animationDuration: '2.5s', animationDelay: '1s' }}>
                   <div className="flex items-center gap-1 md:gap-2">
                     <span className="text-base md:text-2xl">🥜</span>
                     <div>
@@ -176,7 +176,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="absolute -left-4 bottom-8 md:bottom-24 md:-left-4 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1 md:p-2 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
+                <div className="absolute -left-20 bottom-8 md:bottom-24 md:-left-34 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1 md:p-2 border border-orange-100 animate-bounce z-20" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
                   <div className="flex items-center gap-1 md:gap-2">
                     <div className="w-6 h-6 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs md:text-lg">
                       AI

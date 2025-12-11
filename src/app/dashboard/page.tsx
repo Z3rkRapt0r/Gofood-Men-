@@ -46,10 +46,15 @@ export default function DashboardOverview() {
             })
             .eq('id', tenantId);
 
-          // Clean URL
-          router.replace('/dashboard');
-          // Reload page to reflect changes (e.g. remove banner)
-          window.location.reload();
+          // Clean URL immediately to prevent loop
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+
+          // Force server data refresh
+          router.refresh();
+
+          // Update local state to remove banner immediately
+          setIsFreeTier(false);
         } catch (err) {
           console.error('Error activating subscription:', err);
         }
