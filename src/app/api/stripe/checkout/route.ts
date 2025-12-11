@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
 
 export async function POST(req: NextRequest) {
@@ -11,13 +12,19 @@ export async function POST(req: NextRequest) {
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
+        // Initialize Admin Client to bypass RLS for tenant lookup
+        const supabaseAdmin = createAdminClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+
         const body = await req.json();
         const { desiredSlug, returnUrl } = body;
 
-        // 1. Get Tenant
-        const { data: tenant } = await supabase
-            .from('tenants')
-            .select('id, email, restaurant_name') // Note: contact_email was removed, treating owner email as contact or using auth email
+        // 1. Get Tenant (Using Admin Client)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: tenant } = await (supabaseAdmin.from('tenants') as any)
+            .select('id, email, restaurant_name')
             .eq('owner_id', user.id)
             .single();
 
@@ -41,7 +48,7 @@ export async function POST(req: NextRequest) {
                 const checkSlug = counter === 0 ? desiredSlug : `${desiredSlug}-${counter}`;
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { data: existing } = await (supabase.from('tenants') as any)
+                const { data: existing } = await (supabaseAdmin.from('tenants') as any)
                     .select('id')
                     .eq('slug', checkSlug)
                     .neq('id', (tenant as any).id)
