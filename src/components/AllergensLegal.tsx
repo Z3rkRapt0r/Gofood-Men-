@@ -4,13 +4,21 @@ import Image from 'next/image';
 import { AllergenData } from '@/types/menu';
 import { useTranslation } from '@/hooks/useTranslation';
 
+
 interface AllergensLegalProps {
   data: AllergenData;
   logoUrl?: string; // Optional restaurant logo
+  coverChargeValue?: number; // Dynamic value from DB
 }
 
-export default function AllergensLegal({ data, logoUrl }: AllergensLegalProps) {
+export default function AllergensLegal({ data, logoUrl, coverChargeValue }: AllergensLegalProps) {
   const { t } = useTranslation();
+
+  // Format currency
+  const formattedCoverCharge = new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(coverChargeValue || 0);
 
   return (
     <div className="bg-[var(--tenant-surface,#FFFFFF)] rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto">
@@ -85,7 +93,9 @@ export default function AllergensLegal({ data, logoUrl }: AllergensLegalProps) {
 
       {/* Footer */}
       <div className="bg-[var(--tenant-text,#171717)] text-[var(--tenant-surface,#FFFFFF)] text-center py-4">
-        <p className="text-sm md:text-base font-medium">{data.coverCharge}</p>
+        <p className="text-sm md:text-base font-medium">
+          Costo del coperto: {formattedCoverCharge}
+        </p>
       </div>
     </div>
   );

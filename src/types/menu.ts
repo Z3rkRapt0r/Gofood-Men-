@@ -154,6 +154,7 @@ export interface Tenant {
   supported_languages: Language[];
   currency: string; // Default: 'EUR'
   cover_charge: number; // DECIMAL
+  service_info?: string; // Text for service/cover details
 
   // Subscription
   subscription_tier: SubscriptionTier;

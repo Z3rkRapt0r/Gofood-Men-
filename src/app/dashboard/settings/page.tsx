@@ -34,6 +34,7 @@ export default function SettingsPage() {
     heroTitleColor: '#FFFFFF',
     heroTaglineColor: '#E5E7EB',
     themeOptions: null as Record<string, unknown> | null,
+    coverCharge: 0,
   });
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function SettingsPage() {
         heroTitleColor: tenant.hero_title_color || '#FFFFFF',
         heroTaglineColor: tenant.hero_tagline_color || '#E5E7EB',
         themeOptions: themeOptions,
+        coverCharge: tenant.cover_charge || 0,
       });
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -129,6 +131,7 @@ export default function SettingsPage() {
           slug: formData.slug,
           contact_email: formData.contactEmail,
           logo_url: formData.logoUrl,
+          cover_charge: formData.coverCharge,
           footer_data: {
             ...formData.footerData,
             locations: []
@@ -281,6 +284,24 @@ export default function SettingsPage() {
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l&apos;assistenza
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                Costo Coperto (€)
+              </label>
+              <input
+                type="number"
+                step="0.10"
+                min="0"
+                value={formData.coverCharge}
+                onChange={(e) => setFormData({ ...formData, coverCharge: parseFloat(e.target.value) })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono"
+                placeholder="2.50"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Questo importo verrà mostrato nella pagina allergeni/legale.
               </p>
             </div>
           </div>

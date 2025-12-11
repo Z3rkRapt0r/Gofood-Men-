@@ -107,7 +107,7 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
                             </div>
                         ) : (
                             <div className="animate-fadeIn">
-                                <AllergensLegal data={data} logoUrl={tenant.logo_url || undefined} />
+                                <AllergensLegal data={data} logoUrl={tenant.logo_url || undefined} coverChargeValue={tenant.cover_charge} />
                             </div>
                         )}
                     </div>
