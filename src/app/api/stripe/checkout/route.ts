@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { desiredSlug, returnUrl } = body;
 
+        console.log('[CHECKOUT] Request body:', { desiredSlug, returnUrl });
+
         // 1. Get Tenant using Prisma (Bypasses RLS)
         console.log('[CHECKOUT] Authenticated user:', user.id);
 

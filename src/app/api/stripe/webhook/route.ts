@@ -54,14 +54,17 @@ export async function POST(req: NextRequest) {
                     const updateData: any = {
                         subscription_status: 'active',
                         subscription_tier: 'premium',
-                        // Store Stripe IDs if we had columns, but we might not yet. 
-                        // We'll trust the plan didn't strictly require schema migration for IDs yet, 
-                        // but effectively we should. For now we just activate.
                     };
+
+                    console.log(`[STRIPE_WEBHOOK] Processing subscription for tenant ${tenantId}`);
+                    console.log(`[STRIPE_WEBHOOK] Metadata desiredSlug: "${desiredSlug}"`);
 
                     // If a new slug was requested and paid for, update it.
                     if (desiredSlug) {
                         updateData.slug = desiredSlug;
+                        console.log(`[STRIPE_WEBHOOK] Will update slug to: ${desiredSlug}`);
+                    } else {
+                        console.warn('[STRIPE_WEBHOOK] No desiredSlug in metadata, skipping slug update');
                     }
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any

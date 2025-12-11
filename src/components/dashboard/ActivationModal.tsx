@@ -68,18 +68,15 @@ export default function ActivationModal({ isOpen, onClose, restaurantName }: Act
 
                 <div className="space-y-6 py-4">
                     <div>
-                        <label className="text-sm font-bold text-gray-900 block mb-2">
-                            Il tuo indirizzo web
-                        </label>
                         <div className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg border border-gray-200">
-                            <span className="text-gray-500 font-mono text-sm">gofood.it/</span>
-                            <span className="font-bold text-gray-900">{slug}</span>
+                            <span className="text-gray-500 font-mono text-sm leading-none pt-1">gofood.it/</span>
+                            <span className="font-bold text-gray-900 font-mono">{slug}</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                            L&apos;indirizzo viene generato automaticamente in base al nome del tuo ristorante.
+                            L&apos;indirizzo è stato generato automaticamente dal sistema in base al nome del ristorante.
                         </p>
                         <p className="text-xs text-blue-600 mt-1 font-semibold">
-                            ℹ️ È possibile cambiare l&apos;indirizzo contattando l&apos;assistenza dopo il pagamento.
+                            ℹ️ Questo sarà il tuo indirizzo definitivo dopo l&apos;attivazione.
                         </p>
                     </div>
 
