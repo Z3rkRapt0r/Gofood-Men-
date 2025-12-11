@@ -23,14 +23,45 @@ export async function POST(req: NextRequest) {
 
         // 1. Get Tenant (Using Admin Client)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: tenant } = await (supabaseAdmin.from('tenants') as any)
+        let { data: tenant } = await (supabaseAdmin.from('tenants') as any)
             .select('id, email, restaurant_name')
             .eq('owner_id', user.id)
             .single();
 
         if (!tenant) {
-            console.error(`Tenant not found for user ${user.id}`);
-            return new NextResponse(`Tenant not found for user ${user.id}`, { status: 404 });
+            console.log(`[STRIPE_CHECKOUT] Tenant not found for user ${user.id}, creating one...`);
+            const tempSlug = `restaurant-${user.id.substring(0, 8)}`;
+            const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: newTenant, error: createError } = await (supabaseAdmin.from('tenants') as any)
+                .insert({
+                    owner_id: user.id,
+                    restaurant_name: restaurantName,
+                    slug: tempSlug,
+                    onboarding_completed: false,
+                    onboarding_step: 1,
+                    subscription_tier: 'free',
+                    max_dishes: 9999,
+                    max_categories: 9999
+                })
+                .select()
+                .single();
+
+            if (createError || !newTenant) {
+                console.error('[STRIPE_CHECKOUT] Failed to auto-create tenant:', createError);
+                return new NextResponse('Failed to create tenant account', { status: 500 });
+            }
+
+            // Assign new tenant to variable (using var or let implies refactoring, but easier to just cast here or continue)
+            // But 'const tenant' is block scoped above? Actually 'const { data: tenant }' declares it.
+            // We need to handle the variable scope correctly. 
+            // Re-declaring or using a mutable variable for tenant would be better.
+            // For this patch, I'll rely on a slightly different structure or just use newTenant below.
+
+            // To be safe and clean, let's just assume we return logic or refactor.
+            // Actually, simply continuing with newTenant as 'tenant' is tricky because 'tenant' is const.
+            // I will refactor the variable declaration to 'let'.
         }
 
         // 2. Validate & Unique Slug
@@ -65,6 +96,40 @@ export async function POST(req: NextRequest) {
         }
 
         const priceId = process.env.STRIPE_PRICE_ID;
+        if (!tenant) {
+            console.log(`[STRIPE_CHECKOUT] Tenant not found for user ${user.id}, creating one...`);
+            const tempSlug = `restaurant-${user.id.substring(0, 8)}`;
+            const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: newTenant, error: createError } = await (supabaseAdmin.from('tenants') as any)
+                .insert({
+                    owner_id: user.id,
+                    restaurant_name: restaurantName,
+                    slug: tempSlug,
+                    onboarding_completed: false,
+                    onboarding_step: 1,
+                    subscription_tier: 'free',
+                    max_dishes: 9999,
+                    max_categories: 9999
+                })
+                .select()
+                .single();
+
+            if (createError || !newTenant) {
+                console.error('[STRIPE_CHECKOUT] Failed to auto-create tenant:', createError);
+                return new NextResponse('Failed to create tenant account', { status: 500 });
+            }
+
+            tenant = newTenant;
+
+            // Initialize design settings for new tenant
+            await (supabaseAdmin.from('tenant_design_settings') as any).insert({
+                tenant_id: newTenant.id,
+                theme_config: {}
+            });
+        }
+
         if (!priceId) {
             console.error('STRIPE_PRICE_ID is missing');
             return new NextResponse('Server configuration error', { status: 500 });
