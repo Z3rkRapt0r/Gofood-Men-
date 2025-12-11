@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (!tenant) {
-            return new NextResponse('Tenant not found', { status: 404 });
+            console.error(`Tenant not found for user ${user.id}`);
+            return new NextResponse(`Tenant not found for user ${user.id}`, { status: 404 });
         }
 
         // 2. Validate & Unique Slug
