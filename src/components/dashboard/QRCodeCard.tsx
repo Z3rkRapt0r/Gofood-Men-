@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 
 interface QRCodeCardProps {
-    slug: string;
+    slug: string | null;
     restaurantName: string;
     logoUrl?: string;
     tenantId: string;
@@ -171,10 +171,18 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
         <>
             {/* Dashboard Card Trigger */}
             <div
-                onClick={() => !isLocked && setIsOpen(true)}
-                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden ${isLocked ? 'opacity-80' : 'cursor-pointer hover:shadow-md transition-shadow group'}`}
+                onClick={() => slug && !isLocked && setIsOpen(true)}
+                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden ${slug && !isLocked ? 'cursor-pointer hover:shadow-md transition-shadow group' : 'opacity-80'}`}
             >
-                {isLocked && (
+                {!slug && (
+                    <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-2 shadow-sm">
+                            <span className="text-2xl">⚠️</span>
+                        </div>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Attivazione Richiesta</p>
+                    </div>
+                )}
+                {slug && isLocked && (
                     <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
                         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-2 shadow-sm">
                             <span className="text-2xl text-gray-500">🔒</span>
@@ -188,7 +196,7 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
 
                 <div className="mb-3 transform group-hover:scale-105 transition-transform duration-300">
                     <QRCode
-                        value={fullUrl}
+                        value={fullUrl || 'https://gofood.it'}
                         size={120}
                         bgColor={bgColor}
                         fgColor={qrColor}

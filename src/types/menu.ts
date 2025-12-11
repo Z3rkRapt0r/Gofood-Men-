@@ -159,8 +159,7 @@ export interface Tenant {
   // Subscription
   subscription_tier: SubscriptionTier;
   subscription_status: SubscriptionStatus;
-  max_dishes: number;
-  max_categories: number;
+
 
   // Onboarding
   onboarding_completed: boolean;

@@ -18,7 +18,7 @@ type SubscriptionTier = 'free' | 'basic' | 'premium';
 // Define types locally if not imported
 interface TenantData {
   restaurant_name: string;
-  slug: string;
+  slug: string | null;
   theme: string;
   primary_color: string;
   secondary_color?: string;
@@ -81,19 +81,16 @@ function OnboardingContent() {
         if (error || !data) {
           console.log('Tenant not found, creating initial tenant...');
           const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
-          const tempSlug = `restaurant-${user.id.substring(0, 8)}`;
-
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const { data: newTenant, error: createError } = await (supabase.from('tenants') as any)
             .insert({
               owner_id: user.id,
               restaurant_name: restaurantName,
-              slug: tempSlug,
+              slug: null,
               onboarding_completed: false,
               onboarding_step: 1,
               subscription_tier: 'free',
-              max_dishes: 9999,
-              max_categories: 9999
+
             })
             .select() // Initial insert probably won't have locations
             .single();
@@ -285,7 +282,7 @@ function OnboardingContent() {
     if (currentStep === 1) {
       updates = {
         restaurant_name: formData.restaurant_name,
-        slug: formData.slug,
+        slug: formData.slug || null, // Ensure empty string becomes null to satisfy constraint
         logo_url: formData.logo_url,
         theme_options: dataOverride || formData.theme_options
       };

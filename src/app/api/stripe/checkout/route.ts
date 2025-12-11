@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
                 }
             },
             customer_email: user.email || undefined, // Pre-fill email
-            success_url: `${returnUrl || req.headers.get('origin')}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${returnUrl || req.headers.get('origin')}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}&new_slug=${finalSlug}`,
             cancel_url: `${returnUrl || req.headers.get('origin')}/dashboard?payment=canceled`,
             allow_promotion_codes: true,
             billing_address_collection: 'required',

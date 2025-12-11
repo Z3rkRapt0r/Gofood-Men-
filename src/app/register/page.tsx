@@ -92,14 +92,11 @@ export default function RegisterPage() {
         .insert({
           owner_id: authData.user.id,
           restaurant_name: formData.restaurantName,
-          slug: `temp-${crypto.randomUUID()}`, // Temporary slug
+          slug: null, // Slug is now nullable and assigned on payment
           onboarding_completed: false,
           onboarding_step: 1,
           subscription_tier: 'free',
-          max_dishes: 50, // Limit for free tier? Or leave high for now
-          max_categories: 10,
-          // Trial fields removed - now Freemium
-          subscription_status: 'active' // Active but restricted feature-wise
+          subscription_status: 'active'
         })
         .select()
         .single();

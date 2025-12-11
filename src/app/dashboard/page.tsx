@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import QRCodeCard from '@/components/dashboard/QRCodeCard';
 import ActivationModal from '@/components/dashboard/ActivationModal';
+import toast from 'react-hot-toast';
 
 interface Stats {
   totalDishes: number;
@@ -16,6 +17,7 @@ interface Stats {
 export default function DashboardOverview() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const hasHandledPayment = useRef(false);
   const [tenantId, setTenantId] = useState<string>('');
 
   const [stats, setStats] = useState<Stats>({
@@ -26,7 +28,7 @@ export default function DashboardOverview() {
 
   const [loading, setLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [slug, setSlug] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string>('');
   const [isFreeTier, setIsFreeTier] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
@@ -37,29 +39,55 @@ export default function DashboardOverview() {
       const activateSubscription = async () => {
         try {
           console.log('Payment successful! Activating subscription...');
+          const newSlug = searchParams.get('new_slug');
+
           const supabase = createClient();
+
+          const updateData: any = {
+            subscription_status: 'active',
+            subscription_tier: 'premium'
+          };
+
+          if (newSlug) {
+            updateData.slug = newSlug;
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase.from('tenants') as any)
-            .update({
-              subscription_status: 'active',
-              subscription_tier: 'premium'
-            })
+            .update(updateData)
             .eq('id', tenantId);
 
           // Clean URL immediately to prevent loop
           const newUrl = window.location.pathname;
           window.history.replaceState({}, '', newUrl);
 
-          // Force server data refresh
-          router.refresh();
+          // Mark payment as handled to protect against stale data fetches
+          hasHandledPayment.current = true;
 
-          // Update local state to remove banner immediately
+          // Force server data refresh - REMOVED to prevent race condition/remount
+          // router.refresh();
+
+          // Update local state to remove banner and update slug immediately
           setIsFreeTier(false);
+          if (newSlug) {
+            setSlug(newSlug);
+          }
+          toast.success('Abbonamento attivato con successo!');
+
+          // Force hard refresh after a short delay to ensure clean state
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+
         } catch (err) {
           console.error('Error activating subscription:', err);
+          toast.error('Errore durante l\'attivazione. Contatta l\'assistenza se persiste.');
         }
       };
-      activateSubscription();
+
+      if (!hasHandledPayment.current) {
+        activateSubscription();
+      }
     }
   }, [searchParams, tenantId, router]);
 
@@ -79,7 +107,7 @@ export default function DashboardOverview() {
         // Get tenant info
         const { data: tenant, error: tenantError } = await supabase
           .from('tenants')
-          .select('id, restaurant_name, slug, logo_url, max_dishes, max_categories, subscription_tier')
+          .select('id, restaurant_name, slug, logo_url, subscription_tier')
           .eq('owner_id', user.id)
           .maybeSingle();
 
@@ -99,18 +127,33 @@ export default function DashboardOverview() {
           const tenantData = tenant as {
             id: string;
             restaurant_name: string;
-            slug: string;
+            slug: string | null;
             logo_url: string;
-            max_dishes: number;
-            max_categories: number;
             subscription_tier: string;
           };
           currentTenantId = tenantData.id;
+
           setRestaurantName(tenantData.restaurant_name);
-          setSlug(tenantData.slug);
           setLogoUrl(tenantData.logo_url);
           setTenantId(tenantData.id);
-          setIsFreeTier(tenantData.subscription_tier === 'free');
+
+          // Check for pending payment success to avoid race condition relative to stale DB data
+          // We check both the URL (first run) and our Ref (subsequent runs/re-renders)
+          const isPaymentSuccess = searchParams.get('payment') === 'success' || hasHandledPayment.current;
+
+          // Protect slug update:
+          // If DB has a slug, use it.
+          // If DB has null, ONLY set null if we are NOT in a payment success flow.
+          // In success flow, the other effect handles setting the new slug optimistically.
+          if (tenantData.slug) {
+            setSlug(tenantData.slug);
+          } else if (!isPaymentSuccess) {
+            setSlug(null);
+          }
+
+          // Force premium state if we just handled a payment, otherwise trust DB
+          const isDbFree = tenantData.subscription_tier === 'free';
+          setIsFreeTier(isPaymentSuccess ? false : isDbFree);
         }
 
         // Get categories count
@@ -214,9 +257,9 @@ export default function DashboardOverview() {
           icon="📁"
           color="blue"
         />
-        <div className="cursor-pointer" onClick={() => isFreeTier && setShowActivationModal(true)}>
+        <div className="cursor-pointer" onClick={() => (isFreeTier || !slug) && setShowActivationModal(true)}>
           <QRCodeCard
-            slug={isFreeTier ? 'locked' : slug}
+            slug={slug}
             restaurantName={restaurantName}
             logoUrl={logoUrl}
             tenantId={tenantId}
@@ -244,7 +287,7 @@ export default function DashboardOverview() {
             color="blue"
           />
           <div onClick={(e) => {
-            if (isFreeTier) {
+            if (isFreeTier || !slug) {
               e.preventDefault();
               setShowActivationModal(true);
             }
@@ -252,11 +295,11 @@ export default function DashboardOverview() {
             <ActionCard
               title="Vedi Menu Pubblico"
               description="Visualizza come lo vedono i clienti"
-              icon={isFreeTier ? "🔒" : "👀"}
-              href={isFreeTier ? '#' : `/${slug}`}
-              color={isFreeTier ? "gray" : "green"}
+              icon={isFreeTier || !slug ? "🔒" : "👀"}
+              href={isFreeTier || !slug ? '#' : `/${slug}`}
+              color={isFreeTier || !slug ? "gray" : "green"}
               external
-              disabled={isFreeTier}
+              disabled={isFreeTier || !slug}
             />
           </div>
         </div>

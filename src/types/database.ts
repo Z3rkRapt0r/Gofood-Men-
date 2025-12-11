@@ -67,8 +67,7 @@ export interface Database {
           cover_charge: number;
           subscription_tier: string;
           subscription_status: string;
-          max_dishes: number;
-          max_categories: number;
+
           onboarding_completed: boolean;
           onboarding_step: number;
           created_at: string;
@@ -93,8 +92,7 @@ export interface Database {
           cover_charge?: number;
           subscription_tier?: string;
           subscription_status?: string;
-          max_dishes?: number;
-          max_categories?: number;
+
           onboarding_completed?: boolean;
           onboarding_step?: number;
           created_at?: string;
@@ -119,8 +117,7 @@ export interface Database {
           cover_charge?: number;
           subscription_tier?: string;
           subscription_status?: string;
-          max_dishes?: number;
-          max_categories?: number;
+
           onboarding_completed?: boolean;
           onboarding_step?: number;
           created_at?: string;
