@@ -11,9 +11,10 @@ interface QRCodeCardProps {
     restaurantName: string;
     logoUrl?: string;
     tenantId: string;
+    isLocked?: boolean;
 }
 
-export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps) {
+export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCodeCardProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     // QR State
@@ -170,9 +171,17 @@ export default function QRCodeCard({ slug, logoUrl, tenantId }: QRCodeCardProps)
         <>
             {/* Dashboard Card Trigger */}
             <div
-                onClick={() => setIsOpen(true)}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow group flex flex-col items-center justify-center text-center relative overflow-hidden"
+                onClick={() => !isLocked && setIsOpen(true)}
+                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden ${isLocked ? 'opacity-80' : 'cursor-pointer hover:shadow-md transition-shadow group'}`}
             >
+                {isLocked && (
+                    <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-2 shadow-sm">
+                            <span className="text-2xl text-gray-500">🔒</span>
+                        </div>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium</p>
+                    </div>
+                )}
                 <div className="absolute top-2 right-2 text-gray-300">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                 </div>

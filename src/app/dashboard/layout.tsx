@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Tenant } from '@/types/menu';
+import SubscriptionBanner from '@/components/dashboard/SubscriptionBanner';
 
 export default function DashboardLayout({
   children,
@@ -205,6 +206,7 @@ export default function DashboardLayout({
 
         {/* Page content */}
         <main className="p-4 lg:p-8">
+          {tenant.subscription_status === 'trialing' && <SubscriptionBanner />}
           {children}
         </main>
       </div>

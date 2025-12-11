@@ -86,7 +86,7 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
     };
 
     return (
-        <div className="w-96 bg-white border-r border-gray-200 h-screen overflow-y-auto p-6 shadow-xl z-50 flex flex-col">
+        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl z-50 flex flex-col">
             <h2 className="text-2xl font-bold font-display text-gray-900 mb-6 shrink-0">Design Studio 🎨</h2>
 
             <div className="flex-1 space-y-10">
@@ -126,45 +126,39 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
                             </div>
                         </div>
 
-                        {logoUrl && (
-                            <div className="mt-4 px-1">
-                                <label className="text-xs font-semibold text-gray-500 mb-2 block">Layout Mobile</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
-                                        className={`p-2 rounded border text-xs flex flex-col items-center gap-1 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
-                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500'
-                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                            }`}
-                                    >
-                                        <div className="flex w-full items-center justify-between px-1 mb-1 opacity-50">
-                                            <div className="w-4 h-3 bg-current rounded-sm"></div>
-                                            <div className="flex gap-1">
-                                                <div className="w-1 h-3 bg-current rounded-sm"></div>
-                                                <div className="w-1 h-3 bg-current rounded-sm"></div>
-                                            </div>
-                                        </div>
-                                        A Sinistra
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
-                                        className={`p-2 rounded border text-xs flex flex-col items-center gap-1 transition-all ${currentTheme.mobileHeaderStyle === 'center'
-                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500'
-                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                            }`}
-                                    >
-                                        <div className="flex w-full items-center justify-between px-1 mb-1 opacity-50">
-                                            <div className="w-1 h-3 bg-current rounded-sm"></div>
-                                            <div className="w-4 h-3 bg-current rounded-sm"></div>
-                                            <div className="w-1 h-3 bg-current rounded-sm"></div>
-                                        </div>
-                                        Centrato
-                                    </button>
-                                </div>
+                        {/* Header Layout */}
+                        <div className="mt-4">
+                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Allineamento Intestazione</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
+                                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
+                                        ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                        }`}
+                                >
+                                    <div className="flex w-full items-center justify-start gap-2 px-2 opacity-60">
+                                        <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                        <div className="w-16 h-2 bg-gray-200 rounded-sm"></div>
+                                    </div>
+                                    A Sinistra
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
+                                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${currentTheme.mobileHeaderStyle === 'center'
+                                        ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                        }`}
+                                >
+                                    <div className="flex w-full items-center justify-center gap-2 px-2 opacity-60">
+                                        <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                    </div>
+                                    Centrato
+                                </button>
                             </div>
-                        )}
+                        </div>
                     </div>
                 )}
 
@@ -173,21 +167,22 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
                 {/* 1. PRESETS */}
                 <div>
                     <h3 className="section-title">Stili Pronti</h3>
-                    <div className="grid grid-cols-2 gap-2">
+                    <select
+                        onChange={(e) => {
+                            if (e.target.value) {
+                                applyPreset(e.target.value);
+                            }
+                        }}
+                        className="styled-select"
+                        value={currentTheme.id || ''}
+                    >
+                        <option value="" disabled>Seleziona uno stile...</option>
                         {presets.map((preset) => (
-                            <button
-                                key={preset.id}
-                                type="button"
-                                onClick={() => applyPreset(preset.id)}
-                                className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${currentTheme.id === preset.id
-                                    ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-bold'
-                                    : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                    }`}
-                            >
-                                {preset.name}
-                            </button>
+                            <option key={preset.id} value={preset.id}>
+                                {preset.name} {preset.id === currentTheme.id ? '(Attivo)' : ''}
+                            </option>
                         ))}
-                    </div>
+                    </select>
                 </div>
 
                 <hr className="border-gray-100" />
@@ -276,6 +271,10 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
                 <div>
                     <h3 className="section-title mb-4">Stile & Finiture</h3>
                     <div className="space-y-6">
+
+
+
+
 
                         {/* Fonts */}
                         <div className="space-y-4">

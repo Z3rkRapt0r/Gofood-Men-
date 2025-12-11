@@ -15,47 +15,45 @@ import { FooterData } from '@/types/menu';
 
 type SubscriptionTier = 'free' | 'basic' | 'premium';
 
-export default function OnboardingPage() {
+// Define types locally if not imported
+interface TenantData {
+  restaurant_name: string;
+  slug: string;
+  theme: string;
+  primary_color: string;
+  secondary_color?: string;
+  font: string;
+  logo_url?: string;
+  footer_data?: any; // Relaxing type to avoid mismatch with FooterData
+  subscription_tier?: string;
+  contact_email?: string;
+  theme_options?: any;
+}
+
+// ... (imports remain)
+import { Suspense } from 'react';
+
+// ... (type definitions remain)
+
+function OnboardingContent() {
+  // ... (original component logic)
   const router = useRouter();
   const searchParams = useSearchParams();
+  // ... (rest of logic up to return, using same body)
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [tenant, setTenant] = useState<Tenant | null>(null);
 
-  // Handle payment success callback from Stripe
-  useEffect(() => {
-    if (searchParams.get('payment') === 'success' && tenant) {
-      if (currentStep === 1) {
-        // Upgrade to premium and move to next step
-        const upgradeTenant = async () => {
-          console.log('Payment successful! Upgrading to premium...');
-          try {
-            const supabase = createClient();
-            await supabase.from('tenants').update({ subscription_tier: 'premium' }).eq('id', tenant.id);
-            setFormData(prev => ({ ...prev, subscription_tier: 'premium' }));
-            setCurrentStep(2);
-            // Clean URL
-            router.replace('/onboarding');
-          } catch (err) {
-            console.error('Error upgrading tenant:', err);
-          }
-        };
-        upgradeTenant();
-      }
-    }
-  }, [searchParams, tenant, currentStep, router]);
-
-  const [formData, setFormData] = useState({
-    subscription_tier: 'free' as SubscriptionTier,
+  const [formData, setFormData] = useState<Partial<TenantData>>({
     restaurant_name: '',
     slug: '',
-    logo_url: null as string | null,
-    primary_color: '#8B0000',
-    secondary_color: '#D4AF37',
-    contact_email: '',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    theme_options: null as any,
-    footer_data: undefined as FooterData | undefined
+    logo_url: '',
+    footer_data: {
+      links: [],
+      socials: [],
+      show_brand_column: true,
+      locations: []
+    }
   });
 
   // Load tenant data
@@ -165,7 +163,7 @@ export default function OnboardingPage() {
           footer_data: mergedFooterData,
           theme_options: themeOptions
         });
-        setCurrentStep(tenantData.onboarding_step || 1);
+        setCurrentStep(Math.min(tenantData.onboarding_step || 1, 2));
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -211,7 +209,7 @@ export default function OnboardingPage() {
       const updateData: Record<string, unknown> = {
         ...tenantUpdates,
         onboarding_step: nextStep || currentStep,
-        onboarding_completed: nextStep === 4
+        onboarding_completed: (nextStep || currentStep) > 2
       };
 
       if (finalFooterData) {
@@ -283,9 +281,8 @@ export default function OnboardingPage() {
     let updates: Partial<typeof formData> = {};
 
     // Prepara gli update in base allo step corrente
+    // Prepara gli update in base allo step corrente
     if (currentStep === 1) {
-      updates = { subscription_tier: formData.subscription_tier };
-    } else if (currentStep === 2) {
       updates = {
         restaurant_name: formData.restaurant_name,
         slug: formData.slug,
@@ -297,7 +294,7 @@ export default function OnboardingPage() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setFormData(prev => ({ ...prev, theme_options: dataOverride as any }));
       }
-    } else if (currentStep === 3) {
+    } else if (currentStep === 2) {
       updates = {
         contact_email: formData.contact_email,
         footer_data: formData.footer_data
@@ -307,7 +304,7 @@ export default function OnboardingPage() {
     const success = await updateTenant(updates, currentStep + 1);
 
     if (success) {
-      if (currentStep === 3) {
+      if (currentStep === 2) {
         // Onboarding completato
         router.push('/dashboard');
       } else {
@@ -336,17 +333,15 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-orange-100 py-4 sticky top-0 z-50">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-gray-200 py-4 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4">
             <Link href="/">
-              <Image
-                src="/logo-gofood.png"
+              <img
+                src="/logo-gofood-new.svg"
                 alt="GO! FOOD"
-                width={120}
-                height={50}
                 className="h-10 w-auto"
               />
             </Link>
@@ -362,20 +357,10 @@ export default function OnboardingPage() {
       </div>
 
       {/* Step Content */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className={`mx-auto ${currentStep === 2 ? 'max-w-7xl' : 'max-w-4xl'}`}>
-
-
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="h-full flex flex-col flex-1">
           {currentStep === 1 && (
-            <PlanSelector
-              selectedPlan={formData.subscription_tier}
-              onSelectPlan={(tier: SubscriptionTier) => setFormData({ ...formData, subscription_tier: tier })}
-              onNext={handleNext}
-            />
-          )}
-
-          {currentStep === 2 && (
-            <div className="h-[calc(100vh-140px)] min-h-[600px]">
+            <div className="flex-1 h-full min-h-[600px]">
               <ThemeProvider>
                 <BrandingDesignLab
                   formData={formData}
@@ -387,16 +372,42 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {currentStep === 3 && (
-            <FooterConfigurator
-              formData={formData}
-              onUpdate={(updates) => setFormData({ ...formData, ...updates })}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
+          {currentStep === 2 && (
+            <div className="container mx-auto px-4 pb-16 max-w-4xl">
+              <FooterConfigurator
+                formData={{
+                  ...formData,
+                  contact_email: formData.contact_email || '',
+                }}
+                onUpdate={(updates) => setFormData({ ...formData, ...updates })}
+                onNext={handleNext}
+                onBack={handleBack}
+              />
+            </div>
           )}
         </div>
       </div>
+      {/* Footer */}
+      <footer className="bg-white/50 backdrop-blur-sm border-t border-orange-100 py-6 mt-auto">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-500 text-sm mb-2">
+            &copy; {new Date().getFullYear()} GoFood. Tutti i diritti riservati.
+          </p>
+          <div className="flex justify-center gap-4 text-xs text-gray-400">
+            <Link href="/privacy" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-orange-500 transition-colors">Termini di Servizio</Link>
+            <Link href="/support" className="hover:text-orange-500 transition-colors">Supporto</Link>
+          </div>
+        </div>
+      </footer>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

@@ -17,6 +17,7 @@ interface FooterConfiguratorProps {
 const SOCIAL_PLATFORMS = [
     { id: 'facebook', label: 'Facebook', icon: '📘' },
     { id: 'instagram', label: 'Instagram', icon: '📸' },
+    { id: 'tiktok', label: 'TikTok', icon: '🎵' },
     { id: 'tripadvisor', label: 'TripAdvisor', icon: '🦉' },
     { id: 'website', label: 'Sito Web', icon: '🌐' },
     { id: 'other', label: 'Altro Link', icon: '🔗' },
@@ -83,10 +84,10 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
     };
 
     // Derived state for button validation
-    const isValid = formData.contact_email && locations.length > 0 && locations[0].city && locations[0].address;
+    const isValid = locations.length > 0 && locations[0].city && locations[0].address;
 
     return (
-        <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100 max-h-[80vh] overflow-y-auto">
+        <div className="bg-white p-4 md:p-8 w-full max-w-4xl mx-auto">
             <div className="text-center mb-8">
                 <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
                     Contatti & Social
@@ -97,25 +98,6 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
             </div>
 
             <div className="max-w-2xl mx-auto space-y-8 mb-8">
-                {/* 1. Contatto Principale (Email) */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2">Contatti Generali</h3>
-                    <div>
-                        <label htmlFor="contact_email" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Email Pubblica *
-                        </label>
-                        <input
-                            type="email"
-                            id="contact_email"
-                            required
-                            value={formData.contact_email}
-                            onChange={(e) => onUpdate({ contact_email: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                            placeholder="info@tuoristorante.it"
-                        />
-                    </div>
-                </div>
-
                 {/* 2. Sedi (Locations) */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-2">

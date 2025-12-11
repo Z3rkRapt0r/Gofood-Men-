@@ -48,7 +48,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-20 pb-16 md:py-32">
+      <section className="container mx-auto px-2 md:px-4 pt-20 pb-16 md:py-32">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Copy */}
@@ -121,14 +121,14 @@ export default function LandingPage() {
 
             {/* Right: Visual */}
             <div className="relative lg:block">
-              <div className="relative">
+              <div className="relative w-fit mx-auto">
                 {/* Decorative Elements */}
                 <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-3xl opacity-30 animate-pulse" />
                 <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
 
                 {/* Phone Mockup */}
                 {/* Phone Mockup */}
-                <div className="relative z-10 mx-auto max-w-[300px] transform hover:scale-105 transition-transform duration-500">
+                <div className="relative z-10 mx-auto max-w-[220px] md:max-w-[300px] transform hover:scale-105 transition-transform duration-500">
                   {/* Phone Frame */}
                   <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-gray-900 bg-black">
                     {/* Screen Content */}
@@ -149,41 +149,41 @@ export default function LandingPage() {
                 </div>
 
                 {/* Floating Badges */}
-                <div className="absolute -left-8 top-20 bg-white rounded-2xl shadow-2xl p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="absolute -left-4 top-8 md:top-20 md:-left-8 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '3s' }}>
                   <div className="text-center">
-                    <div className="text-3xl font-black text-orange-600">QR</div>
-                    <div className="text-xs text-gray-600 font-semibold">Incluso</div>
+                    <div className="text-base md:text-3xl font-black text-orange-600">QR</div>
+                    <div className="text-[9px] md:text-xs text-gray-600 font-semibold">Incluso</div>
                   </div>
                 </div>
 
-                <div className="absolute -right-8 bottom-32 bg-white rounded-2xl shadow-2xl p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🌍</span>
+                <div className="absolute -right-4 bottom-16 md:bottom-32 md:-right-8 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-4 border border-orange-100 animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }}>
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <span className="text-base md:text-2xl">🌍</span>
                     <div>
-                      <div className="text-xs font-bold text-gray-900">Bilingua</div>
-                      <div className="text-xs text-gray-600">IT + EN</div>
+                      <div className="text-[9px] md:text-xs font-bold text-gray-900">Bilingua</div>
+                      <div className="text-[9px] md:text-xs text-gray-600">IT + EN</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="absolute -right-6 top-12 bg-white rounded-2xl shadow-2xl p-3 border border-orange-100 animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1s' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🥜</span>
+                <div className="absolute -right-4 top-4 md:top-12 md:-right-6 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1.5 md:p-3 border border-orange-100 animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1s' }}>
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <span className="text-base md:text-2xl">🥜</span>
                     <div>
-                      <div className="text-xs font-bold text-gray-900">Filtro</div>
-                      <div className="text-xs text-gray-600">Allergeni</div>
+                      <div className="text-[9px] md:text-xs font-bold text-gray-900">Filtro</div>
+                      <div className="text-[9px] md:text-xs text-gray-600">Allergeni</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="absolute -left-4 bottom-24 bg-white rounded-2xl shadow-2xl p-2 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                <div className="absolute -left-4 bottom-8 md:bottom-24 md:-left-4 bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-1 md:p-2 border border-orange-100 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1.5s' }}>
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <div className="w-6 h-6 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs md:text-lg">
                       AI
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-gray-900">Import</div>
-                      <div className="text-xs text-gray-600">Smart</div>
+                      <div className="text-[9px] md:text-xs font-bold text-gray-900">Import</div>
+                      <div className="text-[9px] md:text-xs text-gray-600">Smart</div>
                     </div>
                   </div>
                 </div>

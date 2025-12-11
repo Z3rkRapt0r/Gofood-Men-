@@ -83,11 +83,9 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <Image
-              src="/logo-gofood.png"
+            <img
+              src="/logo-gofood-new.svg"
               alt="GO! FOOD"
-              width={150}
-              height={60}
               className="h-14 w-auto mx-auto mb-4"
             />
           </Link>

@@ -53,7 +53,7 @@ export type Language = 'it' | 'en';
 // ============================================================
 
 export type SubscriptionTier = 'free' | 'basic' | 'premium';
-export type SubscriptionStatus = 'active' | 'suspended' | 'cancelled';
+export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete' | 'suspended';
 
 /**
  * Profile utente (collegato a Supabase Auth)

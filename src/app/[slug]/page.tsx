@@ -54,6 +54,12 @@ async function getMenuData(slug: string) {
     return null;
   }
 
+  // Security: If tenant is on free tier, the menu is NOT public.
+  // We treat it as 404.
+  if (tenant.subscription_tier === 'free' || tenant.subscription_status !== 'active') {
+    return null;
+  }
+
   // Prepare Footer Data with Locations from DB (Priority: DB Locations > Legacy Fields > JSON)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbLocations = (tenant as any).tenant_locations || [];

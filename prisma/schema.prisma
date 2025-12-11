@@ -405,12 +405,12 @@ model users {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model allergens {
-  id             String           @id
-  number         Int              @unique
-  icon           String
-  created_at     DateTime         @default(now()) @db.Timestamptz(6)
-  name           String?
-  description    String?
+  id          String   @id
+  number      Int      @unique
+  icon        String
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  name        String?
+  description String?
 
   @@schema("public")
 }
@@ -436,8 +436,6 @@ model categories {
   @@index([tenant_id, display_order], map: "idx_categories_tenant_order")
   @@schema("public")
 }
-
-
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -492,35 +490,36 @@ model profiles {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model tenants {
-  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  owner_id             String             @db.Uuid
-  restaurant_name      String
-  slug                 String             @unique
-  contact_email        String?
-  country              String?            @default("IT")
-  currency             String             @default("EUR")
-  cover_charge         Decimal?           @default(2.50) @db.Decimal(10, 2)
-  subscription_tier    String             @default("free")
-  subscription_status  String             @default("active")
-  max_dishes           Int                @default(50)
-  max_categories       Int                @default(10)
-  onboarding_completed Boolean            @default(false)
-  onboarding_step      Int?               @default(1)
-  created_at           DateTime           @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime           @default(now()) @db.Timestamptz(6)
-  footer_data          Json?
-  tagline              String?
-  logo_url             String?
-  background_color     String?            @default("#FFF8E7")
-  primary_color        String?            @default("#8B0000")
-  secondary_color      String?            @default("#D4AF37")
-  secondary_text_color String?            @default("#4B5563")
-  surface_color        String?            @default("#FFFFFF")
-  text_color           String?            @default("#171717")
-  categories           categories[]
-  dishes               dishes[]
-  tenant_locations     tenant_locations[]
-  profiles             profiles           @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
+  id                     String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner_id               String                  @db.Uuid
+  restaurant_name        String
+  slug                   String                  @unique
+  // contact_email removed
+  country                String?                 @default("IT")
+  currency               String                  @default("EUR")
+  cover_charge           Decimal?                @default(2.50) @db.Decimal(10, 2)
+  subscription_tier      String                  @default("free")
+  subscription_status    String                  @default("active")
+  max_dishes             Int                     @default(50)
+  max_categories         Int                     @default(10)
+  onboarding_completed   Boolean                 @default(false)
+  onboarding_step        Int?                    @default(1)
+  created_at             DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                @default(now()) @db.Timestamptz(6)
+  footer_data            Json?
+  tagline                String?
+  logo_url               String?
+  background_color       String?                 @default("#FFF8E7")
+  primary_color          String?                 @default("#8B0000")
+  secondary_color        String?                 @default("#D4AF37")
+  secondary_text_color   String?                 @default("#4B5563")
+  surface_color          String?                 @default("#FFFFFF")
+  text_color             String?                 @default("#171717")
+  categories             categories[]
+  dishes                 dishes[]
+  tenant_design_settings tenant_design_settings?
+  tenant_locations       tenant_locations[]
+  profiles               profiles                @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
 
   @@index([owner_id], map: "idx_tenants_owner_id")
   @@index([slug], map: "idx_tenants_slug")
@@ -541,6 +540,18 @@ model tenant_locations {
   tenants       tenants  @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([tenant_id], map: "idx_tenant_locations_tenant_id")
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tenant_design_settings {
+  tenant_id    String   @id @db.Uuid
+  theme_config Json     @default("{}")
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @db.Timestamptz(6)
+  tenants      tenants  @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
   @@schema("public")
 }
 

@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import QRCodeCard from '@/components/dashboard/QRCodeCard';
+import ActivationModal from '@/components/dashboard/ActivationModal';
 
 interface Stats {
   totalDishes: number;
@@ -12,16 +14,49 @@ interface Stats {
 }
 
 export default function DashboardOverview() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [tenantId, setTenantId] = useState<string>('');
+
   const [stats, setStats] = useState<Stats>({
     totalDishes: 0,
     totalCategories: 0,
     visibleDishes: 0,
   });
+
   const [loading, setLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState('');
   const [slug, setSlug] = useState('');
   const [logoUrl, setLogoUrl] = useState<string>('');
-  const [tenantId, setTenantId] = useState<string>('');
+  const [isFreeTier, setIsFreeTier] = useState(false);
+  const [showActivationModal, setShowActivationModal] = useState(false);
+
+  // Handle payment success from Stripe
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success' && tenantId) {
+      const activateSubscription = async () => {
+        try {
+          console.log('Payment successful! Activating subscription...');
+          const supabase = createClient();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase.from('tenants') as any)
+            .update({
+              subscription_status: 'active',
+              subscription_tier: 'premium'
+            })
+            .eq('id', tenantId);
+
+          // Clean URL
+          router.replace('/dashboard');
+          // Reload page to reflect changes (e.g. remove banner)
+          window.location.reload();
+        } catch (err) {
+          console.error('Error activating subscription:', err);
+        }
+      };
+      activateSubscription();
+    }
+  }, [searchParams, tenantId, router]);
 
   useEffect(() => {
     async function loadStats() {
@@ -39,9 +74,9 @@ export default function DashboardOverview() {
         // Get tenant info
         const { data: tenant, error: tenantError } = await supabase
           .from('tenants')
-          .select('id, restaurant_name, slug, logo_url, max_dishes, max_categories')
+          .select('id, restaurant_name, slug, logo_url, max_dishes, max_categories, subscription_tier')
           .eq('owner_id', user.id)
-          .maybeSingle(); // Use maybeSingle to not throw on 0 rows
+          .maybeSingle();
 
         if (tenantError) {
           console.error('Error fetching tenant:', tenantError);
@@ -52,7 +87,7 @@ export default function DashboardOverview() {
           console.error('No tenant found for user:', user.id);
         }
 
-        let tenantId = '';
+        let currentTenantId = '';
 
         if (tenant) {
           console.log('Tenant found:', tenant);
@@ -62,37 +97,34 @@ export default function DashboardOverview() {
             slug: string;
             logo_url: string;
             max_dishes: number;
-            max_categories: number
+            max_categories: number;
+            subscription_tier: string;
           };
-          tenantId = tenantData.id;
+          currentTenantId = tenantData.id;
           setRestaurantName(tenantData.restaurant_name);
           setSlug(tenantData.slug);
           setLogoUrl(tenantData.logo_url);
           setTenantId(tenantData.id);
-          setStats(prev => ({
-            ...prev,
-          }));
-        } else {
-          // Handle no tenant case if needed
+          setIsFreeTier(tenantData.subscription_tier === 'free');
         }
 
         // Get categories count
         const { count: categoriesCount } = await supabase
           .from('categories')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenantId);
+          .eq('tenant_id', currentTenantId);
 
         // Get dishes count
         const { count: dishesCount } = await supabase
           .from('dishes')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenantId);
+          .eq('tenant_id', currentTenantId);
 
         // Get visible dishes count
         const { count: visibleCount } = await supabase
           .from('dishes')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', tenantId)
+          .eq('tenant_id', currentTenantId)
           .eq('is_visible', true);
 
         setStats(prev => ({
@@ -119,10 +151,14 @@ export default function DashboardOverview() {
     );
   }
 
-
-
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+      <ActivationModal
+        isOpen={showActivationModal}
+        onClose={() => setShowActivationModal(false)}
+        restaurantName={restaurantName}
+      />
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-gray-900 mb-2">
@@ -132,6 +168,26 @@ export default function DashboardOverview() {
           Ecco una panoramica del tuo menu digitale
         </p>
       </div>
+
+      {isFreeTier && (
+        <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg shadow-orange-200">
+              🚀
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 text-lg">Il tuo menu è pronto!</h3>
+              <p className="text-gray-600">Attiva il piano Premium per pubblicare il menu e ottenere il QR Code.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowActivationModal(true)}
+            className="whitespace-nowrap bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Attiva Ora
+          </button>
+        </div>
+      )}
 
       {/* Quick stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -153,15 +209,16 @@ export default function DashboardOverview() {
           icon="📁"
           color="blue"
         />
-        <QRCodeCard
-          slug={slug}
-          restaurantName={restaurantName}
-          logoUrl={logoUrl}
-          tenantId={tenantId}
-        />
+        <div className="cursor-pointer" onClick={() => isFreeTier && setShowActivationModal(true)}>
+          <QRCodeCard
+            slug={isFreeTier ? 'locked' : slug}
+            restaurantName={restaurantName}
+            logoUrl={logoUrl}
+            tenantId={tenantId}
+            isLocked={isFreeTier}
+          />
+        </div>
       </div>
-
-
 
       {/* Quick actions */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -181,14 +238,22 @@ export default function DashboardOverview() {
             href="/dashboard/categories"
             color="blue"
           />
-          <ActionCard
-            title="Vedi Menu Pubblico"
-            description="Visualizza come lo vedono i clienti"
-            icon="👀"
-            href={`/${slug}`}
-            color="green"
-            external
-          />
+          <div onClick={(e) => {
+            if (isFreeTier) {
+              e.preventDefault();
+              setShowActivationModal(true);
+            }
+          }}>
+            <ActionCard
+              title="Vedi Menu Pubblico"
+              description="Visualizza come lo vedono i clienti"
+              icon={isFreeTier ? "🔒" : "👀"}
+              href={isFreeTier ? '#' : `/${slug}`}
+              color={isFreeTier ? "gray" : "green"}
+              external
+              disabled={isFreeTier}
+            />
+          </div>
         </div>
       </div>
 
@@ -235,7 +300,7 @@ function StatCard({
   isLink?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
       <div className="flex items-center justify-between mb-4">
         <span className="text-3xl">{icon}</span>
 
@@ -256,8 +321,6 @@ function StatCard({
   );
 }
 
-
-
 function ActionCard({
   title,
   description,
@@ -265,6 +328,7 @@ function ActionCard({
   href,
   color,
   external,
+  disabled
 }: {
   title: string;
   description: string;
@@ -272,19 +336,17 @@ function ActionCard({
   href: string;
   color: string;
   external?: boolean;
+  disabled?: boolean;
 }) {
   const colors = {
     orange: 'hover:border-orange-300 hover:bg-orange-50',
     blue: 'hover:border-blue-300 hover:bg-blue-50',
     green: 'hover:border-green-300 hover:bg-green-50',
+    gray: 'hover:border-gray-300 hover:bg-gray-50 opacity-75',
   };
 
-  return (
-    <Link
-      href={href}
-      target={external ? '_blank' : undefined}
-      className={`border-2 border-gray-200 rounded-xl p-4 transition-all ${colors[color as keyof typeof colors]} group`}
-    >
+  const CardContent = (
+    <div className={`border-2 border-gray-200 rounded-xl p-4 transition-all ${colors[color as keyof typeof colors]} group h-full ${disabled ? 'cursor-not-allowed' : ''}`}>
       <div className="flex items-start gap-3">
         <span className="text-3xl">{icon}</span>
         <div>
@@ -294,6 +356,20 @@ function ActionCard({
           <p className="text-sm text-gray-600 mt-1">{description}</p>
         </div>
       </div>
+    </div>
+  );
+
+  if (disabled) {
+    return CardContent;
+  }
+
+  return (
+    <Link
+      href={href}
+      target={external ? '_blank' : undefined}
+      className="block h-full"
+    >
+      {CardContent}
     </Link>
   );
 }

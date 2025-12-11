@@ -55,6 +55,7 @@ interface BrandingDesignLabProps {
 export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }: BrandingDesignLabProps) {
     const { currentTheme } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string>('antipasti');
+    const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
     const mainRef = useRef<HTMLDivElement>(null);
 
     const handleCategoryClick = (categoryId: string) => {
@@ -89,9 +90,26 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
     };
 
     return (
-        <div className="flex h-full bg-gray-100 font-sans overflow-hidden border-2 border-orange-100 rounded-2xl shadow-xl bg-white">
+        <div className="flex flex-col md:flex-row h-full bg-white font-sans overflow-hidden relative">
+
+            {/* Mobile Tabs */}
+            <div className="md:hidden flex h-12 shrink-0 border-b border-gray-200">
+                <button
+                    onClick={() => setMobileTab('editor')}
+                    className={`flex-1 text-sm font-bold transition-colors ${mobileTab === 'editor' ? 'bg-white text-orange-600 border-b-2 border-orange-500' : 'bg-gray-50 text-gray-500'}`}
+                >
+                    🎨 Editor
+                </button>
+                <button
+                    onClick={() => setMobileTab('preview')}
+                    className={`flex-1 text-sm font-bold transition-colors ${mobileTab === 'preview' ? 'bg-white text-orange-600 border-b-2 border-orange-500' : 'bg-gray-50 text-gray-500'}`}
+                >
+                    📱 Anteprima
+                </button>
+            </div>
+
             {/* Left Panel: Editor */}
-            <div className="w-96 flex flex-col border-r border-gray-200">
+            <div className={`w-full md:w-96 flex flex-col border-r border-gray-200 md:flex flex-1 min-h-0 ${mobileTab === 'preview' ? 'hidden' : 'flex'}`}>
                 <VisualEditorPanel
                     logoUrl={formData.logo_url}
                     slug={formData.slug}
@@ -110,13 +128,13 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                         onClick={handleContinue}
                         className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg font-bold hover:shadow-md hover:scale-[1.02] transition-all"
                     >
-                        Salva e Continua
+                        Salva
                     </button>
                 </div>
             </div>
 
             {/* Right Panel: Preview */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50">
+            <div className={`flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50 md:flex ${mobileTab === 'editor' ? 'hidden' : 'flex'}`}>
                 {/* Toolbar */}
                 <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
                     <div className="flex items-center gap-4">
@@ -125,14 +143,14 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                         </span>
                     </div>
                     <div className="text-xs text-gray-400">
-                        {formData.slug ? `gofoodmenu.it/${formData.slug}` : 'Anteprima'}
+                        {formData.restaurant_name ? `${formData.restaurant_name}` : 'Anteprima'}
                     </div>
                 </div>
 
                 {/* Canvas */}
-                <div className="flex-1 overflow-auto p-4 md:p-8 flex flex-col items-center justify-start bg-gray-100/50">
+                <div className="flex-1 overflow-hidden md:overflow-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
                     <div
-                        className="bg-white shadow-2xl transition-all duration-300 origin-top relative w-full max-w-[400px] h-full rounded-3xl z-10 overflow-y-auto scrollbar-hide border border-gray-200"
+                        className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl z-10 overflow-y-auto scrollbar-hide md:border md:border-gray-200"
                     >
 
                         <ThemeWrapper>

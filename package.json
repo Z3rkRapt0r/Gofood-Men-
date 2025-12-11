@@ -24,7 +24,8 @@
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
     "react-qrcode-logo": "^4.0.0",
-    "resend": "^6.5.2"
+    "resend": "^6.5.2",
+    "stripe": "^20.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

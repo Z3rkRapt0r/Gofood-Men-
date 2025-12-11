@@ -4,9 +4,8 @@ interface StepIndicatorProps {
 
 export default function StepIndicator({ currentStep }: StepIndicatorProps) {
   const steps = [
-    { number: 1, title: 'Piano', description: 'Scegli il tuo piano' },
-    { number: 2, title: 'Branding', description: 'Personalizza il menu' },
-    { number: 3, title: 'Contatti', description: 'Informazioni ristorante' }
+    { number: 1, title: 'Branding', description: 'Personalizza il menu' },
+    { number: 2, title: 'Contatti', description: 'Informazioni ristorante' }
   ];
 
   return (
@@ -61,8 +60,8 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
 
       {/* Mobile Labels */}
       <div className="mt-4 text-center sm:hidden">
-        <div className="text-sm font-bold text-orange-600">{steps[currentStep - 1].title}</div>
-        <div className="text-xs text-gray-500">{steps[currentStep - 1].description}</div>
+        <div className="text-sm font-bold text-orange-600">{steps[currentStep - 1]?.title || ''}</div>
+        <div className="text-xs text-gray-500">{steps[currentStep - 1]?.description || ''}</div>
       </div>
     </div>
   );

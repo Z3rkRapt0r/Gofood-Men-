@@ -80,29 +80,9 @@ export default function RegisterPage() {
       // handle_new_user() quando l'utente si registra.
       // Non è necessario crearlo manualmente qui.
 
-      // 2. Generate unique slug
-      let slug = generateSlug(formData.restaurantName);
-      let slugAttempt = 0;
+      // 2. Slug generation simplified to UUID in insert
+      console.log('Generating tenant...');
 
-      console.log('Generating unique slug from:', formData.restaurantName);
-
-      while (true) {
-        const testSlug = slugAttempt === 0 ? slug : `${slug}-${slugAttempt}`;
-
-        const { data: existing } = await supabase
-          .from('tenants')
-          .select('slug')
-          .eq('slug', testSlug)
-          .single();
-
-        if (!existing) {
-          slug = testSlug;
-          console.log('✓ Slug available:', slug);
-          break;
-        }
-
-        slugAttempt++;
-      }
 
       // 3. Create tenant
       const { data: tenantData, error: tenantError } = await supabase
@@ -112,12 +92,14 @@ export default function RegisterPage() {
         .insert({
           owner_id: authData.user.id,
           restaurant_name: formData.restaurantName,
-          slug: slug,
+          slug: `temp-${crypto.randomUUID()}`, // Temporary slug
           onboarding_completed: false,
           onboarding_step: 1,
           subscription_tier: 'free',
-          max_dishes: 9999,
-          max_categories: 9999
+          max_dishes: 50, // Limit for free tier? Or leave high for now
+          max_categories: 10,
+          // Trial fields removed - now Freemium
+          subscription_status: 'active' // Active but restricted feature-wise
         })
         .select()
         .single();
@@ -155,11 +137,9 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <Image
-              src="/logo-gofood.png"
+            <img
+              src="/logo-gofood-new.svg"
               alt="GO! FOOD"
-              width={150}
-              height={60}
               className="h-14 w-auto mx-auto mb-4"
             />
           </Link>
@@ -174,9 +154,9 @@ export default function RegisterPage() {
         {/* Registration Form */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
           <div className="mb-6">
-            <h1 className="text-3xl font-black text-gray-900 mb-2">
-              Inizia Ora
-            </h1>
+            <h3 className="font-black text-gray-900 text-lg">
+              Tutto incluso - Prova Gratuita 7 Giorni
+            </h3>
             <p className="text-gray-600 text-sm">
               <span className="font-bold text-orange-600">Prova Gratuita</span> · Cancella quando vuoi
             </p>
