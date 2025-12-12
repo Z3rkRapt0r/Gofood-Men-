@@ -286,22 +286,7 @@ export default function DashboardOverview() {
             href="/dashboard/categories"
             color="blue"
           />
-          <div onClick={(e) => {
-            if (isFreeTier || !slug) {
-              e.preventDefault();
-              setShowActivationModal(true);
-            }
-          }}>
-            <ActionCard
-              title="Vedi Menu Pubblico"
-              description="Visualizza come lo vedono i clienti"
-              icon={isFreeTier || !slug ? "🔒" : "👀"}
-              href={isFreeTier || !slug ? '#' : `/${slug}`}
-              color={isFreeTier || !slug ? "gray" : "green"}
-              external
-              disabled={isFreeTier || !slug}
-            />
-          </div>
+
         </div>
       </div>
 

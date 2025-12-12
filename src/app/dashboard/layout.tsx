@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import type { Tenant } from '@/types/menu';
 import SubscriptionBanner from '@/components/dashboard/SubscriptionBanner';
 
+import ActivationModal from '@/components/dashboard/ActivationModal';
+
 export default function DashboardLayout({
   children,
 }: {
@@ -17,6 +19,7 @@ export default function DashboardLayout({
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showActivationModal, setShowActivationModal] = useState(false);
 
   useEffect(() => {
     async function loadTenant() {
@@ -80,6 +83,9 @@ export default function DashboardLayout({
     return null;
   }
 
+  const isFreeTier = tenant.subscription_tier === 'free';
+  const isLocked = isFreeTier || !tenant.slug;
+
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Categorie', href: '/dashboard/categories', icon: '📁' },
@@ -90,6 +96,13 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Global Activation Modal */}
+      <ActivationModal
+        isOpen={showActivationModal}
+        onClose={() => setShowActivationModal(false)}
+        restaurantName={tenant.restaurant_name}
+      />
+
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -138,7 +151,7 @@ export default function DashboardLayout({
             )}
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-900 truncate">{tenant.restaurant_name}</h3>
-              <p className="text-xs text-gray-500 truncate">/{tenant.slug}</p>
+              <p className="text-xs text-gray-500 truncate">/{tenant.slug || '...'}</p>
             </div>
           </div>
         </div>
@@ -159,16 +172,7 @@ export default function DashboardLayout({
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-          <Link
-            href={`/${tenant.slug}`}
-            target="_blank"
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors mb-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            <span>Vedi menu pubblico</span>
-          </Link>
+          {/* MOVED to Header */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -184,20 +188,49 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-gray-700 hover:text-orange-600"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
+        <header className="sticky top-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="hidden sm:block">
-              <span className="text-sm text-gray-500">Piano:</span>
-              <span className="ml-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-gray-700 hover:text-orange-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* View Public Menu Button */}
+            {!isLocked ? (
+              <Link
+                href={`/${tenant.slug}`}
+                target="_blank"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow group"
+              >
+                <span>Vedi Menu</span>
+                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </Link>
+            ) : (
+              <button
+                onClick={() => setShowActivationModal(true)}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 border border-gray-200 rounded-full text-sm font-bold cursor-not-allowed"
+                title="Attiva l'abbonamento per vedere il menu"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Menu Bloccato</span>
+              </button>
+            )}
+
+            <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+            <div className="sm:block">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${isLocked ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700'
+                }`}>
                 {tenant.subscription_tier}
               </span>
             </div>

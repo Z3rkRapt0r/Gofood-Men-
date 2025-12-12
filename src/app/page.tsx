@@ -202,7 +202,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-80 hover:opacity-100 transition-all duration-500">
             {/* Real Logos */}
-            <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
+            <div className="flex items-center gap-4 transition-all duration-500">
               <div className="relative w-32 h-32">
                 <Image
                   src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/magnaroma-logo1.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL21hZ25hcm9tYS1sb2dvMS5wbmciLCJpYXQiOjE3NjQ3OTQ1MDIsImV4cCI6MjA4MDE1NDUwMn0.iqkxWbz2bd8AoHLmk4RhxhTqMw4Wn_mjk99YlkEzAjM"
@@ -211,20 +211,10 @@ export default function LandingPage() {
                   className="object-contain"
                 />
               </div>
-              <span className="font-display font-bold text-2xl text-gray-800">Magna Roma</span>
+
             </div>
 
-            <div className="flex items-center gap-4 grayscale hover:grayscale-0 transition-all duration-500">
-              <div className="relative w-32 h-32">
-                <Image
-                  src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/Logo.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL0xvZ28ud2VicCIsImlhdCI6MTc2NDc5NDU2MiwiZXhwIjoyMDgwMTU0NTYyfQ.ICJ0ZxUymkIqxBO98p6a3_AmV71lueVdOTP2w8EOhos"
-                  alt="Go Food Partner"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <span className="font-display font-bold text-2xl text-gray-800">Go Food Partner</span>
-            </div>
+
           </div>
         </div>
       </section>
