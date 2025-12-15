@@ -87,21 +87,21 @@ export default function FooterConfigurator({ formData, onUpdate, onNext, onBack 
     const isValid = locations.length > 0 && locations[0].city && locations[0].address;
 
     return (
-        <div className="bg-white p-4 md:p-8 w-full max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-                <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
+        <div className="bg-white p-4 md:p-8 w-full max-w-4xl mx-auto rounded-xl md:rounded-2xl shadow-sm md:shadow-none border border-gray-100 md:border-0">
+            <div className="text-center mb-6 md:mb-8">
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-4">
                     Contatti & Social
                 </h2>
-                <p className="text-lg text-gray-600">
+                <p className="text-gray-600 text-sm md:text-lg">
                     Dove possono trovarti i tuoi clienti?
                 </p>
             </div>
 
-            <div className="max-w-2xl mx-auto space-y-8 mb-8">
+            <div className="max-w-2xl mx-auto space-y-6 md:space-y-8 mb-8">
                 {/* 2. Sedi (Locations) */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                        <h3 className="text-lg font-bold text-gray-800">Le Tue Sedi</h3>
+                        <h3 className="text-base md:text-lg font-bold text-gray-800">Le Tue Sedi</h3>
                         <button
                             onClick={handleAddLocation}
                             className="text-sm font-semibold text-orange-600 hover:text-orange-700"

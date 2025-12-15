@@ -117,19 +117,27 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                 />
 
                 {/* Navigation Buttons embedded in the sidebar for better UX */}
-                <div className="p-4 border-t border-gray-200 bg-white grid grid-cols-2 gap-3 shrink-0 z-50">
-                    <button
-                        onClick={onBack}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                    >
-                        Indietro
-                    </button>
-                    <button
-                        onClick={handleContinue}
-                        className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg font-bold hover:shadow-md hover:scale-[1.02] transition-all"
-                    >
-                        Salva
-                    </button>
+                <div className="p-4 border-t border-gray-200 bg-white flex flex-col gap-3 shrink-0 z-50">
+                    <div className="flex items-start gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                        <span className="text-sm md:text-base">💡</span>
+                        <p className="text-xs text-blue-700 leading-relaxed">
+                            Non preoccuparti, potrai modificare il design del tuo menu in qualsiasi momento dalla dashboard.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <button
+                            onClick={onBack}
+                            className="px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                        >
+                            Indietro
+                        </button>
+                        <button
+                            onClick={handleContinue}
+                            className="px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold hover:shadow-md hover:scale-[1.02] transition-all"
+                        >
+                            Continua
+                        </button>
+                    </div>
                 </div>
             </div>
 

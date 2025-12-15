@@ -162,6 +162,7 @@ export default function DashboardLayout({
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => setSidebarOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors font-semibold"
             >
               <span className="text-xl">{item.icon}</span>

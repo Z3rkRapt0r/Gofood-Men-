@@ -172,7 +172,7 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
             {/* Dashboard Card Trigger */}
             <div
                 onClick={() => slug && !isLocked && setIsOpen(true)}
-                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden ${slug && !isLocked ? 'cursor-pointer hover:shadow-md transition-shadow group' : 'opacity-80'}`}
+                className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 flex flex-col items-center justify-center text-center relative overflow-hidden ${slug && !isLocked ? 'cursor-pointer hover:shadow-md transition-shadow group' : 'opacity-80'}`}
             >
                 {!slug && (
                     <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
@@ -197,14 +197,14 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
                 <div className="mb-3 transform group-hover:scale-105 transition-transform duration-300">
                     <QRCode
                         value={fullUrl || 'https://gofood.it'}
-                        size={120}
+                        size={100}
                         bgColor={bgColor}
                         fgColor={qrColor}
                         logoImage={activeLogo}
-                        logoWidth={logoWidth * (120 / 280)}
-                        logoHeight={logoHeight * (120 / 280)}
+                        logoWidth={logoWidth * (100 / 280)}
+                        logoHeight={logoHeight * (100 / 280)}
                         logoOpacity={1}
-                        logoPadding={logoPadding * (120 / 280)}
+                        logoPadding={logoPadding * (100 / 280)}
                         logoPaddingStyle="circle"
                         removeQrCodeBehindLogo={true}
                         qrStyle="dots"

@@ -349,15 +349,15 @@ function OnboardingContent() {
       </header>
 
       {/* Step Indicator */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 md:py-8">
         <StepIndicator currentStep={currentStep} />
       </div>
 
       {/* Step Content */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 relative">
         <div className="h-full flex flex-col flex-1">
           {currentStep === 1 && (
-            <div className="flex-1 h-full min-h-[600px]">
+            <div className="flex-1 relative h-full">
               <ThemeProvider>
                 <BrandingDesignLab
                   formData={formData}
@@ -370,7 +370,7 @@ function OnboardingContent() {
           )}
 
           {currentStep === 2 && (
-            <div className="container mx-auto px-4 pb-16 max-w-4xl">
+            <div className="container mx-auto px-4 pb-8 md:pb-16 max-w-4xl">
               <FooterConfigurator
                 formData={{
                   ...formData,
@@ -385,12 +385,12 @@ function OnboardingContent() {
         </div>
       </div>
       {/* Footer */}
-      <footer className="bg-white/50 backdrop-blur-sm border-t border-orange-100 py-6 mt-auto">
+      <footer className="bg-white/50 backdrop-blur-sm border-t border-orange-100 py-4 md:py-6 mt-auto">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-500 text-sm mb-2">
+          <p className="text-gray-500 text-xs md:text-sm mb-2">
             &copy; {new Date().getFullYear()} GoFood. Tutti i diritti riservati.
           </p>
-          <div className="flex justify-center gap-4 text-xs text-gray-400">
+          <div className="flex justify-center gap-4 text-[10px] md:text-xs text-gray-400">
             <Link href="/privacy" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-orange-500 transition-colors">Termini di Servizio</Link>
             <Link href="/support" className="hover:text-orange-500 transition-colors">Supporto</Link>

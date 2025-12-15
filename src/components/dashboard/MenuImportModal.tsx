@@ -43,6 +43,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
     const [readingProgress, setReadingProgress] = useState({ current: 0, total: 0 });
     const [draftFound, setDraftFound] = useState(false); // New state to track if draft exists
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
 
     // Load draft on mount
     useEffect(() => {
@@ -380,22 +381,50 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
                             />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                multiple
+                                className="hidden"
+                                ref={cameraInputRef}
+                                onChange={handleFileChange}
+                            />
 
-                            <div className="flex flex-col gap-4 max-w-xs mx-auto">
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isReadingFile}
-                                    className="bg-white border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-xl font-bold hover:bg-orange-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                >
-                                    {isReadingFile ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Lettura file...</span>
-                                        </>
-                                    ) : (
-                                        'Scegli File'
-                                    )}
-                                </button>
+                            <div className="flex flex-col gap-4 max-w-md mx-auto">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={isReadingFile}
+                                        className="bg-white border-2 border-orange-500 text-orange-500 px-4 py-4 rounded-xl font-bold hover:bg-orange-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-2 text-sm shadow-sm"
+                                    >
+                                        {isReadingFile ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Lettura...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                <span>Scegli File</span>
+                                            </>
+                                        )}
+                                    </button>
+
+                                    <button
+                                        onClick={() => cameraInputRef.current?.click()}
+                                        disabled={isReadingFile}
+                                        className="bg-orange-500 text-white border-2 border-orange-500 px-4 py-4 rounded-xl font-bold hover:bg-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-2 text-sm shadow-sm"
+                                    >
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span>Scatta Foto</span>
+                                    </button>
+                                </div>
                                 {previews.length > 0 && !isReadingFile && (
                                     <button
                                         onClick={handleAnalyze}

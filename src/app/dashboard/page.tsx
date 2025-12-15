@@ -200,7 +200,7 @@ export default function DashboardOverview() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-6">
       <ActivationModal
         isOpen={showActivationModal}
         onClose={() => setShowActivationModal(false)}
@@ -209,28 +209,28 @@ export default function DashboardOverview() {
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-gray-900 mb-2">
+        <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-1 md:mb-2">
           Benvenuto! 👋
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm md:text-base">
           Ecco una panoramica del tuo menu digitale
         </p>
       </div>
 
       {isFreeTier && (
-        <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg shadow-orange-200">
+        <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg shadow-orange-200 shrink-0">
               🚀
             </div>
             <div>
               <h3 className="font-bold text-gray-900 text-lg">Il tuo menu è pronto!</h3>
-              <p className="text-gray-600">Attiva il piano Premium per pubblicare il menu e ottenere il QR Code.</p>
+              <p className="text-gray-600 text-sm md:text-base">Attiva il piano Premium per pubblicare il menu e ottenere il QR Code.</p>
             </div>
           </div>
           <button
             onClick={() => setShowActivationModal(true)}
-            className="whitespace-nowrap bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            className="w-full md:w-auto whitespace-nowrap bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
             Attiva Ora
           </button>
@@ -238,7 +238,7 @@ export default function DashboardOverview() {
       )}
 
       {/* Quick stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <StatCard
           title="Piatti Totali"
           value={stats.totalDishes}
@@ -269,9 +269,9 @@ export default function DashboardOverview() {
       </div>
 
       {/* Quick actions */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Azioni Rapide</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Azioni Rapide</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           <ActionCard
             title="Aggiungi Piatto"
             description="Crea un nuovo piatto nel menu"
@@ -291,14 +291,14 @@ export default function DashboardOverview() {
       </div>
 
       {/* Tips */}
-      <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200 p-6">
+      <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200 p-4 md:p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl">💡</span>
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-xl md:text-2xl">💡</span>
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 mb-2">Suggerimenti</h3>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h3 className="font-bold text-gray-900 mb-2 text-sm md:text-base">Suggerimenti</h3>
+            <ul className="space-y-2 text-xs md:text-sm text-gray-700">
               <li className="flex items-start gap-2">
                 <span className="text-orange-600 font-bold mt-0.5">•</span>
                 <span>Aggiungi foto di alta qualità ai tuoi piatti per renderli più appetitosi</span>
@@ -333,13 +333,12 @@ function StatCard({
   isLink?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-3xl">{icon}</span>
-
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 h-full flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2 md:mb-4">
+        <span className="text-2xl md:text-3xl">{icon}</span>
       </div>
-      <div className="mb-1">
-        <div className="text-3xl font-black text-gray-900">
+      <div>
+        <div className="text-2xl md:text-3xl font-black text-gray-900 mb-1">
           {isLink ? (
             <Link href={`/${value}`} target="_blank" className="text-orange-600 hover:text-orange-700 text-lg">
               /{value}
@@ -348,8 +347,8 @@ function StatCard({
             value
           )}
         </div>
+        <div className="text-xs md:text-sm text-gray-600 font-semibold">{title}</div>
       </div>
-      <div className="text-sm text-gray-600 font-semibold">{title}</div>
     </div>
   );
 }
@@ -381,12 +380,12 @@ function ActionCard({
   const CardContent = (
     <div className={`border-2 border-gray-200 rounded-xl p-4 transition-all ${colors[color as keyof typeof colors]} group h-full ${disabled ? 'cursor-not-allowed' : ''}`}>
       <div className="flex items-start gap-3">
-        <span className="text-3xl">{icon}</span>
+        <span className="text-2xl md:text-3xl">{icon}</span>
         <div>
-          <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+          <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors text-sm md:text-base">
             {title}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">{description}</p>
+          <p className="text-xs md:text-sm text-gray-600 mt-1">{description}</p>
         </div>
       </div>
     </div>
