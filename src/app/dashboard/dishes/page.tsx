@@ -67,11 +67,17 @@ function SortableDishCard({
   category,
   onEdit,
   onDelete,
+  onDeleteImage,
+  selected,
+  onSelect,
 }: {
   dish: Dish;
   category?: Category;
   onEdit: (dish: Dish) => void;
   onDelete: (id: string) => void;
+  onDeleteImage: (dish: Dish) => void;
+  selected: boolean;
+  onSelect: (id: string) => void;
 }) {
   const {
     attributes,
@@ -99,6 +105,19 @@ function SortableDishCard({
       <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
         {/* Drag Handle & Content Wrapper */}
         <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+          {/* Checkbox for Selection */}
+          <div className="mt-1 pt-1">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={(e) => {
+                e.stopPropagation();
+                onSelect(dish.id);
+              }}
+              className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+            />
+          </div>
+
           {/* Drag Handle Icon */}
           <div
             {...attributes}
@@ -114,12 +133,54 @@ function SortableDishCard({
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row items-start gap-4">
               {dish.image_url && (
-                <div className="shrink-0">
+                <div className="shrink-0 relative group">
                   <img
                     src={dish.image_url}
                     alt={dish.name}
                     className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-200"
                   />
+                  <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast((t) => (
+                          <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
+                            <span className="font-bold text-gray-900">Eliminare immagine?</span>
+                            <div className="flex gap-2 w-full">
+                              <button
+                                onClick={() => {
+                                  onDeleteImage(dish);
+                                  toast.dismiss(t.id);
+                                }}
+                                className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
+                              >
+                                Si
+                              </button>
+                              <button
+                                onClick={() => toast.dismiss(t.id)}
+                                className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                              >
+                                No
+                              </button>
+                            </div>
+                          </div>
+                        ), {
+                          duration: 5000,
+                          style: {
+                            background: 'transparent',
+                            boxShadow: 'none',
+                            padding: 0
+                          }
+                        });
+                      }}
+                      className="text-white hover:text-red-400 p-1 rounded-full"
+                      title="Rimuovi immagine"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -197,6 +258,83 @@ export default function DishesPage() {
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [tenantId, setTenantId] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
+
+  // ... (previous useEffects) ...
+
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedDishes);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedDishes(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedDishes.size === filteredDishes.length) {
+      setSelectedDishes(new Set());
+    } else {
+      setSelectedDishes(new Set(filteredDishes.map(d => d.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedDishes.size === 0) return;
+
+    toast((t) => (
+      <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
+        <span className="font-bold text-gray-900">Eliminare {selectedDishes.size} piatti?</span>
+        <div className="flex gap-2 w-full">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const supabase = createClient();
+                const idsToDelete = Array.from(selectedDishes);
+
+                // 1. Delete images
+                const dishesToDelete = dishes.filter(d => idsToDelete.includes(d.id));
+                for (const dish of dishesToDelete) {
+                  if (dish.image_url) {
+                    await deleteDishImage(dish.image_url);
+                  }
+                }
+
+                // 2. Delete DB records
+                const { error } = await supabase
+                  .from('dishes')
+                  .delete()
+                  .in('id', idsToDelete);
+
+                if (error) throw error;
+
+                toast.success(`${selectedDishes.size} piatti eliminati`);
+                setSelectedDishes(new Set());
+                loadData();
+              } catch (err) {
+                console.error('Error in bulk delete:', err);
+                toast.error('Errore durante l\'eliminazione');
+              }
+            }}
+            className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Si
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      style: { background: 'transparent', boxShadow: 'none', padding: 0 }
+    });
+  };
 
   const [formData, setFormData] = useState({
     name: '',
@@ -519,6 +657,30 @@ export default function DishesPage() {
     }
   }
 
+  async function handleDeleteImage(dish: Dish) {
+    try {
+      const supabase = createClient();
+
+      if (dish.image_url) {
+        await deleteDishImage(dish.image_url);
+      }
+
+      const { error } = await supabase
+        .from('dishes')
+        // @ts-ignore
+        .update({ image_url: null })
+        .eq('id', dish.id);
+
+      if (error) throw error;
+
+      toast.success('Immagine rimossa');
+      loadData();
+    } catch (err) {
+      console.error('Error removing image:', err);
+      toast.error('Errore durante la rimozione dell\'immagine');
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('Sei sicuro di voler eliminare questo piatto?')) {
       return;
@@ -657,6 +819,33 @@ export default function DishesPage() {
         </div>
       </div>
 
+      {/* Selection Header */}
+      <div className="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={filteredDishes.length > 0 && selectedDishes.size === filteredDishes.length}
+            onChange={toggleSelectAll}
+            className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            {selectedDishes.size > 0 ? `${selectedDishes.size} selezionati` : 'Seleziona tutto'}
+          </span>
+        </div>
+
+        {selectedDishes.size > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-bold hover:bg-red-200 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Elimina ({selectedDishes.size})
+          </button>
+        )}
+      </div>
+
       {/* Category filter */}
       <div className="flex items-center gap-2 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
         <button
@@ -776,11 +965,52 @@ export default function DishesPage() {
                   </label>
                   <div className="flex items-center gap-4">
                     {editingDish?.image_url && !formData.image && (
-                      <img
-                        src={editingDish.image_url}
-                        alt="Current"
-                        className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                      />
+                      <div className="relative group">
+                        <img
+                          src={editingDish.image_url}
+                          alt="Current"
+                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toast((t) => (
+                            <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
+                              <span className="font-bold text-gray-900">Rimuovere immagine?</span>
+                              <div className="flex gap-2 w-full">
+                                <button
+                                  onClick={async () => {
+                                    await handleDeleteImage(editingDish);
+                                    setEditingDish({ ...editingDish, image_url: null });
+                                    toast.dismiss(t.id);
+                                  }}
+                                  className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
+                                >
+                                  Si
+                                </button>
+                                <button
+                                  onClick={() => toast.dismiss(t.id)}
+                                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                                >
+                                  No
+                                </button>
+                              </div>
+                            </div>
+                          ), {
+                            duration: 5000,
+                            style: {
+                              background: 'transparent',
+                              boxShadow: 'none',
+                              padding: 0
+                            }
+                          })}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600 transition-colors"
+                          title="Rimuovi immagine"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                          </svg>
+                        </button>
+                      </div>
                     )}
                     <input
                       type="file"
@@ -959,7 +1189,7 @@ export default function DishesPage() {
                 </div>
               </form>
             </div>
-          </div>
+          </div >
         )
       }
 
@@ -1002,6 +1232,9 @@ export default function DishesPage() {
                     category={categories.find(c => c.id === dish.category_id)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onDeleteImage={handleDeleteImage}
+                    selected={selectedDishes.has(dish.id)}
+                    onSelect={toggleSelection}
                   />
                 ))}
               </div>
