@@ -31,7 +31,7 @@ interface Dish {
   id: string;
   tenant_id: string;
   name: string;
-  description: string;
+  description?: string | null;
   price: number;
   category_id: string;
   image_url?: string | null;
@@ -260,7 +260,8 @@ export default function DishesPage() {
         .from('dishes')
         .select('*')
         .eq('tenant_id', tenantData.id)
-        .order('display_order');
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: true });
 
       setDishes(dishesData || []);
     } catch (err) {
@@ -535,7 +536,7 @@ export default function DishesPage() {
     setEditingDish(dish);
     setFormData({
       name: dish.name,
-      description: dish.description,
+      description: dish.description || '',
       price: dish.price.toString(),
       categoryId: dish.category_id,
       slug: '',
@@ -722,10 +723,9 @@ export default function DishesPage() {
                 {/* Descrizione */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Descrizione *
+                    Descrizione
                   </label>
                   <textarea
-                    required
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
