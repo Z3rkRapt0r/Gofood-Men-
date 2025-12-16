@@ -317,16 +317,15 @@ export default function DishesPage() {
 
       const newFilteredList = arrayMove(filteredList, oldIndex, newIndex);
 
-      // Calculate new display_order values
-      // We want to preserve the set of display_order values that the moved items had,
-      // but assign them to the items in their new positions.
-      const allowedOrders = filteredList
-        .map(d => d.display_order)
-        .sort((a, b) => a - b);
+      // Fix: Handle cases where multiple items have the same display_order (e.g. default 0)
+      // We find the starting point (min order) and distribute sequentially from there.
+      // If all orders are 0, we start from 0.
+      const existingOrders = filteredList.map(d => d.display_order);
+      const minOrder = existingOrders.length > 0 ? Math.min(...existingOrders) : 0;
 
       const itemsWithUpdatedOrder = newFilteredList.map((item, idx) => ({
         ...item,
-        display_order: allowedOrders[idx]
+        display_order: minOrder + idx // Ensure sequential unique orders within this view
       }));
 
       // Update global state
