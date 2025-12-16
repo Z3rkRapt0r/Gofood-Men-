@@ -261,7 +261,8 @@ export default function DishesPage() {
         .select('*')
         .eq('tenant_id', tenantData.id)
         .order('display_order', { ascending: true })
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .order('name', { ascending: true });
 
       setDishes(dishesData || []);
     } catch (err) {
