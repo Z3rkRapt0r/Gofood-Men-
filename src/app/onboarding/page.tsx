@@ -397,9 +397,9 @@ function OnboardingContent() {
             &copy; {new Date().getFullYear()} GoFood. Tutti i diritti riservati.
           </p>
           <div className="flex justify-center gap-4 text-[10px] md:text-xs text-gray-400">
-            <Link href="/privacy" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-orange-500 transition-colors">Termini di Servizio</Link>
-            <Link href="/support" className="hover:text-orange-500 transition-colors">Supporto</Link>
+            <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Privacy Policy">Privacy Policy</a>
+            <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Cookie Policy">Cookie Policy</a>
+            <a href="mailto:support@gofoodmenu.it" className="hover:text-orange-500 transition-colors">Supporto</a>
           </div>
         </div>
       </footer>

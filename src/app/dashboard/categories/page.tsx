@@ -4,18 +4,132 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
 import toast from 'react-hot-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
 type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
 
 interface Category {
   id: string;
+  tenant_id: string;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   display_order: number;
   is_visible: boolean;
   created_at: string;
+}
+
+// Sortable Item Component
+function SortableCategoryItem({
+  category,
+  onEdit,
+  onDelete,
+}: {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : ''
+        }`}
+    >
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+        {/* Drag Handle & Content Wrapper */}
+        <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+          {/* Drag Handle Icon */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
+            title="Sposta"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+          </div>
+
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                {category.name}
+              </h3>
+              {!category.is_visible && (
+                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
+                  NASCOSTA
+                </span>
+              )}
+            </div>
+            {category.description && (
+              <p className="text-sm text-gray-600 mb-1">
+                {category.description}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 font-mono">/{category.slug}</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+          <button
+            onClick={() => onEdit(category)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
+            title="Modifica"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span className="sm:hidden">Modifica</span>
+          </button>
+          <button
+            onClick={() => onDelete(category.id)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
+            title="Elimina"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span className="sm:hidden">Elimina</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CategoriesPage() {
@@ -31,6 +145,13 @@ export default function CategoriesPage() {
     slug: '',
     isVisible: true,
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadCategories();
@@ -69,6 +190,52 @@ export default function CategoriesPage() {
     }
   }
 
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setCategories((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over?.id);
+
+        const newItems = arrayMove(items, oldIndex, newIndex);
+
+        // Update display_order in DB
+        // We do this optimistically (UI updates instantly, DB updates in background)
+        updateCategoriesOrder(newItems);
+
+        return newItems;
+      });
+    }
+  }
+
+  async function updateCategoriesOrder(items: Category[]) {
+    try {
+      const supabase = createClient();
+      // We explicitly cast to avoid TS issues with implied types
+      const upsertData = items.map((item, index) => ({
+        id: item.id,
+        tenant_id: item.tenant_id, // Ensure this is present
+        name: item.name,
+        slug: item.slug,
+        display_order: index,
+        updated_at: new Date().toISOString(),
+        is_visible: item.is_visible,
+        description: item.description
+      })) as CategoryInsert[];
+
+      const { error } = await supabase
+        .from('categories')
+        .upsert(upsertData, { onConflict: 'id' });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating order:', err);
+      toast.error('Errore nel salvataggio dell\'ordine');
+      loadCategories(); // Revert on error
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -85,13 +252,10 @@ export default function CategoriesPage() {
           slug: formData.slug || generateSlug(formData.name),
           description: formData.description || null,
           is_visible: true, // Always visible
-          display_order: categories.length,
         };
 
         const { error } = await supabase
           .from('categories')
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore - Supabase client type inference issue with generated Database types
           .update(updateData)
           .eq('id', editingCategory.id);
 
@@ -109,9 +273,7 @@ export default function CategoriesPage() {
 
         const { error } = await supabase
           .from('categories')
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore - Supabase client type inference issue with generated Database types
-          .insert([insertData]);
+          .insert(insertData); // Pass single object, not array, or array of 1
 
         if (error) throw error;
       }
@@ -127,12 +289,20 @@ export default function CategoriesPage() {
       loadCategories();
     } catch (err) {
       console.error('Error saving category:', err);
-      toast.error(err instanceof Error ? err.message : 'Errore nel salvataggio della categoria');
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Errore nel salvataggio della categoria'
+      );
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Sei sicuro di voler eliminare questa categoria? Verranno eliminati anche tutti i piatti associati.')) {
+    if (
+      !confirm(
+        'Sei sicuro di voler eliminare questa categoria? Verranno eliminati anche tutti i piatti associati.'
+      )
+    ) {
       return;
     }
 
@@ -205,8 +375,18 @@ export default function CategoriesPage() {
             }}
             className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             <span>Nuova Categoria</span>
           </button>
@@ -228,8 +408,18 @@ export default function CategoriesPage() {
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -247,7 +437,10 @@ export default function CategoriesPage() {
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value });
                     if (!editingCategory) {
-                      setFormData(prev => ({ ...prev, slug: generateSlug(e.target.value) }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        slug: generateSlug(e.target.value),
+                      }));
                     }
                   }}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
@@ -263,15 +456,14 @@ export default function CategoriesPage() {
                 <input
                   type="text"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                   placeholder="es. I nostri deliziosi antipasti"
                 />
               </div>
 
-
-
-              {/* Visibility - Removed as requested */}
 
 
               {/* Actions */}
@@ -302,7 +494,9 @@ export default function CategoriesPage() {
       {categories.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-300 p-12 text-center">
           <span className="text-6xl mb-4 block">📁</span>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Nessuna categoria</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Nessuna categoria
+          </h3>
           <p className="text-gray-600 mb-6">
             Inizia creando la tua prima categoria per organizzare il menu
           </p>
@@ -310,67 +504,44 @@ export default function CategoriesPage() {
             onClick={() => setShowForm(true)}
             className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             <span>Crea Prima Categoria</span>
           </button>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all"
-            >
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                <div className="flex-1 w-full sm:w-auto">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                      {category.name}
-                    </h3>
-                    {!category.is_visible && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
-                        NASCOSTA
-                      </span>
-                    )}
-                  </div>
-                  {category.description && (
-                    <p className="text-sm text-gray-600 mb-1">
-                      {category.description}
-                    </p>
-                  )}
-                  <p className="text-xs text-gray-500 font-mono">
-                    /{category.slug}
-                  </p>
-                </div>
-
-                <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                  <button
-                    onClick={() => handleEdit(category)}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
-                    title="Modifica"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="sm:hidden">Modifica</span>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(category.id)}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
-                    title="Elimina"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    <span className="sm:hidden">Elimina</span>
-                  </button>
-                </div>
-              </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {categories.map((category) => (
+                <SortableCategoryItem
+                  key={category.id}
+                  category={category}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );

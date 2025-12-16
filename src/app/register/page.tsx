@@ -152,10 +152,10 @@ export default function RegisterPage() {
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
           <div className="mb-6">
             <h3 className="font-black text-gray-900 text-lg">
-              Tutto incluso - Prova Gratuita 7 Giorni
+              Prenditi il tuo tempo
             </h3>
             <p className="text-gray-600 text-sm">
-              <span className="font-bold text-orange-600">Prova Gratuita</span> · Cancella quando vuoi
+              Configura tutto con calma e <span className="font-bold text-orange-600">vai online</span> solo quando sei pronto.
             </p>
           </div>
 
@@ -301,9 +301,9 @@ export default function RegisterPage() {
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-xs text-gray-500 text-center leading-relaxed">
               Registrandoti accetti i nostri{' '}
-              <a href="#" className="text-orange-600 font-semibold hover:underline">Termini di Servizio</a>
+              <a href="#" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe text-orange-600 font-semibold hover:underline" title="Termini e Condizioni">Termini di Servizio</a>
               {' '}e la{' '}
-              <a href="#" className="text-orange-600 font-semibold hover:underline">Privacy Policy</a>
+              <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe text-orange-600 font-semibold hover:underline" title="Privacy Policy">Privacy Policy</a>
             </p>
           </div>
         </div>

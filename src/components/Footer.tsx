@@ -138,6 +138,10 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
           <p className="text-xs text-[var(--tenant-text-secondary,#4B5563)]">
             &copy; {new Date().getFullYear()} Go!Food | <a href="mailto:info@gofoodmenu.it" className="hover:text-[var(--tenant-primary,#8B0000)]">info@gofoodmenu.it</a> | <a href="https://www.gofoodmenu.it" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--tenant-primary,#8B0000)]">gofoodmenu.it</a>
           </p>
+          <div className="flex justify-center gap-4 text-xs">
+            <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-[var(--tenant-primary,#8B0000)] transition-colors" title="Privacy Policy">Privacy Policy</a>
+            <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-[var(--tenant-primary,#8B0000)] transition-colors" title="Cookie Policy">Cookie Policy</a>
+          </div>
         </div>
       </div>
     </footer>

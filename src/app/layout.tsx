@@ -4,6 +4,8 @@ import "./globals.css";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlutenFilterProvider } from "@/contexts/GlutenFilterContext";
 import { Toaster } from 'react-hot-toast';
+import Script from 'next/script';
+
 
 const inter = Inter({
   variable: "--font-inter",
@@ -60,6 +62,14 @@ export default function RootLayout({
         <LanguageProvider>
           <GlutenFilterProvider>
             {children}
+            <Script
+              src="https://cdn.iubenda.com/iubenda.js"
+              strategy="lazyOnload"
+            />
+            <Script
+              src="https://embeds.iubenda.com/widgets/cb34db42-733e-43bb-b9e1-b1bf9d76e546.js"
+              strategy="afterInteractive"
+            />
             <Toaster
               position="top-center"
               toastOptions={{
