@@ -30,7 +30,7 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
             <ThemeWrapper className="min-h-screen flex flex-col font-sans transition-colors duration-300">
                 <Header restaurantName={tenant.restaurant_name} logoUrl={tenant.logo_url || undefined} />
 
-                <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+                <main className="flex-1 container mx-auto px-4 pb-8 pt-[88px] max-w-7xl">
                     {/* Breadcrumb */}
                     <nav className="mb-6" aria-label="Breadcrumb">
                         <ol className="flex items-center gap-2 text-sm text-[var(--tenant-text-secondary,#4B5563)]">
