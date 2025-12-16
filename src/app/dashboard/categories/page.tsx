@@ -226,8 +226,8 @@ export default function CategoriesPage() {
 
       const { error } = await supabase
         .from('categories')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .upsert(upsertData as any, { onConflict: 'id' });
+        // @ts-ignore
+        .upsert(upsertData, { onConflict: 'id' });
 
       if (error) throw error;
     } catch (err) {
@@ -257,8 +257,8 @@ export default function CategoriesPage() {
 
         const { error } = await supabase
           .from('categories')
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .update(updateData as any)
+          // @ts-ignore
+          .update(updateData)
           .eq('id', editingCategory.id);
 
         if (error) throw error;
@@ -275,8 +275,8 @@ export default function CategoriesPage() {
 
         const { error } = await supabase
           .from('categories')
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .insert(insertData as any); // Pass single object, not array, or array of 1
+          // @ts-ignore
+          .insert(insertData); // Pass single object, not array, or array of 1
 
         if (error) throw error;
       }
@@ -466,8 +466,6 @@ export default function CategoriesPage() {
                   placeholder="es. I nostri deliziosi antipasti"
                 />
               </div>
-
-
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
