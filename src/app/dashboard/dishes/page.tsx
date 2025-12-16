@@ -464,6 +464,8 @@ export default function DishesPage() {
           is_vegetarian: formData.isVegetarian,
           is_vegan: formData.isVegan,
           is_gluten_free: formData.isGlutenFree,
+          is_homemade: formData.isHomemade,
+          is_frozen: formData.isFrozen,
           // display_order: REMOVED to avoid resetting order
           allergen_ids: formData.selectedAllergens,
         };
@@ -495,6 +497,8 @@ export default function DishesPage() {
           is_vegetarian: formData.isVegetarian,
           is_vegan: formData.isVegan,
           is_gluten_free: formData.isGlutenFree,
+          is_homemade: formData.isHomemade,
+          is_frozen: formData.isFrozen,
           display_order: dishes.length, // Append to end
           allergen_ids: formData.selectedAllergens,
         };

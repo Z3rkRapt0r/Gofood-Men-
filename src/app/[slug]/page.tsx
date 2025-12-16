@@ -32,6 +32,8 @@ interface DbDish {
   is_visible: boolean;
   is_seasonal: boolean;
   display_order: number;
+  is_homemade: boolean;
+  is_frozen: boolean;
   allergen_ids?: string[];
 }
 
@@ -116,6 +118,8 @@ async function getMenuData(slug: string) {
         image: dish.image_url || '/icon.svg',
         allergens: dish.allergen_ids || [],
         is_seasonal: dish.is_seasonal,
+        is_homemade: dish.is_homemade,
+        is_frozen: dish.is_frozen,
       })) || []
   })) || [];
 

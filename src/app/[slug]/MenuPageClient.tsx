@@ -27,6 +27,8 @@ interface Dish {
   price: string;
   image: string;
   allergens: string[];
+  is_homemade?: boolean;
+  is_frozen?: boolean;
 }
 
 interface Category {
