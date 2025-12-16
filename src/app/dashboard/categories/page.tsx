@@ -226,7 +226,8 @@ export default function CategoriesPage() {
 
       const { error } = await supabase
         .from('categories')
-        .upsert(upsertData, { onConflict: 'id' });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .upsert(upsertData as any, { onConflict: 'id' });
 
       if (error) throw error;
     } catch (err) {
