@@ -3,22 +3,47 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import type { Database } from '@/types/database';
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
 import toast from 'react-hot-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+type DishInsert = Database['public']['Tables']['dishes']['Insert'];
+type DishUpdate = Database['public']['Tables']['dishes']['Update'];
 
 interface Dish {
   id: string;
+  tenant_id: string;
   name: string;
   description: string;
   price: number;
   category_id: string;
-  image_url?: string;
+  image_url?: string | null;
+  slug: string;
   is_visible: boolean;
   is_seasonal: boolean;
   is_vegetarian: boolean;
   is_vegan: boolean;
   is_gluten_free: boolean;
   allergen_ids: string[];
+  display_order: number;
+  created_at?: string;
 }
 
 interface Category {
@@ -32,6 +57,132 @@ interface Allergen {
   icon: string;
 }
 
+// ------------------------------------------------------------------
+// SortableDishCard Component
+// ------------------------------------------------------------------
+function SortableDishCard({
+  dish,
+  category,
+  onEdit,
+  onDelete,
+}: {
+  dish: Dish;
+  category?: Category;
+  onEdit: (dish: Dish) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: dish.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : ''
+        }`}
+    >
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+        {/* Drag Handle & Content Wrapper */}
+        <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+          {/* Drag Handle Icon */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
+            title="Sposta"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              {dish.image_url && (
+                <div className="shrink-0">
+                  <img
+                    src={dish.image_url}
+                    alt={dish.name}
+                    className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-200"
+                  />
+                </div>
+              )}
+
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                    {dish.name}
+                  </h3>
+                  {!dish.is_visible && (
+                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                      Nascosto
+                    </span>
+                  )}
+                  {dish.is_seasonal && <span className="text-base sm:text-lg" title="Stagionale">🍂</span>}
+                  {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
+                  {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
+                  {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
+                </div>
+
+                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  {dish.description}
+                </p>
+
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="font-bold text-orange-600 text-base">€{dish.price.toFixed(2)}</span>
+                  {category && (
+                    <span className="text-gray-400 font-medium">• {category.name}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+          <button
+            onClick={() => onEdit(dish)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
+            title="Modifica"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span className="sm:hidden">Modifica</span>
+          </button>
+          <button
+            onClick={() => onDelete(dish.id)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
+            title="Elimina"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span className="sm:hidden">Elimina</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------
+// Main Page Component
+// ------------------------------------------------------------------
 export default function DishesPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,6 +208,13 @@ export default function DishesPage() {
     image: null as File | null,
     selectedAllergens: [] as string[],
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadData();
@@ -143,6 +301,93 @@ export default function DishesPage() {
     return publicUrl;
   }
 
+  // ------------------------------------------------------------------
+  // Drag and Drop Logic
+  // ------------------------------------------------------------------
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const filteredList = selectedCategory === 'all'
+        ? dishes
+        : dishes.filter(d => d.category_id === selectedCategory);
+
+      const oldIndex = filteredList.findIndex((item) => item.id === active.id);
+      const newIndex = filteredList.findIndex((item) => item.id === over?.id);
+
+      const newFilteredList = arrayMove(filteredList, oldIndex, newIndex);
+
+      // Calculate new display_order values
+      // We want to preserve the set of display_order values that the moved items had,
+      // but assign them to the items in their new positions.
+      const allowedOrders = filteredList
+        .map(d => d.display_order)
+        .sort((a, b) => a - b);
+
+      const itemsWithUpdatedOrder = newFilteredList.map((item, idx) => ({
+        ...item,
+        display_order: allowedOrders[idx]
+      }));
+
+      // Update global state
+      setDishes(prev => {
+        // Create a map of updates
+        const updateMap = new Map(itemsWithUpdatedOrder.map(i => [i.id, i.display_order]));
+
+        const next = prev.map(d => {
+          if (updateMap.has(d.id)) {
+            return { ...d, display_order: updateMap.get(d.id)! };
+          }
+          return d;
+        });
+
+        // Keep them sorted by order for consistency
+        return next.sort((a, b) => a.display_order - b.display_order);
+      });
+
+      // Update DB
+      updateDishesOrder(itemsWithUpdatedOrder);
+    }
+  }
+
+  async function updateDishesOrder(items: Dish[]) {
+    try {
+      const supabase = createClient();
+
+      const upsertData = items.map((item) => ({
+        id: item.id,
+        tenant_id: item.tenant_id,
+        name: item.name,
+        category_id: item.category_id,
+        price: item.price,
+        slug: item.slug,
+        description: item.description,
+        is_visible: item.is_visible,
+        is_seasonal: item.is_seasonal,
+        is_vegetarian: item.is_vegetarian,
+        is_vegan: item.is_vegan,
+        is_gluten_free: item.is_gluten_free,
+        display_order: item.display_order,
+        allergen_ids: item.allergen_ids,
+        image_url: item.image_url,
+      }));
+
+      const { error } = await supabase
+        .from('dishes')
+        // @ts-ignore
+        .upsert(upsertData, { onConflict: 'id' });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating order:', err);
+      toast.error('Errore nel salvataggio dell\'ordine');
+      loadData(); // Revert on error
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Form Submission
+  // ------------------------------------------------------------------
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -170,37 +415,54 @@ export default function DishesPage() {
         imageUrl = await uploadImage(formData.image, tenantData.slug);
       }
 
-      const dishData = {
-        tenant_id: tenantId,
-        category_id: formData.categoryId,
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        image_url: imageUrl,
-        slug: formData.slug || generateSlug(formData.name),
-        is_visible: formData.isVisible,
-        is_seasonal: formData.isSeasonal,
-        is_vegetarian: formData.isVegetarian,
-        is_vegan: formData.isVegan,
-        is_gluten_free: formData.isGlutenFree,
-        display_order: dishes.length,
-        allergen_ids: formData.selectedAllergens,
-      };
-
       if (editingDish) {
+        // Update
+        const dishData = {
+          tenant_id: tenantId,
+          category_id: formData.categoryId,
+          name: formData.name,
+          description: formData.description,
+          price: parseFloat(formData.price),
+          image_url: imageUrl,
+          slug: formData.slug || generateSlug(formData.name),
+          is_visible: formData.isVisible,
+          is_seasonal: formData.isSeasonal,
+          is_vegetarian: formData.isVegetarian,
+          is_vegan: formData.isVegan,
+          is_gluten_free: formData.isGlutenFree,
+          // display_order: REMOVED to avoid resetting order
+          allergen_ids: formData.selectedAllergens,
+        };
+
         const { error } = await supabase
           .from('dishes')
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore - Supabase client type inference issue with generated Database types
+          // @ts-ignore
           .update(dishData)
           .eq('id', editingDish.id);
 
         if (error) throw error;
       } else {
+        // Create
+        const dishData = {
+          tenant_id: tenantId,
+          category_id: formData.categoryId,
+          name: formData.name,
+          description: formData.description,
+          price: parseFloat(formData.price),
+          image_url: imageUrl,
+          slug: formData.slug || generateSlug(formData.name),
+          is_visible: formData.isVisible,
+          is_seasonal: formData.isSeasonal,
+          is_vegetarian: formData.isVegetarian,
+          is_vegan: formData.isVegan,
+          is_gluten_free: formData.isGlutenFree,
+          display_order: dishes.length, // Append to end
+          allergen_ids: formData.selectedAllergens,
+        };
+
         const { error } = await supabase
           .from('dishes')
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore - Supabase client type inference issue with generated Database types
+          // @ts-ignore
           .insert([dishData]);
 
         if (error) throw error;
@@ -638,84 +900,28 @@ export default function DishesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {filteredDishes.map((dish) => {
-              const category = categories.find(c => c.id === dish.category_id);
-              return (
-                <div
-                  key={dish.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all"
-                >
-                  <div className="flex flex-col sm:flex-row items-start gap-4">
-                    {/* Image and Info */}
-                    <div className="flex items-start gap-4 flex-1 w-full">
-                      {dish.image_url && (
-                        <div className="shrink-0">
-                          <img
-                            src={dish.image_url}
-                            alt={dish.name}
-                            className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-200"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                            {dish.name}
-                          </h3>
-                          {!dish.is_visible && (
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                              Nascosto
-                            </span>
-                          )}
-                          {dish.is_seasonal && <span className="text-base sm:text-lg" title="Stagionale">🍂</span>}
-                          {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
-                          {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
-                          {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
-                        </div>
-
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                          {dish.description}
-                        </p>
-
-                        <div className="flex items-center gap-3 text-sm">
-                          <span className="font-bold text-orange-600 text-base">€{dish.price.toFixed(2)}</span>
-                          {category && (
-                            <span className="text-gray-400 font-medium">• {category.name}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions - Bottom on mobile, Right on desktop */}
-                    <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                      <button
-                        onClick={() => handleEdit(dish)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
-                        title="Modifica"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="sm:hidden">Modifica</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(dish.id)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
-                        title="Elimina"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        <span className="sm:hidden">Elimina</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={filteredDishes.map((d) => d.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="grid gap-4">
+                {filteredDishes.map((dish) => (
+                  <SortableDishCard
+                    key={dish.id}
+                    dish={dish}
+                    category={categories.find(c => c.id === dish.category_id)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )
       }
       <MenuImportModal
