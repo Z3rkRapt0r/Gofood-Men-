@@ -301,6 +301,31 @@ export default function DishesPage() {
     return publicUrl;
   }
 
+  async function deleteDishImage(imageUrl: string) {
+    if (!imageUrl) return;
+    try {
+      const supabase = createClient();
+      // Extract path from public URL
+      // Example: https://.../storage/v1/object/public/dishes/folder/file.jpg
+      // We want: folder/file.jpg
+      const url = new URL(imageUrl);
+      const pathParts = url.pathname.split('/dishes/');
+      if (pathParts.length < 2) return;
+
+      const filePath = decodeURIComponent(pathParts[1]);
+
+      const { error } = await supabase.storage
+        .from('dishes')
+        .remove([filePath]);
+
+      if (error) {
+        console.error('Error deleting image:', error);
+      }
+    } catch (err) {
+      console.error('Error parsing image URL:', err);
+    }
+  }
+
   // ------------------------------------------------------------------
   // Drag and Drop Logic
   // ------------------------------------------------------------------
@@ -440,6 +465,11 @@ export default function DishesPage() {
           .eq('id', editingDish.id);
 
         if (error) throw error;
+
+        // Delete old image if it exists and was replaced
+        if (imageUrl !== editingDish.image_url && editingDish.image_url) {
+          await deleteDishImage(editingDish.image_url);
+        }
       } else {
         // Create
         const dishData = {
@@ -486,6 +516,12 @@ export default function DishesPage() {
         .from('dishes')
         .delete()
         .eq('id', id);
+
+      // Delete image if exists
+      const dishToDelete = dishes.find(d => d.id === id);
+      if (dishToDelete?.image_url) {
+        await deleteDishImage(dishToDelete.image_url);
+      }
 
       if (error) throw error;
       loadData();
