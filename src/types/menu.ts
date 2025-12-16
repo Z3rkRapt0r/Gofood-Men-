@@ -15,6 +15,8 @@ export interface Dish {
   image: string;
   allergens?: string[];
   is_seasonal?: boolean;
+  is_homemade?: boolean;
+  is_frozen?: boolean;
 }
 
 export interface Category {
@@ -210,6 +212,8 @@ export interface DishDB {
   is_gluten_free: boolean;
   is_vegetarian: boolean;
   is_vegan: boolean;
+  is_homemade: boolean;
+  is_frozen: boolean;
 
   allergen_ids: string[]; // Array of Strings (New Schema)
 

@@ -110,6 +110,26 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
             </span>
           </div>
         )}
+
+        {/* Badge Fatto in casa e Surgelato */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {!isDisabled && dish.is_homemade && (
+            <div className="bg-[var(--tenant-primary,#8B0000)] text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+              <span className="font-semibold text-xs flex items-center gap-1">
+                <span>🏠</span>
+                Fatto in casa
+              </span>
+            </div>
+          )}
+          {!isDisabled && dish.is_frozen && (
+            <div className="bg-blue-500 text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+              <span className="font-semibold text-xs flex items-center gap-1">
+                <span>❄️</span>
+                Surgelato
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="p-4 md:p-5">

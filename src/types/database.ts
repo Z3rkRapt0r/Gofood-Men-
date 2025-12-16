@@ -201,6 +201,8 @@ export interface Database {
           is_gluten_free: boolean;
           is_vegetarian: boolean;
           is_vegan: boolean;
+          is_homemade: boolean;
+          is_frozen: boolean;
           display_order: number;
           created_at: string;
           updated_at: string;
@@ -220,6 +222,8 @@ export interface Database {
           is_gluten_free?: boolean;
           is_vegetarian?: boolean;
           is_vegan?: boolean;
+          is_homemade?: boolean;
+          is_frozen?: boolean;
           display_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -239,6 +243,8 @@ export interface Database {
           is_gluten_free?: boolean;
           is_vegetarian?: boolean;
           is_vegan?: boolean;
+          is_homemade?: boolean;
+          is_frozen?: boolean;
           display_order?: number;
           created_at?: string;
           updated_at?: string;

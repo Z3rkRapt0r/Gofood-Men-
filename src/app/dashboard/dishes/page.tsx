@@ -41,6 +41,8 @@ interface Dish {
   is_vegetarian: boolean;
   is_vegan: boolean;
   is_gluten_free: boolean;
+  is_homemade: boolean;
+  is_frozen: boolean;
   allergen_ids: string[];
   display_order: number;
   created_at?: string;
@@ -135,6 +137,8 @@ function SortableDishCard({
                   {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
                   {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
                   {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
+                  {dish.is_homemade && <span className="text-base sm:text-lg" title="Fatto in casa">🏠</span>}
+                  {dish.is_frozen && <span className="text-base sm:text-lg" title="Surgelato">❄️</span>}
                 </div>
 
                 <p className="text-sm text-gray-600 mb-2 line-clamp-2">
@@ -205,6 +209,8 @@ export default function DishesPage() {
     isVegetarian: false,
     isVegan: false,
     isGlutenFree: false,
+    isHomemade: false,
+    isFrozen: false,
     image: null as File | null,
     selectedAllergens: [] as string[],
   });
@@ -393,6 +399,8 @@ export default function DishesPage() {
         is_vegetarian: item.is_vegetarian,
         is_vegan: item.is_vegan,
         is_gluten_free: item.is_gluten_free,
+        is_homemade: item.is_homemade,
+        is_frozen: item.is_frozen,
         display_order: item.display_order,
         allergen_ids: item.allergen_ids,
         image_url: item.image_url,
@@ -546,6 +554,8 @@ export default function DishesPage() {
       isVegetarian: dish.is_vegetarian,
       isVegan: dish.is_vegan,
       isGlutenFree: dish.is_gluten_free,
+      isHomemade: dish.is_homemade || false,
+      isFrozen: dish.is_frozen || false,
       image: null,
       selectedAllergens: dish.allergen_ids || [],
     });
@@ -564,6 +574,8 @@ export default function DishesPage() {
       isVegetarian: false,
       isVegan: false,
       isGlutenFree: false,
+      isHomemade: false,
+      isFrozen: false,
       image: null,
       selectedAllergens: [],
     });
@@ -721,6 +733,7 @@ export default function DishesPage() {
                   />
                 </div>
 
+
                 {/* Descrizione */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">
@@ -853,6 +866,38 @@ export default function DishesPage() {
                           <span className="text-xs font-bold text-center leading-tight">Contiene Glutine</span>
                         </label>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Caratteristiche */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">
+                      Caratteristiche
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {/* Fatto in casa */}
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isHomemade ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isHomemade}
+                          onChange={(e) => setFormData({ ...formData, isHomemade: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">🏠</span>
+                        <span className="text-xs font-bold">Fatto in casa</span>
+                      </label>
+
+                      {/* Surgelato */}
+                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isFrozen ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-blue-200 text-gray-600'}`}>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={formData.isFrozen}
+                          onChange={(e) => setFormData({ ...formData, isFrozen: e.target.checked })}
+                        />
+                        <span className="text-2xl mb-1">❄️</span>
+                        <span className="text-xs font-bold">Surgelato</span>
+                      </label>
                     </div>
                   </div>
 
