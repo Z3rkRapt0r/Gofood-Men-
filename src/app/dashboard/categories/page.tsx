@@ -257,7 +257,8 @@ export default function CategoriesPage() {
 
         const { error } = await supabase
           .from('categories')
-          .update(updateData)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .update(updateData as any)
           .eq('id', editingCategory.id);
 
         if (error) throw error;
@@ -274,7 +275,8 @@ export default function CategoriesPage() {
 
         const { error } = await supabase
           .from('categories')
-          .insert(insertData); // Pass single object, not array, or array of 1
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .insert(insertData as any); // Pass single object, not array, or array of 1
 
         if (error) throw error;
       }
