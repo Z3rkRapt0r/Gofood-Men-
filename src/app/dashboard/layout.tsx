@@ -207,7 +207,7 @@ export default function DashboardLayout({
               <Link
                 href={`/${tenant.slug}`}
                 target="_blank"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow group whitespace-nowrap"
               >
                 <span>Vedi Menu</span>
                 <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@ export default function DashboardLayout({
             ) : (
               <button
                 onClick={() => setShowActivationModal(true)}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 border border-gray-200 rounded-full text-sm font-bold cursor-not-allowed"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-400 border border-gray-200 rounded-full text-sm font-bold cursor-not-allowed whitespace-nowrap"
                 title="Attiva l'abbonamento per vedere il menu"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,14 +227,7 @@ export default function DashboardLayout({
               </button>
             )}
 
-            <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
-
-            <div className="sm:block">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${isLocked ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700'
-                }`}>
-                {tenant.subscription_tier}
-              </span>
-            </div>
+            {/* Badge Removed - Moved to Dashboard Page */}
           </div>
         </header>
 

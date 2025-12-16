@@ -127,9 +127,9 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack }
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={onBack}
-                            className="px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                            className="px-4 py-3 border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                         >
-                            Indietro
+                            <span className="text-lg">🚪</span> Esci
                         </button>
                         <button
                             onClick={handleContinue}

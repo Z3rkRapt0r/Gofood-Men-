@@ -32,6 +32,7 @@ export default function DashboardOverview() {
   const [logoUrl, setLogoUrl] = useState<string>('');
   const [isFreeTier, setIsFreeTier] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
 
   // Handle payment success from Stripe
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function DashboardOverview() {
           if (newSlug) {
             setSlug(newSlug);
           }
+          setSubscriptionTier('premium');
           toast.success('Abbonamento attivato con successo!');
 
           // Force hard refresh after a short delay to ensure clean state
@@ -154,6 +156,7 @@ export default function DashboardOverview() {
           // Force premium state if we just handled a payment, otherwise trust DB
           const isDbFree = tenantData.subscription_tier === 'free';
           setIsFreeTier(isPaymentSuccess ? false : isDbFree);
+          setSubscriptionTier(isPaymentSuccess ? 'premium' : tenantData.subscription_tier);
         }
 
         // Get categories count
@@ -208,13 +211,21 @@ export default function DashboardOverview() {
       />
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-1 md:mb-2">
-          Benvenuto! 👋
-        </h1>
-        <p className="text-gray-600 text-sm md:text-base">
-          Ecco una panoramica del tuo menu digitale
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-1 md:mb-2">
+            Benvenuto! 👋
+          </h1>
+          <p className="text-gray-600 text-sm md:text-base">
+            Ecco una panoramica del tuo menu digitale
+          </p>
+        </div>
+        <div className="self-start md:self-center">
+          <span className={`px-4 py-2 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider ${isFreeTier ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-purple-100 text-purple-700 border border-purple-200'
+            }`}>
+            {subscriptionTier === 'free' ? 'Piano Gratuito' : 'Premium Attivo'}
+          </span>
+        </div>
       </div>
 
       {isFreeTier && (

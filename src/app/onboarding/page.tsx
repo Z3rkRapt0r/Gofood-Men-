@@ -316,6 +316,12 @@ function OnboardingContent() {
     }
   }
 
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-cream to-white flex items-center justify-center">
@@ -363,7 +369,7 @@ function OnboardingContent() {
                   formData={formData}
                   onUpdate={(updates) => setFormData({ ...formData, ...updates })}
                   onNext={handleNext}
-                  onBack={handleBack}
+                  onBack={handleLogout}
                 />
               </ThemeProvider>
             </div>
