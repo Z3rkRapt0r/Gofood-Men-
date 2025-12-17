@@ -389,10 +389,16 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold text-lg mb-4 text-orange-400">Supporto</h4>
               <ul className="space-y-3 text-gray-400">
-                <li><a href="mailto:info@gofood.it" className="hover:text-orange-400 transition-colors">Email</a></li>
+                <li><a href="mailto:info@gofoodmenu.it" className="hover:text-orange-400 transition-colors">info@gofoodmenu.it</a></li>
                 <li><span>© 2025 GO! FOOD</span></li>
               </ul>
             </div>
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+            <p>Rag. Sociale: GO ! FOOD ITALIA DI GIORGIO DI MARTINO</p>
+            <p>Indirizzo: VIA MARIANO STABILE 160 - 90139 - PALERMO (PA)</p>
+            <p>Partita IVA: 06955440828</p>
           </div>
         </div>
       </footer>
