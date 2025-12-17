@@ -186,7 +186,7 @@ function SortableDishCard({
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight">
                     {dish.name}
                   </h3>
                   {!dish.is_visible && (
@@ -1224,7 +1224,7 @@ export default function DishesPage() {
               items={filteredDishes.map((d) => d.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="grid gap-4">
+              <div className="flex flex-col gap-4 w-full">
                 {filteredDishes.map((dish) => (
                   <SortableDishCard
                     key={dish.id}
