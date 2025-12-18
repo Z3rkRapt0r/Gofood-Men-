@@ -8,7 +8,9 @@ import { createClient } from '@/lib/supabase/client';
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
-    slug: string;
+    slug?: string; // Optional now
+    restaurantName: string; // Required
+    tenantId?: string; // Optional for uniqueness
     onLogoChange?: (url: string) => void;
 }
 
@@ -27,7 +29,7 @@ const FONT_OPTIONS = [
     { label: 'Space Mono (Tecnico)', value: 'Space Mono' },
 ];
 
-export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorPanelProps) {
+export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onLogoChange }: VisualEditorPanelProps) {
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
@@ -42,25 +44,51 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
         }
 
         try {
+            // DEBUG: Check restaurantName before upload
+            console.log('[VisualEditorPanel] Uploading logo. Restaurant Name:', restaurantName);
+
+            if (!restaurantName) {
+                toast.error('Inserisci prima il nome del ristorante');
+                return;
+            }
+
+            // Generate safe folder name from restaurant name
+            const baseName = restaurantName
+                .toLowerCase()
+                .normalize('NFD') // Split accents
+                .replace(/[\u0300-\u036f]/g, '') // Remove accents
+                .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+                .replace(/^-+|-+$/g, '') // Trim hyphens
+                || 'temp-uploads'; // Fallback
+
+            // Append short ID to ensure uniqueness
+            // If tenantId is missing (e.g. very fresh state), fallback to timestamp
+            const uniqueSuffix = tenantId ? `-${tenantId}` : `-${Date.now().toString().slice(-6)}`;
+            const sanitizedFolderName = `${baseName}${uniqueSuffix}`;
+
             setUploading(true);
             const supabase = createClient();
 
-            // Generate clean filename
-            const fileExt = file.name.split('.').pop();
-            const fileName = `logo-${Date.now()}.${fileExt}`;
-            const filePath = `${slug}/${fileName}`;
-
-            // 1. Clean up old logos for this slug (to save space)
+            // 1. Clean up old logos to save space
+            // Since the folder is unique to this tenant, we can safely clear it.
             const { data: existingFiles } = await supabase.storage
                 .from('logos')
-                .list(slug);
+                .list(sanitizedFolderName);
 
             if (existingFiles && existingFiles.length > 0) {
-                const filesToRemove = existingFiles.map(f => `${slug}/${f.name}`);
+                const filesToRemove = existingFiles.map(x => `${sanitizedFolderName}/${x.name}`);
+                console.log('[VisualEditorPanel] Removing old logos:', filesToRemove);
                 await supabase.storage
                     .from('logos')
                     .remove(filesToRemove);
             }
+
+            // Generate clean filename
+            const fileExt = file.name.split('.').pop();
+            const fileName = `logo-${Date.now()}.${fileExt}`;
+            const filePath = `${sanitizedFolderName}/${fileName}`;
+
+            console.log('[VisualEditorPanel] Generated filePath:', filePath);
 
             // 2. Upload to Supabase Storage ('logos' bucket)
             const { error: uploadError } = await supabase.storage

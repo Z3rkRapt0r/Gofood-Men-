@@ -8,6 +8,8 @@ import QRCodeCard from '@/components/dashboard/QRCodeCard';
 import ActivationModal from '@/components/dashboard/ActivationModal';
 import toast from 'react-hot-toast';
 
+import MenuImportModal from '@/components/dashboard/MenuImportModal';
+
 interface Stats {
   totalDishes: number;
   totalCategories: number;
@@ -32,7 +34,9 @@ export default function DashboardOverview() {
   const [logoUrl, setLogoUrl] = useState<string>('');
   const [isFreeTier, setIsFreeTier] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
   // Handle payment success from Stripe
   useEffect(() => {
@@ -165,6 +169,14 @@ export default function DashboardOverview() {
           .select('*', { count: 'exact', head: true })
           .eq('tenant_id', currentTenantId);
 
+        // Fetch actual categories for Import Modal
+        const { data: categoriesData } = await supabase
+          .from('categories')
+          .select('id, name')
+          .eq('tenant_id', currentTenantId)
+          .order('display_order');
+        setCategories(categoriesData || []);
+
         // Get dishes count
         const { count: dishesCount } = await supabase
           .from('dishes')
@@ -208,6 +220,18 @@ export default function DashboardOverview() {
         isOpen={showActivationModal}
         onClose={() => setShowActivationModal(false)}
         restaurantName={restaurantName}
+      />
+
+      <MenuImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onSuccess={() => {
+          toast.success('Piatti importati con successo!');
+          // Reload stats
+          window.location.reload();
+        }}
+        tenantId={tenantId}
+        categories={categories}
       />
 
       {/* Header */}
@@ -283,6 +307,21 @@ export default function DashboardOverview() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
         <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Azioni Rapide</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          {/* AI Import Card */}
+          <div
+            onClick={() => setShowImportModal(true)}
+            className="cursor-pointer"
+          >
+            <ActionCard
+              title="Importa con AI ✨"
+              description="Carica una foto del menu cartaceo"
+              icon="🤖"
+              href="#"
+              color="orange"
+              preventLink
+            />
+          </div>
+
           <ActionCard
             title="Aggiungi Piatto"
             description="Crea un nuovo piatto nel menu"
@@ -371,7 +410,8 @@ function ActionCard({
   href,
   color,
   external,
-  disabled
+  disabled,
+  preventLink
 }: {
   title: string;
   description: string;
@@ -380,6 +420,7 @@ function ActionCard({
   color: string;
   external?: boolean;
   disabled?: boolean;
+  preventLink?: boolean;
 }) {
   const colors = {
     orange: 'hover:border-orange-300 hover:bg-orange-50',
@@ -402,7 +443,7 @@ function ActionCard({
     </div>
   );
 
-  if (disabled) {
+  if (disabled || preventLink) {
     return CardContent;
   }
 

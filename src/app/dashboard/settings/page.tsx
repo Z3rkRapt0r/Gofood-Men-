@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { FooterData, FooterLocation, FooterLink, FooterSocial } from '@/types/menu';
 import toast from 'react-hot-toast';
 
+
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
 
@@ -12,6 +13,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [tenantId, setTenantId] = useState('');
+
 
   const [formData, setFormData] = useState({
     restaurantName: '',
@@ -111,6 +113,8 @@ export default function SettingsPage() {
       setLoading(false);
     }
   }
+
+
 
 
 
@@ -587,6 +591,9 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+
+
+
 
         {/* Save Button */}
         <div className="flex items-center gap-3">

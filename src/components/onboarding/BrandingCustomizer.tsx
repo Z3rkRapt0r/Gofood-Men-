@@ -54,6 +54,13 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       return;
     }
 
+    // DEBUG: Verify slug is present and valid
+    console.log('[LOGO_UPLOAD] Current Slug:', formData.slug);
+    if (!formData.slug || formData.slug.trim() === '') {
+      alert('Attenzione: Lo slug non è stato generato correttamente via software. Riprova a scrivere il nome.');
+      return;
+    }
+
     setUploadingLogo(true);
 
     try {
@@ -61,6 +68,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       const fileExt = file.name.split('.').pop();
       const fileName = `logo-${Date.now()}.${fileExt}`;
       const filePath = `${formData.slug}/${fileName}`;
+      console.log('[LOGO_UPLOAD] Generated filePath:', filePath); // DEBUG LOG
 
       const { error: uploadError } = await supabase.storage
         .from('logos')
@@ -75,9 +83,10 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
         .getPublicUrl(filePath);
 
       onUpdate({ logo_url: data.publicUrl });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading logo:', err);
-      toast.error('Errore durante l\'upload del logo');
+      console.error('Error details:', err.message, err.details, err.hint);
+      toast.error('Errore durante l\'upload del logo: ' + (err.message || 'Errore sconosciuto'));
     } finally {
       setUploadingLogo(false);
     }

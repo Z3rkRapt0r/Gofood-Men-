@@ -51,9 +51,10 @@ interface BrandingDesignLabProps {
     onNext: (themeConfig?: any) => void;
     onBack: () => void;
     hideNavigation?: boolean;
+    tenantId?: string;
 }
 
-export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, hideNavigation }: BrandingDesignLabProps) {
+export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, hideNavigation, tenantId }: BrandingDesignLabProps) {
     const { currentTheme } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string>('antipasti');
     const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -114,6 +115,8 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                 <VisualEditorPanel
                     logoUrl={formData.logo_url}
                     slug={formData.slug}
+                    restaurantName={formData.restaurant_name}
+                    tenantId={tenantId}
                     onLogoChange={(url) => onUpdate({ logo_url: url })}
                 />
 

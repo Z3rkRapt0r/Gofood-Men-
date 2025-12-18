@@ -367,6 +367,7 @@ function OnboardingContent() {
               <ThemeProvider>
                 <BrandingDesignLab
                   formData={formData}
+                  tenantId={tenant?.id}
                   onUpdate={(updates) => setFormData({ ...formData, ...updates })}
                   onNext={handleNext}
                   onBack={handleLogout}
