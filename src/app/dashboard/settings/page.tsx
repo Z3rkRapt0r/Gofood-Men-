@@ -387,6 +387,7 @@ export default function SettingsPage() {
                   toast.success('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.', { duration: 5000 });
                 }}
                 onBack={() => { }}
+                hideNavigation={true}
               />
             </ThemeProvider>
           </div>

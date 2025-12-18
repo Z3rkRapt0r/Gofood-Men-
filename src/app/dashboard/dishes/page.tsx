@@ -70,6 +70,7 @@ function SortableDishCard({
   onDeleteImage,
   selected,
   onSelect,
+  isSelectionMode,
 }: {
   dish: Dish;
   category?: Category;
@@ -78,6 +79,7 @@ function SortableDishCard({
   onDeleteImage: (dish: Dish) => void;
   selected: boolean;
   onSelect: (id: string) => void;
+  isSelectionMode: boolean;
 }) {
   const {
     attributes,
@@ -105,30 +107,34 @@ function SortableDishCard({
       <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
         {/* Drag Handle & Content Wrapper */}
         <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
-          {/* Checkbox for Selection */}
-          <div className="mt-1 pt-1">
-            <input
-              type="checkbox"
-              checked={selected}
-              onChange={(e) => {
-                e.stopPropagation();
-                onSelect(dish.id);
-              }}
-              className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
-            />
-          </div>
+          {/* Checkbox for Selection - Only visible in Selection Mode */}
+          {isSelectionMode && (
+            <div className="mt-1 pt-1 transition-all duration-200">
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  onSelect(dish.id);
+                }}
+                className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+              />
+            </div>
+          )}
 
-          {/* Drag Handle Icon */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
-            title="Sposta"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-            </svg>
-          </div>
+          {/* Drag Handle Icon - Hidden in Selection Mode */}
+          {!isSelectionMode && (
+            <div
+              {...attributes}
+              {...listeners}
+              className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
+              title="Sposta"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+              </svg>
+            </div>
+          )}
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -218,7 +224,7 @@ function SortableDishCard({
         </div>
 
         {/* Actions */}
-        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:border-t-0 border-t border-gray-100">
           <button
             onClick={() => onEdit(dish)}
             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
@@ -259,6 +265,7 @@ export default function DishesPage() {
   const [tenantId, setTenantId] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   // ... (previous useEffects) ...
 
@@ -312,6 +319,7 @@ export default function DishesPage() {
 
                 toast.success(`${selectedDishes.size} piatti eliminati`);
                 setSelectedDishes(new Set());
+                setIsSelectionMode(false);
                 loadData();
               } catch (err) {
                 console.error('Error in bulk delete:', err);
@@ -796,6 +804,37 @@ export default function DishesPage() {
         </div>
         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto">
           <button
+            onClick={() => {
+              if (isSelectionMode) {
+                setIsSelectionMode(false);
+                setSelectedDishes(new Set());
+              } else {
+                setIsSelectionMode(true);
+              }
+            }}
+            className={`bg-white border-2 px-4 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm md:text-base ${isSelectionMode
+                ? 'border-gray-500 text-gray-700 hover:bg-gray-50'
+                : 'border-orange-500 text-orange-500 hover:bg-orange-50'
+              }`}
+          >
+            {isSelectionMode ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Annulla</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Seleziona</span>
+              </>
+            )}
+          </button>
+
+          <button
             onClick={() => setShowImportModal(true)}
             className="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm md:text-base"
           >
@@ -819,32 +858,34 @@ export default function DishesPage() {
         </div>
       </div>
 
-      {/* Selection Header */}
-      <div className="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={filteredDishes.length > 0 && selectedDishes.size === filteredDishes.length}
-            onChange={toggleSelectAll}
-            className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            {selectedDishes.size > 0 ? `${selectedDishes.size} selezionati` : 'Seleziona tutto'}
-          </span>
-        </div>
+      {/* Selection Header - Only visible when Selection Mode is active */}
+      {isSelectionMode && (
+        <div className="flex items-center justify-between mb-4 bg-orange-50 p-3 rounded-lg border border-orange-100 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={filteredDishes.length > 0 && selectedDishes.size === filteredDishes.length}
+              onChange={toggleSelectAll}
+              className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {selectedDishes.size > 0 ? `${selectedDishes.size} selezionati` : 'Seleziona tutto'}
+            </span>
+          </div>
 
-        {selectedDishes.size > 0 && (
-          <button
-            onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-bold hover:bg-red-200 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Elimina ({selectedDishes.size})
-          </button>
-        )}
-      </div>
+          {selectedDishes.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 transition-colors shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Elimina ({selectedDishes.size})
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Category filter */}
       <div className="flex items-center gap-2 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
@@ -1235,6 +1276,7 @@ export default function DishesPage() {
                     onDeleteImage={handleDeleteImage}
                     selected={selectedDishes.has(dish.id)}
                     onSelect={toggleSelection}
+                    isSelectionMode={isSelectionMode}
                   />
                 ))}
               </div>

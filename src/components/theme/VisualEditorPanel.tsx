@@ -86,7 +86,7 @@ export function VisualEditorPanel({ logoUrl, slug, onLogoChange }: VisualEditorP
     };
 
     return (
-        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl z-50 flex flex-col">
+        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl z-30 flex flex-col">
             <h2 className="text-2xl font-bold font-display text-gray-900 mb-6 shrink-0">Design Studio 🎨</h2>
 
             <div className="flex-1 space-y-10">
