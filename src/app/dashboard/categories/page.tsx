@@ -132,13 +132,13 @@ function SortableCategoryItem({
   );
 }
 
-import MenuImportModal from '@/components/dashboard/MenuImportModal';
+
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
+
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [tenantId, setTenantId] = useState('');
 
@@ -357,16 +357,6 @@ export default function CategoriesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <MenuImportModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onSuccess={() => {
-          toast.success('Menu importato con successo!');
-          loadCategories();
-        }}
-        tenantId={tenantId}
-        categories={categories}
-      />
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -378,12 +368,6 @@ export default function CategoriesPage() {
           </p>
         </div>
         <div className="w-full md:w-auto flex flex-col md:flex-row gap-3">
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="w-full md:w-auto bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-6 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
-          >
-            <span>✨ Importa con AI</span>
-          </button>
           <button
             onClick={() => {
               setEditingCategory(null);
@@ -521,12 +505,6 @@ export default function CategoriesPage() {
             Inizia creando la tua prima categoria per organizzare il menu
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2 justify-center"
-            >
-              <span>✨ Importa da Foto</span>
-            </button>
             <button
               onClick={() => setShowForm(true)}
               className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2"

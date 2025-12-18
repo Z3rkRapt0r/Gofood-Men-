@@ -309,7 +309,13 @@ export default function DashboardOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {/* AI Import Card */}
           <div
-            onClick={() => setShowImportModal(true)}
+            onClick={() => {
+              if (stats.totalCategories > 0) {
+                setShowImportModal(true);
+              } else {
+                toast.error('Devi creare almeno una categoria prima di importare i piatti!');
+              }
+            }}
             className="cursor-pointer"
           >
             <ActionCard
