@@ -509,7 +509,90 @@ export default function DishesPage() {
     }
   }
 
-  // ... (drag and drop logic remains unchanged) ...
+  // ------------------------------------------------------------------
+  // Drag and Drop Logic
+  // ------------------------------------------------------------------
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const filteredList = selectedCategory === 'all'
+        ? dishes
+        : dishes.filter(d => d.category_id === selectedCategory);
+
+      const oldIndex = filteredList.findIndex((item) => item.id === active.id);
+      const newIndex = filteredList.findIndex((item) => item.id === over?.id);
+
+      const newFilteredList = arrayMove(filteredList, oldIndex, newIndex);
+
+      // Fix: Handle cases where multiple items have the same display_order (e.g. default 0)
+      // We find the starting point (min order) and distribute sequentially from there.
+      // If all orders are 0, we start from 0.
+      const existingOrders = filteredList.map(d => d.display_order);
+      const minOrder = existingOrders.length > 0 ? Math.min(...existingOrders) : 0;
+
+      const itemsWithUpdatedOrder = newFilteredList.map((item, idx) => ({
+        ...item,
+        display_order: minOrder + idx // Ensure sequential unique orders within this view
+      }));
+
+      // Update global state
+      setDishes(prev => {
+        // Create a map of updates
+        const updateMap = new Map(itemsWithUpdatedOrder.map(i => [i.id, i.display_order]));
+
+        const next = prev.map(d => {
+          if (updateMap.has(d.id)) {
+            return { ...d, display_order: updateMap.get(d.id)! };
+          }
+          return d;
+        });
+
+        // Keep them sorted by order for consistency
+        return next.sort((a, b) => a.display_order - b.display_order);
+      });
+
+      // Update DB
+      updateDishesOrder(itemsWithUpdatedOrder);
+    }
+  }
+
+  async function updateDishesOrder(items: Dish[]) {
+    try {
+      const supabase = createClient();
+
+      const upsertData = items.map((item) => ({
+        id: item.id,
+        tenant_id: item.tenant_id,
+        name: item.name,
+        category_id: item.category_id,
+        price: item.price,
+        slug: item.slug,
+        description: item.description,
+        is_visible: item.is_visible,
+        is_seasonal: item.is_seasonal,
+        is_vegetarian: item.is_vegetarian,
+        is_vegan: item.is_vegan,
+        is_gluten_free: item.is_gluten_free,
+        is_homemade: item.is_homemade,
+        is_frozen: item.is_frozen,
+        display_order: item.display_order,
+        allergen_ids: item.allergen_ids,
+        image_url: item.image_url,
+      }));
+
+      const { error } = await supabase
+        .from('dishes')
+        // @ts-ignore
+        .upsert(upsertData, { onConflict: 'id' });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating order:', err);
+      toast.error('Errore nel salvataggio dell\'ordine');
+      loadData(); // Revert on error
+    }
+  }
 
   // ------------------------------------------------------------------
   // Form Submission
