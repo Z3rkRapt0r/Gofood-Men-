@@ -29,7 +29,70 @@ export async function deleteAccount() {
     console.log(`[DELETE_ACCOUNT] (v3) Attempting to delete user ${user.id}`);
 
     try {
-        // 1. Manually delete the tenant first to ensure data cleanup and avoid FK constraints
+        // 1. Fetch tenant info for storage cleanup
+        const { data: tenant } = await supabaseAdmin
+            .from('tenants')
+            .select('id, restaurant_name')
+            .eq('owner_id', user.id)
+            .single();
+
+        if (tenant) {
+            console.log(`[DELETE_ACCOUNT] Found tenant ${tenant.id}, starting storage cleanup...`);
+
+            // Construct folder name: restaurant-name-id
+            const baseName = tenant.restaurant_name
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'temp-uploads';
+
+            const folderPath = `${baseName}-${tenant.id}`;
+
+            // Clean 'logos' bucket
+            try {
+                const { data: logoFiles } = await supabaseAdmin.storage
+                    .from('logos')
+                    .list(folderPath);
+
+                if (logoFiles && logoFiles.length > 0) {
+                    const filesToRemove = logoFiles.map(f => `${folderPath}/${f.name}`);
+                    await supabaseAdmin.storage.from('logos').remove(filesToRemove);
+                    console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from logos/${folderPath}`);
+                }
+            } catch (storageErr) {
+                console.warn('[DELETE_ACCOUNT] Error cleaning logos:', storageErr);
+            }
+
+            // Clean 'dishes' bucket
+            try {
+                // Dishes has nested structure: folderPath/dishes/filename
+                // First list the main folder
+                // Note: 'list' is shallow. If dishes are in subfolder 'dishes', we need to check that.
+                // Our structure: prefix/dishes/file.png
+
+                // Warning: list() might not show subfolders correctly depending on implementation.
+                // But generally: list(folderPath) should return 'dishes' as a folder logic?
+                // Actually, standard list returns objects in that prefix.
+                // Let's list deep? No, supabase list doesn't recurse easily.
+                // But we know structure: ${folderPath}/dishes
+
+                const dishesSubfolder = `${folderPath}/dishes`;
+                const { data: dishFiles } = await supabaseAdmin.storage
+                    .from('dishes')
+                    .list(dishesSubfolder);
+
+                if (dishFiles && dishFiles.length > 0) {
+                    const filesToRemove = dishFiles.map(f => `${dishesSubfolder}/${f.name}`);
+                    await supabaseAdmin.storage.from('dishes').remove(filesToRemove);
+                    console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from dishes/${dishesSubfolder}`);
+                }
+            } catch (storageErr) {
+                console.warn('[DELETE_ACCOUNT] Error cleaning dishes:', storageErr);
+            }
+        }
+
+        // 2. Manually delete the tenant first to ensure data cleanup and avoid FK constraints
         // This assumes 1:1 relationship or similar. 
         // We use supabaseAdmin to bypass RLS if needed, although user should be owner.
         const { error: tenantDeleteError } = await supabaseAdmin
@@ -44,7 +107,7 @@ export async function deleteAccount() {
 
         console.log(`[DELETE_ACCOUNT] Tenant data for user ${user.id} deleted successfully`);
 
-        // 2. Delete user from auth.users
+        // 3. Delete user from auth.users
         const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
             user.id
         );
