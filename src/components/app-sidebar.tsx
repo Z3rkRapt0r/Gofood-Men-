@@ -27,11 +27,13 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarSeparator,
+    useSidebar,
 } from '@/components/ui/sidebar';
 
 export function AppSidebar({ tenant }: { tenant: Tenant }) {
     const pathname = usePathname();
     const router = useRouter();
+    const { setOpenMobile, isMobile } = useSidebar();
 
     async function handleLogout() {
         const supabase = createClient();
@@ -94,11 +96,19 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
                                         asChild
                                         isActive={pathname === item.url}
                                         className={`h-10 transition-all ${pathname === item.url
-                                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700 font-bold'
-                                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                            ? 'bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700 font-bold'
+                                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                                             }`}
                                     >
-                                        <Link href={item.url} className="flex items-center gap-3">
+                                        <Link
+                                            href={item.url}
+                                            className="flex items-center gap-3"
+                                            onClick={() => {
+                                                if (isMobile) {
+                                                    setOpenMobile(false);
+                                                }
+                                            }}
+                                        >
                                             <item.icon className="w-5 h-5" />
                                             <span>{item.title}</span>
                                         </Link>
