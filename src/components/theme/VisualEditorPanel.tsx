@@ -5,6 +5,14 @@ import { useTheme } from './ThemeContext';
 import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
+import { ChevronsUpDown, ChevronDown } from 'lucide-react';
+
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
@@ -33,6 +41,13 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
+
+    // State for collapsibles
+    const [isOpenBrand, setIsOpenBrand] = useState(true);
+    const [isOpenSurface, setIsOpenSurface] = useState(false);
+    const [isOpenTypography, setIsOpenTypography] = useState(false);
+    const [isOpenStyle, setIsOpenStyle] = useState(false);
+
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -108,7 +123,7 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
     };
 
     return (
-        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl z-30 flex flex-col">
+        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl flex flex-col">
 
 
             <div className="flex-1 space-y-10">
@@ -209,163 +224,204 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
 
                 <hr className="border-gray-100" />
 
-                {/* 2. COLORS */}
+                {/* 2. COLORS & IDENTITY */}
                 <div>
                     <h3 className="section-title mb-4">Colori & Identità</h3>
 
-                    <div className="space-y-6">
-                        {/* Brand */}
-                        <div className="bg-gray-50 p-4 rounded-xl space-y-4">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Brand Principal</span>
-                            <div className="grid grid-cols-1 gap-4">
-                                <ColorPicker
-                                    label="Principale"
-                                    description="Titoli categorie e pulsanti"
-                                    value={currentTheme.colors.primary}
-                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, primary: val } })}
-                                />
-                                <ColorPicker
-                                    label="Secondario"
-                                    description="Dettagli e decorazioni"
-                                    value={currentTheme.colors.secondary}
-                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, secondary: val } })}
-                                />
-                                <ColorPicker
-                                    label="Accento"
-                                    description="Allergeni e info"
-                                    value={currentTheme.colors.accent}
-                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, accent: val } })}
-                                />
-                            </div>
-                        </div>
+                    <div className="space-y-4">
+                        {/* Brand Principal - Collapsible */}
+                        <Collapsible
+                            open={isOpenBrand}
+                            onOpenChange={setIsOpenBrand}
+                            className="w-full space-y-2"
+                        >
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Brand Principal</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenBrand ? "" : "-rotate-90"}`} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <ColorPicker
+                                            label="Principale"
+                                            description="Titoli categorie e pulsanti"
+                                            value={currentTheme.colors.primary}
+                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, primary: val } })}
+                                        />
+                                        <ColorPicker
+                                            label="Secondario"
+                                            description="Dettagli e decorazioni"
+                                            value={currentTheme.colors.secondary}
+                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, secondary: val } })}
+                                        />
+                                        <ColorPicker
+                                            label="Accento"
+                                            description="Allergeni e info"
+                                            value={currentTheme.colors.accent}
+                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, accent: val } })}
+                                        />
+                                    </div>
+                                </div>
+                            </CollapsibleContent>
+                        </Collapsible>
 
-                        {/* Surface */}
-                        <div className="bg-gray-50 p-4 rounded-xl space-y-4">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Superfici & Bordi</span>
-                            <ColorPicker
-                                label="Sfondo Menu"
-                                description="Colore di fondo generale"
-                                value={currentTheme.colors.background}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, background: val } })}
-                            />
-                            <ColorPicker
-                                label="Superficie Piatti"
-                                description="Sfondo delle card dei piatti"
-                                value={currentTheme.colors.surface}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, surface: val } })}
-                            />
-                            <ColorPicker
-                                label="Divisori & Cornici"
-                                description="Linee di separazione"
-                                value={currentTheme.colors.border || '#e5e7eb'}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, border: val } })}
-                            />
-                        </div>
+                        {/* Surfaces & Borders - Collapsible */}
+                        <Collapsible
+                            open={isOpenSurface}
+                            onOpenChange={setIsOpenSurface}
+                            className="w-full space-y-2"
+                        >
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Superfici & Bordi</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenSurface ? "" : "-rotate-90"}`} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                    <ColorPicker
+                                        label="Sfondo Menu"
+                                        description="Colore di fondo generale"
+                                        value={currentTheme.colors.background}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, background: val } })}
+                                    />
+                                    <ColorPicker
+                                        label="Superficie Piatti"
+                                        description="Sfondo delle card dei piatti"
+                                        value={currentTheme.colors.surface}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, surface: val } })}
+                                    />
+                                    <ColorPicker
+                                        label="Divisori & Cornici"
+                                        description="Linee di separazione"
+                                        value={currentTheme.colors.border || '#e5e7eb'}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, border: val } })}
+                                    />
+                                </div>
+                            </CollapsibleContent>
+                        </Collapsible>
 
-                        {/* Typography */}
-                        <div className="bg-gray-50 p-4 rounded-xl space-y-4">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tipografia</span>
-                            <ColorPicker
-                                label="Titoli Piatti"
-                                description="Colore nome del piatto"
-                                value={currentTheme.colors.text}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, text: val } })}
-                            />
-                            <ColorPicker
-                                label="Descrizioni"
-                                description="Ingredienti e dettagli"
-                                value={currentTheme.colors.textSecondary || '#6b7280'}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, textSecondary: val } })}
-                            />
-                            <ColorPicker
-                                label="Prezzi"
-                                description="Evidenza del prezzo"
-                                value={currentTheme.colors.price || '#000000'}
-                                onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, price: val } })}
-                            />
-                        </div>
-                    </div>
-                </div>
+                        {/* Typography - Collapsible */}
+                        <Collapsible
+                            open={isOpenTypography}
+                            onOpenChange={setIsOpenTypography}
+                            className="w-full space-y-2"
+                        >
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Tipografia</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenTypography ? "" : "-rotate-90"}`} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                    <ColorPicker
+                                        label="Titoli Piatti"
+                                        description="Colore nome del piatto"
+                                        value={currentTheme.colors.text}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, text: val } })}
+                                    />
+                                    <ColorPicker
+                                        label="Descrizioni"
+                                        description="Ingredienti e dettagli"
+                                        value={currentTheme.colors.textSecondary || '#6b7280'}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, textSecondary: val } })}
+                                    />
+                                    <ColorPicker
+                                        label="Prezzi"
+                                        description="Evidenza del prezzo"
+                                        value={currentTheme.colors.price || '#000000'}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, price: val } })}
+                                    />
+                                </div>
+                            </CollapsibleContent>
+                        </Collapsible>
 
-                <hr className="border-gray-100" />
+                        {/* Style & Finishes - Collapsible (Merged here as per user request to be part of the flow) */}
+                        <Collapsible
+                            open={isOpenStyle}
+                            onOpenChange={setIsOpenStyle}
+                            className="w-full space-y-2 border-t pt-4"
+                        >
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                    <span className="text-xs font-bold font-display uppercase tracking-wider text-gray-900 group-hover:text-orange-600">Stile & Finiture (Avanzato)</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenStyle ? "" : "-rotate-90"}`} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="space-y-6 mt-4 pl-2">
+                                    {/* Fonts */}
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Titoli (Intestazioni)</label>
+                                            <select
+                                                value={currentTheme.fontHeading}
+                                                onChange={(e) => updateTheme({ fontHeading: e.target.value })}
+                                                className="styled-select"
+                                                style={{ fontFamily: currentTheme.fontHeading }}
+                                            >
+                                                {FONT_OPTIONS.map(f => (
+                                                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Testo (Corpo)</label>
+                                            <select
+                                                value={currentTheme.fontBody}
+                                                onChange={(e) => updateTheme({ fontBody: e.target.value })}
+                                                className="styled-select"
+                                                style={{ fontFamily: currentTheme.fontBody }}
+                                            >
+                                                {FONT_OPTIONS.map(f => (
+                                                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
 
-                {/* 3. TYPOGRAPHY & STYLE */}
-                <div>
-                    <h3 className="section-title mb-4">Stile & Finiture</h3>
-                    <div className="space-y-6">
+                                    {/* Frame */}
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Cornice Esterna</label>
+                                        <select
+                                            value={currentTheme.frame}
+                                            onChange={(e) => updateTheme({ frame: e.target.value as FrameStyle })}
+                                            className="styled-select"
+                                        >
+                                            <option value="none">Nessuna</option>
+                                            <option value="simple">Semplice</option>
+                                            <option value="double">Doppia Linea</option>
+                                            <option value="elegant">Elegante</option>
+                                            <option value="wooden">Legno Rustico</option>
+                                            <option value="gold-leaf">Fogliolina Oro</option>
+                                            <option value="minimal">Minimal</option>
+                                        </select>
+                                    </div>
 
-
-
-
-
-                        {/* Fonts */}
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Titoli (Intestazioni)</label>
-                                <select
-                                    value={currentTheme.fontHeading}
-                                    onChange={(e) => updateTheme({ fontHeading: e.target.value })}
-                                    className="styled-select"
-                                    style={{ fontFamily: currentTheme.fontHeading }}
-                                >
-                                    {FONT_OPTIONS.map(f => (
-                                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Testo (Corpo)</label>
-                                <select
-                                    value={currentTheme.fontBody}
-                                    onChange={(e) => updateTheme({ fontBody: e.target.value })}
-                                    className="styled-select"
-                                    style={{ fontFamily: currentTheme.fontBody }}
-                                >
-                                    {FONT_OPTIONS.map(f => (
-                                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Frame */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Cornice Esterna</label>
-                            <select
-                                value={currentTheme.frame}
-                                onChange={(e) => updateTheme({ frame: e.target.value as FrameStyle })}
-                                className="styled-select"
-                            >
-                                <option value="none">Nessuna</option>
-                                <option value="simple">Semplice</option>
-                                <option value="double">Doppia Linea</option>
-                                <option value="elegant">Elegante</option>
-                                <option value="wooden">Legno Rustico</option>
-                                <option value="gold-leaf">Fogliolina Oro</option>
-                                <option value="minimal">Minimal</option>
-                            </select>
-                        </div>
-
-
-
-                        {/* Dividers */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>
-                            <select
-                                value={currentTheme.dividerStyle || 'solid'}
-                                onChange={(e) => updateTheme({ dividerStyle: e.target.value as DividerStyle })}
-                                className="styled-select"
-                            >
-                                <option value="solid">Linea Solida</option>
-                                <option value="dashed">Tratteggiata</option>
-                                <option value="dotted">Puntini</option>
-                                <option value="double">Doppia Linea</option>
-                                <option value="groove">Incisa</option>
-                                <option value="wavy">Ondulata (Wavy)</option>
-                                <option value="slash">Obliquo (Street)</option>
-                                <option value="filigree">Ornamentale</option>
-                            </select>
-                        </div>
+                                    {/* Dividers */}
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>
+                                        <select
+                                            value={currentTheme.dividerStyle || 'solid'}
+                                            onChange={(e) => updateTheme({ dividerStyle: e.target.value as DividerStyle })}
+                                            className="styled-select"
+                                        >
+                                            <option value="solid">Linea Solida</option>
+                                            <option value="dashed">Tratteggiata</option>
+                                            <option value="dotted">Puntini</option>
+                                            <option value="double">Doppia Linea</option>
+                                            <option value="groove">Incisa</option>
+                                            <option value="wavy">Ondulata (Wavy)</option>
+                                            <option value="slash">Obliquo (Street)</option>
+                                            <option value="filigree">Ornamentale</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </CollapsibleContent>
+                        </Collapsible>
                     </div>
                 </div>
 

@@ -7,7 +7,17 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, Trash2 } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
 
 export default function AccountPage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -29,6 +39,12 @@ export default function AccountPage() {
         slug: '',
         contactEmail: '',
         coverCharge: 0,
+        footerData: {
+            locations: [] as FooterLocation[],
+            socials: [] as FooterSocial[],
+            show_brand_column: true,
+            brand_description: { it: '', en: '' }
+        } as FooterData,
     });
 
     useEffect(() => {
@@ -42,20 +58,40 @@ export default function AccountPage() {
 
             if (!user) return;
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { data: tenant, error } = await (supabase.from('tenants') as any)
-                .select('*')
+                .select('*, tenant_locations(*)')
                 .eq('owner_id', user.id)
                 .single();
 
             if (error || !tenant) return;
 
             setTenantId(tenant.id);
+
+            // Map tenant_locations to FooterLocation format for UI
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const dbLocations = tenant.tenant_locations || [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const uiLocations: FooterLocation[] = dbLocations.map((l: any) => ({
+                city: l.city,
+                address: l.address,
+                phone: l.phone || '',
+                opening_hours: l.opening_hours || ''
+            }));
+
             setFormData({
                 restaurantName: tenant.restaurant_name || '',
                 tagline: tenant.tagline || '',
                 slug: tenant.slug || '',
                 contactEmail: tenant.contact_email || '',
                 coverCharge: tenant.cover_charge || 0,
+                footerData: {
+                    ...(tenant.footer_data || {
+                        socials: [],
+                        show_brand_column: true,
+                    }),
+                    locations: uiLocations,
+                },
             });
         } catch (err) {
             console.error('Error loading account data:', err);
@@ -71,20 +107,55 @@ export default function AccountPage() {
         const supabase = createClient();
 
         try {
-            const { error } = await (supabase.from('tenants') as any)
+            // 1. Update Tenant Info
+            const { error: tenantError } = await (supabase.from('tenants') as any)
                 .update({
                     restaurant_name: formData.restaurantName,
                     tagline: formData.tagline,
                     slug: formData.slug.trim() === '' ? null : formData.slug,
                     contact_email: formData.contactEmail,
                     cover_charge: formData.coverCharge,
+                    footer_data: {
+                        ...formData.footerData,
+                        locations: [] // We don't store locations in the JSON column anymore, but keep structure for UI consistency if needed elsewhere
+                    }
                 })
                 .eq('id', tenantId);
 
-            if (error) {
-                console.error('Supabase update error:', error);
-                throw new Error(error.message || 'Errore sconosciuto durante l\'aggiornamento');
+            if (tenantError) {
+                console.error('Supabase update error:', tenantError);
+                throw new Error(tenantError.message || 'Errore sconosciuto durante l\'aggiornamento');
             }
+
+            // 2. Update Locations (Delete Old -> Insert New)
+            // Delete old
+            const { error: deleteError } = await (supabase.from('tenant_locations') as any)
+                .delete()
+                .eq('tenant_id', tenantId);
+
+            if (deleteError) {
+                throw new Error(`Locations Delete Error: ${deleteError.message}`);
+            }
+
+            // Insert new
+            const locationsToInsert = formData.footerData.locations.map((loc, idx) => ({
+                tenant_id: tenantId,
+                city: loc.city,
+                address: loc.address,
+                phone: loc.phone || null,
+                opening_hours: loc.opening_hours || null,
+                is_primary: idx === 0
+            }));
+
+            if (locationsToInsert.length > 0) {
+                const { error: insertError } = await (supabase.from('tenant_locations') as any)
+                    .insert(locationsToInsert);
+
+                if (insertError) {
+                    throw new Error(`Locations Insert Error: ${insertError.message}`);
+                }
+            }
+
             toast.success('Informazioni salvate con successo!');
         } catch (err: any) {
             console.error('Error saving account data:', err);
@@ -102,7 +173,6 @@ export default function AccountPage() {
         setIsDeleting(true);
         try {
             await deleteAccount();
-            // Redirect manually since the server action now returns instead of throwing redirect
             window.location.href = '/';
         } catch (error) {
             console.error('Error deleting account:', error);
@@ -225,6 +295,207 @@ export default function AccountPage() {
                                     </p>
                                 </div>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Footer Customization (Moved from Design Studio) */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Personalizzazione Footer</CardTitle>
+                            <CardDescription>Gestisci le informazioni visualizzate nel footer del tuo menu digitale.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+
+                            {/* Brand Description */}
+                            <div className="space-y-2">
+                                <Label htmlFor="brand-desc">Descrizione Brand</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Questa descrizione apparirà nel footer sotto il logo.
+                                </p>
+                                <Textarea
+                                    id="brand-desc"
+                                    value={formData.footerData.brand_description?.it || ''}
+                                    onChange={(e) => setFormData({
+                                        ...formData,
+                                        footerData: {
+                                            ...formData.footerData,
+                                            brand_description: {
+                                                ...formData.footerData.brand_description,
+                                                it: e.target.value,
+                                                en: e.target.value
+                                            }
+                                        }
+                                    })}
+                                    placeholder="Scopri i nostri piatti e le nostre specialità..."
+                                    className="resize-none h-24"
+                                />
+                            </div>
+
+                            {/* Locations */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base">Sedi</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({
+                                            ...formData,
+                                            footerData: {
+                                                ...formData.footerData,
+                                                locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
+                                            }
+                                        })}
+                                        className="gap-2"
+                                    >
+                                        <Plus className="w-4 h-4" /> Aggiungi Sede
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {formData.footerData.locations.map((loc, index) => (
+                                        <Card key={index} className="bg-muted/30">
+                                            <CardContent className="p-4 flex gap-3 items-start">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                                                    <Input
+                                                        placeholder="Città"
+                                                        value={loc.city}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].city = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        placeholder="Indirizzo"
+                                                        value={loc.address}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].address = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        placeholder="Telefono (opzionale)"
+                                                        value={loc.phone || ''}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].phone = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        placeholder="Orari (es. Lun-Dom: 12-23)"
+                                                        value={loc.opening_hours || ''}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].opening_hours = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                    }}
+                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                    {formData.footerData.locations.length === 0 && (
+                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                            Nessuna sede aggiunta.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Socials */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base">Social Network</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({
+                                            ...formData,
+                                            footerData: {
+                                                ...formData.footerData,
+                                                socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
+                                            }
+                                        })}
+                                        className="gap-2"
+                                    >
+                                        <Plus className="w-4 h-4" /> Aggiungi Social
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {formData.footerData.socials.map((social, index) => (
+                                        <div key={index} className="flex gap-3 items-start">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                                                <Select
+                                                    value={social.platform}
+                                                    onValueChange={(value) => {
+                                                        const newSocials = [...formData.footerData.socials];
+                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        newSocials[index].platform = value as any;
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                    }}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Social" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="facebook">Facebook</SelectItem>
+                                                        <SelectItem value="instagram">Instagram</SelectItem>
+                                                        <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                                                        <SelectItem value="website">Sito Web</SelectItem>
+                                                        <SelectItem value="other">Altro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+
+                                                <Input
+                                                    className="md:col-span-2"
+                                                    placeholder="URL Profilo"
+                                                    value={social.url}
+                                                    onChange={(e) => {
+                                                        const newSocials = [...formData.footerData.socials];
+                                                        newSocials[index].url = e.target.value;
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                    }}
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                    const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
+                                                    setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                }}
+                                                className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {formData.footerData.socials.length === 0 && (
+                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                            Nessun social aggiunto.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
                         </CardContent>
                     </Card>
 

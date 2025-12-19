@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import CategoryNav from '@/components/CategoryNav';
 import DishCard from '@/components/DishCard';
 import Footer from '@/components/Footer';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Use same MOCK DATA as DesignLab for consistency
 const MOCK_CATEGORIES = [
@@ -100,21 +101,24 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
 
     return (
         <div className="flex flex-col md:flex-row h-full bg-white font-sans overflow-hidden relative">
-
-            {/* Mobile Tabs */}
-            <div className="md:hidden flex h-12 shrink-0 border-b border-gray-200">
-                <button
-                    onClick={() => setMobileTab('editor')}
-                    className={`flex-1 text-sm font-bold transition-colors ${mobileTab === 'editor' ? 'bg-white text-orange-600 border-b-2 border-orange-500' : 'bg-gray-50 text-gray-500'}`}
-                >
-                    🎨 Editor
-                </button>
-                <button
-                    onClick={() => setMobileTab('preview')}
-                    className={`flex-1 text-sm font-bold transition-colors ${mobileTab === 'preview' ? 'bg-white text-orange-600 border-b-2 border-orange-500' : 'bg-gray-50 text-gray-500'}`}
-                >
-                    📱 Anteprima
-                </button>
+            {/* Mobile Tabs - Shadcn UI */}
+            <div className="md:hidden p-2 border-b border-gray-100 bg-white z-20 sticky top-0">
+                <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as 'editor' | 'preview')} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 h-10 bg-gray-100/80">
+                        <TabsTrigger
+                            value="editor"
+                            className="text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                        >
+                            🎨 Editor
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="preview"
+                            className="text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                        >
+                            📱 Anteprima
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </div>
 
             {/* Left Panel: Editor */}
@@ -129,7 +133,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
 
                 {/* Navigation Buttons embedded in the sidebar for better UX */}
                 {!hideNavigation && (
-                    <div className="p-4 border-t border-gray-200 bg-white flex flex-col gap-3 shrink-0 z-30">
+                    <div className="p-4 border-t border-gray-200 bg-white flex flex-col gap-3 shrink-0">
                         <div className="flex items-start gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
                             <span className="text-sm md:text-base">💡</span>
                             <p className="text-xs text-blue-700 leading-relaxed">
@@ -171,7 +175,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                 {/* Canvas */}
                 <div className="flex-1 overflow-hidden md:overflow-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
                     <div
-                        className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl z-10 overflow-y-auto scrollbar-hide md:border md:border-gray-200"
+                        className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl overflow-y-auto scrollbar-hide md:border md:border-gray-200"
                     >
 
                         <ThemeWrapper>

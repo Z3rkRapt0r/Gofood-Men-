@@ -4,22 +4,12 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
 import toast from 'react-hot-toast';
-import { Loader2, Plus, Trash2, Save } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -129,10 +119,6 @@ export default function SettingsPage() {
       const { error: tenantError } = await (supabase.from('tenants') as any)
         .update({
           logo_url: formData.logoUrl,
-          footer_data: {
-            ...formData.footerData,
-            locations: []
-          }
         })
         .eq('id', tenantId);
 
@@ -140,36 +126,7 @@ export default function SettingsPage() {
         throw new Error(`Tenant Update Error: ${tenantError.message || JSON.stringify(tenantError)}`);
       }
 
-      // 2. Update Locations
-      // Delete old
-      const { error: deleteError } = await (supabase.from('tenant_locations') as any)
-        .delete()
-        .eq('tenant_id', tenantId);
-
-      if (deleteError) {
-        throw new Error(`Locations Delete Error: ${deleteError.message || JSON.stringify(deleteError)}`);
-      }
-
-      // Insert new
-      const locationsToInsert = formData.footerData.locations.map((loc, idx) => ({
-        tenant_id: tenantId,
-        city: loc.city,
-        address: loc.address,
-        phone: loc.phone || null,
-        opening_hours: loc.opening_hours || null,
-        is_primary: idx === 0
-      }));
-
-      if (locationsToInsert.length > 0) {
-        const { error: insertError } = await (supabase.from('tenant_locations') as any)
-          .insert(locationsToInsert);
-
-        if (insertError) {
-          throw new Error(`Locations Insert Error: ${insertError.message || JSON.stringify(insertError)}`);
-        }
-      }
-
-      // 3. Update Design Settings
+      // 2. Update Design Settings
       if (formData.themeOptions) {
         const { error: designError } = await (supabase.from('tenant_design_settings') as any)
           .upsert({
@@ -266,209 +223,8 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Footer Customization */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Personalizzazione Footer</CardTitle>
-            <CardDescription>Gestisci le informazioni visualizzate nel footer del tuo menu digitale.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-
-            {/* Brand Description */}
-            <div className="space-y-2">
-              <Label htmlFor="brand-desc">Descrizione Brand</Label>
-              <p className="text-xs text-muted-foreground">
-                Questa descrizione apparirà nel footer sotto il logo.
-              </p>
-              <Textarea
-                id="brand-desc"
-                value={formData.footerData.brand_description?.it || ''}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  footerData: {
-                    ...formData.footerData,
-                    brand_description: {
-                      ...formData.footerData.brand_description,
-                      it: e.target.value,
-                      en: e.target.value
-                    }
-                  }
-                })}
-                placeholder="Scopri i nostri piatti e le nostre specialità..."
-                className="resize-none h-24"
-              />
-            </div>
-
-            {/* Locations */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-base">Sedi</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFormData({
-                    ...formData,
-                    footerData: {
-                      ...formData.footerData,
-                      locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
-                    }
-                  })}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" /> Aggiungi Sede
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {formData.footerData.locations.map((loc, index) => (
-                  <Card key={index} className="bg-muted/30">
-                    <CardContent className="p-4 flex gap-3 items-start">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                        <Input
-                          placeholder="Città"
-                          value={loc.city}
-                          onChange={(e) => {
-                            const newLocs = [...formData.footerData.locations];
-                            newLocs[index].city = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                          }}
-                        />
-                        <Input
-                          placeholder="Indirizzo"
-                          value={loc.address}
-                          onChange={(e) => {
-                            const newLocs = [...formData.footerData.locations];
-                            newLocs[index].address = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                          }}
-                        />
-                        <Input
-                          placeholder="Telefono (opzionale)"
-                          value={loc.phone || ''}
-                          onChange={(e) => {
-                            const newLocs = [...formData.footerData.locations];
-                            newLocs[index].phone = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                          }}
-                        />
-                        <Input
-                          placeholder="Orari (es. Lun-Dom: 12-23)"
-                          value={loc.opening_hours || ''}
-                          onChange={(e) => {
-                            const newLocs = [...formData.footerData.locations];
-                            newLocs[index].opening_hours = e.target.value;
-                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                          }}
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
-                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                        }}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-                {formData.footerData.locations.length === 0 && (
-                  <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                    Nessuna sede aggiunta.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Socials */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-base">Social Network</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFormData({
-                    ...formData,
-                    footerData: {
-                      ...formData.footerData,
-                      socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
-                    }
-                  })}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" /> Aggiungi Social
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {formData.footerData.socials.map((social, index) => (
-                  <div key={index} className="flex gap-3 items-start">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
-                      <Select
-                        value={social.platform}
-                        onValueChange={(value) => {
-                          const newSocials = [...formData.footerData.socials];
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          newSocials[index].platform = value as any;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Social" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="facebook">Facebook</SelectItem>
-                          <SelectItem value="instagram">Instagram</SelectItem>
-                          <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-                          <SelectItem value="website">Sito Web</SelectItem>
-                          <SelectItem value="other">Altro</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <Input
-                        className="md:col-span-2"
-                        placeholder="URL Profilo"
-                        value={social.url}
-                        onChange={(e) => {
-                          const newSocials = [...formData.footerData.socials];
-                          newSocials[index].url = e.target.value;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                        }}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
-                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                      }}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-                {formData.footerData.socials.length === 0 && (
-                  <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                    Nessun social aggiunto.
-                  </p>
-                )}
-              </div>
-            </div>
-
-          </CardContent>
-        </Card>
-
         {/* Save Button */}
-        <div className="flex justify-end pt-4">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-sm border-t border-gray-200 z-40 md:static md:bg-transparent md:border-0 md:p-0 md:pt-4 md:flex md:justify-end">
           <Button
             type="submit"
             disabled={saving}
@@ -488,6 +244,8 @@ export default function SettingsPage() {
             )}
           </Button>
         </div>
+        {/* Spacer for mobile sticky button */}
+        <div className="h-20 md:hidden"></div>
       </form>
     </div>
   );
