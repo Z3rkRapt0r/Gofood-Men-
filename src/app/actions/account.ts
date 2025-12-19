@@ -131,6 +131,6 @@ export async function deleteAccount() {
         console.warn('[DELETE_ACCOUNT] SignOut failed (expected since user is deleted):', e);
     }
 
-    // 3. Redirect to home
-    redirect('/');
+    // 3. Return success signal. Client will handle redirect.
+    return { success: true };
 }

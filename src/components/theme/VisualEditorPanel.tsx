@@ -44,9 +44,6 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
         }
 
         try {
-            // DEBUG: Check restaurantName before upload
-            console.log('[VisualEditorPanel] Uploading logo. Restaurant Name:', restaurantName);
-
             if (!restaurantName) {
                 toast.error('Inserisci prima il nome del ristorante');
                 return;
@@ -77,7 +74,6 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
 
             if (existingFiles && existingFiles.length > 0) {
                 const filesToRemove = existingFiles.map(x => `${sanitizedFolderName}/${x.name}`);
-                console.log('[VisualEditorPanel] Removing old logos:', filesToRemove);
                 await supabase.storage
                     .from('logos')
                     .remove(filesToRemove);
@@ -87,8 +83,6 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
             const fileExt = file.name.split('.').pop();
             const fileName = `logo-${Date.now()}.${fileExt}`;
             const filePath = `${sanitizedFolderName}/${fileName}`;
-
-            console.log('[VisualEditorPanel] Generated filePath:', filePath);
 
             // 2. Upload to Supabase Storage ('logos' bucket)
             const { error: uploadError } = await supabase.storage

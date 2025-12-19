@@ -17,9 +17,7 @@ export default function SettingsPage() {
 
   const [formData, setFormData] = useState({
     restaurantName: '',
-    tagline: '',
     slug: '',
-    contactEmail: '',
     // Legacy colors kept for compatibility but managed via themeOptions now
     primaryColor: '#8B0000',
     secondaryColor: '#D4AF37',
@@ -36,7 +34,6 @@ export default function SettingsPage() {
     heroTitleColor: '#FFFFFF',
     heroTaglineColor: '#E5E7EB',
     themeOptions: null as Record<string, unknown> | null,
-    coverCharge: 0,
   });
 
   useEffect(() => {
@@ -85,9 +82,7 @@ export default function SettingsPage() {
 
       setFormData({
         restaurantName: tenant.restaurant_name || '',
-        tagline: tenant.tagline || '',
         slug: tenant.slug || '',
-        contactEmail: tenant.contact_email || '',
         primaryColor: tenant.primary_color || '#8B0000',
         secondaryColor: tenant.secondary_color || '#D4AF37',
         backgroundColor: tenant.background_color || '#FFF8E7',
@@ -105,7 +100,6 @@ export default function SettingsPage() {
         heroTitleColor: tenant.hero_title_color || '#FFFFFF',
         heroTaglineColor: tenant.hero_tagline_color || '#E5E7EB',
         themeOptions: themeOptions,
-        coverCharge: tenant.cover_charge || 0,
       });
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -124,18 +118,10 @@ export default function SettingsPage() {
     const supabase = createClient();
 
     try {
-      console.log('Starting save process...');
-
-      // 1. Update Tenant Info
-      console.log('Updating tenant info...');
+      // 1. Update Tenant Info (Logo Only)
       const { error: tenantError } = await (supabase.from('tenants') as any)
         .update({
-          restaurant_name: formData.restaurantName,
-          tagline: formData.tagline,
-          slug: formData.slug,
-          contact_email: formData.contactEmail,
           logo_url: formData.logoUrl,
-          cover_charge: formData.coverCharge,
           footer_data: {
             ...formData.footerData,
             locations: []
@@ -144,20 +130,16 @@ export default function SettingsPage() {
         .eq('id', tenantId);
 
       if (tenantError) {
-        console.error('Tenant update failed:', tenantError);
         throw new Error(`Tenant Update Error: ${tenantError.message || JSON.stringify(tenantError)}`);
       }
-      console.log('Tenant info updated.');
 
       // 2. Update Locations
-      console.log('Updating locations...');
       // Delete old
       const { error: deleteError } = await (supabase.from('tenant_locations') as any)
         .delete()
         .eq('tenant_id', tenantId);
 
       if (deleteError) {
-        console.error('Location delete failed:', deleteError);
         throw new Error(`Locations Delete Error: ${deleteError.message || JSON.stringify(deleteError)}`);
       }
 
@@ -176,14 +158,11 @@ export default function SettingsPage() {
           .insert(locationsToInsert);
 
         if (insertError) {
-          console.error('Location insert failed:', insertError);
           throw new Error(`Locations Insert Error: ${insertError.message || JSON.stringify(insertError)}`);
         }
       }
-      console.log('Locations updated.');
 
       // 3. Update Design Settings
-      console.log('Updating design settings...');
       if (formData.themeOptions) {
         const { error: designError } = await (supabase.from('tenant_design_settings') as any)
           .upsert({
@@ -192,17 +171,13 @@ export default function SettingsPage() {
           });
 
         if (designError) {
-          console.error('Design update failed:', designError);
           throw new Error(`Design Settings Error: ${designError.message || JSON.stringify(designError)}`);
         }
       }
-      console.log('Design settings updated.');
 
       toast.success('Impostazioni salvate con successo!');
     } catch (err: any) {
       console.error('Full Error saving settings:', err);
-      console.error('Error stringified:', JSON.stringify(err, null, 2));
-
       let message = 'Errore durante il salvataggio.';
       if (err instanceof Error) message = err.message;
       else if (typeof err === 'object') message = JSON.stringify(err);
@@ -226,118 +201,15 @@ export default function SettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-gray-900 mb-2">
-          Impostazioni ⚙️
+          Design Studio 🎨
         </h1>
         <p className="text-gray-600">
-          Gestisci le impostazioni del tuo ristorante
+          Personalizza il design e le impostazioni del tuo ristorante
         </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Informazioni Ristorante */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Informazioni Ristorante
-          </h2>
 
-          <div className="space-y-4">
-
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Nome Ristorante *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.restaurantName}
-                onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="Il Mio Ristorante"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Slogan (sotto il nome)
-              </label>
-              <input
-                type="text"
-                value={formData.tagline}
-                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="Autentica cucina romana..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Slug (URL) *
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-500">/</span>
-                <input
-                  type="text"
-                  required
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed font-mono"
-                  placeholder="il-mio-ristorante"
-                  disabled
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l&apos;assistenza
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Costo Coperto (€)
-              </label>
-              <input
-                type="number"
-                step="0.10"
-                min="0"
-                value={formData.coverCharge}
-                onChange={(e) => setFormData({ ...formData, coverCharge: parseFloat(e.target.value) })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono"
-                placeholder="2.50"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Questo importo verrà mostrato nella pagina allergeni/legale.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Contatti */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Informazioni di Contatto
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.contactEmail}
-                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                placeholder="info@ristorante.it"
-              />
-            </div>
-            {/* Phone, Address, City REMOVED - now managed in Locations */}
-            <div>
-              <p className="text-sm text-gray-500 mt-8">
-                Gli altri dettagli di contatto (Indirizzo, Telefono) sono gestiti nella sezione <strong>Sedi</strong>.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Design Lab */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -353,6 +225,17 @@ export default function SettingsPage() {
             <ThemeProvider initialTheme={(formData.themeOptions || undefined) as any}>
               <BrandingDesignLab
                 formData={{
+                  // These are now handled in the Design Lab itself or ignored if not set here.
+                  // Since we removed them from local state, we should pass empty strings or partial data if needed by the component.
+                  // Ideally BrandingDesignLab should fetch its own data or accept what we have.
+                  // For now, let's pass dummy/empty values if the type requires them, or just what we have.
+                  // If BrandingDesignLab relies on these for live preview, we might need to fetch them but not expose in form.
+                  // However, for this refactor, we assume DesignLab primarily cares about colors/logo, and maybe name/slug for preview context. 
+                  // If we don't have them in state, we can't pass them easily without fetching them separately or keeping them in state but hidden.
+                  // DECISION: BrandingDesignLab preview uses these. We must keep them in state OR fetch them just for the preview.
+                  // Given the user instruction "spostali", removing entirely from UI is done. Removing from code might break preview.
+                  // LET'S CHECK: The user said "spostali" (move them).
+                  // If I remove them from state, BrandingDesignLab gets empty strings.
                   restaurant_name: formData.restaurantName,
                   slug: formData.slug,
                   logo_url: formData.logoUrl,
@@ -366,7 +249,6 @@ export default function SettingsPage() {
                   theme_options: (formData.themeOptions || undefined) as any
                 }}
                 onUpdate={(updates) => {
-                  console.log('Design Lab Update:', updates);
                   // Update local state based on what changed
                   setFormData(prev => {
                     const newData = { ...prev };
@@ -392,6 +274,7 @@ export default function SettingsPage() {
                 }}
                 onBack={() => { }}
                 hideNavigation={true}
+                tenantId={tenantId}
               />
             </ThemeProvider>
           </div>

@@ -102,7 +102,7 @@ export default function DashboardLayout({
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Categorie', href: '/dashboard/categories', icon: '📁' },
     { name: 'Piatti', href: '/dashboard/dishes', icon: '🍽️' },
-    { name: 'Impostazioni', href: '/dashboard/settings', icon: '⚙️' },
+    { name: 'Design Studio', href: '/dashboard/design-studio', icon: '🎨' },
     { name: 'Assistenza', href: '/dashboard/support', icon: '🆘' },
     { name: 'Account', href: '/dashboard/account', icon: '👤' },
   ];
