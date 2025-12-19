@@ -4,11 +4,14 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { deleteAccount, resetMenu } from '@/app/actions/account';
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AccountPage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
-
     const [isDeleting, setIsDeleting] = useState(false);
 
     // Reset Menu State
@@ -146,50 +149,45 @@ export default function AccountPage() {
             ) : (
                 <form onSubmit={handleSave} className="space-y-6">
                     {/* Informazioni Base Ristorante */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">
-                            Informazioni Ristorante
-                        </h2>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
-                                    Nome Ristorante *
-                                </label>
-                                <input
+                    <Card className="shadow-sm border-gray-200">
+                        <CardHeader>
+                            <CardTitle>Informazioni Ristorante</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="restaurantName" className="font-bold">Nome Ristorante *</Label>
+                                <Input
+                                    id="restaurantName"
                                     type="text"
                                     required
                                     value={formData.restaurantName}
                                     onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                     placeholder="Il Mio Ristorante"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
-                                    Slogan (sotto il nome)
-                                </label>
-                                <input
+                            <div className="space-y-2">
+                                <Label htmlFor="tagline" className="font-bold">Slogan (sotto il nome)</Label>
+                                <Input
+                                    id="tagline"
                                     type="text"
                                     value={formData.tagline}
                                     onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                     placeholder="Autentica cucina romana..."
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
-                                    Slug (URL) *
-                                </label>
+                            <div className="space-y-2">
+                                <Label htmlFor="slug" className="font-bold">Slug (URL) *</Label>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-gray-500">/</span>
-                                    <input
+                                    <span className="text-gray-500 font-mono text-lg">/</span>
+                                    <Input
+                                        id="slug"
                                         type="text"
                                         required
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-                                        className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed font-mono"
+                                        className="bg-gray-100 text-gray-500 cursor-not-allowed font-mono"
                                         placeholder="il-mio-ristorante"
                                         disabled
                                     />
@@ -199,62 +197,59 @@ export default function AccountPage() {
                                 </p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Email Contatto
-                                    </label>
-                                    <input
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="contactEmail" className="font-bold">Email Contatto</Label>
+                                    <Input
+                                        id="contactEmail"
                                         type="email"
                                         value={formData.contactEmail}
                                         onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                         placeholder="info@ristorante.it"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Costo Coperto (€)
-                                    </label>
-                                    <input
+                                <div className="space-y-2">
+                                    <Label htmlFor="coverCharge" className="font-bold">Costo Coperto (€)</Label>
+                                    <Input
+                                        id="coverCharge"
                                         type="number"
                                         step="0.10"
                                         min="0"
                                         value={formData.coverCharge}
                                         onChange={(e) => setFormData({ ...formData, coverCharge: parseFloat(e.target.value) })}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono"
                                         placeholder="2.50"
+                                        className="font-mono"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
                                         Questo importo verrà mostrato nella pagina allergeni/legale.
                                     </p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
 
                     <div className="flex justify-end">
-                        <button
+                        <Button
                             type="submit"
                             disabled={saving}
-                            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl text-lg hover:scale-[1.02]"
                         >
                             {saving ? (
                                 <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                                     <span>Salvataggio...</span>
                                 </>
                             ) : (
                                 <span>Salva Modifiche</span>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             )}
 
             {/* Gestione Account */}
-            <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 overflow-hidden">
-                <div className="relative z-10">
+            <Card className="shadow-sm border-red-200 overflow-hidden">
+                <div className="relative z-10 p-6">
                     <h2 className="text-xl font-bold text-red-600 mb-2">
                         ZONA PERICOLOSA ⚠️
                     </h2>
@@ -269,13 +264,14 @@ export default function AccountPage() {
                                 Cancella TUTTI i piatti e le categorie. Le immagini verranno rimosse. Le impostazioni del ristorante rimangono.
                             </p>
                         </div>
-                        <button
+                        <Button
+                            variant="destructive"
                             type="button"
                             onClick={() => setShowResetMenuModal(true)}
-                            className="whitespace-nowrap px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-bold hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+                            className="bg-white border text-red-600 hover:bg-red-50 border-red-200"
                         >
                             Reset Menu
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="mt-6 bg-red-50 rounded-xl p-4 border border-red-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -285,126 +281,113 @@ export default function AccountPage() {
                                 L&apos;eliminazione dell&apos;account è irreversibile. Tutti i tuoi dati, menu e impostazioni verranno cancellati permanentemente.
                             </p>
                         </div>
-                        <button
+                        <Button
+                            variant="destructive"
                             type="button"
                             onClick={() => setShowDeleteModal(true)}
-                            className="whitespace-nowrap px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-bold hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+                            className="bg-white border text-red-600 hover:bg-red-50 border-red-200"
                         >
                             Elimina Account
-                        </button>
+                        </Button>
                     </div>
                 </div>
-            </div>
+            </Card>
 
             {/* Reset Menu Confirmation Modal */}
             {showResetMenuModal && (
                 <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
-                        <div className="text-center mb-6">
+                    <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
+                        <CardHeader className="text-center pb-2">
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <span className="text-3xl">🍽️</span>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                Resettare il Menu?
-                            </h3>
-                            <p className="text-gray-600 text-sm">
-                                Verranno eliminati <span className="font-bold">tutti i piatti e le categorie</span>. Questa azione è irreversibile. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">RESET</span> per confermare.
-                            </p>
-                        </div>
-
-                        <input
-                            type="text"
-                            value={resetMenuConfirmation}
-                            onChange={(e) => setResetMenuConfirmation(e.target.value)}
-                            placeholder="RESET"
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center font-bold tracking-widest mb-6 uppercase"
-                        />
-
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowResetMenuModal(false);
-                                    setResetMenuConfirmation('');
-                                }}
-                                disabled={isResettingMenu}
-                                className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
-                            >
-                                Annulla
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleResetMenu}
-                                disabled={resetMenuConfirmation.trim().toUpperCase() !== 'RESET' || isResettingMenu}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isResettingMenu ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        <span>Resettando...</span>
-                                    </>
-                                ) : (
-                                    <span>Conferma Reset</span>
-                                )}
-                            </button>
-                        </div>
-                    </div>
+                            <CardTitle className="text-xl">Resettare il Menu?</CardTitle>
+                            <CardDescription>
+                                Verranno eliminati <span className="font-bold text-red-600">tutti i piatti e le categorie</span>. Questa azione è irreversibile. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">RESET</span> per confermare.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-4">
+                            <Input
+                                type="text"
+                                value={resetMenuConfirmation}
+                                onChange={(e) => setResetMenuConfirmation(e.target.value)}
+                                placeholder="RESET"
+                                className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
+                            />
+                            <div className="flex gap-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowResetMenuModal(false);
+                                        setResetMenuConfirmation('');
+                                    }}
+                                    disabled={isResettingMenu}
+                                    className="flex-1"
+                                >
+                                    Annulla
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={handleResetMenu}
+                                    disabled={resetMenuConfirmation.trim().toUpperCase() !== 'RESET' || isResettingMenu}
+                                    className="flex-1"
+                                >
+                                    {isResettingMenu ? 'Resettando...' : 'Conferma Reset'}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
 
             {/* Delete Confirmation Modal */}
             {showDeleteModal && (
                 <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
-                        <div className="text-center mb-6">
+                    <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
+                        <CardHeader className="text-center pb-2">
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <span className="text-3xl">⚠️</span>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                Sei assolutamente sicuro?
-                            </h3>
-                            <p className="text-gray-600 text-sm">
+                            <CardTitle className="text-xl">Sei assolutamente sicuro?</CardTitle>
+                            <CardDescription>
                                 Questa azione non può essere annullata. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">ELIMINA</span> qui sotto per confermare.
-                            </p>
-                        </div>
-
-                        <input
-                            type="text"
-                            value={deleteConfirmation}
-                            onChange={(e) => setDeleteConfirmation(e.target.value)}
-                            placeholder="ELIMINA"
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center font-bold tracking-widest mb-6 uppercase"
-                        />
-
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowDeleteModal(false);
-                                    setDeleteConfirmation('');
-                                }}
-                                disabled={isDeleting}
-                                className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
-                            >
-                                Annulla
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDeleteAccount}
-                                disabled={deleteConfirmation.trim().toUpperCase() !== 'ELIMINA' || isDeleting}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isDeleting ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        <span>Eliminazione...</span>
-                                    </>
-                                ) : (
-                                    <span>Elimina tutto</span>
-                                )}
-                            </button>
-                        </div>
-                    </div>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-4">
+                            <Input
+                                type="text"
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                placeholder="ELIMINA"
+                                className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
+                            />
+                            <div className="flex gap-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setDeleteConfirmation('');
+                                    }}
+                                    disabled={isDeleting}
+                                    className="flex-1"
+                                >
+                                    Annulla
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={handleDeleteAccount}
+                                    disabled={deleteConfirmation.trim().toUpperCase() !== 'ELIMINA' || isDeleting}
+                                    className="flex-1"
+                                >
+                                    {isDeleting ? 'Eliminazione...' : 'Elimina tutto'}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
         </div>

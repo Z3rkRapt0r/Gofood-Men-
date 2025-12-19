@@ -21,6 +21,21 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, Folder, Plus, Trash2, Edit, Loader2 } from 'lucide-react';
+
+// Shadcn Imports
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
 type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
@@ -63,72 +78,69 @@ function SortableCategoryItem({
   };
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
-      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : ''
-        }`}
+      className={`transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : 'hover:shadow-md'}`}
     >
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-        {/* Drag Handle & Content Wrapper */}
-        <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
-          {/* Drag Handle Icon */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
-            title="Sposta"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-            </svg>
-          </div>
-
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                {category.name}
-              </h3>
-              {!category.is_visible && (
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
-                  NASCOSTA
-                </span>
-              )}
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          {/* Drag Handle & Content Wrapper */}
+          <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+            {/* Drag Handle Icon */}
+            <div
+              {...attributes}
+              {...listeners}
+              className="mt-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing p-1 touch-none"
+              title="Sposta"
+            >
+              <GripVertical className="w-5 h-5" />
             </div>
-            {category.description && (
-              <p className="text-sm text-gray-600 mb-1">
-                {category.description}
-              </p>
-            )}
-            <p className="text-xs text-gray-500 font-mono">/{category.slug}</p>
+
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                  {category.name}
+                </h3>
+                {!category.is_visible && (
+                  <Badge variant="secondary" className="uppercase text-[10px] sm:text-xs">
+                    Nascosta
+                  </Badge>
+                )}
+              </div>
+              {category.description && (
+                <p className="text-sm text-muted-foreground mb-1">
+                  {category.description}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground font-mono">/{category.slug}</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:border-t-0 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(category)}
+              className="flex-1 sm:flex-none w-full justify-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+            >
+              <Edit className="w-4 h-4" />
+              <span className="sm:hidden">Modifica</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(category.id)}
+              className="flex-1 sm:flex-none w-full justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="sm:hidden">Elimina</span>
+            </Button>
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-          <button
-            onClick={() => onEdit(category)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
-            title="Modifica"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span className="sm:hidden">Modifica</span>
-          </button>
-          <button
-            onClick={() => onDelete(category.id)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
-            title="Elimina"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span className="sm:hidden">Elimina</span>
-          </button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -350,7 +362,7 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
       </div>
     );
   }
@@ -363,12 +375,12 @@ export default function CategoriesPage() {
           <h1 className="text-3xl font-black text-gray-900 mb-2">
             Categorie Menu 📁
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Gestisci le categorie del tuo menu digitale
           </p>
         </div>
         <div className="w-full md:w-auto flex flex-col md:flex-row gap-3">
-          <button
+          <Button
             onClick={() => {
               setEditingCategory(null);
               setFormData({
@@ -379,153 +391,35 @@ export default function CategoriesPage() {
               });
               setShowForm(true);
             }}
-            className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+            size="lg"
+            className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 shadow-lg hover:shadow-xl font-bold"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span>Nuova Categoria</span>
-          </button>
+            <Plus className="w-5 h-5 mr-2" />
+            Nuova Categoria
+          </Button>
         </div>
       </div>
 
-      {/* Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingCategory ? 'Modifica Categoria' : 'Nuova Categoria'}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingCategory(null);
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Nome */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Nome *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData({ ...formData, name: e.target.value });
-                    if (!editingCategory) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        slug: generateSlug(e.target.value),
-                      }));
-                    }
-                  }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                  placeholder="es. Antipasti"
-                />
-              </div>
-
-              {/* Descrizione */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
-                  Descrizione
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                  placeholder="es. I nostri deliziosi antipasti"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingCategory(null);
-                  }}
-                  className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
-                >
-                  Annulla
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg"
-                >
-                  {editingCategory ? 'Salva Modifiche' : 'Crea Categoria'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Categories List */}
       {categories.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-300 p-12 text-center">
-          <span className="text-6xl mb-4 block">📁</span>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Nessuna categoria
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Inizia creando la tua prima categoria per organizzare il menu
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-6xl mb-4">📁</span>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Nessuna categoria
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Inizia creando la tua prima categoria per organizzare il menu
+            </p>
+            <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 shadow-lg hover:shadow-xl font-bold"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Crea Prima Categoria</span>
-            </button>
-          </div>
-        </div>
+              <Plus className="w-5 h-5 mr-2" />
+              Crea Prima Categoria
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <DndContext
           sensors={sensors}
@@ -549,6 +443,60 @@ export default function CategoriesPage() {
           </SortableContext>
         </DndContext>
       )}
+
+      {/* Form Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? 'Modifica Categoria' : 'Nuova Categoria'}</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nome */}
+            <div className="space-y-2">
+              <Label>Nome *</Label>
+              <Input
+                required
+                value={formData.name}
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (!editingCategory) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      slug: generateSlug(e.target.value),
+                    }));
+                  }
+                }}
+                placeholder="es. Antipasti"
+              />
+            </div>
+
+            {/* Descrizione */}
+            <div className="space-y-2">
+              <Label>Descrizione</Label>
+              <Input
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder="es. I nostri deliziosi antipasti"
+              />
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                Annulla
+              </Button>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0"
+              >
+                {editingCategory ? 'Salva Modifiche' : 'Crea Categoria'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

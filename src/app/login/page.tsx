@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,18 +48,14 @@ export default function LoginPage() {
         .eq('owner_id', data.user.id)
         .single();
 
-      // Se il tenant non esiste, l'utente ha confermato l'email ma non ha completato la registrazione
-      // Redirect a una pagina di setup iniziale
       if (tenantError || !tenant) {
         console.log('No tenant found - user needs to complete initial setup');
-        // Redirect a onboarding che creerà il tenant
         router.push('/onboarding');
         return;
       }
 
       const tenantData = tenant as { onboarding_completed: boolean; restaurant_name: string };
 
-      // Redirect based on onboarding status
       if (!tenantData.onboarding_completed) {
         router.push('/onboarding');
       } else {
@@ -97,116 +97,108 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Form */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
-          <div className="mb-6">
-            <h1 className="text-3xl font-black text-gray-900 mb-2">
-              Accedi
-            </h1>
-            <p className="text-gray-600 text-sm">
+        {/* Login Card */}
+        <Card className="shadow-2xl border-orange-100">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-3xl font-black text-gray-900">Accedi</CardTitle>
+            <CardDescription className="text-gray-600">
               Continua a personalizzare il tuo menu
-            </p>
-          </div>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <div className="bg-destructive/15 border-2 border-destructive/20 text-destructive rounded-xl p-4 mb-6 flex items-start gap-3">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm font-medium">{error}</p>
+              </div>
+            )}
 
-          {error && (
-            <div className="bg-red-50 border-2 border-red-200 text-red-800 rounded-xl p-4 mb-6 flex items-start gap-3">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <p className="text-sm font-medium">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
-                Email *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">📧</span>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="font-bold">Email *</Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">📧</span>
+                  </div>
+                  <Input
+                    type="email"
+                    id="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="pl-10 py-6 text-base"
+                    placeholder="mario@ristorante.it"
+                  />
                 </div>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="mario@ristorante.it"
-                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="font-bold">Password *</Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">🔒</span>
+                  </div>
+                  <Input
+                    type="password"
+                    id="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="pl-10 py-6 text-base"
+                    placeholder="La tua password"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <a href="#" className="text-sm text-orange-600 font-semibold hover:underline">
+                  Password dimenticata?
+                </a>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-6 rounded-xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 text-lg transition-all hover:scale-[1.02]"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Accesso in corso...
+                  </>
+                ) : (
+                  <>
+                    Accedi
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pt-2">
+            <div className="relative w-full text-center">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500 font-medium">Non hai un account?</span>
               </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-bold text-gray-900 mb-2">
-                Password *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">🔒</span>
-                </div>
-                <input
-                  type="password"
-                  id="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="La tua password"
-                />
-              </div>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="flex items-center justify-end">
-              <a href="#" className="text-sm text-orange-600 font-semibold hover:underline">
-                Password dimenticata?
-              </a>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-4 px-6 rounded-xl transition-all shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] flex items-center justify-center gap-3 text-lg"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Accesso in corso...</span>
-                </>
-              ) : (
-                <>
-                  <span>Accedi</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-sm text-gray-500 font-medium">Non hai un account?</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
-          {/* Register Link */}
-          <Link
-            href="/register"
-            className="w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-3.5 px-6 rounded-xl transition-all border-2 border-orange-200 hover:border-orange-300"
-          >
-            Crea un account gratis
-          </Link>
-        </div>
+            <Link href="/register" className="w-full">
+              <Button variant="outline" className="w-full py-6 font-bold border-2 border-orange-200 hover:border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700">
+                Crea un account gratis
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
 
         {/* Back to Home */}
         <div className="mt-6 text-center">

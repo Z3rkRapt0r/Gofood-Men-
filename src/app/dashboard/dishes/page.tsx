@@ -23,6 +23,32 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Loader2, Plus, GripVertical, Trash2, Edit, Image as ImageIcon, Check } from 'lucide-react';
+
+// Shadcn Imports
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type DishInsert = Database['public']['Tables']['dishes']['Insert'];
 type DishUpdate = Database['public']['Tables']['dishes']['Update'];
@@ -98,156 +124,123 @@ function SortableDishCard({
   };
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
-      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : ''
-        }`}
+      className={`transition-all ${isDragging ? 'shadow-xl ring-2 ring-orange-500' : 'hover:shadow-md'}`}
     >
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-        {/* Drag Handle & Content Wrapper */}
-        <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
-          {/* Checkbox for Selection - Only visible in Selection Mode */}
-          {isSelectionMode && (
-            <div className="mt-1 pt-1 transition-all duration-200">
-              <input
-                type="checkbox"
-                checked={selected}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  onSelect(dish.id);
-                }}
-                className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
-              />
-            </div>
-          )}
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          {/* Drag Handle & Content Wrapper */}
+          <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+            {/* Checkbox for Selection - Only visible in Selection Mode */}
+            {isSelectionMode && (
+              <div className="mt-1 pt-1">
+                <Checkbox
+                  checked={selected}
+                  onCheckedChange={() => onSelect(dish.id)}
+                  className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                />
+              </div>
+            )}
 
-          {/* Drag Handle Icon - Hidden in Selection Mode */}
-          {!isSelectionMode && (
-            <div
-              {...attributes}
-              {...listeners}
-              className="mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing p-1 touch-none"
-              title="Sposta"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-              </svg>
-            </div>
-          )}
+            {/* Drag Handle Icon - Hidden in Selection Mode */}
+            {!isSelectionMode && (
+              <div
+                {...attributes}
+                {...listeners}
+                className="mt-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing p-1 touch-none"
+                title="Sposta"
+              >
+                <GripVertical className="w-5 h-5" />
+              </div>
+            )}
 
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col sm:flex-row items-start gap-4">
-              {dish.image_url && (
-                <div className="shrink-0 relative group">
-                  <img
-                    src={dish.image_url}
-                    alt={dish.name}
-                    className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-200"
-                  />
-                  <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toast((t) => (
-                          <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
-                            <span className="font-bold text-gray-900">Eliminare immagine?</span>
-                            <div className="flex gap-2 w-full">
-                              <button
-                                onClick={() => {
-                                  onDeleteImage(dish);
-                                  toast.dismiss(t.id);
-                                }}
-                                className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
-                              >
-                                Si
-                              </button>
-                              <button
-                                onClick={() => toast.dismiss(t.id)}
-                                className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
-                              >
-                                No
-                              </button>
-                            </div>
-                          </div>
-                        ), {
-                          duration: 5000,
-                          style: {
-                            background: 'transparent',
-                            boxShadow: 'none',
-                            padding: 0
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                {dish.image_url && (
+                  <div className="shrink-0 relative group">
+                    <img
+                      src={dish.image_url}
+                      alt={dish.name}
+                      className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-border"
+                    />
+                    <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm('Eliminare immagine?')) {
+                            onDeleteImage(dish);
                           }
-                        });
-                      }}
-                      className="text-white hover:text-red-400 p-1 rounded-full"
-                      title="Rimuovi immagine"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                    </button>
+                        }}
+                        className="text-white hover:text-red-400 hover:bg-transparent h-8 w-8"
+                        title="Rimuovi immagine"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight">
-                    {dish.name}
-                  </h3>
-                  {!dish.is_visible && (
-                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                      Nascosto
-                    </span>
-                  )}
-                  {dish.is_seasonal && <span className="text-base sm:text-lg" title="Stagionale">🍂</span>}
-                  {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
-                  {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
-                  {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
-                  {dish.is_homemade && <span className="text-base sm:text-lg" title="Fatto in casa">🏠</span>}
-                  {dish.is_frozen && <span className="text-base sm:text-lg" title="Surgelato">❄️</span>}
-                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground break-words leading-tight">
+                      {dish.name}
+                    </h3>
+                    {!dish.is_visible && (
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs uppercase tracking-wider">
+                        Nascosto
+                      </Badge>
+                    )}
+                    {dish.is_seasonal && <span className="text-base sm:text-lg" title="Stagionale">🍂</span>}
+                    {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
+                    {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
+                    {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
+                    {dish.is_homemade && <span className="text-base sm:text-lg" title="Fatto in casa">🏠</span>}
+                    {dish.is_frozen && <span className="text-base sm:text-lg" title="Surgelato">❄️</span>}
+                  </div>
 
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                  {dish.description}
-                </p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {dish.description}
+                  </p>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="font-bold text-orange-600 text-base">€{dish.price.toFixed(2)}</span>
-                  {category && (
-                    <span className="text-gray-400 font-medium">• {category.name}</span>
-                  )}
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="font-bold text-orange-600 text-base">€{dish.price.toFixed(2)}</span>
+                    {category && (
+                      <span className="text-muted-foreground font-medium">• {category.name}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Actions */}
-        <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:border-t-0 border-t border-gray-100">
-          <button
-            onClick={() => onEdit(dish)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-semibold"
-            title="Modifica"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span className="sm:hidden">Modifica</span>
-          </button>
-          <button
-            onClick={() => onDelete(dish.id)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-semibold"
-            title="Elimina"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span className="sm:hidden">Elimina</span>
-          </button>
+          {/* Actions */}
+          <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:border-t-0 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(dish)}
+              className="flex-1 sm:flex-none w-full justify-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+            >
+              <Edit className="w-4 h-4" />
+              <span className="sm:hidden">Modifica</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(dish.id)}
+              className="flex-1 sm:flex-none w-full justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="sm:hidden">Elimina</span>
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -290,58 +283,36 @@ export default function DishesPage() {
   const handleBulkDelete = async () => {
     if (selectedDishes.size === 0) return;
 
-    toast((t) => (
-      <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
-        <span className="font-bold text-gray-900">Eliminare {selectedDishes.size} piatti?</span>
-        <div className="flex gap-2 w-full">
-          <button
-            onClick={async () => {
-              toast.dismiss(t.id);
-              try {
-                const supabase = createClient();
-                const idsToDelete = Array.from(selectedDishes);
+    if (!confirm(`Eliminare ${selectedDishes.size} piatti?`)) return;
 
-                // 1. Delete images
-                const dishesToDelete = dishes.filter(d => idsToDelete.includes(d.id));
-                for (const dish of dishesToDelete) {
-                  if (dish.image_url) {
-                    await deleteDishImage(dish.image_url);
-                  }
-                }
+    try {
+      const supabase = createClient();
+      const idsToDelete = Array.from(selectedDishes);
 
-                // 2. Delete DB records
-                const { error } = await supabase
-                  .from('dishes')
-                  .delete()
-                  .in('id', idsToDelete);
+      // 1. Delete images
+      const dishesToDelete = dishes.filter(d => idsToDelete.includes(d.id));
+      for (const dish of dishesToDelete) {
+        if (dish.image_url) {
+          await deleteDishImage(dish.image_url);
+        }
+      }
 
-                if (error) throw error;
+      // 2. Delete DB records
+      const { error } = await supabase
+        .from('dishes')
+        .delete()
+        .in('id', idsToDelete);
 
-                toast.success(`${selectedDishes.size} piatti eliminati`);
-                setSelectedDishes(new Set());
-                setIsSelectionMode(false);
-                loadData();
-              } catch (err) {
-                console.error('Error in bulk delete:', err);
-                toast.error('Errore durante l\'eliminazione');
-              }
-            }}
-            className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
-          >
-            Si
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            No
-          </button>
-        </div>
-      </div>
-    ), {
-      duration: 5000,
-      style: { background: 'transparent', boxShadow: 'none', padding: 0 }
-    });
+      if (error) throw error;
+
+      toast.success(`${selectedDishes.size} piatti eliminati`);
+      setSelectedDishes(new Set());
+      setIsSelectionMode(false);
+      loadData();
+    } catch (err) {
+      console.error('Error in bulk delete:', err);
+      toast.error('Errore durante l\'eliminazione');
+    }
   };
 
   const [formData, setFormData] = useState({
@@ -390,12 +361,6 @@ export default function DishesPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tenantData = tenant as any;
       setTenantId(tenantData.id);
-      // We'll store restaurantName in a state or ref if needed properly, 
-      // but for now we can just use the fetched data in the scope if we were inside the submit handler.
-      // However, since loadData sets state, let's store restaurantName in state too if we want to be clean,
-      // or just re-fetch it in submit to be safe/lazy. 
-      // Actually, let's add a state for it or just fetch it in submit/upload where it's critical.
-      // For now, let's keep it simple and fetch in submit.
 
       // Load categories
       const { data: categoriesData } = await supabase
@@ -484,10 +449,6 @@ export default function DishesPage() {
     try {
       const supabase = createClient();
       const url = new URL(imageUrl);
-      // The logic here splits by '/dishes/'. 
-      // If our path is: .../dishes/folder/dishes/file, this split might stay robust if we just take everything after the first match?
-      // Or more robustly, rely on the standard supabase storage URL structure:
-      // .../storage/v1/object/public/dishes/[PATH]
 
       const pathParts = url.pathname.split('/dishes/');
       if (pathParts.length < 2) return;
@@ -525,15 +486,12 @@ export default function DishesPage() {
 
       const newFilteredList = arrayMove(filteredList, oldIndex, newIndex);
 
-      // Fix: Handle cases where multiple items have the same display_order (e.g. default 0)
-      // We find the starting point (min order) and distribute sequentially from there.
-      // If all orders are 0, we start from 0.
       const existingOrders = filteredList.map(d => d.display_order);
       const minOrder = existingOrders.length > 0 ? Math.min(...existingOrders) : 0;
 
       const itemsWithUpdatedOrder = newFilteredList.map((item, idx) => ({
         ...item,
-        display_order: minOrder + idx // Ensure sequential unique orders within this view
+        display_order: minOrder + idx
       }));
 
       // Update global state
@@ -650,7 +608,6 @@ export default function DishesPage() {
           is_gluten_free: formData.isGlutenFree,
           is_homemade: formData.isHomemade,
           is_frozen: formData.isFrozen,
-          // display_order: REMOVED to avoid resetting order
           allergen_ids: formData.selectedAllergens,
         };
 
@@ -797,7 +754,7 @@ export default function DishesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
       </div>
     );
   }
@@ -809,475 +766,385 @@ export default function DishesPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
           Crea prima le categorie
         </h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+        <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
           Per importare i piatti con l&apos;AI o manualmente bisogna stabilire prima le categorie.
           Una volta creata una prima categoria, potrai scegliere di importare il piatto manualmente o con l&apos;AI.
         </p>
-        <Link
-          href="/dashboard/categories"
-          className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all"
-        >
-          Vai alle Categorie
+        <Link href="/dashboard/categories">
+          <Button size="lg" className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0">
+            Vai alle Categorie
+          </Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 p-4">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 mb-2">
             Piatti Menu 🍽️
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Gestisci i piatti del tuo menu digitale
           </p>
         </div>
-        <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto">
-
-          <button
+        <div className="flex gap-3 w-full md:w-auto">
+          <Button
             onClick={() => {
               resetForm();
               setShowForm(true);
             }}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-sm md:text-base"
+            size="lg"
+            className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 shadow-lg hover:shadow-xl font-bold"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Nuovo</span>
-          </button>
+            <Plus className="w-5 h-5 mr-2" />
+            Nuovo Piatto
+          </Button>
         </div>
       </div>
 
-      {/* Selection Header - Only visible when Selection Mode is active */}
+      {/* Selection Header */}
       {isSelectionMode && (
-        <div className="flex items-center justify-between mb-4 bg-orange-50 p-3 rounded-lg border border-orange-100 transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={filteredDishes.length > 0 && selectedDishes.size === filteredDishes.length}
-              onChange={toggleSelectAll}
-              className="w-5 h-5 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              {selectedDishes.size > 0 ? `${selectedDishes.size} selezionati` : 'Seleziona tutto'}
-            </span>
-          </div>
+        <Card className="bg-orange-50 border-orange-100">
+          <CardContent className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={filteredDishes.length > 0 && selectedDishes.size === filteredDishes.length}
+                onCheckedChange={toggleSelectAll}
+                className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+              />
+              <span className="text-sm font-medium text-orange-900">
+                {selectedDishes.size > 0 ? `${selectedDishes.size} selezionati` : 'Seleziona tutto'}
+              </span>
+            </div>
 
-          {selectedDishes.size > 0 && (
-            <button
-              onClick={handleBulkDelete}
-              className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 transition-colors shadow-sm"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Elimina ({selectedDishes.size})
-            </button>
-          )}
-        </div>
+            {selectedDishes.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                className="gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Elimina ({selectedDishes.size})
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Category filter */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
-        <button
+      <div className="flex items-center gap-2 overflow-x-auto pb-4 px-1 scrollbar-hide">
+        <Button
+          variant={selectedCategory === 'all' ? 'default' : 'secondary'}
           onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${selectedCategory === 'all'
-            ? 'bg-orange-500 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+          className={`whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
         >
           Tutte ({dishes.length})
-        </button>
+        </Button>
         {categories.map((cat) => (
-          <button
+          <Button
             key={cat.id}
+            variant={selectedCategory === cat.id ? 'default' : 'secondary'}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${selectedCategory === cat.id
-              ? 'bg-orange-500 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+            className={`whitespace-nowrap ${selectedCategory === cat.id ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
           >
             {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
-          </button>
+          </Button>
         ))}
       </div>
 
-      {/* Form Modal */}
-      {
-        showForm && (
-          <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8">
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editingDish ? 'Modifica Piatto' : 'Nuovo Piatto'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
-                {/* Category */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Categoria *
-                  </label>
-                  <select
-                    required
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                  >
-                    <option value="">Seleziona categoria...</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Nome */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Nome *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                    placeholder="es. Carbonara"
-                  />
-                </div>
-
-
-                {/* Descrizione */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Descrizione
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
-                    placeholder="Descrivi il piatto..."
-                  />
-                </div>
-
-                {/* Prezzo */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Prezzo (€) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                    placeholder="12.50"
-                  />
-                </div>
-
-                {/* Immagine */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
-                    Immagine Piatto
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {editingDish?.image_url && !formData.image && (
-                      <div className="relative group">
-                        <img
-                          src={editingDish.image_url}
-                          alt="Current"
-                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => toast((t) => (
-                            <div className="bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex flex-col gap-3 items-center min-w-[200px]">
-                              <span className="font-bold text-gray-900">Rimuovere immagine?</span>
-                              <div className="flex gap-2 w-full">
-                                <button
-                                  onClick={async () => {
-                                    await handleDeleteImage(editingDish);
-                                    setEditingDish({ ...editingDish, image_url: null });
-                                    toast.dismiss(t.id);
-                                  }}
-                                  className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors"
-                                >
-                                  Si
-                                </button>
-                                <button
-                                  onClick={() => toast.dismiss(t.id)}
-                                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors"
-                                >
-                                  No
-                                </button>
-                              </div>
-                            </div>
-                          ), {
-                            duration: 5000,
-                            style: {
-                              background: 'transparent',
-                              boxShadow: 'none',
-                              padding: 0
-                            }
-                          })}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600 transition-colors"
-                          title="Rimuovi immagine"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-                            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setFormData({ ...formData, image: file });
-                        }
-                      }}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                    />
-                  </div>
-                </div>
-
-                {/* Status & Flags */}
-                <div className="space-y-6">
-                  {/* Visibility Toggle */}
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          checked={formData.isVisible}
-                          onChange={(e) => setFormData({ ...formData, isVisible: e.target.checked })}
-                          className="peer sr-only"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                      </div>
-                      <div>
-                        <span className="block text-sm font-bold text-gray-900">Visibile nel menu</span>
-                        <span className="block text-xs text-gray-500">Se disattivato, il piatto sarà nascosto ai clienti</span>
-                      </div>
-                    </label>
-                  </div>
-
-                  {/* Filtri Speciali */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <label className="block text-sm font-bold text-gray-900">
-                        Filtri Speciali
-                      </label>
-                      <div className="group relative flex items-center">
-                        <span className="cursor-help text-gray-400 hover:text-gray-600 transition-colors">
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                        <div className="absolute left-full ml-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                          Questi filtri influenzano la visibilità del piatto nel menu (es. immagine stagionale) o avvertenze critiche (es. icona glutine).
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isSeasonal ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isSeasonal}
-                          onChange={(e) => setFormData({ ...formData, isSeasonal: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">🍂</span>
-                        <span className="text-xs font-bold">Stagionale</span>
-                      </label>
-
-                      {/* Manual placement of "Glutine" allergen if available */}
-                      {allergens.filter(a => a.id === 'glutine').map(glutine => (
-                        <label
-                          key={glutine.id}
-                          className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.selectedAllergens.includes(glutine.id)
-                            ? 'border-red-500 bg-red-50 text-red-700'
-                            : 'border-gray-200 hover:border-red-200 text-gray-600'
-                            }`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={formData.selectedAllergens.includes(glutine.id)}
-                            onChange={(e) => {
-                              const newSelected = e.target.checked
-                                ? [...formData.selectedAllergens, glutine.id]
-                                : formData.selectedAllergens.filter(id => id !== glutine.id);
-                              setFormData({ ...formData, selectedAllergens: newSelected });
-                            }}
-                          />
-                          <span className="text-2xl mb-1">{glutine.icon}</span>
-                          <span className="text-xs font-bold text-center leading-tight">Contiene Glutine</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Caratteristiche */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">
-                      Caratteristiche
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {/* Fatto in casa */}
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isHomemade ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isHomemade}
-                          onChange={(e) => setFormData({ ...formData, isHomemade: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">🏠</span>
-                        <span className="text-xs font-bold">Fatto in casa</span>
-                      </label>
-
-                      {/* Surgelato */}
-                      <label className={`relative flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isFrozen ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-blue-200 text-gray-600'}`}>
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={formData.isFrozen}
-                          onChange={(e) => setFormData({ ...formData, isFrozen: e.target.checked })}
-                        />
-                        <span className="text-2xl mb-1">❄️</span>
-                        <span className="text-xs font-bold">Surgelato</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Allergens Section */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">
-                      Allergeni Presenti
-                    </label>
-                    <p className="text-xs text-gray-500 mb-3">Seleziona gli allergeni da segnalare obbligatoriamente se presenti nel piatto.</p>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                      {allergens.filter(a => a.id !== 'glutine').map((allergen) => (
-                        <label
-                          key={allergen.id}
-                          className={`relative flex flex-col items-center justify-center p-2 rounded-xl border-2 cursor-pointer transition-all h-24 ${formData.selectedAllergens.includes(allergen.id)
-                            ? 'border-red-500 bg-red-50 text-red-700'
-                            : 'border-gray-200 hover:border-red-200 text-gray-600'
-                            }`}
-                          title={allergen.name}
-                        >
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={formData.selectedAllergens.includes(allergen.id)}
-                            onChange={(e) => {
-                              const newSelected = e.target.checked
-                                ? [...formData.selectedAllergens, allergen.id]
-                                : formData.selectedAllergens.filter(id => id !== allergen.id);
-                              setFormData({ ...formData, selectedAllergens: newSelected });
-                            }}
-                          />
-                          <span className="text-2xl mb-1">{allergen.icon}</span>
-                          <span className="text-[10px] font-bold text-center leading-tight line-clamp-2">{allergen.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
-                  >
-                    Annulla
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg"
-                  >
-                    {editingDish ? 'Salva Modifiche' : 'Crea Piatto'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div >
-        )
-      }
-
       {/* Dishes List */}
-      {
-        filteredDishes.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-300 p-12 text-center">
-            <span className="text-6xl mb-4 block">🍽️</span>
+      {filteredDishes.length === 0 ? (
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-6xl mb-4">🍽️</span>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Nessun piatto</h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               {selectedCategory === 'all'
                 ? 'Inizia creando il tuo primo piatto'
                 : 'Nessun piatto in questa categoria'}
             </p>
-            <button
+            <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Crea Primo Piatto</span>
-            </button>
-          </div>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
+              <Plus className="w-5 h-5 mr-2" />
+              Crea Primo Piatto
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={filteredDishes.map((d) => d.id)}
+            strategy={verticalListSortingStrategy}
           >
-            <SortableContext
-              items={filteredDishes.map((d) => d.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-4 w-full">
-                {filteredDishes.map((dish) => (
-                  <SortableDishCard
-                    key={dish.id}
-                    dish={dish}
-                    category={categories.find(c => c.id === dish.category_id)}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onDeleteImage={handleDeleteImage}
-                    selected={selectedDishes.has(dish.id)}
-                    onSelect={toggleSelection}
-                    isSelectionMode={isSelectionMode}
-                  />
-                ))}
+            <div className="flex flex-col gap-4 w-full">
+              {filteredDishes.map((dish) => (
+                <SortableDishCard
+                  key={dish.id}
+                  dish={dish}
+                  category={categories.find(c => c.id === dish.category_id)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onDeleteImage={handleDeleteImage}
+                  selected={selectedDishes.has(dish.id)}
+                  onSelect={toggleSelection}
+                  isSelectionMode={isSelectionMode}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      {/* Form Modal */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0 overflow-hidden flex flex-col">
+          <DialogHeader className="p-6 pb-2 border-b border-border">
+            <DialogTitle className="text-2xl font-bold">
+              {editingDish ? 'Modifica Piatto' : 'Nuovo Piatto'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <ScrollArea className="flex-1">
+            <form id="dish-form" onSubmit={handleSubmit} className="p-6 space-y-6">
+              {/* Categoria */}
+              <div className="space-y-2">
+                <Label>Categoria *</Label>
+                <Select
+                  value={formData.categoryId}
+                  onValueChange={(val) => setFormData({ ...formData, categoryId: val })}
+                  required
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleziona categoria..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </SortableContext>
-          </DndContext>
-        )
-      }
+
+              {/* Nome */}
+              <div className="space-y-2">
+                <Label>Nome *</Label>
+                <Input
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="es. Carbonara"
+                />
+              </div>
+
+              {/* Descrizione */}
+              <div className="space-y-2">
+                <Label>Descrizione</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                  className="resize-none"
+                  placeholder="Descrivi il piatto..."
+                />
+              </div>
+
+              {/* Prezzo */}
+              <div className="space-y-2">
+                <Label>Prezzo (€) *</Label>
+                <Input
+                  type="number"
+                  required
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="12.50"
+                />
+              </div>
+
+              {/* Immagine */}
+              <div className="space-y-2">
+                <Label>Immagine Piatto</Label>
+                <div className="flex items-center gap-4 border p-4 rounded-lg bg-muted/20">
+                  {editingDish?.image_url && !formData.image && (
+                    <div className="relative group shrink-0">
+                      <img
+                        src={editingDish.image_url}
+                        alt="Current"
+                        className="w-20 h-20 object-cover rounded-lg border border-border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={async () => {
+                          if (confirm('Rimuovere immagine?')) {
+                            await handleDeleteImage(editingDish);
+                            setEditingDish({ ...editingDish, image_url: null });
+                          }
+                        }}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormData({ ...formData, image: file });
+                      }
+                    }}
+                    className="cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Status & Flags */}
+              <div className="space-y-6 pt-4 border-t border-border">
+                {/* Visibility Toggle */}
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Visibile nel menu</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Se disattivato, il piatto sarà nascosto ai clienti
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.isVisible}
+                    onCheckedChange={(checked) => setFormData({ ...formData, isVisible: checked })}
+                  />
+                </div>
+
+                {/* Filtri Speciali */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    Filtri Speciali
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isSeasonal ? 'border-orange-500 bg-orange-50' : ''}`}
+                      onClick={() => setFormData({ ...formData, isSeasonal: !formData.isSeasonal })}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">🍂</span>
+                        <span className={`text-xs font-bold ${formData.isSeasonal ? 'text-orange-700' : 'text-muted-foreground'}`}>Stagionale</span>
+                      </CardContent>
+                    </Card>
+
+                    {/* Manual placement of "Glutine" allergen if available */}
+                    {allergens.filter(a => a.id === 'glutine').map(glutine => (
+                      <Card
+                        key={glutine.id}
+                        className={`cursor-pointer transition-all hover:border-red-300 ${formData.selectedAllergens.includes(glutine.id) ? 'border-red-500 bg-red-50' : ''}`}
+                        onClick={() => {
+                          const includes = formData.selectedAllergens.includes(glutine.id);
+                          const newSelected = !includes
+                            ? [...formData.selectedAllergens, glutine.id]
+                            : formData.selectedAllergens.filter(id => id !== glutine.id);
+                          setFormData({ ...formData, selectedAllergens: newSelected });
+                        }}
+                      >
+                        <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                          <span className="text-2xl">{glutine.icon}</span>
+                          <span className={`text-xs font-bold text-center leading-tight ${formData.selectedAllergens.includes(glutine.id) ? 'text-red-700' : 'text-muted-foreground'}`}>
+                            Contiene Glutine
+                          </span>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Caratteristiche */}
+                <div className="space-y-3">
+                  <Label>Caratteristiche</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {/* Fatto in casa */}
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isHomemade ? 'border-orange-500 bg-orange-50' : ''}`}
+                      onClick={() => setFormData({ ...formData, isHomemade: !formData.isHomemade })}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">🏠</span>
+                        <span className={`text-xs font-bold ${formData.isHomemade ? 'text-orange-700' : 'text-muted-foreground'}`}>Fatto in casa</span>
+                      </CardContent>
+                    </Card>
+
+                    {/* Surgelato */}
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-blue-300 ${formData.isFrozen ? 'border-blue-500 bg-blue-50' : ''}`}
+                      onClick={() => setFormData({ ...formData, isFrozen: !formData.isFrozen })}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">❄️</span>
+                        <span className={`text-xs font-bold ${formData.isFrozen ? 'text-blue-700' : 'text-muted-foreground'}`}>Surgelato</span>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Allergeni */}
+                <div className="space-y-3">
+                  <Label>Allergeni Presenti</Label>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                    {allergens.filter(a => a.id !== 'glutine').map((allergen) => (
+                      <Card
+                        key={allergen.id}
+                        className={`cursor-pointer transition-all h-24 hover:border-red-300 ${formData.selectedAllergens.includes(allergen.id) ? 'border-red-500 bg-red-50' : ''}`}
+                        onClick={() => {
+                          const includes = formData.selectedAllergens.includes(allergen.id);
+                          const newSelected = !includes
+                            ? [...formData.selectedAllergens, allergen.id]
+                            : formData.selectedAllergens.filter(id => id !== allergen.id);
+                          setFormData({ ...formData, selectedAllergens: newSelected });
+                        }}
+                      >
+                        <CardContent className="p-2 flex flex-col items-center justify-center h-full gap-1">
+                          <span className="text-2xl">{allergen.icon}</span>
+                          <span className={`text-[10px] font-bold text-center leading-tight line-clamp-2 ${formData.selectedAllergens.includes(allergen.id) ? 'text-red-700' : 'text-muted-foreground'}`}>
+                            {allergen.name}
+                          </span>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </form>
+          </ScrollArea>
+
+          <DialogFooter className="p-6 pt-2 border-t border-border bg-white">
+            <Button variant="outline" type="button" onClick={resetForm}>
+              Annulla
+            </Button>
+            <Button
+              type="submit"
+              form="dish-form"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0"
+            >
+              {editingDish ? 'Salva Modifiche' : 'Crea Piatto'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <MenuImportModal
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
@@ -1288,6 +1155,6 @@ export default function DishesPage() {
         tenantId={tenantId}
         categories={categories}
       />
-    </div >
+    </div>
   );
 }

@@ -2,18 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { FooterData, FooterLocation, FooterLink, FooterSocial } from '@/types/menu';
+import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
 import toast from 'react-hot-toast';
-
+import { Loader2, Plus, Trash2, Save } from 'lucide-react';
 
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [tenantId, setTenantId] = useState('');
-
 
   const [formData, setFormData] = useState({
     restaurantName: '',
@@ -108,12 +119,8 @@ export default function SettingsPage() {
     }
   }
 
-
-
-
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSave(e?: React.FormEvent) {
+    if (e) e.preventDefault();
     setSaving(true);
     const supabase = createClient();
 
@@ -191,138 +198,115 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-gray-900 mb-2">
           Design Studio 🎨
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Personalizza il design e le impostazioni del tuo ristorante
         </p>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
-
+      <form onSubmit={handleSave} className="space-y-8">
 
         {/* Design Lab */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">
-              Design & Branding 🎨
-            </h2>
-            <p className="text-gray-500 text-sm">Personalizza l&apos;aspetto del tuo menu con il nuovo editor visivo</p>
-          </div>
-
-          <div className="h-[calc(100vh-140px)] min-h-[600px]">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <ThemeProvider initialTheme={(formData.themeOptions || undefined) as any}>
-              <BrandingDesignLab
-                formData={{
-                  // These are now handled in the Design Lab itself or ignored if not set here.
-                  // Since we removed them from local state, we should pass empty strings or partial data if needed by the component.
-                  // Ideally BrandingDesignLab should fetch its own data or accept what we have.
-                  // For now, let's pass dummy/empty values if the type requires them, or just what we have.
-                  // If BrandingDesignLab relies on these for live preview, we might need to fetch them but not expose in form.
-                  // However, for this refactor, we assume DesignLab primarily cares about colors/logo, and maybe name/slug for preview context. 
-                  // If we don't have them in state, we can't pass them easily without fetching them separately or keeping them in state but hidden.
-                  // DECISION: BrandingDesignLab preview uses these. We must keep them in state OR fetch them just for the preview.
-                  // Given the user instruction "spostali", removing entirely from UI is done. Removing from code might break preview.
-                  // LET'S CHECK: The user said "spostali" (move them).
-                  // If I remove them from state, BrandingDesignLab gets empty strings.
-                  restaurant_name: formData.restaurantName,
-                  slug: formData.slug,
-                  logo_url: formData.logoUrl,
-                  primary_color: formData.primaryColor,
-                  secondary_color: formData.secondaryColor,
-                  background_color: formData.backgroundColor,
-                  hero_title_color: formData.heroTitleColor,
-                  hero_tagline_color: formData.heroTaglineColor,
-                  footer_data: formData.footerData,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  theme_options: (formData.themeOptions || undefined) as any
-                }}
-                onUpdate={(updates) => {
-                  // Update local state based on what changed
-                  setFormData(prev => {
-                    const newData = { ...prev };
-                    if (updates.theme_options) newData.themeOptions = updates.theme_options;
-                    if (updates.logo_url) newData.logoUrl = updates.logo_url;
-                    // Sync legacy colors if changed (optional, but good for consistency)
-                    if (updates.theme_options && updates.theme_options.colors) {
-                      const c = updates.theme_options.colors;
-                      if (c.primary) newData.primaryColor = c.primary;
-                      if (c.secondary) newData.secondaryColor = c.secondary;
-                      if (c.background) newData.backgroundColor = c.background;
-                      if (c.surface) newData.surfaceColor = c.surface;
-                      if (c.text) newData.textColor = c.text;
-                    }
-                    return newData;
-                  });
-                }}
-                onNext={() => {
-                  // User clicked "Salva e Continua" in the lab.
-                  // We can treat this as a "Save" for the whole settings page, or just alert.
-                  // Since we are in a form, maybe we don't auto-submit.
-                  toast.success('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.', { duration: 5000 });
-                }}
-                onBack={() => { }}
-                hideNavigation={true}
-                tenantId={tenantId}
-              />
-            </ThemeProvider>
-          </div>
-        </div>
+        <Card className="overflow-hidden border-orange-100 shadow-md">
+          {/* No Header needed as per previous cleanup */}
+          <CardContent className="p-0">
+            <div className="h-[calc(100vh-140px)] min-h-[600px]">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              <ThemeProvider initialTheme={(formData.themeOptions || undefined) as any}>
+                <BrandingDesignLab
+                  formData={{
+                    restaurant_name: formData.restaurantName,
+                    slug: formData.slug,
+                    logo_url: formData.logoUrl,
+                    primary_color: formData.primaryColor,
+                    secondary_color: formData.secondaryColor,
+                    background_color: formData.backgroundColor,
+                    hero_title_color: formData.heroTitleColor,
+                    hero_tagline_color: formData.heroTaglineColor,
+                    footer_data: formData.footerData,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    theme_options: (formData.themeOptions || undefined) as any
+                  }}
+                  onUpdate={(updates) => {
+                    setFormData(prev => {
+                      const newData = { ...prev };
+                      if (updates.theme_options) newData.themeOptions = updates.theme_options;
+                      if (updates.logo_url) newData.logoUrl = updates.logo_url;
+                      if (updates.theme_options && updates.theme_options.colors) {
+                        const c = updates.theme_options.colors;
+                        if (c.primary) newData.primaryColor = c.primary;
+                        if (c.secondary) newData.secondaryColor = c.secondary;
+                        if (c.background) newData.backgroundColor = c.background;
+                        if (c.surface) newData.surfaceColor = c.surface;
+                        if (c.text) newData.textColor = c.text;
+                      }
+                      return newData;
+                    });
+                  }}
+                  onNext={() => {
+                    toast.success('Design aggiornato! Ricordati di salvare le impostazioni generali in fondo alla pagina.', { duration: 5000 });
+                  }}
+                  onBack={() => { }}
+                  hideNavigation={true}
+                  tenantId={tenantId}
+                />
+              </ThemeProvider>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Footer Customization */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Personalizzazione Footer
-          </h2>
+        <Card>
+          <CardHeader>
+            <CardTitle>Personalizzazione Footer</CardTitle>
+            <CardDescription>Gestisci le informazioni visualizzate nel footer del tuo menu digitale.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
 
-          <div className="space-y-8">
             {/* Brand Description */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="mb-4">
-                <h3 className="text-sm font-bold text-gray-900 mb-2">Descrizione Brand</h3>
-                <p className="text-xs text-gray-500">
-                  Questa descrizione apparirà nel footer sotto il logo.
-                </p>
-              </div>
-              <div>
-                <textarea
-                  value={formData.footerData.brand_description?.it || ''}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    footerData: {
-                      ...formData.footerData,
-                      brand_description: {
-                        ...formData.footerData.brand_description,
-                        it: e.target.value,
-                        // Sync English to match Italian (or keep empty/legacy) to avoid holes, 
-                        // but effectively we ignore it in UI now.
-                        en: e.target.value
-                      }
+            <div className="space-y-2">
+              <Label htmlFor="brand-desc">Descrizione Brand</Label>
+              <p className="text-xs text-muted-foreground">
+                Questa descrizione apparirà nel footer sotto il logo.
+              </p>
+              <Textarea
+                id="brand-desc"
+                value={formData.footerData.brand_description?.it || ''}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  footerData: {
+                    ...formData.footerData,
+                    brand_description: {
+                      ...formData.footerData.brand_description,
+                      it: e.target.value,
+                      en: e.target.value
                     }
-                  })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md h-24 resize-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Scopri i nostri piatti e le nostre specialità..."
-                />
-              </div>
+                  }
+                })}
+                placeholder="Scopri i nostri piatti e le nostre specialità..."
+                className="resize-none h-24"
+              />
             </div>
 
             {/* Locations */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-gray-900">Sedi</h3>
-                <button
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">Sedi</Label>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setFormData({
                     ...formData,
                     footerData: {
@@ -330,87 +314,85 @@ export default function SettingsPage() {
                       locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
                     }
                   })}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                  className="gap-2"
                 >
-                  + Aggiungi Sede
-                </button>
+                  <Plus className="w-4 h-4" /> Aggiungi Sede
+                </Button>
               </div>
+
               <div className="space-y-3">
                 {formData.footerData.locations.map((loc, index) => (
-                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <div className="flex-1 space-y-2">
-                      <input
-                        type="text"
-                        placeholder="Città"
-                        value={loc.city}
-                        onChange={(e) => {
-                          const newLocs = [...formData.footerData.locations];
-                          newLocs[index].city = e.target.value;
+                  <Card key={index} className="bg-muted/30">
+                    <CardContent className="p-4 flex gap-3 items-start">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                        <Input
+                          placeholder="Città"
+                          value={loc.city}
+                          onChange={(e) => {
+                            const newLocs = [...formData.footerData.locations];
+                            newLocs[index].city = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                          }}
+                        />
+                        <Input
+                          placeholder="Indirizzo"
+                          value={loc.address}
+                          onChange={(e) => {
+                            const newLocs = [...formData.footerData.locations];
+                            newLocs[index].address = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                          }}
+                        />
+                        <Input
+                          placeholder="Telefono (opzionale)"
+                          value={loc.phone || ''}
+                          onChange={(e) => {
+                            const newLocs = [...formData.footerData.locations];
+                            newLocs[index].phone = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                          }}
+                        />
+                        <Input
+                          placeholder="Orari (es. Lun-Dom: 12-23)"
+                          value={loc.opening_hours || ''}
+                          onChange={(e) => {
+                            const newLocs = [...formData.footerData.locations];
+                            newLocs[index].opening_hours = e.target.value;
+                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
                           setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
                         }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Indirizzo"
-                        value={loc.address}
-                        onChange={(e) => {
-                          const newLocs = [...formData.footerData.locations];
-                          newLocs[index].address = e.target.value;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                        }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Telefono (opzionale)"
-                        value={loc.phone || ''}
-                        onChange={(e) => {
-                          const newLocs = [...formData.footerData.locations];
-                          newLocs[index].phone = e.target.value;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                        }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Orari (es. Lun-Dom: 12-23)"
-                        value={loc.opening_hours || ''}
-                        onChange={(e) => {
-                          const newLocs = [...formData.footerData.locations];
-                          newLocs[index].opening_hours = e.target.value;
-                          setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                        }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
-                        setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      🗑️
-                    </button>
-                  </div>
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ))}
                 {formData.footerData.locations.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">Nessuna sede aggiunta.</p>
+                  <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                    Nessuna sede aggiunta.
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Links Section Removed */}
-
-
             {/* Socials */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-gray-900">Social Network</h3>
-                <button
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">Social Network</Label>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setFormData({
                     ...formData,
                     footerData: {
@@ -418,33 +400,39 @@ export default function SettingsPage() {
                       socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
                     }
                   })}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition-colors"
+                  className="gap-2"
                 >
-                  + Aggiungi Social
-                </button>
+                  <Plus className="w-4 h-4" /> Aggiungi Social
+                </Button>
               </div>
+
               <div className="space-y-3">
                 {formData.footerData.socials.map((social, index) => (
-                  <div key={index} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <div className="flex-1 space-y-2">
-                      <select
+                  <div key={index} className="flex gap-3 items-start">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                      <Select
                         value={social.platform}
-                        onChange={(e) => {
+                        onValueChange={(value) => {
                           const newSocials = [...formData.footerData.socials];
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          newSocials[index].platform = e.target.value as any;
+                          newSocials[index].platform = value as any;
                           setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                         }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
                       >
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="tripadvisor">TripAdvisor</option>
-                        <option value="website">Sito Web</option>
-                        <option value="other">Altro</option>
-                      </select>
-                      <input
-                        type="text"
+                        <SelectTrigger>
+                          <SelectValue placeholder="Social" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="facebook">Facebook</SelectItem>
+                          <SelectItem value="instagram">Instagram</SelectItem>
+                          <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                          <SelectItem value="website">Sito Web</SelectItem>
+                          <SelectItem value="other">Altro</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        className="md:col-span-2"
                         placeholder="URL Profilo"
                         value={social.url}
                         onChange={(e) => {
@@ -452,56 +440,53 @@ export default function SettingsPage() {
                           newSocials[index].url = e.target.value;
                           setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                         }}
-                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md"
                       />
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => {
                         const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
                         setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                       }}
-                      className="text-red-500 hover:text-red-700 p-1"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                     >
-                      🗑️
-                    </button>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 ))}
                 {formData.footerData.socials.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">Nessun social aggiunto.</p>
+                  <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                    Nessun social aggiunto.
+                  </p>
                 )}
               </div>
             </div>
-          </div>
-        </div>
 
-
-
+          </CardContent>
+        </Card>
 
         {/* Save Button */}
-        <div className="flex items-center gap-3">
-          <button
+        <div className="flex justify-end pt-4">
+          <Button
             type="submit"
             disabled={saving}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            size="lg"
+            className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg hover:shadow-xl transition-all"
           >
             {saving ? (
               <>
-                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Salvataggio...</span>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Salvataggio...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Salva Modifiche</span>
+                <Save className="w-5 h-5 mr-2" />
+                Salva Modifiche
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
