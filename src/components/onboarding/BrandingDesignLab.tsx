@@ -60,6 +60,13 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
     const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
     const mainRef = useRef<HTMLDivElement>(null);
 
+    // Sync theme changes to parent form data
+    React.useEffect(() => {
+        if (currentTheme) {
+            onUpdate({ theme_options: currentTheme });
+        }
+    }, [currentTheme]);
+
     const handleCategoryClick = (categoryId: string) => {
         setActiveCategory(categoryId);
     };
