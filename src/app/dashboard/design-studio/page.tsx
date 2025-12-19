@@ -180,10 +180,10 @@ export default function SettingsPage() {
       <form onSubmit={handleSave} className="space-y-8">
 
         {/* Design Lab */}
-        <Card className="overflow-hidden border-orange-100 shadow-md">
+        <Card className="border-orange-100 shadow-md md:overflow-hidden">
           {/* No Header needed as per previous cleanup */}
           <CardContent className="p-0">
-            <div className="h-[calc(100vh-140px)] min-h-[600px]">
+            <div className="h-auto min-h-[600px] md:h-[calc(100vh-140px)]">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <ThemeProvider initialTheme={(loadedTheme || undefined) as any}>
                 <BrandingDesignLab
@@ -222,35 +222,33 @@ export default function SettingsPage() {
                   onBack={() => { }}
                   hideNavigation={true}
                   tenantId={tenantId}
+                  footerSlot={
+                    <Button
+                      type="submit"
+                      disabled={saving}
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg hover:shadow-xl transition-all"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Salvataggio...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-5 h-5 mr-2" />
+                          Salva Modifiche
+                        </>
+                      )}
+                    </Button>
+                  }
                 />
               </ThemeProvider>
             </div>
           </CardContent>
         </Card>
 
-        {/* Save Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-sm border-t border-gray-200 z-40 md:static md:bg-transparent md:border-0 md:p-0 md:pt-4 md:flex md:justify-end">
-          <Button
-            type="submit"
-            disabled={saving}
-            size="lg"
-            className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg hover:shadow-xl transition-all"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Salvataggio...
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5 mr-2" />
-                Salva Modifiche
-              </>
-            )}
-          </Button>
-        </div>
-        {/* Spacer for mobile sticky button */}
-        <div className="h-20 md:hidden"></div>
+
       </form>
     </div>
   );

@@ -53,9 +53,10 @@ interface BrandingDesignLabProps {
     onBack: () => void;
     hideNavigation?: boolean;
     tenantId?: string;
+    footerSlot?: React.ReactNode;
 }
 
-export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, hideNavigation, tenantId }: BrandingDesignLabProps) {
+export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, hideNavigation, tenantId, footerSlot }: BrandingDesignLabProps) {
     const { currentTheme } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string>('antipasti');
     const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -100,7 +101,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
     };
 
     return (
-        <div className="flex flex-col md:flex-row h-full bg-white font-sans overflow-hidden relative">
+        <div className="flex flex-col md:flex-row h-auto md:h-full bg-white font-sans md:overflow-hidden relative">
             {/* Mobile Tabs - Shadcn UI */}
             <div className="md:hidden p-2 border-b border-gray-100 bg-white z-20 sticky top-0">
                 <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as 'editor' | 'preview')} className="w-full">
@@ -131,6 +132,13 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                     onLogoChange={(url) => onUpdate({ logo_url: url })}
                 />
 
+                {/* Custom Footer Slot (e.g. Save Button) */}
+                {footerSlot && (
+                    <div className="p-4 border-t border-gray-200 bg-white shrink-0">
+                        {footerSlot}
+                    </div>
+                )}
+
                 {/* Navigation Buttons embedded in the sidebar for better UX */}
                 {!hideNavigation && (
                     <div className="p-4 border-t border-gray-200 bg-white flex flex-col gap-3 shrink-0">
@@ -159,7 +167,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
             </div>
 
             {/* Right Panel: Preview */}
-            <div className={`flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50 md:flex ${mobileTab === 'editor' ? 'hidden' : 'flex'}`}>
+            <div className={`flex-1 flex flex-col h-auto md:h-full md:overflow-hidden relative bg-gray-50 md:flex ${mobileTab === 'editor' ? 'hidden' : 'flex'}`}>
                 {/* Toolbar */}
                 <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
                     <div className="flex items-center gap-4">
@@ -173,15 +181,15 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                 </div>
 
                 {/* Canvas */}
-                <div className="flex-1 overflow-hidden md:overflow-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
+                <div className="flex-1 overflow-visible md:overflow-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
                     <div
-                        className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl overflow-y-auto scrollbar-hide md:border md:border-gray-200"
+                        className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl md:overflow-y-auto scrollbar-hide md:border md:border-gray-200"
                     >
 
                         <ThemeWrapper>
                             <div
                                 ref={mainRef}
-                                className="min-h-full pb-8 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+                                className="min-h-full pb-8 md:overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
                                 style={{
                                     backgroundColor: mockTenant.background_color,
                                     '--tenant-primary': mockTenant.primary_color,

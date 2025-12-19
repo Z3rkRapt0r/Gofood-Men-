@@ -124,7 +124,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl
     };
 
     return (
-        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl flex flex-col">
+        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 md:overflow-y-auto p-6 shadow-xl flex flex-col">
 
 
             <div className="flex-1 space-y-10">
