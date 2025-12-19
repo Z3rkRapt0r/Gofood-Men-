@@ -2,13 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { deleteAccount } from '@/app/actions/account';
+import { deleteAccount, resetMenu } from '@/app/actions/account';
 import { createClient } from '@/lib/supabase/client';
 
 export default function AccountPage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
+
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Reset Menu State
+    const [showResetMenuModal, setShowResetMenuModal] = useState(false);
+    const [resetMenuConfirmation, setResetMenuConfirmation] = useState('');
+    const [isResettingMenu, setIsResettingMenu] = useState(false);
 
     // New State for Restaurant Info
     const [loading, setLoading] = useState(true);
@@ -99,6 +105,25 @@ export default function AccountPage() {
             console.error('Error deleting account:', error);
             toast.error('Errore durante l\'eliminazione dell\'account');
             setIsDeleting(false);
+        }
+    }
+
+    async function handleResetMenu() {
+        if (resetMenuConfirmation.trim().toUpperCase() !== 'RESET') {
+            return;
+        }
+
+        setIsResettingMenu(true);
+        try {
+            await resetMenu();
+            toast.success('Menu resettato con successo');
+            setShowResetMenuModal(false);
+            setResetMenuConfirmation('');
+        } catch (error) {
+            console.error('Error resetting menu:', error);
+            toast.error('Errore durante il reset del menu');
+        } finally {
+            setIsResettingMenu(false);
         }
     }
 
@@ -239,6 +264,22 @@ export default function AccountPage() {
 
                     <div className="bg-red-50 rounded-xl p-4 border border-red-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div>
+                            <h3 className="font-bold text-red-800 mb-1">Reset Menu Completo</h3>
+                            <p className="text-sm text-red-600">
+                                Cancella TUTTI i piatti e le categorie. Le immagini verranno rimosse. Le impostazioni del ristorante rimangono.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setShowResetMenuModal(true)}
+                            className="whitespace-nowrap px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-bold hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+                        >
+                            Reset Menu
+                        </button>
+                    </div>
+
+                    <div className="mt-6 bg-red-50 rounded-xl p-4 border border-red-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
                             <h3 className="font-bold text-red-800 mb-1">Elimina Account</h3>
                             <p className="text-sm text-red-600">
                                 L&apos;eliminazione dell&apos;account è irreversibile. Tutti i tuoi dati, menu e impostazioni verranno cancellati permanentemente.
@@ -254,6 +295,62 @@ export default function AccountPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Reset Menu Confirmation Modal */}
+            {showResetMenuModal && (
+                <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span className="text-3xl">🍽️</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                Resettare il Menu?
+                            </h3>
+                            <p className="text-gray-600 text-sm">
+                                Verranno eliminati <span className="font-bold">tutti i piatti e le categorie</span>. Questa azione è irreversibile. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">RESET</span> per confermare.
+                            </p>
+                        </div>
+
+                        <input
+                            type="text"
+                            value={resetMenuConfirmation}
+                            onChange={(e) => setResetMenuConfirmation(e.target.value)}
+                            placeholder="RESET"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center font-bold tracking-widest mb-6 uppercase"
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowResetMenuModal(false);
+                                    setResetMenuConfirmation('');
+                                }}
+                                disabled={isResettingMenu}
+                                className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                            >
+                                Annulla
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleResetMenu}
+                                disabled={resetMenuConfirmation.trim().toUpperCase() !== 'RESET' || isResettingMenu}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {isResettingMenu ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <span>Resettando...</span>
+                                    </>
+                                ) : (
+                                    <span>Conferma Reset</span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Delete Confirmation Modal */}
             {showDeleteModal && (

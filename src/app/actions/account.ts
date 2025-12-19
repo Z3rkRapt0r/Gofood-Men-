@@ -134,3 +134,90 @@ export async function deleteAccount() {
     // 3. Return success signal. Client will handle redirect.
     return { success: true };
 }
+
+export async function resetMenu() {
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Non autenticato');
+    }
+
+    // Initialize Admin Client for storage operations
+    const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        }
+    );
+
+    console.log(`[RESET_MENU] Attempting to reset menu for user ${user.id}`);
+
+    try {
+        // 1. Fetch tenant info
+        const { data: tenant } = await supabaseAdmin
+            .from('tenants')
+            .select('id, restaurant_name')
+            .eq('owner_id', user.id)
+            .single();
+
+        if (!tenant) throw new Error('Tenant non trovato');
+
+        // 2. Clean 'dishes' bucket
+        // Construct folder name: restaurant-name-id
+        const baseName = tenant.restaurant_name
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') || 'temp-uploads';
+
+        const folderPath = `${baseName}-${tenant.id}/dishes`;
+        console.log(`[RESET_MENU] Cleaning dishes from ${folderPath}`);
+
+        try {
+            const { data: dishFiles } = await supabaseAdmin.storage
+                .from('dishes')
+                .list(folderPath);
+
+            if (dishFiles && dishFiles.length > 0) {
+                const filesToRemove = dishFiles.map(f => `${folderPath}/${f.name}`);
+                // Batch remove might fail if too many, but usually fine for < 1000
+                const { error: removeError } = await supabaseAdmin.storage
+                    .from('dishes')
+                    .remove(filesToRemove);
+
+                if (removeError) console.warn('[RESET_MENU] Error removing files:', removeError);
+                else console.log(`[RESET_MENU] Cleaned ${filesToRemove.length} files`);
+            }
+        } catch (storageErr) {
+            console.warn('[RESET_MENU] Error during storage cleanup:', storageErr);
+        }
+
+        // 3. Delete DB Data
+        // Deleting all categories will cascade delete all dishes and dish_allergens
+        const { error: deleteError } = await supabaseAdmin
+            .from('categories')
+            .delete()
+            .eq('tenant_id', tenant.id);
+
+        if (deleteError) {
+            throw new Error(`Errore DB: ${deleteError.message}`);
+        }
+
+        console.log(`[RESET_MENU] DB data cleared for tenant ${tenant.id}`);
+
+        revalidatePath('/dashboard/dishes');
+        revalidatePath('/dashboard/categories');
+
+        return { success: true };
+
+    } catch (error: any) {
+        console.error('[RESET_MENU] Unexpected error:', error);
+        throw new Error(error.message || 'Errore sconosciuto durante il reset');
+    }
+}
