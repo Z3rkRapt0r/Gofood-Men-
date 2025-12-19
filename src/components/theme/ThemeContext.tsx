@@ -39,13 +39,13 @@ export function ThemeProvider({ children, initialTheme }: { children: React.Reac
         setCurrentTheme((prev) => ({ ...prev, ...updates }));
     };
 
-    const value = {
+    const value = React.useMemo(() => ({
         currentTheme,
         setTheme: setCurrentTheme,
         applyPreset,
         updateTheme,
         presets: THEME_PRESETS,
-    };
+    }), [currentTheme]);
 
     return (
         <ThemeContext.Provider value={value}>

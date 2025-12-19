@@ -37,7 +37,8 @@ const FONT_OPTIONS = [
     { label: 'Space Mono (Tecnico)', value: 'Space Mono' },
 ];
 
-export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onLogoChange }: VisualEditorPanelProps) {
+// Wrapped in React.memo to prevent unnecessary re-renders
+export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onLogoChange }: VisualEditorPanelProps) {
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
@@ -457,7 +458,7 @@ export function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onL
             `}</style>
         </div>
     );
-}
+});
 
 // Enhanced Color Picker Helper
 function ColorPicker({ label, description, value, onChange }: { label: string, description?: string, value: string, onChange: (val: string) => void }) {

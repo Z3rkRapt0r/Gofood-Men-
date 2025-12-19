@@ -37,6 +37,9 @@ export default function SettingsPage() {
     themeOptions: null as Record<string, unknown> | null,
   });
 
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const [loadedTheme, setLoadedTheme] = useState<Record<string, unknown> | null>(null);
+
   useEffect(() => {
     loadSettings();
   }, []);
@@ -67,6 +70,8 @@ export default function SettingsPage() {
       if (designData) {
         themeOptions = designData.theme_config;
       }
+
+      setLoadedTheme(themeOptions);
 
       setTenantId(tenant.id);
 
@@ -180,7 +185,7 @@ export default function SettingsPage() {
           <CardContent className="p-0">
             <div className="h-[calc(100vh-140px)] min-h-[600px]">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              <ThemeProvider initialTheme={(formData.themeOptions || undefined) as any}>
+              <ThemeProvider initialTheme={(loadedTheme || undefined) as any}>
                 <BrandingDesignLab
                   formData={{
                     restaurant_name: formData.restaurantName,
