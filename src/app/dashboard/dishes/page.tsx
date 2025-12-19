@@ -836,46 +836,7 @@ export default function DishesPage() {
           </p>
         </div>
         <div className="grid grid-cols-2 md:flex gap-3 w-full md:w-auto">
-          <button
-            onClick={() => {
-              if (isSelectionMode) {
-                setIsSelectionMode(false);
-                setSelectedDishes(new Set());
-              } else {
-                setIsSelectionMode(true);
-              }
-            }}
-            className={`bg-white border-2 px-4 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm md:text-base ${isSelectionMode
-              ? 'border-gray-500 text-gray-700 hover:bg-gray-50'
-              : 'border-orange-500 text-orange-500 hover:bg-orange-50'
-              }`}
-          >
-            {isSelectionMode ? (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Annulla</span>
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Seleziona</span>
-              </>
-            )}
-          </button>
 
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm md:text-base"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-            <span>Importa AI</span>
-          </button>
           <button
             onClick={() => {
               resetForm();
