@@ -3,9 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Utensils, User, Mail, Lock, ChevronRight, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,16 +22,6 @@ export default function RegisterPage() {
     restaurantName: '',
     fullName: ''
   });
-
-  // Generate slug from restaurant name
-  function generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,14 +71,6 @@ export default function RegisterPage() {
       // Se arriviamo qui, l'utente è autenticato (email confirmation disabilitata)
       console.log('✓ User authenticated, proceeding with tenant creation');
 
-      // NOTA: Il profile viene creato automaticamente dal trigger SQL
-      // handle_new_user() quando l'utente si registra.
-      // Non è necessario crearlo manualmente qui.
-
-      // 2. Slug generation simplified to UUID in insert
-      console.log('Generating tenant...');
-
-
       // 3. Create tenant
       const { data: tenantData, error: tenantError } = await supabase
         .from('tenants')
@@ -125,190 +112,162 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center px-4 py-12">
-      {/* Decorative background blobs */}
-      <div className="fixed top-0 left-0 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-20 animate-pulse" />
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      {/* Decorative background blobs - maintained but subtle */}
+      <div className="fixed top-0 left-0 w-96 h-96 bg-orange-100 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-amber-100 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
+      <div className="w-full max-w-[440px] relative z-10">
+
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-block mb-4">
             <img
               src="/logo-gofood-new.svg"
               alt="GO! FOOD"
-              className="h-14 w-auto mx-auto mb-4"
+              className="h-12 w-auto mx-auto"
             />
           </Link>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">
-            Inizia la tua avventura digitale! 🚀
-          </h2>
-          <p className="text-gray-600">
-            Crea il tuo menu in 5 minuti
-          </p>
         </div>
 
-        {/* Registration Form */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
-          <div className="mb-6">
-            <h3 className="font-black text-gray-900 text-lg">
-              Prenditi il tuo tempo
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Configura tutto con calma e <span className="font-bold text-orange-600">vai online</span> solo quando sei pronto.
-            </p>
-          </div>
+        <Card className="border-orange-100 shadow-xl">
+          <CardHeader className="space-y-1 pb-6 text-center">
+            <CardTitle className="text-2xl font-bold tracking-tight">Crea il tuo Account</CardTitle>
+            <CardDescription className="text-base">
+              Crea il tuo menu digitale in pochi minuti.
+            </CardDescription>
+          </CardHeader>
 
-          {error && (
-            <div className="bg-red-50 border-2 border-red-200 text-red-800 rounded-xl p-4 mb-6 flex items-start gap-3">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <p className="text-sm font-medium">{error}</p>
-            </div>
-          )}
+          <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-200">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Errore</AlertTitle>
+                <AlertDescription>
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Restaurant Name */}
-            <div>
-              <label htmlFor="restaurantName" className="block text-sm font-bold text-gray-900 mb-2">
-                Nome Ristorante *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">🍽️</span>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="restaurantName">Nome Ristorante</Label>
+                <div className="relative">
+                  <Utensils className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="restaurantName"
+                    placeholder="Es. Trattoria da Mario"
+                    type="text"
+                    required
+                    value={formData.restaurantName}
+                    onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
+                    className="pl-10 h-10 bg-white"
+                  />
                 </div>
-                <input
-                  type="text"
-                  id="restaurantName"
-                  required
-                  value={formData.restaurantName}
-                  onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="Es. Trattoria da Mario"
-                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Nome e Cognome</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="fullName"
+                    placeholder="Mario Rossi"
+                    type="text"
+                    required
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="pl-10 h-10 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="email"
+                    placeholder="mario@ristorante.it"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="pl-10 h-10 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="password"
+                    placeholder="Minimo 6 caratteri"
+                    type="password"
+                    minLength={6}
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="pl-10 h-10 bg-white"
+                  />
+                </div>
+                <p className="text-[0.8rem] text-muted-foreground">
+                  La password deve contenere almeno 6 caratteri.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-base shadow-md hover:shadow-lg transition-all"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creazione account...
+                  </>
+                ) : (
+                  <>
+                    Inizia Ora <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-muted-foreground">
+                  Hai già un account?
+                </span>
               </div>
             </div>
 
-            {/* Full Name */}
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-bold text-gray-900 mb-2">
-                Nome e Cognome *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">👤</span>
-                </div>
-                <input
-                  type="text"
-                  id="fullName"
-                  required
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="Mario Rossi"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
-                Email *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">📧</span>
-                </div>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="mario@ristorante.it"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-bold text-gray-900 mb-2">
-                Password *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-xl">🔒</span>
-                </div>
-                <input
-                  type="password"
-                  id="password"
-                  required
-                  minLength={6}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
-                  placeholder="Minimo 6 caratteri"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-2 ml-1">
-                Minimo 6 caratteri, consigliamo l&apos;uso di caratteri speciali
-              </p>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-4 px-6 rounded-xl transition-all shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] flex items-center justify-center gap-3 text-lg"
+            <Button
+              variant="outline"
+              className="w-full h-11 border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 font-medium bg-orange-50/50"
+              asChild
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Creazione account...</span>
-                </>
-              ) : (
-                <>
-                  <span>Inizia Ora</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </>
-              )}
-            </button>
-          </form>
+              <Link href="/login">
+                Accedi al tuo account
+              </Link>
+            </Button>
+          </CardContent>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-sm text-gray-500 font-medium">Hai già un account?</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
+          <CardFooter className="flex flex-col gap-4 border-t border-gray-100 bg-gray-50/50 p-6 rounded-b-xl">
 
-          {/* Login Link */}
-          <Link
-            href="/login"
-            className="w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-3.5 px-6 rounded-xl transition-all border-2 border-orange-200 hover:border-orange-300"
-          >
-            Accedi al tuo account
-          </Link>
 
-          {/* Terms */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-500 text-center leading-relaxed">
+            <p className="text-xs text-center text-gray-500 leading-relaxed mt-2">
               Registrandoti accetti i nostri{' '}
-              <a href="#" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe text-orange-600 font-semibold hover:underline" title="Termini e Condizioni">Termini di Servizio</a>
+              <a href="#" className="font-medium text-orange-600 hover:underline">Termini di Servizio</a>
               {' '}e la{' '}
-              <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe text-orange-600 font-semibold hover:underline" title="Privacy Policy">Privacy Policy</a>
+              <a href="https://www.iubenda.com/privacy-policy/23100081" className="font-medium text-orange-600 hover:underline">Privacy Policy</a>
             </p>
-          </div>
-        </div>
-
-
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
