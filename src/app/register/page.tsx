@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Utensils, User, Mail, Lock, ChevronRight, AlertCircle } from 'lucide-react';
+import { Loader2, ChevronRight, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function RegisterPage() {
@@ -112,28 +112,34 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center px-4 py-12">
       {/* Decorative background blobs - maintained but subtle */}
-      <div className="fixed top-0 left-0 w-96 h-96 bg-orange-100 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none" />
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-amber-100 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
+      <div className="fixed top-0 left-0 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-20 animate-pulse" />
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
 
-      <div className="w-full max-w-[440px] relative z-10">
+      <div className="w-full max-w-md relative z-10">
 
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-block mb-4">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
             <img
               src="/logo-gofood-new.svg"
               alt="GO! FOOD"
-              className="h-12 w-auto mx-auto"
+              className="h-14 w-auto mx-auto mb-4"
             />
           </Link>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">
+            Inizia la tua avventura! 🚀
+          </h2>
+          <p className="text-gray-600">
+            Crea il tuo menu digitale in pochi minuti
+          </p>
         </div>
 
-        <Card className="border-orange-100 shadow-xl">
-          <CardHeader className="space-y-1 pb-6 text-center">
-            <CardTitle className="text-2xl font-bold tracking-tight">Crea il tuo Account</CardTitle>
-            <CardDescription className="text-base">
-              Crea il tuo menu digitale in pochi minuti.
+        <Card className="shadow-2xl border-orange-100">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-3xl font-black text-gray-900">Registrati</CardTitle>
+            <CardDescription className="text-gray-600">
+              Inserisci i tuoi dati per iniziare
             </CardDescription>
           </CardHeader>
 
@@ -148,11 +154,13 @@ export default function RegisterPage() {
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="restaurantName">Nome Ristorante</Label>
+                <Label htmlFor="restaurantName" className="font-bold">Nome Ristorante *</Label>
                 <div className="relative">
-                  <Utensils className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">🍽️</span>
+                  </div>
                   <Input
                     id="restaurantName"
                     placeholder="Es. Trattoria da Mario"
@@ -160,15 +168,17 @@ export default function RegisterPage() {
                     required
                     value={formData.restaurantName}
                     onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                    className="pl-10 h-10 bg-white"
+                    className="pl-10 py-6 text-base"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nome e Cognome</Label>
+                <Label htmlFor="fullName" className="font-bold">Nome e Cognome *</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">👤</span>
+                  </div>
                   <Input
                     id="fullName"
                     placeholder="Mario Rossi"
@@ -176,15 +186,17 @@ export default function RegisterPage() {
                     required
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="pl-10 h-10 bg-white"
+                    className="pl-10 py-6 text-base"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="font-bold">Email *</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">📧</span>
+                  </div>
                   <Input
                     id="email"
                     placeholder="mario@ristorante.it"
@@ -192,15 +204,17 @@ export default function RegisterPage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="pl-10 h-10 bg-white"
+                    className="pl-10 py-6 text-base"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="font-bold">Password *</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xl">🔒</span>
+                  </div>
                   <Input
                     id="password"
                     placeholder="Minimo 6 caratteri"
@@ -209,17 +223,17 @@ export default function RegisterPage() {
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="pl-10 h-10 bg-white"
+                    className="pl-10 py-6 text-base"
                   />
                 </div>
-                <p className="text-[0.8rem] text-muted-foreground">
+                <p className="text-[0.8rem] text-muted-foreground ml-1">
                   La password deve contenere almeno 6 caratteri.
                 </p>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-base shadow-md hover:shadow-lg transition-all"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black py-6 rounded-xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 text-lg transition-all hover:scale-[1.02]"
                 disabled={loading}
               >
                 {loading ? (
@@ -234,33 +248,25 @@ export default function RegisterPage() {
                 )}
               </Button>
             </form>
+          </CardContent>
 
-            <div className="relative my-6">
+          <CardFooter className="flex flex-col space-y-4 pt-2">
+            <div className="relative w-full text-center">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">
-                  Hai già un account?
-                </span>
+                <span className="bg-white px-2 text-gray-500 font-medium">Hai già un account?</span>
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              className="w-full h-11 border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800 font-medium bg-orange-50/50"
-              asChild
-            >
-              <Link href="/login">
+            <Link href="/login" className="w-full">
+              <Button variant="outline" className="w-full py-6 font-bold border-2 border-orange-200 hover:border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700">
                 Accedi al tuo account
-              </Link>
-            </Button>
-          </CardContent>
+              </Button>
+            </Link>
 
-          <CardFooter className="flex flex-col gap-4 border-t border-gray-100 bg-gray-50/50 p-6 rounded-b-xl">
-
-
-            <p className="text-xs text-center text-gray-500 leading-relaxed mt-2">
+            <p className="text-xs text-center text-gray-500 leading-relaxed mt-2 px-6">
               Registrandoti accetti i nostri{' '}
               <a href="#" className="font-medium text-orange-600 hover:underline">Termini di Servizio</a>
               {' '}e la{' '}
@@ -268,6 +274,14 @@ export default function RegisterPage() {
             </p>
           </CardFooter>
         </Card>
+
+        {/* Back to Home */}
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-sm text-gray-600 hover:text-orange-600 transition-colors font-medium">
+            ← Torna alla home
+          </Link>
+        </div>
+
       </div>
     </div>
   );
