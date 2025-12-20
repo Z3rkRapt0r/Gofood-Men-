@@ -119,6 +119,11 @@ export function StepCategories({ tenantId }: StepCategoriesProps) {
 
     async function loadCategories() {
         setLoading(true);
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
+
         const supabase = createClient();
         const { data } = await supabase
             .from('categories')
@@ -207,7 +212,7 @@ export function StepCategories({ tenantId }: StepCategoriesProps) {
 
                 const updates = newItems.map((item, index) => ({
                     id: item.id,
-                    tenant_id: tenantId,
+                    tenant_id: tenantId!, // We know it exists from line 206 check
                     name: item.name,
                     slug: item.slug,
                     display_order: index,

@@ -47,6 +47,11 @@ export default function AccountPage() {
         } as FooterData,
     });
 
+    // Password Change State
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
     useEffect(() => {
         loadTenantData();
     }, []);
@@ -197,6 +202,43 @@ export default function AccountPage() {
             toast.error('Errore durante il reset del menu');
         } finally {
             setIsResettingMenu(false);
+        }
+    }
+
+    async function handlePasswordChange() {
+        if (!newPassword || !confirmPassword) {
+            toast.error('Compila entrambi i campi password');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            toast.error('Le password non coincidono');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            toast.error('La password deve essere lunga almeno 6 caratteri');
+            return;
+        }
+
+        setIsUpdatingPassword(true);
+        const supabase = createClient();
+
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                throw error;
+            }
+
+            toast.success('Password aggiornata con successo!');
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error: any) {
+            console.error('Error updating password:', error);
+            toast.error(`Errore: ${error.message}`);
+        } finally {
+            setIsUpdatingPassword(false);
         }
     }
 
@@ -488,6 +530,49 @@ export default function AccountPage() {
                     </div>
                 </form>
             )}
+
+            {/* Sicurezza e Password */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Sicurezza</CardTitle>
+                    <CardDescription>Aggiorna la password del tuo account.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="newPassword">Nuova Password</Label>
+                            <Input
+                                id="newPassword"
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="••••••••"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirmPassword">Conferma Password</Label>
+                            <Input
+                                id="confirmPassword"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="••••••••"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end pt-2">
+                        <Button
+                            type="button" // Important: type button prevents form submit of the main form
+                            onClick={handlePasswordChange}
+                            disabled={isUpdatingPassword || !newPassword || !confirmPassword}
+                            variant="secondary"
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-900"
+                        >
+                            {isUpdatingPassword ? 'Aggiornamento...' : 'Aggiorna Password'}
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Gestione Account */}
             <Card className="shadow-sm border-red-200 overflow-hidden">

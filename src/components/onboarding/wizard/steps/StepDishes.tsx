@@ -58,7 +58,7 @@ export function StepDishes({ tenantId }: StepDishesProps) {
         const { data: cats } = await supabase
             .from('categories') // Use 'any' if types are strict
             .select('id, name, display_order')
-            .eq('tenant_id', tenantId)
+            .eq('tenant_id', tenantId || '')
             .order('display_order');
 
         if (!cats) {
@@ -70,7 +70,7 @@ export function StepDishes({ tenantId }: StepDishesProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: dishes } = await (supabase.from('dishes') as any)
             .select('*')
-            .eq('tenant_id', tenantId)
+            .eq('tenant_id', tenantId || '')
             .order('display_order'); // or created_at
 
         // Merge
