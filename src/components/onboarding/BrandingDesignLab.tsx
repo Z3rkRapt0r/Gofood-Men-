@@ -89,19 +89,19 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
 
     // Construct a mock tenant object that reacts to the theme
     const mockTenant = {
-        restaurant_name: formData.restaurant_name || "Il Tuo Ristorante",
+        restaurant_name: formData.footer_data?.public_name ?? formData.restaurant_name,
         logo_url: formData.logo_url,
         primary_color: currentTheme.colors.primary,
         secondary_color: currentTheme.colors.secondary,
         background_color: currentTheme.colors.background,
         slug: formData.slug || "design-kitchen",
-        tagline: "Sperimenta il tuo stile",
+        tagline: formData.footer_data?.tagline || "",
         hero_title_color: currentTheme.colors.text === '#ffffff' || currentTheme.colors.background === '#1c1917' ? '#FFFFFF' : currentTheme.colors.primary,
         hero_tagline_color: currentTheme.colors.text === '#ffffff' || currentTheme.colors.background === '#1c1917' ? '#E5E7EB' : currentTheme.colors.secondary,
     };
 
     return (
-        <div className="flex flex-col md:flex-row h-auto md:h-full bg-white font-sans md:overflow-hidden relative">
+        <div className="flex flex-col md:flex-row h-full bg-white font-sans md:overflow-hidden relative">
             {/* Mobile Tabs - Shadcn UI */}
             <div className="md:hidden p-2 border-b border-gray-100 bg-white z-20 sticky top-0">
                 <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as 'editor' | 'preview')} className="w-full">
@@ -128,8 +128,12 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                     logoUrl={formData.logo_url}
                     slug={formData.slug}
                     restaurantName={formData.restaurant_name}
+                    publicName={formData.footer_data?.public_name}
+                    tagline={formData.footer_data?.tagline}
                     tenantId={tenantId}
                     onLogoChange={(url) => onUpdate({ logo_url: url })}
+                    onPublicNameChange={(name) => onUpdate({ footer_data: { ...formData.footer_data, public_name: name } })}
+                    onTaglineChange={(tagline) => onUpdate({ footer_data: { ...formData.footer_data, tagline: tagline } })}
                 />
 
                 {/* Custom Footer Slot (e.g. Save Button) */}
@@ -167,7 +171,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
             </div>
 
             {/* Right Panel: Preview */}
-            <div className={`flex-1 flex flex-col h-auto md:h-full md:overflow-hidden relative bg-gray-50 md:flex ${mobileTab === 'editor' ? 'hidden' : 'flex'}`}>
+            <div className={`flex-1 flex flex-col h-full md:overflow-hidden relative bg-gray-50 md:flex ${mobileTab === 'editor' ? 'hidden' : 'flex'}`}>
                 {/* Toolbar */}
                 <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
                     <div className="flex items-center gap-4">
@@ -181,7 +185,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                 </div>
 
                 {/* Canvas */}
-                <div className="flex-1 overflow-visible md:overflow-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
+                <div className="flex-1 overflow-y-auto md:p-8 flex flex-col items-center justify-start bg-white md:bg-gray-100/50">
                     <div
                         className="w-full h-full md:bg-white md:shadow-2xl md:transition-all md:duration-300 md:origin-top relative md:max-w-[400px] md:h-full md:rounded-3xl md:overflow-y-auto scrollbar-hide md:border md:border-gray-200"
                     >

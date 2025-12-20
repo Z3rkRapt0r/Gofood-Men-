@@ -12,14 +12,20 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
     slug?: string; // Optional now
     restaurantName: string; // Required
+    publicName?: string;
+    tagline?: string;
     tenantId?: string; // Optional for uniqueness
     onLogoChange?: (url: string) => void;
+    onPublicNameChange?: (name: string) => void;
+    onTaglineChange?: (tagline: string) => void;
 }
 
 const FONT_OPTIONS = [
@@ -38,13 +44,24 @@ const FONT_OPTIONS = [
 ];
 
 // Wrapped in React.memo to prevent unnecessary re-renders
-export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl, slug, restaurantName, tenantId, onLogoChange }: VisualEditorPanelProps) {
+export const VisualEditorPanel = React.memo(function VisualEditorPanel({
+    logoUrl,
+    slug,
+    restaurantName,
+    publicName,
+    tagline,
+    tenantId,
+    onLogoChange,
+    onPublicNameChange,
+    onTaglineChange
+}: VisualEditorPanelProps) {
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
 
     // State for collapsibles
     const [isOpenBrand, setIsOpenBrand] = useState(true);
+    const [isOpenContent, setIsOpenContent] = useState(true);
     const [isOpenSurface, setIsOpenSurface] = useState(false);
     const [isOpenTypography, setIsOpenTypography] = useState(false);
     const [isOpenStyle, setIsOpenStyle] = useState(false);
@@ -65,19 +82,8 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl
                 return;
             }
 
-            // Generate safe folder name from restaurant name
-            const baseName = restaurantName
-                .toLowerCase()
-                .normalize('NFD') // Split accents
-                .replace(/[\u0300-\u036f]/g, '') // Remove accents
-                .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
-                .replace(/^-+|-+$/g, '') // Trim hyphens
-                || 'temp-uploads'; // Fallback
-
-            // Append short ID to ensure uniqueness
-            // If tenantId is missing (e.g. very fresh state), fallback to timestamp
-            const uniqueSuffix = tenantId ? `-${tenantId}` : `-${Date.now().toString().slice(-6)}`;
-            const sanitizedFolderName = `${baseName}${uniqueSuffix}`;
+            // NEW LOGIC: Use ONLY tenantId for folder name
+            const sanitizedFolderName = tenantId || `temp-${Date.now()}`;
 
             setUploading(true);
             const supabase = createClient();
@@ -124,81 +130,122 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl
     };
 
     return (
-        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 md:overflow-y-auto p-6 shadow-xl flex flex-col">
+        <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl flex flex-col">
 
 
             <div className="flex-1 space-y-10">
 
-                {/* 0. LOGO */}
-                {onLogoChange && (
-                    <div>
-                        <h3 className="section-title">Logo Ristorante</h3>
-                        <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <div
-                                className="w-16 h-16 bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-orange-500 transition-colors"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                {logoUrl ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
-                                ) : (
-                                    <span className="text-2xl text-gray-300">+</span>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="text-xs font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors"
-                                >
-                                    {uploading ? 'Caricamento...' : (logoUrl ? 'Cambia Logo' : 'Carica Logo')}
-                                </button>
-                                <p className="text-[10px] text-gray-400 mt-1">Max 2MB (PNG, JPG)</p>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </div>
-                        </div>
+                {/* 0. CONTENUTI (Logo + Testi) */}
+                <div>
+                    <h3 className="section-title mb-4">Contenuti Menu</h3>
 
-                        {/* Header Layout */}
-                        <div className="mt-4">
-                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Allineamento Intestazione</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
-                                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
-                                        ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
-                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                        }`}
-                                >
-                                    <div className="flex w-full items-center justify-start gap-2 px-2 opacity-60">
-                                        <div className="w-8 h-2 bg-current rounded-sm"></div>
-                                        <div className="w-16 h-2 bg-gray-200 rounded-sm"></div>
+                    <Collapsible
+                        open={isOpenContent}
+                        onOpenChange={setIsOpenContent}
+                        className="w-full space-y-2"
+                    >
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Logo & Testi</span>
+                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenContent ? "" : "-rotate-90"}`} />
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-6 mt-2 border border-gray-100">
+                                {/* LOGO */}
+                                {onLogoChange && (
+                                    <div className="flex items-center gap-4">
+                                        <div
+                                            className="w-16 h-16 bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-orange-500 transition-colors"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            {logoUrl ? (
+                                                /* eslint-disable-next-line @next/next/no-img-element */
+                                                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                                            ) : (
+                                                <span className="text-2xl text-gray-300">+</span>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="text-xs font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors"
+                                            >
+                                                {uploading ? 'Caricamento...' : (logoUrl ? 'Cambia Logo' : 'Carica Logo')}
+                                            </button>
+                                            <p className="text-[10px] text-gray-400 mt-1">Max 2MB (PNG, JPG)</p>
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleFileChange}
+                                            />
+                                        </div>
                                     </div>
-                                    A Sinistra
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
-                                    className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${currentTheme.mobileHeaderStyle === 'center'
-                                        ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
-                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                        }`}
-                                >
-                                    <div className="flex w-full items-center justify-center gap-2 px-2 opacity-60">
-                                        <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                )}
+
+                                {/* TEXT INPUTS */}
+                                <div className="space-y-3">
+                                    <div className="space-y-1">
+                                        <Label className="text-xs font-semibold text-gray-500">Nome Visualizzato</Label>
+                                        <Input
+                                            value={publicName || ''}
+                                            onChange={(e) => onPublicNameChange?.(e.target.value)}
+                                            placeholder={restaurantName}
+                                            className="h-8 text-sm bg-white"
+                                        />
                                     </div>
-                                    Centrato
-                                </button>
+                                    <div className="space-y-1">
+                                        <Label className="text-xs font-semibold text-gray-500">Slogan (Opzionale)</Label>
+                                        <Input
+                                            value={tagline || ''}
+                                            onChange={(e) => onTaglineChange?.(e.target.value)}
+                                            placeholder="Es. Cucina tipica romana"
+                                            className="h-8 text-sm bg-white"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+
+                {/* Header Layout */}
+                <div className="mt-4">
+                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Allineamento Intestazione</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
+                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
+                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                }`}
+                        >
+                            <div className="flex w-full items-center justify-start gap-2 px-2 opacity-60">
+                                <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                <div className="w-16 h-2 bg-gray-200 rounded-sm"></div>
+                            </div>
+                            A Sinistra
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
+                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${currentTheme.mobileHeaderStyle === 'center'
+                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                }`}
+                        >
+                            <div className="flex w-full items-center justify-center gap-2 px-2 opacity-60">
+                                <div className="w-8 h-2 bg-current rounded-sm"></div>
+                            </div>
+                            Centrato
+                        </button>
                     </div>
-                )}
+                </div>
+
 
                 <hr className="border-gray-100" />
 
@@ -427,7 +474,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl
                 </div>
 
                 <div className="h-20"></div> {/* Spacer */}
-            </div>
+            </div >
 
             <style jsx>{`
                 .section-title {
@@ -456,7 +503,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({ logoUrl
                     border-color: transparent;
                 }
             `}</style>
-        </div>
+        </div >
     );
 });
 

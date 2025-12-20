@@ -124,6 +124,7 @@ export default function SettingsPage() {
       const { error: tenantError } = await (supabase.from('tenants') as any)
         .update({
           logo_url: formData.logoUrl,
+          footer_data: formData.footerData, // Added persistence
         })
         .eq('id', tenantId);
 
@@ -205,6 +206,7 @@ export default function SettingsPage() {
                       const newData = { ...prev };
                       if (updates.theme_options) newData.themeOptions = updates.theme_options;
                       if (updates.logo_url) newData.logoUrl = updates.logo_url;
+                      if (updates.footer_data) newData.footerData = updates.footer_data; // Added handler
                       if (updates.theme_options && updates.theme_options.colors) {
                         const c = updates.theme_options.colors;
                         if (c.primary) newData.primaryColor = c.primary;

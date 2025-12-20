@@ -111,7 +111,7 @@ export default function AccountPage() {
             const { error: tenantError } = await (supabase.from('tenants') as any)
                 .update({
                     restaurant_name: formData.restaurantName,
-                    tagline: formData.tagline,
+                    // tagline: formData.tagline, // Removed column write
                     slug: formData.slug.trim() === '' ? null : formData.slug,
                     contact_email: formData.contactEmail,
                     cover_charge: formData.coverCharge,
@@ -236,36 +236,7 @@ export default function AccountPage() {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="tagline" className="font-bold">Slogan (sotto il nome)</Label>
-                                <Input
-                                    id="tagline"
-                                    type="text"
-                                    value={formData.tagline}
-                                    onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                                    placeholder="Autentica cucina romana..."
-                                />
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="slug" className="font-bold">Slug (URL) *</Label>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-gray-500 font-mono text-lg">/</span>
-                                    <Input
-                                        id="slug"
-                                        type="text"
-                                        required
-                                        value={formData.slug}
-                                        onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-                                        className="bg-gray-100 text-gray-500 cursor-not-allowed font-mono"
-                                        placeholder="il-mio-ristorante"
-                                        disabled
-                                    />
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Il menu sarà disponibile su: /{formData.slug}, se desideri cambiarlo contatta l&apos;assistenza
-                                </p>
-                            </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">

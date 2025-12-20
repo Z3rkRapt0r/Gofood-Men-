@@ -42,7 +42,7 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
             <div className={`col-span-2 text-center ${forceMobile ? '' : 'md:col-span-1 md:text-left'}`}>
               <img
                 src={sanitizedLogoUrl}
-                alt={`${restaurantName || 'Menu Digitale'} Logo`}
+                alt={`${footerData?.public_name ?? (restaurantName || 'Menu Digitale')} Logo`}
                 className={`h-12 w-auto mx-auto mb-3 object-contain ${forceMobile ? '' : 'md:mx-0'}`}
               />
               <p className="text-sm text-[var(--tenant-text,#171717)] leading-relaxed mb-4">

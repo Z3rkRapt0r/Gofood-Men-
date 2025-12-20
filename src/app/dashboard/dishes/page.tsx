@@ -411,17 +411,8 @@ export default function DishesPage() {
   async function uploadImage(file: File, restaurantName: string, tenantId: string): Promise<string> {
     const supabase = createClient();
 
-    // Generate safe folder name logic unified with Logos
-    const baseName = restaurantName
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      || 'temp-uploads';
-
-    // Structure: restaurant-name-id/dishes/filename
-    const folderName = `${baseName}-${tenantId}/dishes`;
+    // NEW LOGIC: Use ONLY tenantId for folder name
+    const folderName = `${tenantId}/dishes`;
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;

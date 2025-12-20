@@ -6,11 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Tenant } from '@/types/menu';
-import StepIndicator from '@/components/onboarding/StepIndicator';
-import PlanSelector from '@/components/onboarding/PlanSelector';
-import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
-import { ThemeProvider } from '@/components/theme/ThemeContext';
-import FooterConfigurator from '@/components/onboarding/FooterConfigurator';
+import { OnboardingWizard } from '@/components/onboarding/wizard/OnboardingWizard';
 import { FooterData } from '@/types/menu';
 
 type SubscriptionTier = 'free' | 'basic' | 'premium';
@@ -28,6 +24,10 @@ interface TenantData {
   subscription_tier?: string;
   contact_email?: string;
   theme_options?: any;
+  cover_charge?: number;
+  tagline?: string;
+  onboarding_step?: number;
+  onboarding_completed?: boolean;
 }
 
 // ... (imports remain)
@@ -145,6 +145,7 @@ function OnboardingContent() {
         const existingFooterData = tenantData.footer_data || { links: [], socials: [], show_brand_column: true };
         const mergedFooterData = {
           ...existingFooterData,
+          tagline: existingFooterData.tagline || tenantData.tagline || '', // Migration logic
           locations: uiLocations.length > 0 ? uiLocations : (existingFooterData.locations || [])
         };
 
@@ -172,7 +173,7 @@ function OnboardingContent() {
   }, [router]);
 
   async function updateTenant(updates: Partial<typeof formData>, nextStep?: number) {
-    if (!tenant) return;
+    if (!tenant) return false;
 
     try {
       const supabase = createClient();
@@ -209,8 +210,74 @@ function OnboardingContent() {
         onboarding_completed: (nextStep || currentStep) > 2
       };
 
-      if (finalFooterData) {
-        updateData.footer_data = finalFooterData;
+      // Auto-generate slug if missing or empty string, based on restaurant name
+      let slugToSave = (updateData.slug as string) || (tenant.slug as string);
+
+      // If we have a new restaurant name, we might want to regenerate the slug if it's currently empty
+      // or if we want to keep it in sync (optional, but safer for onboarding).
+      // For now, let's ensure we NEVER save an empty string as slug.
+      const nameSource = (updateData.restaurant_name as string) || (tenant.restaurant_name as string);
+
+      if (!slugToSave || slugToSave.trim() === '') {
+        if (nameSource) {
+          slugToSave = nameSource
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces/dashes)
+            .replace(/[\s_-]+/g, '-') // Replace spaces/underscores with single dash
+            .replace(/^-+|-+$/g, ''); // Trim dashes
+
+          // Fallback if slug becomes empty (e.g. from "???")
+          if (!slugToSave) slugToSave = `restaurant-${Date.now()}`;
+
+          updateData.slug = slugToSave;
+        }
+      } else if (updateData.slug === '') {
+        // Explicitly empty string passed? Treat as null or regenerate
+        // If the DB constraint forbids empty string, we MUST fix it.
+        // Since we already handled the !slugToSave case above, this branch covers the case
+        // where updateData.slug IS set but is empty string.
+        if (nameSource) {
+          slugToSave = nameSource
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          if (!slugToSave) slugToSave = `restaurant-${Date.now()}`;
+          updateData.slug = slugToSave;
+        }
+      }
+
+      if (updates.contact_email !== undefined) updateData.contact_email = updates.contact_email;
+      if (updates.cover_charge !== undefined) updateData.cover_charge = updates.cover_charge;
+      // Tagline is now part of footer_data, no need to save to column anymore
+
+      if (updates.footer_data) {
+        updateData.footer_data = updates.footer_data;
+
+        // Sync Locations to tenant_locations table
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const locations = (updates.footer_data as any).locations || [];
+        if (locations.length > 0) {
+          // 1. Delete old
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase.from('tenant_locations') as any).delete().eq('tenant_id', tenant.id);
+
+          // 2. Insert new
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const locsToInsert = locations.map((loc: any, idx: number) => ({
+            tenant_id: tenant.id,
+            city: loc.city,
+            address: loc.address,
+            phone: loc.phone || null,
+            opening_hours: loc.opening_hours || null,
+            is_primary: idx === 0
+          }));
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase.from('tenant_locations') as any).insert(locsToInsert);
+        }
       }
 
       console.log('[updateTenant] Updating tenants table with:', updateData);
@@ -266,6 +333,11 @@ function OnboardingContent() {
         }
       }
 
+      // 4. Redirect if completed
+      if ((nextStep || currentStep) > 2) {
+        router.push('/dashboard');
+      }
+
       return true;
     } catch (err) {
       console.error('Error updating tenant:', err);
@@ -274,47 +346,7 @@ function OnboardingContent() {
     }
   }
 
-  async function handleNext(dataOverride?: unknown) {
-    let updates: Partial<typeof formData> = {};
 
-    // Prepara gli update in base allo step corrente
-    // Prepara gli update in base allo step corrente
-    if (currentStep === 1) {
-      updates = {
-        restaurant_name: formData.restaurant_name,
-        slug: formData.slug || null, // Ensure empty string becomes null to satisfy constraint
-        logo_url: formData.logo_url,
-        theme_options: dataOverride || formData.theme_options
-      };
-      // Immediately update local state too in case navigation fails or delays
-      if (dataOverride) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setFormData(prev => ({ ...prev, theme_options: dataOverride as any }));
-      }
-    } else if (currentStep === 2) {
-      updates = {
-        contact_email: formData.contact_email,
-        footer_data: formData.footer_data
-      };
-    }
-
-    const success = await updateTenant(updates, currentStep + 1);
-
-    if (success) {
-      if (currentStep === 2) {
-        // Onboarding completato
-        router.push('/dashboard');
-      } else {
-        setCurrentStep(currentStep + 1);
-      }
-    }
-  }
-
-  function handleBack() {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  }
 
   async function handleLogout() {
     const supabase = createClient();
@@ -337,73 +369,21 @@ function OnboardingContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-gray-200 py-4 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <img
-                src="/logo-gofood-new.svg"
-                alt="GO! FOOD"
-                className="h-10 w-auto"
-              />
-            </Link>
-            <div className="h-6 w-px bg-orange-200" />
-            <span className="font-bold text-gray-600 text-sm">Configurazione iniziale</span>
-          </div>
-        </div>
-      </header>
+      {/* Helper header for brand presence */}
 
-      {/* Step Indicator */}
-      <div className="container mx-auto px-4 py-4 md:py-8">
-        <StepIndicator currentStep={currentStep} />
-      </div>
 
-      {/* Step Content */}
-      <div className="flex-1 flex flex-col min-h-0 relative">
-        <div className="h-full flex flex-col flex-1">
-          {currentStep === 1 && (
-            <div className="flex-1 relative h-full">
-              <ThemeProvider>
-                <BrandingDesignLab
-                  formData={formData}
-                  tenantId={tenant?.id}
-                  onUpdate={(updates) => setFormData({ ...formData, ...updates })}
-                  onNext={handleNext}
-                  onBack={handleLogout}
-                />
-              </ThemeProvider>
-            </div>
-          )}
-
-          {currentStep === 2 && (
-            <div className="container mx-auto px-4 pb-8 md:pb-16 max-w-4xl">
-              <FooterConfigurator
-                formData={{
-                  ...formData,
-                  contact_email: formData.contact_email || '',
-                }}
-                onUpdate={(updates) => setFormData({ ...formData, ...updates })}
-                onNext={handleNext}
-                onBack={handleBack}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Footer */}
-      <footer className="bg-white/50 backdrop-blur-sm border-t border-orange-100 py-4 md:py-6 mt-auto">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-500 text-xs md:text-sm mb-2">
-            &copy; {new Date().getFullYear()} GoFood. Tutti i diritti riservati.
-          </p>
-          <div className="flex justify-center gap-4 text-[10px] md:text-xs text-gray-400">
-            <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Privacy Policy">Privacy Policy</a>
-            <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Cookie Policy">Cookie Policy</a>
-            <a href="mailto:support@gofoodmenu.it" className="hover:text-orange-500 transition-colors">Supporto</a>
-          </div>
-        </div>
-      </footer>
+      <OnboardingWizard
+        initialData={formData}
+        tenantId={tenant?.id}
+        currentStepProp={currentStep}
+        onUpdate={async (data, nextStep) => {
+          // Flatten data effectively
+          const updates = { ...data };
+          const result = await updateTenant(updates, nextStep);
+          return !!result;
+        }}
+        onExit={handleLogout}
+      />
     </div>
   );
 }

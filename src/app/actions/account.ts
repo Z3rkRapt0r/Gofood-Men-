@@ -39,15 +39,9 @@ export async function deleteAccount() {
         if (tenant) {
             console.log(`[DELETE_ACCOUNT] Found tenant ${tenant.id}, starting storage cleanup...`);
 
-            // Construct folder name: restaurant-name-id
-            const baseName = tenant.restaurant_name
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '') || 'temp-uploads';
-
-            const folderPath = `${baseName}-${tenant.id}`;
+            // NEW: ID-Only Path
+            const folderPath = tenant.id;
+            console.log(`[DELETE_ACCOUNT] Cleaning storage for folder: ${folderPath}`);
 
             // Clean 'logos' bucket
             try {
@@ -61,22 +55,11 @@ export async function deleteAccount() {
                     console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from logos/${folderPath}`);
                 }
             } catch (storageErr) {
-                console.warn('[DELETE_ACCOUNT] Error cleaning logos:', storageErr);
+                console.warn(`[DELETE_ACCOUNT] Error cleaning logos for path ${folderPath}:`, storageErr);
             }
 
             // Clean 'dishes' bucket
             try {
-                // Dishes has nested structure: folderPath/dishes/filename
-                // First list the main folder
-                // Note: 'list' is shallow. If dishes are in subfolder 'dishes', we need to check that.
-                // Our structure: prefix/dishes/file.png
-
-                // Warning: list() might not show subfolders correctly depending on implementation.
-                // But generally: list(folderPath) should return 'dishes' as a folder logic?
-                // Actually, standard list returns objects in that prefix.
-                // Let's list deep? No, supabase list doesn't recurse easily.
-                // But we know structure: ${folderPath}/dishes
-
                 const dishesSubfolder = `${folderPath}/dishes`;
                 const { data: dishFiles } = await supabaseAdmin.storage
                     .from('dishes')
@@ -88,7 +71,7 @@ export async function deleteAccount() {
                     console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from dishes/${dishesSubfolder}`);
                 }
             } catch (storageErr) {
-                console.warn('[DELETE_ACCOUNT] Error cleaning dishes:', storageErr);
+                console.warn(`[DELETE_ACCOUNT] Error cleaning dishes for path ${folderPath}:`, storageErr);
             }
         }
 
@@ -168,15 +151,8 @@ export async function resetMenu() {
         if (!tenant) throw new Error('Tenant non trovato');
 
         // 2. Clean 'dishes' bucket
-        // Construct folder name: restaurant-name-id
-        const baseName = tenant.restaurant_name
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '') || 'temp-uploads';
-
-        const folderPath = `${baseName}-${tenant.id}/dishes`;
+        // NEW: ID-Only Path
+        const folderPath = `${tenant.id}/dishes`;
         console.log(`[RESET_MENU] Cleaning dishes from ${folderPath}`);
 
         try {
@@ -186,16 +162,15 @@ export async function resetMenu() {
 
             if (dishFiles && dishFiles.length > 0) {
                 const filesToRemove = dishFiles.map(f => `${folderPath}/${f.name}`);
-                // Batch remove might fail if too many, but usually fine for < 1000
                 const { error: removeError } = await supabaseAdmin.storage
                     .from('dishes')
                     .remove(filesToRemove);
 
-                if (removeError) console.warn('[RESET_MENU] Error removing files:', removeError);
-                else console.log(`[RESET_MENU] Cleaned ${filesToRemove.length} files`);
+                if (removeError) console.warn(`[RESET_MENU] Error removing files from ${folderPath}:`, removeError);
+                else console.log(`[RESET_MENU] Cleaned ${filesToRemove.length} files from ${folderPath}`);
             }
         } catch (storageErr) {
-            console.warn('[RESET_MENU] Error during storage cleanup:', storageErr);
+            console.warn(`[RESET_MENU] Error cleaning dishes path ${folderPath}:`, storageErr);
         }
 
         // 3. Delete DB Data
