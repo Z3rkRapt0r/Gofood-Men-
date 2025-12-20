@@ -39,6 +39,7 @@ interface StepCategoriesProps {
     data: any;
     tenantId?: string;
     onUpdate: (updates: any) => void;
+    onValidationChange: (isValid: boolean) => void;
 }
 
 // --- Sortable Item Component ---
@@ -96,7 +97,7 @@ function SortableCategoryItem({
 }
 
 // --- Main Component ---
-export function StepCategories({ tenantId }: StepCategoriesProps) {
+export function StepCategories({ tenantId, onValidationChange }: StepCategoriesProps) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [inputValue, setInputValue] = useState('');
@@ -110,6 +111,11 @@ export function StepCategories({ tenantId }: StepCategoriesProps) {
     );
 
     const SUGGESTED = ["Antipasti", "Primi", "Secondi", "Contorni", "Dolci", "Bevande", "Vini"];
+
+    // Validation Effect
+    useEffect(() => {
+        onValidationChange(categories.length > 0);
+    }, [categories, onValidationChange]);
 
     useEffect(() => {
         if (tenantId) {

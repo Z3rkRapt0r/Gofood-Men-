@@ -7,9 +7,18 @@ interface StepBrandingProps {
     data: any;
     tenantId?: string;
     onUpdate: (updates: any) => void;
+    onValidationChange: (isValid: boolean) => void;
 }
 
-export function StepBranding({ data, tenantId, onUpdate }: StepBrandingProps) {
+import { useEffect } from 'react';
+
+export function StepBranding({ data, tenantId, onUpdate, onValidationChange }: StepBrandingProps) {
+
+    // Always valid for now, as defaults are provided
+    useEffect(() => {
+        onValidationChange(true);
+    }, [onValidationChange]);
+
     return (
         <div className="h-[calc(100vh-200px)] min-h-[600px] w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
             <ThemeProvider initialTheme={data.theme_options || {}}>

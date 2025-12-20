@@ -10,11 +10,26 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 interface StepSettingsProps {
     data: any;
     onUpdate: (updates: any) => void;
+    onValidationChange: (isValid: boolean) => void;
 }
 
-export function StepSettings({ data, onUpdate }: StepSettingsProps) {
+import { useEffect } from 'react';
+
+export function StepSettings({ data, onUpdate, onValidationChange }: StepSettingsProps) {
 
     const footerData = data.footer_data || { locations: [], socials: [], show_brand_column: true };
+
+    useEffect(() => {
+        const hasName = !!data.restaurant_name && data.restaurant_name.trim().length > 0;
+        const hasEmail = !!data.contact_email && data.contact_email.trim().length > 0;
+        const hasBrandDesc = !!footerData.brand_description?.it && footerData.brand_description.it.trim().length > 0;
+        const hasLocations = footerData.locations && footerData.locations.length > 0;
+
+        // Check if all locations have at least a city
+        const locationsValid = hasLocations && footerData.locations.every((loc: any) => !!loc.city && loc.city.trim().length > 0);
+
+        onValidationChange(hasName && hasEmail && hasBrandDesc && locationsValid);
+    }, [data.restaurant_name, data.contact_email, footerData, onValidationChange]);
 
     const updateFooterData = (updates: any) => {
         onUpdate({ footer_data: { ...footerData, ...updates } });
@@ -65,7 +80,7 @@ export function StepSettings({ data, onUpdate }: StepSettingsProps) {
 
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="contactEmail" className="font-bold">Email Pubblica</Label>
+                                <Label htmlFor="contactEmail" className="font-bold">Email Pubblica *</Label>
                                 <Input
                                     id="contactEmail"
                                     type="email"
@@ -91,7 +106,7 @@ export function StepSettings({ data, onUpdate }: StepSettingsProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="brand-desc" className="font-bold">Descrizione Brand</Label>
+                            <Label htmlFor="brand-desc" className="font-bold">Descrizione Brand *</Label>
                             <Textarea
                                 id="brand-desc"
                                 value={footerData.brand_description?.it || ''}
@@ -141,7 +156,7 @@ export function StepSettings({ data, onUpdate }: StepSettingsProps) {
                                 </Button>
 
                                 <div className="space-y-2">
-                                    <Label>Città</Label>
+                                    <Label>Città *</Label>
                                     <Input
                                         value={loc.city}
                                         onChange={(e) => {

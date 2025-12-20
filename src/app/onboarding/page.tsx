@@ -164,7 +164,7 @@ function OnboardingContent() {
           footer_data: mergedFooterData,
           theme_options: themeOptions
         });
-        setCurrentStep(Math.min(tenantData.onboarding_step || 1, 4));
+        setCurrentStep(Math.min(tenantData.onboarding_step || 1, 5));
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -210,7 +210,7 @@ function OnboardingContent() {
       const updateData: Record<string, unknown> = {
         ...tenantUpdates,
         onboarding_step: nextStep || currentStep,
-        onboarding_completed: (nextStep || currentStep) > 4
+        onboarding_completed: (nextStep || currentStep) > 5
       };
 
       // Auto-generate slug if missing or empty string, based on restaurant name
@@ -337,7 +337,7 @@ function OnboardingContent() {
       }
 
       // 4. Redirect if completed
-      if ((nextStep || currentStep) > 4) {
+      if ((nextStep || currentStep) > 5) {
         router.push('/dashboard');
       }
 

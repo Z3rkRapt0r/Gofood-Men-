@@ -32,9 +32,10 @@ interface StepDishesProps {
     data: any;
     tenantId?: string;
     onUpdate: (updates: any) => void;
+    onValidationChange: (isValid: boolean) => void;
 }
 
-export function StepDishes({ tenantId }: StepDishesProps) {
+export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -44,6 +45,12 @@ export function StepDishes({ tenantId }: StepDishesProps) {
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
     const [editingDish, setEditingDish] = useState<Dish | null>(null);
     const [dishForm, setDishForm] = useState({ name: '', description: '', price: '' });
+
+    // Validation Effect
+    useEffect(() => {
+        const totalDishes = categories.reduce((acc, cat) => acc + (cat.dishes?.length || 0), 0);
+        onValidationChange(totalDishes > 0);
+    }, [categories, onValidationChange]);
 
     useEffect(() => {
         if (tenantId) loadData();
