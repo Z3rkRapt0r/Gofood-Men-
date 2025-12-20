@@ -21,11 +21,9 @@ export async function GET(request: Request) {
             } else {
                 return NextResponse.redirect(`${origin}${next}`);
             }
-        } else {
-            return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${error.name}&error_description=${encodeURIComponent(error.message)}`);
         }
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error?error=ExchangeFailed`);
+    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
