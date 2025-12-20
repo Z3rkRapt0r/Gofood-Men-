@@ -85,7 +85,7 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
                 onBack={handleBack}
                 onNext={handleNext}
                 isSaving={isSaving}
-                onSaveDraft={() => onUpdate(formData)} // Just save without moving next
+                isSaving={isSaving}
             />
         </div>
     );

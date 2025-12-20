@@ -308,102 +308,150 @@ export default function AccountPage() {
                                     </p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
 
-                    {/* Footer Customization (Moved from Design Studio) */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Personalizzazione Footer</CardTitle>
-                            <CardDescription>Gestisci le informazioni visualizzate nel footer del tuo menu digitale.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-8">
 
-                            {/* Brand Description */}
-                            <div className="space-y-2">
-                                <Label htmlFor="brand-desc">Descrizione Brand</Label>
-                                <p className="text-xs text-muted-foreground">
-                                    Questa descrizione apparirà nel footer sotto il logo.
-                                </p>
-                                <Textarea
-                                    id="brand-desc"
-                                    value={formData.footerData.brand_description?.it || ''}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        footerData: {
-                                            ...formData.footerData,
-                                            brand_description: {
-                                                ...formData.footerData.brand_description,
-                                                it: e.target.value,
-                                                en: e.target.value
-                                            }
-                                        }
-                                    })}
-                                    placeholder="Scopri i nostri piatti e le nostre specialità..."
-                                    className="resize-none h-24"
-                                />
-                            </div>
+                            {/* Locations & Socials - Moved from Footer Customization */}
+                            <div className="pt-4 border-t border-gray-100 space-y-8">
+                                {/* Locations */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-base font-bold">Sedi</Label>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setFormData({
+                                                ...formData,
+                                                footerData: {
+                                                    ...formData.footerData,
+                                                    locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
+                                                }
+                                            })}
+                                            className="gap-2"
+                                        >
+                                            <Plus className="w-4 h-4" /> Aggiungi Sede
+                                        </Button>
+                                    </div>
 
-                            {/* Locations */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-base">Sedi</Label>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setFormData({
-                                            ...formData,
-                                            footerData: {
-                                                ...formData.footerData,
-                                                locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
-                                            }
-                                        })}
-                                        className="gap-2"
-                                    >
-                                        <Plus className="w-4 h-4" /> Aggiungi Sede
-                                    </Button>
+                                    <div className="space-y-3">
+                                        {formData.footerData.locations.map((loc, index) => (
+                                            <Card key={index} className="bg-muted/30">
+                                                <CardContent className="p-4 flex gap-3 items-start">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                                                        <Input
+                                                            placeholder="Città"
+                                                            value={loc.city}
+                                                            onChange={(e) => {
+                                                                const newLocs = [...formData.footerData.locations];
+                                                                newLocs[index].city = e.target.value;
+                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            placeholder="Indirizzo"
+                                                            value={loc.address}
+                                                            onChange={(e) => {
+                                                                const newLocs = [...formData.footerData.locations];
+                                                                newLocs[index].address = e.target.value;
+                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            placeholder="Telefono (opzionale)"
+                                                            value={loc.phone || ''}
+                                                            onChange={(e) => {
+                                                                const newLocs = [...formData.footerData.locations];
+                                                                newLocs[index].phone = e.target.value;
+                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            placeholder="Orari (es. Lun-Dom: 12-23)"
+                                                            value={loc.opening_hours || ''}
+                                                            onChange={(e) => {
+                                                                const newLocs = [...formData.footerData.locations];
+                                                                newLocs[index].opening_hours = e.target.value;
+                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => {
+                                                            const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                        {formData.footerData.locations.length === 0 && (
+                                            <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                                Nessuna sede aggiunta.
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    {formData.footerData.locations.map((loc, index) => (
-                                        <Card key={index} className="bg-muted/30">
-                                            <CardContent className="p-4 flex gap-3 items-start">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                                                    <Input
-                                                        placeholder="Città"
-                                                        value={loc.city}
-                                                        onChange={(e) => {
-                                                            const newLocs = [...formData.footerData.locations];
-                                                            newLocs[index].city = e.target.value;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                {/* Socials */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-base font-bold">Social Network</Label>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setFormData({
+                                                ...formData,
+                                                footerData: {
+                                                    ...formData.footerData,
+                                                    socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
+                                                }
+                                            })}
+                                            className="gap-2"
+                                        >
+                                            <Plus className="w-4 h-4" /> Aggiungi Social
+                                        </Button>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {formData.footerData.socials.map((social, index) => (
+                                            <div key={index} className="flex gap-3 items-start">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                                                    <Select
+                                                        value={social.platform}
+                                                        onValueChange={(value) => {
+                                                            const newSocials = [...formData.footerData.socials];
+                                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                            newSocials[index].platform = value as any;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                                                         }}
-                                                    />
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Social" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="facebook">Facebook</SelectItem>
+                                                            <SelectItem value="instagram">Instagram</SelectItem>
+                                                            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                                                            <SelectItem value="website">Sito Web</SelectItem>
+                                                            <SelectItem value="other">Altro</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+
                                                     <Input
-                                                        placeholder="Indirizzo"
-                                                        value={loc.address}
+                                                        className="md:col-span-2"
+                                                        placeholder="URL Profilo"
+                                                        value={social.url}
                                                         onChange={(e) => {
-                                                            const newLocs = [...formData.footerData.locations];
-                                                            newLocs[index].address = e.target.value;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                        }}
-                                                    />
-                                                    <Input
-                                                        placeholder="Telefono (opzionale)"
-                                                        value={loc.phone || ''}
-                                                        onChange={(e) => {
-                                                            const newLocs = [...formData.footerData.locations];
-                                                            newLocs[index].phone = e.target.value;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                        }}
-                                                    />
-                                                    <Input
-                                                        placeholder="Orari (es. Lun-Dom: 12-23)"
-                                                        value={loc.opening_hours || ''}
-                                                        onChange={(e) => {
-                                                            const newLocs = [...formData.footerData.locations];
-                                                            newLocs[index].opening_hours = e.target.value;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                            const newSocials = [...formData.footerData.socials];
+                                                            newSocials[index].url = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                                                         }}
                                                     />
                                                 </div>
@@ -412,105 +460,27 @@ export default function AccountPage() {
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => {
-                                                        const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
-                                                        setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
                                                     }}
                                                     className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                    {formData.footerData.locations.length === 0 && (
-                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                                            Nessuna sede aggiunta.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Socials */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-base">Social Network</Label>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setFormData({
-                                            ...formData,
-                                            footerData: {
-                                                ...formData.footerData,
-                                                socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
-                                            }
-                                        })}
-                                        className="gap-2"
-                                    >
-                                        <Plus className="w-4 h-4" /> Aggiungi Social
-                                    </Button>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {formData.footerData.socials.map((social, index) => (
-                                        <div key={index} className="flex gap-3 items-start">
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
-                                                <Select
-                                                    value={social.platform}
-                                                    onValueChange={(value) => {
-                                                        const newSocials = [...formData.footerData.socials];
-                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                        newSocials[index].platform = value as any;
-                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                                                    }}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Social" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="facebook">Facebook</SelectItem>
-                                                        <SelectItem value="instagram">Instagram</SelectItem>
-                                                        <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-                                                        <SelectItem value="website">Sito Web</SelectItem>
-                                                        <SelectItem value="other">Altro</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-
-                                                <Input
-                                                    className="md:col-span-2"
-                                                    placeholder="URL Profilo"
-                                                    value={social.url}
-                                                    onChange={(e) => {
-                                                        const newSocials = [...formData.footerData.socials];
-                                                        newSocials[index].url = e.target.value;
-                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                                                    }}
-                                                />
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                    const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
-                                                    setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                                                }}
-                                                className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    {formData.footerData.socials.length === 0 && (
-                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                                            Nessun social aggiunto.
-                                        </p>
-                                    )}
+                                        ))}
+                                        {formData.footerData.socials.length === 0 && (
+                                            <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                                Nessun social aggiunto.
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-
                         </CardContent>
                     </Card>
+
+
 
                     <div className="flex justify-end">
                         <Button
@@ -529,7 +499,8 @@ export default function AccountPage() {
                         </Button>
                     </div>
                 </form>
-            )}
+            )
+            }
 
             {/* Sicurezza e Password */}
             <Card>
@@ -621,102 +592,106 @@ export default function AccountPage() {
             </Card>
 
             {/* Reset Menu Confirmation Modal */}
-            {showResetMenuModal && (
-                <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
-                    <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
-                        <CardHeader className="text-center pb-2">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span className="text-3xl">🍽️</span>
-                            </div>
-                            <CardTitle className="text-xl">Resettare il Menu?</CardTitle>
-                            <CardDescription>
-                                Verranno eliminati <span className="font-bold text-red-600">tutti i piatti e le categorie</span>. Questa azione è irreversibile. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">RESET</span> per confermare.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6 pt-4">
-                            <Input
-                                type="text"
-                                value={resetMenuConfirmation}
-                                onChange={(e) => setResetMenuConfirmation(e.target.value)}
-                                placeholder="RESET"
-                                className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
-                            />
-                            <div className="flex gap-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setShowResetMenuModal(false);
-                                        setResetMenuConfirmation('');
-                                    }}
-                                    disabled={isResettingMenu}
-                                    className="flex-1"
-                                >
-                                    Annulla
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={handleResetMenu}
-                                    disabled={resetMenuConfirmation.trim().toUpperCase() !== 'RESET' || isResettingMenu}
-                                    className="flex-1"
-                                >
-                                    {isResettingMenu ? 'Resettando...' : 'Conferma Reset'}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
+            {
+                showResetMenuModal && (
+                    <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
+                        <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
+                            <CardHeader className="text-center pb-2">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-3xl">🍽️</span>
+                                </div>
+                                <CardTitle className="text-xl">Resettare il Menu?</CardTitle>
+                                <CardDescription>
+                                    Verranno eliminati <span className="font-bold text-red-600">tutti i piatti e le categorie</span>. Questa azione è irreversibile. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">RESET</span> per confermare.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-4">
+                                <Input
+                                    type="text"
+                                    value={resetMenuConfirmation}
+                                    onChange={(e) => setResetMenuConfirmation(e.target.value)}
+                                    placeholder="RESET"
+                                    className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
+                                />
+                                <div className="flex gap-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowResetMenuModal(false);
+                                            setResetMenuConfirmation('');
+                                        }}
+                                        disabled={isResettingMenu}
+                                        className="flex-1"
+                                    >
+                                        Annulla
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={handleResetMenu}
+                                        disabled={resetMenuConfirmation.trim().toUpperCase() !== 'RESET' || isResettingMenu}
+                                        className="flex-1"
+                                    >
+                                        {isResettingMenu ? 'Resettando...' : 'Conferma Reset'}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )
+            }
 
             {/* Delete Confirmation Modal */}
-            {showDeleteModal && (
-                <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
-                    <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
-                        <CardHeader className="text-center pb-2">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span className="text-3xl">⚠️</span>
-                            </div>
-                            <CardTitle className="text-xl">Sei assolutamente sicuro?</CardTitle>
-                            <CardDescription>
-                                Questa azione non può essere annullata. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">ELIMINA</span> qui sotto per confermare.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6 pt-4">
-                            <Input
-                                type="text"
-                                value={deleteConfirmation}
-                                onChange={(e) => setDeleteConfirmation(e.target.value)}
-                                placeholder="ELIMINA"
-                                className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
-                            />
-                            <div className="flex gap-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setShowDeleteModal(false);
-                                        setDeleteConfirmation('');
-                                    }}
-                                    disabled={isDeleting}
-                                    className="flex-1"
-                                >
-                                    Annulla
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={handleDeleteAccount}
-                                    disabled={deleteConfirmation.trim().toUpperCase() !== 'ELIMINA' || isDeleting}
-                                    className="flex-1"
-                                >
-                                    {isDeleting ? 'Eliminazione...' : 'Elimina tutto'}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-        </div>
+            {
+                showDeleteModal && (
+                    <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4">
+                        <Card className="max-w-md w-full animate-in fade-in zoom-in duration-200 shadow-2xl">
+                            <CardHeader className="text-center pb-2">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-3xl">⚠️</span>
+                                </div>
+                                <CardTitle className="text-xl">Sei assolutamente sicuro?</CardTitle>
+                                <CardDescription>
+                                    Questa azione non può essere annullata. Scrivi <span className="font-bold font-mono bg-gray-100 px-1 rounded">ELIMINA</span> qui sotto per confermare.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-4">
+                                <Input
+                                    type="text"
+                                    value={deleteConfirmation}
+                                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                    placeholder="ELIMINA"
+                                    className="text-center font-bold tracking-widest uppercase border-2 focus-visible:ring-red-500"
+                                />
+                                <div className="flex gap-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowDeleteModal(false);
+                                            setDeleteConfirmation('');
+                                        }}
+                                        disabled={isDeleting}
+                                        className="flex-1"
+                                    >
+                                        Annulla
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={handleDeleteAccount}
+                                        disabled={deleteConfirmation.trim().toUpperCase() !== 'ELIMINA' || isDeleting}
+                                        className="flex-1"
+                                    >
+                                        {isDeleting ? 'Eliminazione...' : 'Elimina tutto'}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )
+            }
+        </div >
     );
 }

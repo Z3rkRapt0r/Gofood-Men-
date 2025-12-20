@@ -72,13 +72,16 @@ function OnboardingContent() {
           .from('tenants')
           .select('*, tenant_locations(*)')
           .eq('owner_id', user.id)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let tenantData = data as any;
 
         // Se il tenant non esiste, crealo
-        if (error || !data) {
+        // Note: checking !data is enough with maybeSingle
+        if (!data) {
           console.log('Tenant not found, creating initial tenant...');
           const restaurantName = user.user_metadata?.restaurant_name || 'Il Mio Ristorante';
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -161,7 +164,7 @@ function OnboardingContent() {
           footer_data: mergedFooterData,
           theme_options: themeOptions
         });
-        setCurrentStep(Math.min(tenantData.onboarding_step || 1, 2));
+        setCurrentStep(Math.min(tenantData.onboarding_step || 1, 4));
       } catch (err) {
         console.error('Error:', err);
       } finally {
@@ -207,7 +210,7 @@ function OnboardingContent() {
       const updateData: Record<string, unknown> = {
         ...tenantUpdates,
         onboarding_step: nextStep || currentStep,
-        onboarding_completed: (nextStep || currentStep) > 2
+        onboarding_completed: (nextStep || currentStep) > 4
       };
 
       // Auto-generate slug if missing or empty string, based on restaurant name
@@ -334,7 +337,7 @@ function OnboardingContent() {
       }
 
       // 4. Redirect if completed
-      if ((nextStep || currentStep) > 2) {
+      if ((nextStep || currentStep) > 4) {
         router.push('/dashboard');
       }
 

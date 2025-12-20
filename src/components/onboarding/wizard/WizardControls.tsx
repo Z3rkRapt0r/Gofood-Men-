@@ -39,18 +39,7 @@ export function WizardControls({
                     <span className="hidden md:inline">{isFirstStep ? "Esci" : "Indietro"}</span>
                 </Button>
 
-                {/* Center: Save Draft (Optional/Desktop) */}
-                {onSaveDraft && (
-                    <Button
-                        variant="ghost"
-                        onClick={onSaveDraft}
-                        disabled={isSaving}
-                        className="text-gray-500 hover:text-orange-600 hidden md:flex gap-2"
-                    >
-                        <Save className="w-4 h-4" />
-                        Salva bozza
-                    </Button>
-                )}
+
 
                 {/* Right: Next/Finish Button */}
                 <Button

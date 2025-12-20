@@ -134,6 +134,17 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                     onLogoChange={(url) => onUpdate({ logo_url: url })}
                     onPublicNameChange={(name) => onUpdate({ footer_data: { ...formData.footer_data, public_name: name } })}
                     onTaglineChange={(tagline) => onUpdate({ footer_data: { ...formData.footer_data, tagline: tagline } })}
+                    brandDescription={formData.footer_data?.brand_description?.it}
+                    onBrandDescriptionChange={(desc) => onUpdate({
+                        footer_data: {
+                            ...formData.footer_data,
+                            brand_description: {
+                                ...formData.footer_data?.brand_description,
+                                it: desc,
+                                en: desc
+                            }
+                        }
+                    })}
                 />
 
                 {/* Custom Footer Slot (e.g. Save Button) */}
@@ -273,7 +284,8 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                     footerData={{
                                         locations: [{ city: 'Roma', address: 'Via Roma 1' }],
                                         socials: [],
-                                        show_brand_column: true
+                                        show_brand_column: true,
+                                        brand_description: formData.footer_data?.brand_description
                                     }}
                                     restaurantName={mockTenant.restaurant_name}
                                     slug={mockTenant.slug}

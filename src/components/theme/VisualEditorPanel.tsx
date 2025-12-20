@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface VisualEditorPanelProps {
     logoUrl?: string | null;
@@ -26,6 +27,8 @@ interface VisualEditorPanelProps {
     onLogoChange?: (url: string) => void;
     onPublicNameChange?: (name: string) => void;
     onTaglineChange?: (tagline: string) => void;
+    brandDescription?: string;
+    onBrandDescriptionChange?: (desc: string) => void;
 }
 
 const FONT_OPTIONS = [
@@ -53,7 +56,9 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
     tenantId,
     onLogoChange,
     onPublicNameChange,
-    onTaglineChange
+    onTaglineChange,
+    brandDescription,
+    onBrandDescriptionChange
 }: VisualEditorPanelProps) {
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,6 +70,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
     const [isOpenSurface, setIsOpenSurface] = useState(false);
     const [isOpenTypography, setIsOpenTypography] = useState(false);
     const [isOpenStyle, setIsOpenStyle] = useState(false);
+    const [isOpenFooter, setIsOpenFooter] = useState(false);
 
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,6 +216,8 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                             </div>
                         </CollapsibleContent>
                     </Collapsible>
+
+
                 </div>
 
                 {/* Header Layout */}
@@ -466,6 +474,34 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                             <option value="slash">Obliquo (Street)</option>
                                             <option value="filigree">Ornamentale</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </CollapsibleContent>
+                        </Collapsible>
+
+                        {/* FOOTER INFO - Moved Here */}
+                        <Collapsible
+                            open={isOpenFooter}
+                            onOpenChange={setIsOpenFooter}
+                            className="w-full space-y-2 border-t pt-4"
+                        >
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
+                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Footer & Info</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenFooter ? "" : "-rotate-90"}`} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2 border border-gray-100">
+                                    <div className="space-y-1">
+                                        <Label className="text-xs font-semibold text-gray-500">Descrizione Brand</Label>
+                                        <p className="text-[10px] text-gray-400">Appare nel footer sotto il logo.</p>
+                                        <Textarea
+                                            value={brandDescription || ''}
+                                            onChange={(e) => onBrandDescriptionChange?.(e.target.value)}
+                                            placeholder="Scopri i nostri piatti..."
+                                            className="h-20 text-sm bg-white resize-none"
+                                        />
                                     </div>
                                 </div>
                             </CollapsibleContent>
