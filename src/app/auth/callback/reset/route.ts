@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
         if (!error) {
             // Always redirect to the reset password page after successful login
-            return NextResponse.redirect(`${origin}/dashboard/reset-password`);
+            return NextResponse.redirect(`${origin}/reset-password`);
         }
     }
 
