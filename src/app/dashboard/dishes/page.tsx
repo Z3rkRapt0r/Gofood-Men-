@@ -906,7 +906,7 @@ export default function DishesPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto">
             <form id="dish-form" onSubmit={handleSubmit} className="p-6 space-y-6">
               {/* Categoria */}
               <div className="space-y-2">
@@ -1098,7 +1098,7 @@ export default function DishesPage() {
                     {allergens.filter(a => a.id !== 'glutine').map((allergen) => (
                       <Card
                         key={allergen.id}
-                        className={`cursor-pointer transition-all h-24 hover:border-red-300 ${formData.selectedAllergens.includes(allergen.id) ? 'border-red-500 bg-red-50' : ''}`}
+                        className={`cursor-pointer transition-all min-h-[6rem] p-1 hover:border-red-300 ${formData.selectedAllergens.includes(allergen.id) ? 'border-red-500 bg-red-50' : ''}`}
                         onClick={() => {
                           const includes = formData.selectedAllergens.includes(allergen.id);
                           const newSelected = !includes
@@ -1109,7 +1109,7 @@ export default function DishesPage() {
                       >
                         <CardContent className="p-2 flex flex-col items-center justify-center h-full gap-1">
                           <span className="text-2xl">{allergen.icon}</span>
-                          <span className={`text-[10px] font-bold text-center leading-tight line-clamp-2 ${formData.selectedAllergens.includes(allergen.id) ? 'text-red-700' : 'text-muted-foreground'}`}>
+                          <span className={`text-xs font-bold text-center leading-tight ${formData.selectedAllergens.includes(allergen.id) ? 'text-red-700' : 'text-gray-600'}`}>
                             {allergen.name}
                           </span>
                         </CardContent>
@@ -1119,7 +1119,7 @@ export default function DishesPage() {
                 </div>
               </div>
             </form>
-          </ScrollArea>
+          </div>
 
           <DialogFooter className="p-6 pt-2 border-t border-border bg-white">
             <Button variant="outline" type="button" onClick={resetForm}>
