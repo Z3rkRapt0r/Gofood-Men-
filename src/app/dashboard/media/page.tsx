@@ -15,8 +15,7 @@ export default function MediaPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const { data: tenant } = await supabase
-                .from('tenants')
+            const { data: tenant } = await (supabase.from('tenants') as any)
                 .select('id')
                 .eq('owner_id', user.id)
                 .single();
