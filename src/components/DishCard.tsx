@@ -7,9 +7,15 @@ import { Dish } from '@/types/menu';
 import { useTranslation } from '@/hooks/useTranslation';
 import { parseIngredients } from '@/utils/ingredientParser';
 import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
+import { Leaf, Wheat, Home, Snowflake } from 'lucide-react';
 
 interface DishCardProps {
-  dish: Dish;
+  dish: Dish & {
+    is_seasonal?: boolean;
+    is_vegetarian?: boolean;
+    is_vegan?: boolean;
+    is_gluten_free?: boolean;
+  };
   tenantSlug: string;
 }
 
@@ -139,6 +145,35 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
 
         <div className="text-[var(--tenant-text-secondary,#4B5563)] text-sm md:text-base leading-relaxed mb-3 min-h-[3em]">
           {parseIngredients(dish.description)}
+        </div>
+
+        {/* Diet & Feature Badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {dish.is_vegetarian && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+              <Leaf className="w-3 h-3" /> Vegetariano
+            </span>
+          )}
+          {dish.is_vegan && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+              <Leaf className="w-3 h-3" /> Vegano
+            </span>
+          )}
+          {dish.is_gluten_free && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+              <Wheat className="w-3 h-3" /> Senza Glutine
+            </span>
+          )}
+          {dish.is_homemade && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+              <Home className="w-3 h-3" /> Fatto in casa
+            </span>
+          )}
+          {dish.is_frozen && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+              <Snowflake className="w-3 h-3" /> Surgelato
+            </span>
+          )}
         </div>
 
         {dish.allergens && dish.allergens.length > 0 && (

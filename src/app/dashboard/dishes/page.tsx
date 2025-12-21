@@ -49,6 +49,23 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
+import { Filter, X, Info, Search, Leaf, Wheat, Snowflake, Home } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type DishInsert = Database['public']['Tables']['dishes']['Insert'];
 type DishUpdate = Database['public']['Tables']['dishes']['Update'];
@@ -194,12 +211,39 @@ function SortableDishCard({
                         Nascosto
                       </Badge>
                     )}
-                    {dish.is_seasonal && <span className="text-base sm:text-lg" title="Stagionale">🍂</span>}
-                    {dish.is_vegetarian && <span className="text-base sm:text-lg" title="Vegetariano">🥬</span>}
-                    {dish.is_vegan && <span className="text-base sm:text-lg" title="Vegano">🌱</span>}
-                    {dish.is_gluten_free && <span className="text-base sm:text-lg" title="Senza Glutine">🌾</span>}
-                    {dish.is_homemade && <span className="text-base sm:text-lg" title="Fatto in casa">🏠</span>}
-                    {dish.is_frozen && <span className="text-base sm:text-lg" title="Surgelato">❄️</span>}
+                    {/* Flags Badges */}
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {dish.is_seasonal && (
+                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          🍂 Stagionale
+                        </Badge>
+                      )}
+                      {dish.is_vegetarian && (
+                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          <Leaf className="w-3 h-3" /> Vegetariano
+                        </Badge>
+                      )}
+                      {dish.is_vegan && (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          <Leaf className="w-3 h-3" /> Vegano
+                        </Badge>
+                      )}
+                      {dish.is_gluten_free && (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          <Wheat className="w-3 h-3" /> Senza Glutine
+                        </Badge>
+                      )}
+                      {dish.is_homemade && (
+                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          <Home className="w-3 h-3" /> Fatto in casa
+                        </Badge>
+                      )}
+                      {dish.is_frozen && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
+                          <Snowflake className="w-3 h-3" /> Surgelato
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-sm text-muted-foreground line-clamp-2">
@@ -259,6 +303,9 @@ export default function DishesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterFlags, setFilterFlags] = useState<Set<string>>(new Set());
+  const [filterAllergens, setFilterAllergens] = useState<Set<string>>(new Set());
 
   // ... (previous useEffects) ...
 
@@ -738,9 +785,61 @@ export default function DishesPage() {
     setEditingDish(null);
   }
 
-  const filteredDishes = selectedCategory === 'all'
-    ? dishes
-    : dishes.filter(d => d.category_id === selectedCategory);
+  const filteredDishes = dishes.filter(d => {
+    // 0. Search Filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = d.name.toLowerCase().includes(query);
+      const matchesDesc = d.description?.toLowerCase().includes(query);
+      if (!matchesName && !matchesDesc) return false;
+    }
+
+    // 1. Category Filter
+    if (selectedCategory !== 'all' && d.category_id !== selectedCategory) return false;
+
+    // 2. Flags Filter
+    if (filterFlags.size > 0) {
+      for (const flag of Array.from(filterFlags)) {
+        // @ts-ignore
+        if (!d[flag]) return false;
+      }
+    }
+
+    // 3. Allergens Filter (OR Logic)
+    if (filterAllergens.size > 0) {
+      const hasAllergen = d.allergen_ids?.some(id => filterAllergens.has(id));
+      if (!hasAllergen) return false;
+    }
+
+    return true;
+  });
+
+  const activeFiltersCount = filterFlags.size + filterAllergens.size;
+
+  const toggleFilterFlag = (flag: string) => {
+    const newFlags = new Set(filterFlags);
+    if (newFlags.has(flag)) {
+      newFlags.delete(flag);
+    } else {
+      newFlags.add(flag);
+    }
+    setFilterFlags(newFlags);
+  };
+
+  const toggleFilterAllergen = (id: string) => {
+    const newAllergens = new Set(filterAllergens);
+    if (newAllergens.has(id)) {
+      newAllergens.delete(id);
+    } else {
+      newAllergens.add(id);
+    }
+    setFilterAllergens(newAllergens);
+  };
+
+  const resetFilters = () => {
+    setFilterFlags(new Set());
+    setFilterAllergens(new Set());
+  };
 
   if (loading) {
     return (
@@ -827,25 +926,234 @@ export default function DishesPage() {
         </Card>
       )}
 
-      {/* Category filter */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 px-1 scrollbar-hide">
-        <Button
-          variant={selectedCategory === 'all' ? 'default' : 'secondary'}
-          onClick={() => setSelectedCategory('all')}
-          className={`whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
-        >
-          Tutte ({dishes.length})
-        </Button>
-        {categories.map((cat) => (
-          <Button
-            key={cat.id}
-            variant={selectedCategory === cat.id ? 'default' : 'secondary'}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`whitespace-nowrap ${selectedCategory === cat.id ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
-          >
-            {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
-          </Button>
-        ))}
+      {/* Search & Filters */}
+      <div className="flex flex-col gap-4 pb-4">
+        {/* Search Bar */}
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cerca piatto..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-white border-orange-200 focus-visible:ring-orange-500"
+          />
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          {/* Mobile: Scrollable Categories */}
+          {/* Desktop: Wrapped Categories */}
+          <div className="flex-1 flex items-center gap-2 overflow-x-auto md:flex-wrap md:overflow-visible px-1 scrollbar-hide w-full">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'secondary'}
+              onClick={() => setSelectedCategory('all')}
+              className={`whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+            >
+              Tutte ({dishes.length})
+            </Button>
+            {categories.map((cat) => (
+              <Button
+                key={cat.id}
+                variant={selectedCategory === cat.id ? 'default' : 'secondary'}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`whitespace-nowrap ${selectedCategory === cat.id ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+              >
+                {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
+              </Button>
+            ))}
+          </div>
+
+          {/* Filter Button */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                className="gap-2 shrink-0 relative bg-white border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                <Filter className="w-4 h-4 text-orange-600" />
+                <span className="text-orange-900 font-medium">Filtri</span>
+                {activeFiltersCount > 0 && (
+                  <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-orange-600 animate-in zoom-in">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0 border-l border-border/40 shadow-2xl">
+              <SheetHeader className="px-6 py-6 border-b border-border/40 bg-muted/5">
+                <SheetTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-amber-600">
+                  Filtri Avanzati
+                </SheetTitle>
+                <SheetDescription className="text-muted-foreground">
+                  Personalizza la ricerca per dietetica ed esigenze alimentari.
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+                {/* Filtri Speciali Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
+                      Filtri Speciali
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { key: 'is_seasonal', label: 'Stagionale', icon: '🍂' },
+                      { key: 'is_gluten_free', label: 'Senza Glutine', icon: '🌾' },
+                    ].map((flag) => {
+                      const isActive = filterFlags.has(flag.key);
+                      return (
+                        <div
+                          key={flag.key}
+                          onClick={() => toggleFilterFlag(flag.key)}
+                          className={`
+                              cursor-pointer group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 select-none
+                              ${isActive
+                              ? 'border-orange-500 bg-orange-50 text-orange-950 shadow-sm'
+                              : 'border-transparent bg-secondary/50 hover:bg-secondary hover:border-orange-200/50 text-muted-foreground hover:text-foreground'
+                            }
+                            `}
+                        >
+                          <span className={`text-2xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+                            {flag.icon}
+                          </span>
+                          <span className="font-medium text-sm">
+                            {flag.label}
+                          </span>
+                          {isActive && (
+                            <div className="absolute top-1/2 right-3 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500 animate-in zoom-in duration-300" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="h-px bg-border/40" />
+
+                {/* Caratteristiche Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
+                      Caratteristiche
+                    </h4>
+                    {filterFlags.size > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFilterFlags(new Set())}
+                        className="h-auto p-0 text-xs text-orange-600 hover:text-orange-700 hover:bg-transparent"
+                      >
+                        Rimuovi
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { key: 'is_vegetarian', label: 'Vegetariano', icon: '🥬' },
+                      { key: 'is_vegan', label: 'Vegano', icon: '🌱' },
+                      { key: 'is_homemade', label: 'Fatto in casa', icon: '🏠' },
+                      { key: 'is_frozen', label: 'Surgelato', icon: '❄️' },
+                    ].map((flag) => {
+                      const isActive = filterFlags.has(flag.key);
+                      return (
+                        <div
+                          key={flag.key}
+                          onClick={() => toggleFilterFlag(flag.key)}
+                          className={`
+                              cursor-pointer group relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 select-none
+                              ${isActive
+                              ? 'border-orange-500 bg-orange-50 text-orange-950 shadow-sm'
+                              : 'border-transparent bg-secondary/50 hover:bg-secondary hover:border-orange-200/50 text-muted-foreground hover:text-foreground'
+                            }
+                            `}
+                        >
+                          <span className={`text-2xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+                            {flag.icon}
+                          </span>
+                          <span className="font-medium text-sm">
+                            {flag.label}
+                          </span>
+                          {isActive && (
+                            <div className="absolute top-1/2 right-3 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500 animate-in zoom-in duration-300" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="h-px bg-border/40" />
+
+                {/* Allergens Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/80">
+                      Allergeni
+                    </h4>
+                    {filterAllergens.size > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFilterAllergens(new Set())}
+                        className="h-auto p-0 text-xs text-orange-600 hover:text-orange-700 hover:bg-transparent"
+                      >
+                        Rimuovi
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {allergens.map((allergen) => {
+                      const isActive = filterAllergens.has(allergen.id);
+                      return (
+                        <div
+                          key={allergen.id}
+                          onClick={() => toggleFilterAllergen(allergen.id)}
+                          className={`
+                              cursor-pointer flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 min-h-[5.5rem] text-center select-none
+                              ${isActive
+                              ? 'border-red-500 bg-red-50 text-red-950 shadow-sm'
+                              : 'border-transparent bg-secondary/30 hover:bg-secondary hover:border-red-200/50 text-muted-foreground hover:text-foreground'
+                            }
+                            `}
+                        >
+                          <span className={`text-2xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+                            {allergen.icon}
+                          </span>
+                          <span className="text-[10px] uppercase font-bold tracking-tight line-clamp-2 leading-tight">
+                            {allergen.name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <SheetFooter className="p-6 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  <Button
+                    variant="outline"
+                    onClick={resetFilters}
+                    className="flex-1 h-12 text-muted-foreground hover:text-foreground border-transparent bg-secondary/50 hover:bg-secondary"
+                  >
+                    Azzera Tutto
+                  </Button>
+                  <SheetClose asChild>
+                    <Button
+                      className="flex-[2] h-12 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-lg shadow-orange-500/20 transition-all hover:shadow-orange-500/40 text-base font-semibold"
+                    >
+                      Vedi {filteredDishes.length} Piatti
+                    </Button>
+                  </SheetClose>
+                </div>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       {/* Dishes List */}
@@ -853,18 +1161,18 @@ export default function DishesPage() {
         <Card className="border-dashed border-2">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <span className="text-6xl mb-4">🍽️</span>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Nessun piatto</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Nessun piatto trovato</h3>
             <p className="text-muted-foreground mb-6">
-              {selectedCategory === 'all'
-                ? 'Inizia creando il tuo primo piatto'
-                : 'Nessun piatto in questa categoria'}
+              Nessun piatto corrisponde ai filtri selezionati.
             </p>
             <Button
-              onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0"
+              variant="outline"
+              onClick={() => {
+                resetFilters();
+                setSelectedCategory('all');
+              }}
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Crea Primo Piatto
+              Rimuovi Filtri
             </Button>
           </CardContent>
         </Card>
@@ -878,7 +1186,7 @@ export default function DishesPage() {
             items={filteredDishes.map((d) => d.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-4 w-full">
+            <div className="grid gap-4">
               {filteredDishes.map((dish) => (
                 <SortableDishCard
                   key={dish.id}
@@ -1024,10 +1332,26 @@ export default function DishesPage() {
                 </div>
 
                 {/* Filtri Speciali */}
+                {/* Filtri Speciali */}
+                {/* Filtri Speciali */}
                 <div className="space-y-3">
-                  <Label className="flex items-center gap-2">
-                    Filtri Speciali
-                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Label className="flex items-center gap-2">
+                      Filtri Speciali
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip delayDuration={300}>
+                        <TooltipTrigger asChild>
+                          <Info className="w-4 h-4 text-muted-foreground hover:text-orange-500 cursor-help transition-colors" />
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-orange-50 text-orange-950 border-orange-200 max-w-[250px]">
+                          <p className="text-xs font-medium">
+                            Attenzione: utilizzando questi filtri si agirà sulla visibilità del piatto sul menu.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <Card
                       className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isSeasonal ? 'border-orange-500 bg-orange-50' : ''}`}
@@ -1039,27 +1363,41 @@ export default function DishesPage() {
                       </CardContent>
                     </Card>
 
-                    {/* Manual placement of "Glutine" allergen if available */}
-                    {allergens.filter(a => a.id === 'glutine').map(glutine => (
-                      <Card
-                        key={glutine.id}
-                        className={`cursor-pointer transition-all hover:border-red-300 ${formData.selectedAllergens.includes(glutine.id) ? 'border-red-500 bg-red-50' : ''}`}
-                        onClick={() => {
-                          const includes = formData.selectedAllergens.includes(glutine.id);
-                          const newSelected = !includes
-                            ? [...formData.selectedAllergens, glutine.id]
-                            : formData.selectedAllergens.filter(id => id !== glutine.id);
-                          setFormData({ ...formData, selectedAllergens: newSelected });
-                        }}
-                      >
-                        <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                          <span className="text-2xl">{glutine.icon}</span>
-                          <span className={`text-xs font-bold text-center leading-tight ${formData.selectedAllergens.includes(glutine.id) ? 'text-red-700' : 'text-muted-foreground'}`}>
-                            Contiene Glutine
-                          </span>
-                        </CardContent>
-                      </Card>
-                    ))}
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isGlutenFree ? 'border-green-500 bg-green-50' : ''}`}
+                      onClick={() => {
+                        const newIsGlutenFree = !formData.isGlutenFree;
+                        let newSelectedAllergens = formData.selectedAllergens;
+
+                        // If setting Gluten Free to TRUE, remove 'glutine' allergen if present
+                        if (newIsGlutenFree) {
+                          // Assuming 'glutine' is the ID for gluten allergen. If it's an ID from DB, we need to find it.
+                          // Based on previous code, allergen.id is used. We need to find the ID for gluten.
+                          // Actually, in the code below we see getAllergens uses IDs.
+                          // Let's protect against the hardcoded ID if possible, but for now we filter by text/logic.
+                          // However, looking at the Allergens section logic in lines 1433+, it uses `allergen.id`.
+                          // Usually 'glutine' is the ID if the seed data is consistent, but it's safer to find the ID.
+                          // Since I don't have the ID easily here without iterating allergens, let's look at how the Allergens section renders.
+                          // It iterates `allergens`. Ideally I should find the 'glutine' allergen ID.
+                          // But for now, let's assume I can iterate `allergens` state variable which is available in component scope.
+                          const glutineAllergen = allergens.find(a => a.name.toLowerCase() === 'glutine' || a.id === 'glutine');
+                          if (glutineAllergen) {
+                            newSelectedAllergens = newSelectedAllergens.filter(id => id !== glutineAllergen.id);
+                          }
+                        }
+
+                        setFormData({
+                          ...formData,
+                          isGlutenFree: newIsGlutenFree,
+                          selectedAllergens: newSelectedAllergens
+                        });
+                      }}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">🌾</span>
+                        <span className={`text-xs font-bold ${formData.isGlutenFree ? 'text-green-700' : 'text-muted-foreground'}`}>Senza Glutine</span>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
 
@@ -1067,6 +1405,25 @@ export default function DishesPage() {
                 <div className="space-y-3">
                   <Label>Caratteristiche</Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isVegetarian ? 'border-green-500 bg-green-50' : ''}`}
+                      onClick={() => setFormData({ ...formData, isVegetarian: !formData.isVegetarian })}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">🥬</span>
+                        <span className={`text-xs font-bold ${formData.isVegetarian ? 'text-green-700' : 'text-muted-foreground'}`}>Vegetariano</span>
+                      </CardContent>
+                    </Card>
+                    <Card
+                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isVegan ? 'border-green-500 bg-green-50' : ''}`}
+                      onClick={() => setFormData({ ...formData, isVegan: !formData.isVegan })}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                        <span className="text-2xl">�</span>
+                        <span className={`text-xs font-bold ${formData.isVegan ? 'text-green-700' : 'text-muted-foreground'}`}>Vegano</span>
+                      </CardContent>
+                    </Card>
+
                     {/* Fatto in casa */}
                     <Card
                       className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isHomemade ? 'border-orange-500 bg-orange-50' : ''}`}
@@ -1095,7 +1452,7 @@ export default function DishesPage() {
                 <div className="space-y-3">
                   <Label>Allergeni Presenti</Label>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                    {allergens.filter(a => a.id !== 'glutine').map((allergen) => (
+                    {allergens.map((allergen) => (
                       <Card
                         key={allergen.id}
                         className={`cursor-pointer transition-all min-h-[6rem] p-1 hover:border-red-300 ${formData.selectedAllergens.includes(allergen.id) ? 'border-red-500 bg-red-50' : ''}`}
@@ -1104,7 +1461,21 @@ export default function DishesPage() {
                           const newSelected = !includes
                             ? [...formData.selectedAllergens, allergen.id]
                             : formData.selectedAllergens.filter(id => id !== allergen.id);
-                          setFormData({ ...formData, selectedAllergens: newSelected });
+
+                          // Mutual Exclusivity Check
+                          let newIsGlutenFree = formData.isGlutenFree;
+                          const isGluten = allergen.name.toLowerCase() === 'glutine' || allergen.id === 'glutine';
+
+                          // If checking 'Glutine', disable 'Senza Glutine'
+                          if (!includes && isGluten) {
+                            newIsGlutenFree = false;
+                          }
+
+                          setFormData({
+                            ...formData,
+                            selectedAllergens: newSelected,
+                            isGlutenFree: newIsGlutenFree
+                          });
                         }}
                       >
                         <CardContent className="p-2 flex flex-col items-center justify-center h-full gap-1">

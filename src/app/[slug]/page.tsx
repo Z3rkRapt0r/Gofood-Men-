@@ -31,6 +31,9 @@ interface DbDish {
   image_url?: string;
   is_visible: boolean;
   is_seasonal: boolean;
+  is_vegetarian: boolean;
+  is_vegan: boolean;
+  is_gluten_free: boolean;
   display_order: number;
   is_homemade: boolean;
   is_frozen: boolean;
@@ -125,6 +128,9 @@ async function getMenuData(slug: string) {
         image: dish.image_url || '/icon.svg',
         allergens: dish.allergen_ids || [],
         is_seasonal: dish.is_seasonal,
+        is_vegetarian: dish.is_vegetarian,
+        is_vegan: dish.is_vegan,
+        is_gluten_free: dish.is_gluten_free,
         is_homemade: dish.is_homemade,
         is_frozen: dish.is_frozen,
       })) || []

@@ -27,6 +27,10 @@ interface Dish {
   price: string;
   image: string;
   allergens: string[];
+  is_seasonal?: boolean;
+  is_vegetarian?: boolean;
+  is_vegan?: boolean;
+  is_gluten_free?: boolean;
   is_homemade?: boolean;
   is_frozen?: boolean;
 }
