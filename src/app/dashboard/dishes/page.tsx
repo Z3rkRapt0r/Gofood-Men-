@@ -19,7 +19,7 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+  verticalListSortingStrategy, // Reverted to vertical strategy
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -48,7 +48,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 type DishInsert = Database['public']['Tables']['dishes']['Insert'];
 type DishUpdate = Database['public']['Tables']['dishes']['Update'];
@@ -771,7 +771,7 @@ export default function DishesPage() {
   }
 
   return (
-    <div className="w-full mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -828,25 +828,28 @@ export default function DishesPage() {
       )}
 
       {/* Category filter */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 px-1 scrollbar-hide">
-        <Button
-          variant={selectedCategory === 'all' ? 'default' : 'secondary'}
-          onClick={() => setSelectedCategory('all')}
-          className={`whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
-        >
-          Tutte ({dishes.length})
-        </Button>
-        {categories.map((cat) => (
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <div className="flex w-max space-x-2 p-4">
           <Button
-            key={cat.id}
-            variant={selectedCategory === cat.id ? 'default' : 'secondary'}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`whitespace-nowrap ${selectedCategory === cat.id ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+            variant={selectedCategory === 'all' ? 'default' : 'secondary'}
+            onClick={() => setSelectedCategory('all')}
+            className={`whitespace-nowrap ${selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
           >
-            {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
+            Tutte ({dishes.length})
           </Button>
-        ))}
-      </div>
+          {categories.map((cat) => (
+            <Button
+              key={cat.id}
+              variant={selectedCategory === cat.id ? 'default' : 'secondary'}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`whitespace-nowrap ${selectedCategory === cat.id ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+            >
+              {cat.name} ({dishes.filter(d => d.category_id === cat.id).length})
+            </Button>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       {/* Dishes List */}
       {filteredDishes.length === 0 ? (
