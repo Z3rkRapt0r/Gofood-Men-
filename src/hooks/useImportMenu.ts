@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface Dish {
     name: string;

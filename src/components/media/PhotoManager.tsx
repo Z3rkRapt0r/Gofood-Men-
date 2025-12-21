@@ -12,7 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
 import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
 

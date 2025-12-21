@@ -3,7 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlutenFilterProvider } from "@/contexts/GlutenFilterContext";
-import { Toaster } from 'react-hot-toast';
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Script from 'next/script';
 import QueryProvider from "@/components/providers/QueryProvider";
 
@@ -71,7 +71,7 @@ export default function RootLayout({
                 src="https://embeds.iubenda.com/widgets/cb34db42-733e-43bb-b9e1-b1bf9d76e546.js"
                 strategy="afterInteractive"
               />
-              <Toaster
+              {/* <Toaster
                 position="top-center"
                 toastOptions={{
                   duration: 4000,
@@ -93,7 +93,8 @@ export default function RootLayout({
                     },
                   },
                 }}
-              />
+              /> */}
+              <SonnerToaster />
             </GlutenFilterProvider>
           </QueryProvider>
         </LanguageProvider>

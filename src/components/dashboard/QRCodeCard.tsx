@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 // import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/hooks/useTenant';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface QRCodeCardProps {
     slug: string | null;

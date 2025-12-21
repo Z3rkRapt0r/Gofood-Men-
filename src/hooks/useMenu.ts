@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 // --- Types ---
 export interface Category {

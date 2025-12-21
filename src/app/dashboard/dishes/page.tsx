@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import {
   DndContext,
   closestCenter,

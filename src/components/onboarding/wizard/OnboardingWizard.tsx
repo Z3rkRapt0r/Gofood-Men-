@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchPhotos, useDeletePhotos } from '@/hooks/usePhotos';
 import { WizardStepper } from './WizardStepper';

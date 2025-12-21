@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
 
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';

@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { useTheme } from './ThemeContext';
 import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { ChevronsUpDown, ChevronDown } from 'lucide-react';
 

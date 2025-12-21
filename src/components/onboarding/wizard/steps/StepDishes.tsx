@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 
 

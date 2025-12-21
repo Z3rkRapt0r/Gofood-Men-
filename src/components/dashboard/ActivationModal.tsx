@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface ActivationModalProps {
     isOpen: boolean;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { deleteAccount, resetMenu } from '@/app/actions/account';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';

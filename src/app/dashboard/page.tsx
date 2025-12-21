@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QRCodeCard from '@/components/dashboard/QRCodeCard';
 import ActivationModal from '@/components/dashboard/ActivationModal';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
 import { useTenant, useUpdateTenant } from '@/hooks/useTenant';
