@@ -771,7 +771,7 @@ export default function DishesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 p-4">
+    <div className="w-full mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
