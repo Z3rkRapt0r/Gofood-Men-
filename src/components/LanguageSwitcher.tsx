@@ -22,9 +22,9 @@ interface LanguageSwitcherProps {
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'ar', label: 'العربية', flag: '🇸🇦' }, // Using Saudi Arabia flag for Arabic generic
   { code: 'zh-CN', label: '中文', flag: '🇨🇳' }, // Google Translate uses zh-CN for Chinese Simplified
 ];
@@ -42,7 +42,7 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
         new window.google.translate.TranslateElement(
           {
             pageLanguage: 'it',
-            includedLanguages: 'it,en,de,es,fr,ar,zh-CN',
+            includedLanguages: 'it,en,es,fr,de,ar,zh-CN',
             autoDisplay: false,
           },
           'google_translate_element'

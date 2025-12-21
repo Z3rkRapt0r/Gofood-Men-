@@ -113,7 +113,7 @@ export default function DashboardLayout({
           </header>
 
           {/* Page content */}
-          <main className="flex-1 p-2 lg:p-4 overflow-y-auto">
+          <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
             {tenant.subscription_status === 'trialing' && <SubscriptionBanner />}
             {children}
           </main>

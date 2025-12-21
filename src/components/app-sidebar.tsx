@@ -30,6 +30,7 @@ import {
     SidebarSeparator,
     useSidebar,
 } from '@/components/ui/sidebar';
+import { AnimateIcon } from '@/components/ui/animate-icon';
 
 export function AppSidebar({ tenant }: { tenant: Tenant }) {
     const pathname = usePathname();
@@ -111,7 +112,7 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
                                                 }
                                             }}
                                         >
-                                            <item.icon className="w-5 h-5" />
+                                            <AnimateIcon icon={item.icon} className="w-5 h-5" />
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
