@@ -1,6 +1,6 @@
 'use client';
 
-import { useCategories, useDishes, useAllergens, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
+import { useCategories, useDishes, useAllergens, useUpdateDish, Dish, Category, Allergen } from '@/hooks/useMenu';
 import { useMemo, useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';

@@ -33,6 +33,12 @@ export interface Dish {
     allergen_ids?: string[];
 }
 
+export interface Allergen {
+    id: string;
+    name: string;
+    icon: string;
+}
+
 // --- Queries ---
 
 export function useCategories(tenantId: string | undefined) {
@@ -78,9 +84,10 @@ export function useAllergens() {
         queryKey: ['allergens'],
         queryFn: async () => {
             const supabase = createClient();
-            const { data, error } = await supabase.from('allergens').select('*').order('name');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data, error } = await (supabase.from('allergens') as any).select('*').order('name');
             if (error) throw error;
-            return data;
+            return data as Allergen[];
         }
     });
 }
