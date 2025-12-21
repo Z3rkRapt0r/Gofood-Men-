@@ -1,6 +1,6 @@
-# 🍝 Magna Roma Trattoria - Menu Digitale
+# 🍝 Go!Food Menù - Menu Digitale
 
-Menu digitale responsive per la Magna Roma Trattoria, accessibile tramite QR code con immagini grandi e appetitose di ogni piatto.
+Menu digitale responsive per Go!Food Menù, accessibile tramite QR code con immagini grandi e appetitose di ogni piatto.
 
 ## 🎨 Features
 
@@ -177,9 +177,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ### ⚠️ Important Notes
 
 - **Code**: Open source and free to use under MIT License
-- **Brand Assets**: Magna Roma name, logo, and branding are © Magna Roma Trattoria
-- **Content**: Menu items, descriptions, and images are © Magna Roma Trattoria
-- **Commercial Use**: You can use this code for your restaurant, but not the Magna Roma brand
+- **Brand Assets**: Go!Food Menù name, logo, and branding are © Go!Food Menù
+- **Content**: Menu items, descriptions, and images are © Go!Food Menù
+- **Commercial Use**: You can use this code for your restaurant, but not the Go!Food Menù brand
 
 ### 🙏 Attribution
 
@@ -204,4 +204,4 @@ Per domande o supporto, contatta il team di sviluppo.
 
 ---
 
-**Magna Roma Trattoria** - Autentica Cucina Romana 🍝
+**Go!Food Menù** - Il tuo menu digitale 🍝

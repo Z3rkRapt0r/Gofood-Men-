@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-10-10
 
 ### Added
-- 🍝 Complete digital menu for Magna Roma Trattoria
+- 🍝 Complete digital menu for Go!Food Menù
 - 📱 Mobile-first responsive design optimized for QR code access
 - 🌍 Bilingual support (Italian/English) with instant language switching
 - 🖼️ Large, appetizing images for each dish (4:3 aspect ratio)
