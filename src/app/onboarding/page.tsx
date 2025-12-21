@@ -51,8 +51,9 @@ function OnboardingContent() {
       });
 
       // Handle redirect if needed (mutation usually handles toast)
-      // Check nextStep condition again strictly if needed, but mutation logic handles 'onboarding_completed'
-      if ((nextStep || (data.onboarding_step || 1)) > 5) {
+      // Check nextStep condition again strictly
+      // TOTAL_STEPS is now 6. So we only redirect if nextStep > 6.
+      if ((nextStep || (data.onboarding_step || 1)) > 6) {
         router.push('/dashboard');
       }
       return true;
@@ -67,9 +68,10 @@ function OnboardingContent() {
     router.push('/login');
   };
 
-  // Effect to redirect if already completed (redundant check if API returns it, but safe)
+  // Effect to redirect if already completed
   useEffect(() => {
-    if (tenant?.onboarding_completed) {
+    // Only redirect if completed AND step is actually past the end (safeguard for bug fix)
+    if (tenant?.onboarding_completed && (tenant.onboarding_step || 1) > 6) {
       router.push('/dashboard');
     }
   }, [tenant, router]);
@@ -97,7 +99,7 @@ function OnboardingContent() {
         <OnboardingWizard
           initialData={tenant}
           tenantId={tenant.id}
-          currentStepProp={Math.min(tenant.onboarding_step || 1, 5)}
+          currentStepProp={Math.min(tenant.onboarding_step || 1, 6)}
           onUpdate={handleUpdate}
           onExit={handleLogout}
         />

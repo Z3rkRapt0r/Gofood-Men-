@@ -152,9 +152,9 @@ export function useUpdateTenant() {
 
             if (nextStep) {
                 updateData.onboarding_step = nextStep;
-                updateData.onboarding_completed = nextStep > 5;
+                updateData.onboarding_completed = nextStep > 6;
             } else if (updates.onboarding_step) {
-                updateData.onboarding_completed = updates.onboarding_step > 5;
+                updateData.onboarding_completed = updates.onboarding_step > 6;
             }
 
             // Slug Logic

@@ -113,9 +113,17 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
 
     // Sync server data to local state for DND
     // Only update if server has data. 
+    // Sync server data to local state
+    // Use deep comparison to prevent infinite loops if serverCategories reference changes
+    const prevServerCategoriesRef = useRef<string>('');
+
     useEffect(() => {
-        if (serverCategories) {
+        if (!serverCategories) return;
+
+        const serialized = JSON.stringify(serverCategories);
+        if (prevServerCategoriesRef.current !== serialized) {
             setCategories(serverCategories);
+            prevServerCategoriesRef.current = serialized;
         }
     }, [serverCategories]);
 
