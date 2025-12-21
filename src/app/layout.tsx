@@ -5,7 +5,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlutenFilterProvider } from "@/contexts/GlutenFilterContext";
 import { Toaster } from 'react-hot-toast';
 import Script from 'next/script';
-
+import QueryProvider from "@/components/providers/QueryProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -60,40 +60,42 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-[#FFF8E7]`}
       >
         <LanguageProvider>
-          <GlutenFilterProvider>
-            {children}
-            <Script
-              src="https://cdn.iubenda.com/iubenda.js"
-              strategy="lazyOnload"
-            />
-            <Script
-              src="https://embeds.iubenda.com/widgets/cb34db42-733e-43bb-b9e1-b1bf9d76e546.js"
-              strategy="afterInteractive"
-            />
-            <Toaster
-              position="top-center"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#333',
-                  color: '#fff',
-                  borderRadius: '10px',
-                },
-                success: {
-                  iconTheme: {
-                    primary: '#22c55e',
-                    secondary: '#fff',
+          <QueryProvider>
+            <GlutenFilterProvider>
+              {children}
+              <Script
+                src="https://cdn.iubenda.com/iubenda.js"
+                strategy="lazyOnload"
+              />
+              <Script
+                src="https://embeds.iubenda.com/widgets/cb34db42-733e-43bb-b9e1-b1bf9d76e546.js"
+                strategy="afterInteractive"
+              />
+              <Toaster
+                position="top-center"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#333',
+                    color: '#fff',
+                    borderRadius: '10px',
                   },
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
+                  success: {
+                    iconTheme: {
+                      primary: '#22c55e',
+                      secondary: '#fff',
+                    },
                   },
-                },
-              }}
-            />
-          </GlutenFilterProvider>
+                  error: {
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
+            </GlutenFilterProvider>
+          </QueryProvider>
         </LanguageProvider>
       </body>
     </html>

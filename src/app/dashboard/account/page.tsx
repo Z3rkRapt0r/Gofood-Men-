@@ -7,7 +7,6 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Trash2 } from 'lucide-react';
 import {
@@ -18,8 +17,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
+import { useTenant, useUpdateTenant } from '@/hooks/useTenant';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function AccountPage() {
+    const { data: tenant, isLoading } = useTenant();
+    const updateTenantMutation = useUpdateTenant();
+    const queryClient = useQueryClient();
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
@@ -29,13 +34,9 @@ export default function AccountPage() {
     const [resetMenuConfirmation, setResetMenuConfirmation] = useState('');
     const [isResettingMenu, setIsResettingMenu] = useState(false);
 
-    // New State for Restaurant Info
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [tenantId, setTenantId] = useState('');
+    // Form State
     const [formData, setFormData] = useState({
         restaurantName: '',
-        tagline: '',
         slug: '',
         contactEmail: '',
         coverCharge: 0,
@@ -53,120 +54,40 @@ export default function AccountPage() {
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
     useEffect(() => {
-        loadTenantData();
-    }, []);
-
-    async function loadTenantData() {
-        try {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!user) return;
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: tenant, error } = await (supabase.from('tenants') as any)
-                .select('*, tenant_locations(*)')
-                .eq('owner_id', user.id)
-                .single();
-
-            if (error || !tenant) return;
-
-            setTenantId(tenant.id);
-
-            // Map tenant_locations to FooterLocation format for UI
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const dbLocations = tenant.tenant_locations || [];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const uiLocations: FooterLocation[] = dbLocations.map((l: any) => ({
-                city: l.city,
-                address: l.address,
-                phone: l.phone || '',
-                opening_hours: l.opening_hours || ''
-            }));
-
+        if (tenant) {
             setFormData({
                 restaurantName: tenant.restaurant_name || '',
-                tagline: tenant.tagline || '',
                 slug: tenant.slug || '',
                 contactEmail: tenant.contact_email || '',
                 coverCharge: tenant.cover_charge || 0,
                 footerData: {
-                    ...(tenant.footer_data || {
-                        socials: [],
-                        show_brand_column: true,
-                    }),
-                    locations: uiLocations,
+                    locations: tenant.footer_data?.locations || [],
+                    socials: tenant.footer_data?.socials || [],
+                    show_brand_column: tenant.footer_data?.show_brand_column ?? true,
+                    brand_description: tenant.footer_data?.brand_description || { it: '', en: '' }
                 },
             });
-        } catch (err) {
-            console.error('Error loading account data:', err);
-            toast.error('Errore nel caricamento dei dati');
-        } finally {
-            setLoading(false);
         }
-    }
+    }, [tenant]);
 
     async function handleSave(e: React.FormEvent) {
         e.preventDefault();
-        setSaving(true);
-        const supabase = createClient();
+        if (!tenant) return;
 
         try {
-            // 1. Update Tenant Info
-            const { error: tenantError } = await (supabase.from('tenants') as any)
-                .update({
+            await updateTenantMutation.mutateAsync({
+                id: tenant.id,
+                updates: {
                     restaurant_name: formData.restaurantName,
-                    // tagline: formData.tagline, // Removed column write
-                    slug: formData.slug.trim() === '' ? null : formData.slug,
+                    slug: formData.slug,
                     contact_email: formData.contactEmail,
                     cover_charge: formData.coverCharge,
-                    footer_data: {
-                        ...formData.footerData,
-                        locations: [] // We don't store locations in the JSON column anymore, but keep structure for UI consistency if needed elsewhere
-                    }
-                })
-                .eq('id', tenantId);
-
-            if (tenantError) {
-                console.error('Supabase update error:', tenantError);
-                throw new Error(tenantError.message || 'Errore sconosciuto durante l\'aggiornamento');
-            }
-
-            // 2. Update Locations (Delete Old -> Insert New)
-            // Delete old
-            const { error: deleteError } = await (supabase.from('tenant_locations') as any)
-                .delete()
-                .eq('tenant_id', tenantId);
-
-            if (deleteError) {
-                throw new Error(`Locations Delete Error: ${deleteError.message}`);
-            }
-
-            // Insert new
-            const locationsToInsert = formData.footerData.locations.map((loc, idx) => ({
-                tenant_id: tenantId,
-                city: loc.city,
-                address: loc.address,
-                phone: loc.phone || null,
-                opening_hours: loc.opening_hours || null,
-                is_primary: idx === 0
-            }));
-
-            if (locationsToInsert.length > 0) {
-                const { error: insertError } = await (supabase.from('tenant_locations') as any)
-                    .insert(locationsToInsert);
-
-                if (insertError) {
-                    throw new Error(`Locations Insert Error: ${insertError.message}`);
+                    footer_data: formData.footerData
                 }
-            }
-
-            toast.success('Informazioni salvate con successo!');
+            });
+            // Success toast handled by mutation
         } catch (err: any) {
-            console.error('Error saving account data:', err);
-            toast.error(`Errore durante il salvataggio: ${err.message || 'Dettagli non disponibili'}`);
-        } finally {
-            setSaving(false);
+            // Error toast handled by mutation
         }
     }
 
@@ -194,6 +115,10 @@ export default function AccountPage() {
         setIsResettingMenu(true);
         try {
             await resetMenu();
+            // Invalidate queries to refresh UI in other tabs/pages immediately
+            queryClient.invalidateQueries({ queryKey: ['categories'] });
+            queryClient.invalidateQueries({ queryKey: ['dishes'] });
+
             toast.success('Menu resettato con successo');
             setShowResetMenuModal(false);
             setResetMenuConfirmation('');
@@ -242,6 +167,14 @@ export default function AccountPage() {
         }
     }
 
+    if (isLoading) {
+        return (
+            <div className="flex justify-center p-12">
+                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
@@ -254,204 +187,117 @@ export default function AccountPage() {
                 </p>
             </div>
 
-            {loading ? (
-                <div className="flex justify-center p-12">
-                    <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-            ) : (
-                <form onSubmit={handleSave} className="space-y-6">
-                    {/* Informazioni Base Ristorante */}
-                    <Card className="shadow-sm border-gray-200">
-                        <CardHeader>
-                            <CardTitle>Informazioni Ristorante</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
+            <form onSubmit={handleSave} className="space-y-6">
+                {/* Informazioni Base Ristorante */}
+                <Card className="shadow-sm border-gray-200">
+                    <CardHeader>
+                        <CardTitle>Informazioni Ristorante</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="restaurantName" className="font-bold">Nome Ristorante *</Label>
+                            <Input
+                                id="restaurantName"
+                                type="text"
+                                required
+                                value={formData.restaurantName}
+                                onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
+                                placeholder="Il Mio Ristorante"
+                            />
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="restaurantName" className="font-bold">Nome Ristorante *</Label>
+                                <Label htmlFor="contactEmail" className="font-bold">Email Contatto</Label>
                                 <Input
-                                    id="restaurantName"
-                                    type="text"
-                                    required
-                                    value={formData.restaurantName}
-                                    onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                                    placeholder="Il Mio Ristorante"
+                                    id="contactEmail"
+                                    type="email"
+                                    value={formData.contactEmail}
+                                    onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                                    placeholder="info@ristorante.it"
                                 />
                             </div>
-
-
-
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="contactEmail" className="font-bold">Email Contatto</Label>
-                                    <Input
-                                        id="contactEmail"
-                                        type="email"
-                                        value={formData.contactEmail}
-                                        onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                                        placeholder="info@ristorante.it"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="coverCharge" className="font-bold">Costo Coperto (€)</Label>
-                                    <Input
-                                        id="coverCharge"
-                                        type="number"
-                                        step="0.10"
-                                        min="0"
-                                        value={formData.coverCharge}
-                                        onChange={(e) => setFormData({ ...formData, coverCharge: parseFloat(e.target.value) })}
-                                        placeholder="2.50"
-                                        className="font-mono"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Questo importo verrà mostrato nella pagina allergeni/legale.
-                                    </p>
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="coverCharge" className="font-bold">Costo Coperto (€)</Label>
+                                <Input
+                                    id="coverCharge"
+                                    type="number"
+                                    step="0.10"
+                                    min="0"
+                                    value={formData.coverCharge}
+                                    onChange={(e) => setFormData({ ...formData, coverCharge: parseFloat(e.target.value) })}
+                                    placeholder="2.50"
+                                    className="font-mono"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Questo importo verrà mostrato nella pagina allergeni/legale.
+                                </p>
                             </div>
+                        </div>
 
 
-                            {/* Locations & Socials - Moved from Footer Customization */}
-                            <div className="pt-4 border-t border-gray-100 space-y-8">
-                                {/* Locations */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-base font-bold">Sedi</Label>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setFormData({
-                                                ...formData,
-                                                footerData: {
-                                                    ...formData.footerData,
-                                                    locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
-                                                }
-                                            })}
-                                            className="gap-2"
-                                        >
-                                            <Plus className="w-4 h-4" /> Aggiungi Sede
-                                        </Button>
-                                    </div>
+                        {/* Locations & Socials - Moved from Footer Customization */}
+                        <div className="pt-4 border-t border-gray-100 space-y-8">
+                            {/* Locations */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base font-bold">Sedi</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({
+                                            ...formData,
+                                            footerData: {
+                                                ...formData.footerData,
+                                                locations: [...formData.footerData.locations, { city: '', address: '', phone: '', opening_hours: '' }]
+                                            }
+                                        })}
+                                        className="gap-2"
+                                    >
+                                        <Plus className="w-4 h-4" /> Aggiungi Sede
+                                    </Button>
+                                </div>
 
-                                    <div className="space-y-3">
-                                        {formData.footerData.locations.map((loc, index) => (
-                                            <Card key={index} className="bg-muted/30">
-                                                <CardContent className="p-4 flex gap-3 items-start">
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                                                        <Input
-                                                            placeholder="Città"
-                                                            value={loc.city}
-                                                            onChange={(e) => {
-                                                                const newLocs = [...formData.footerData.locations];
-                                                                newLocs[index].city = e.target.value;
-                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                            }}
-                                                        />
-                                                        <Input
-                                                            placeholder="Indirizzo"
-                                                            value={loc.address}
-                                                            onChange={(e) => {
-                                                                const newLocs = [...formData.footerData.locations];
-                                                                newLocs[index].address = e.target.value;
-                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                            }}
-                                                        />
-                                                        <Input
-                                                            placeholder="Telefono (opzionale)"
-                                                            value={loc.phone || ''}
-                                                            onChange={(e) => {
-                                                                const newLocs = [...formData.footerData.locations];
-                                                                newLocs[index].phone = e.target.value;
-                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                            }}
-                                                        />
-                                                        <Input
-                                                            placeholder="Orari (es. Lun-Dom: 12-23)"
-                                                            value={loc.opening_hours || ''}
-                                                            onChange={(e) => {
-                                                                const newLocs = [...formData.footerData.locations];
-                                                                newLocs[index].opening_hours = e.target.value;
-                                                                setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => {
-                                                            const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
+                                <div className="space-y-3">
+                                    {formData.footerData.locations.map((loc, index) => (
+                                        <Card key={index} className="bg-muted/30">
+                                            <CardContent className="p-4 flex gap-3 items-start">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                                                    <Input
+                                                        placeholder="Città"
+                                                        value={loc.city}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].city = e.target.value;
                                                             setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
                                                         }}
-                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                        {formData.footerData.locations.length === 0 && (
-                                            <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                                                Nessuna sede aggiunta.
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Socials */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-base font-bold">Social Network</Label>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setFormData({
-                                                ...formData,
-                                                footerData: {
-                                                    ...formData.footerData,
-                                                    socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
-                                                }
-                                            })}
-                                            className="gap-2"
-                                        >
-                                            <Plus className="w-4 h-4" /> Aggiungi Social
-                                        </Button>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        {formData.footerData.socials.map((social, index) => (
-                                            <div key={index} className="flex gap-3 items-start">
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
-                                                    <Select
-                                                        value={social.platform}
-                                                        onValueChange={(value) => {
-                                                            const newSocials = [...formData.footerData.socials];
-                                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                            newSocials[index].platform = value as any;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
-                                                        }}
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Social" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="facebook">Facebook</SelectItem>
-                                                            <SelectItem value="instagram">Instagram</SelectItem>
-                                                            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-                                                            <SelectItem value="website">Sito Web</SelectItem>
-                                                            <SelectItem value="other">Altro</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-
+                                                    />
                                                     <Input
-                                                        className="md:col-span-2"
-                                                        placeholder="URL Profilo"
-                                                        value={social.url}
+                                                        placeholder="Indirizzo"
+                                                        value={loc.address}
                                                         onChange={(e) => {
-                                                            const newSocials = [...formData.footerData.socials];
-                                                            newSocials[index].url = e.target.value;
-                                                            setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].address = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        placeholder="Telefono (opzionale)"
+                                                        value={loc.phone || ''}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].phone = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        placeholder="Orari (es. Lun-Dom: 12-23)"
+                                                        value={loc.opening_hours || ''}
+                                                        onChange={(e) => {
+                                                            const newLocs = [...formData.footerData.locations];
+                                                            newLocs[index].opening_hours = e.target.value;
+                                                            setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
                                                         }}
                                                     />
                                                 </div>
@@ -460,47 +306,123 @@ export default function AccountPage() {
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => {
-                                                        const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
-                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                        const newLocs = formData.footerData.locations.filter((_, i) => i !== index);
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, locations: newLocs } });
                                                     }}
                                                     className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
-                                            </div>
-                                        ))}
-                                        {formData.footerData.socials.length === 0 && (
-                                            <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
-                                                Nessun social aggiunto.
-                                            </p>
-                                        )}
-                                    </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                    {formData.footerData.locations.length === 0 && (
+                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                            Nessuna sede aggiunta.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
 
+                            {/* Socials */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base font-bold">Social Network</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({
+                                            ...formData,
+                                            footerData: {
+                                                ...formData.footerData,
+                                                socials: [...formData.footerData.socials, { platform: 'other', url: '' }]
+                                            }
+                                        })}
+                                        className="gap-2"
+                                    >
+                                        <Plus className="w-4 h-4" /> Aggiungi Social
+                                    </Button>
+                                </div>
 
+                                <div className="space-y-3">
+                                    {formData.footerData.socials.map((social, index) => (
+                                        <div key={index} className="flex gap-3 items-start">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                                                <Select
+                                                    value={social.platform}
+                                                    onValueChange={(value) => {
+                                                        const newSocials = [...formData.footerData.socials];
+                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        newSocials[index].platform = value as any;
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                    }}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Social" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="facebook">Facebook</SelectItem>
+                                                        <SelectItem value="instagram">Instagram</SelectItem>
+                                                        <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                                                        <SelectItem value="website">Sito Web</SelectItem>
+                                                        <SelectItem value="other">Altro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
 
-                    <div className="flex justify-end">
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl text-lg hover:scale-[1.02]"
-                        >
-                            {saving ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                    <span>Salvataggio...</span>
-                                </>
-                            ) : (
-                                <span>Salva Modifiche</span>
-                            )}
-                        </Button>
-                    </div>
-                </form>
-            )
-            }
+                                                <Input
+                                                    className="md:col-span-2"
+                                                    placeholder="URL Profilo"
+                                                    value={social.url}
+                                                    onChange={(e) => {
+                                                        const newSocials = [...formData.footerData.socials];
+                                                        newSocials[index].url = e.target.value;
+                                                        setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                    }}
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                    const newSocials = formData.footerData.socials.filter((_, i) => i !== index);
+                                                    setFormData({ ...formData, footerData: { ...formData.footerData, socials: newSocials } });
+                                                }}
+                                                className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {formData.footerData.socials.length === 0 && (
+                                        <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-lg">
+                                            Nessun social aggiunto.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="flex justify-end">
+                    <Button
+                        type="submit"
+                        disabled={updateTenantMutation.isPending}
+                        className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl text-lg hover:scale-[1.02]"
+                    >
+                        {updateTenantMutation.isPending ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                <span>Salvataggio...</span>
+                            </>
+                        ) : (
+                            <span>Salva Modifiche</span>
+                        )}
+                    </Button>
+                </div>
+            </form>
 
             {/* Sicurezza e Password */}
             <Card>

@@ -1,34 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useTenant } from '@/hooks/useTenant';
 import PhotoManager from '@/components/media/PhotoManager';
 import { Loader2 } from 'lucide-react';
 
 export default function MediaPage() {
-    const [tenantId, setTenantId] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { data: tenant, isLoading } = useTenant();
 
-    useEffect(() => {
-        async function loadTenant() {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { data: tenant } = await (supabase.from('tenants') as any)
-                .select('id')
-                .eq('owner_id', user.id)
-                .single();
-
-            if (tenant) {
-                setTenantId(tenant.id);
-            }
-            setLoading(false);
-        }
-        loadTenant();
-    }, []);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
@@ -36,7 +15,7 @@ export default function MediaPage() {
         );
     }
 
-    if (!tenantId) {
+    if (!tenant) {
         return (
             <div className="text-center p-10">
                 Nessun ristorante trovato.
@@ -54,7 +33,7 @@ export default function MediaPage() {
             </div>
 
             <div className="flex-1 min-h-0">
-                <PhotoManager tenantId={tenantId} />
+                <PhotoManager tenantId={tenant.id} />
             </div>
         </div>
     );

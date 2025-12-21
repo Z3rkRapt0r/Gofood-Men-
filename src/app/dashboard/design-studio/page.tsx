@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { FooterData, FooterLocation, FooterSocial } from '@/types/menu';
 import toast from 'react-hot-toast';
 import { Loader2, Save } from 'lucide-react';
@@ -9,15 +8,12 @@ import { Loader2, Save } from 'lucide-react';
 import BrandingDesignLab from '@/components/onboarding/BrandingDesignLab';
 import { ThemeProvider } from '@/components/theme/ThemeContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { useTenant, useUpdateTenant } from '@/hooks/useTenant';
 
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [tenantId, setTenantId] = useState('');
+  const { data: tenant, isLoading } = useTenant();
+  const { mutateAsync: updateTenant, isPending: isSaving } = useUpdateTenant();
 
   const [formData, setFormData] = useState({
     restaurantName: '',
@@ -44,50 +40,16 @@ export default function SettingsPage() {
   const [loadedTheme, setLoadedTheme] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
-    loadSettings();
-  }, []);
-
-  async function loadSettings() {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) return;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: tenant, error } = await (supabase.from('tenants') as any)
-        .select('*, tenant_locations(*)')
-        .eq('owner_id', user.id)
-        .single();
-
-      if (error || !tenant) return;
-
-      // Fetch design settings
-      let themeOptions = null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: designData } = await (supabase.from('tenant_design_settings') as any)
-        .select('theme_config')
-        .eq('tenant_id', tenant.id)
-        .single();
-
-      if (designData) {
-        themeOptions = designData.theme_config;
-      }
-
+    if (tenant) {
+      const themeOptions = tenant.theme_options || null;
       setLoadedTheme(themeOptions);
 
-      setTenantId(tenant.id);
-
-      // Map tenant_locations to FooterLocation format for UI
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const dbLocations = tenant.tenant_locations || [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const uiLocations: FooterLocation[] = dbLocations.map((l: any) => ({
-        city: l.city,
-        address: l.address,
-        phone: l.phone || '',
-        opening_hours: l.opening_hours || ''
-      }));
+      // useTenant already processes footer_data to include locations from the DB
+      const processedFooterData = tenant.footer_data || {
+        socials: [],
+        show_brand_column: true,
+        locations: []
+      };
 
       setFormData({
         restaurantName: tenant.restaurant_name || '',
@@ -98,76 +60,44 @@ export default function SettingsPage() {
         surfaceColor: tenant.surface_color || '#FFFFFF',
         textColor: tenant.text_color || '#171717',
         secondaryTextColor: tenant.secondary_text_color || '#4B5563',
-        footerData: {
-          ...(tenant.footer_data || {
-            socials: [],
-            show_brand_column: true,
-          }),
-          locations: uiLocations,
-        },
+        footerData: processedFooterData,
         logoUrl: tenant.logo_url || '',
         heroTitleColor: tenant.hero_title_color || '#FFFFFF',
         heroTaglineColor: tenant.hero_tagline_color || '#E5E7EB',
         themeOptions: themeOptions,
       });
-    } catch (err) {
-      console.error('Error loading settings:', err);
-    } finally {
-      setLoading(false);
     }
-  }
+  }, [tenant]);
 
   async function handleSave(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    setSaving(true);
-    const supabase = createClient();
+    if (!tenant) return;
 
     try {
-      // 1. Update Tenant Info (Logo Only)
-      const { error: tenantError } = await (supabase.from('tenants') as any)
-        .update({
+      await updateTenant({
+        id: tenant.id,
+        updates: {
           logo_url: formData.logoUrl,
-          footer_data: formData.footerData, // Added persistence
-        })
-        .eq('id', tenantId);
-
-      if (tenantError) {
-        throw new Error(`Tenant Update Error: ${tenantError.message || JSON.stringify(tenantError)}`);
-      }
-
-      // 2. Update Design Settings
-      if (formData.themeOptions) {
-        const { error: designError } = await (supabase.from('tenant_design_settings') as any)
-          .upsert({
-            tenant_id: tenantId,
-            theme_config: formData.themeOptions
-          });
-
-        if (designError) {
-          throw new Error(`Design Settings Error: ${designError.message || JSON.stringify(designError)}`);
+          footer_data: formData.footerData,
+          theme_options: formData.themeOptions
         }
-      }
-
-      toast.success('Impostazioni salvate con successo!');
+      });
+      // Success toast is handled by the hook
     } catch (err: any) {
-      console.error('Full Error saving settings:', err);
-      let message = 'Errore durante il salvataggio.';
-      if (err instanceof Error) message = err.message;
-      else if (typeof err === 'object') message = JSON.stringify(err);
-
-      toast.error(message);
-    } finally {
-      setSaving(false);
+      console.error('Error saving settings:', err);
+      // Error toast is handled by the hook
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
       </div>
     );
   }
+
+  if (!tenant) return null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8">
@@ -209,7 +139,7 @@ export default function SettingsPage() {
                       const newData = { ...prev };
                       if (updates.theme_options) newData.themeOptions = updates.theme_options;
                       if (updates.logo_url) newData.logoUrl = updates.logo_url;
-                      if (updates.footer_data) newData.footerData = updates.footer_data; // Added handler
+                      if (updates.footer_data) newData.footerData = updates.footer_data;
                       if (updates.theme_options && updates.theme_options.colors) {
                         const c = updates.theme_options.colors;
                         if (c.primary) newData.primaryColor = c.primary;
@@ -226,15 +156,15 @@ export default function SettingsPage() {
                   }}
                   onBack={() => { }}
                   hideNavigation={true}
-                  tenantId={tenantId}
+                  tenantId={tenant.id}
                   footerSlot={
                     <Button
                       type="submit"
-                      disabled={saving}
+                      disabled={isSaving}
                       size="lg"
                       className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg hover:shadow-xl transition-all"
                     >
-                      {saving ? (
+                      {isSaving ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                           Salvataggio...
@@ -252,10 +182,6 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-
-
-
-
       </form>
     </div>
   );

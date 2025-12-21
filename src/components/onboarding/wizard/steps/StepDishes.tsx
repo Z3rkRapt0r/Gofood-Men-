@@ -13,20 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
 import toast from 'react-hot-toast';
 
-interface Dish {
-    id: string;
-    name: string;
-    description?: string;
-    price: number;
-    category_id: string;
-    is_visible: boolean;
-}
 
-interface Category {
-    id: string;
-    name: string;
-    dishes?: Dish[];
-}
 
 interface StepDishesProps {
     data: any;
@@ -35,9 +22,34 @@ interface StepDishesProps {
     onValidationChange: (isValid: boolean) => void;
 }
 
+// ... imports
+import { useCategories, useDishes, useAddDish, useUpdateDish, useDeleteDish, Dish, Category } from '@/hooks/useMenu';
+import { useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
+// Extend Category locally for UI if needed (to include dishes)
+interface CategoryWithDishes extends Category {
+    dishes?: Dish[];
+}
+
 export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const { data: serverCats = [], isLoading: catsLoading } = useCategories(tenantId);
+    const { data: serverDishes = [], isLoading: dishesLoading } = useDishes(tenantId);
+
+    const addDishMutation = useAddDish();
+    const updateDishMutation = useUpdateDish();
+    const deleteDishMutation = useDeleteDish();
+
+    // Merge logic
+    const categories: CategoryWithDishes[] = useMemo(() => {
+        if (!serverCats) return [];
+        return serverCats.map(c => ({
+            ...c,
+            dishes: serverDishes?.filter(d => d.category_id === c.id) || []
+        }));
+    }, [serverCats, serverDishes]);
+
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
     // Manual Add State
@@ -52,43 +64,6 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
         onValidationChange(totalDishes > 0);
     }, [categories, onValidationChange]);
 
-    useEffect(() => {
-        if (tenantId) loadData();
-    }, [tenantId]);
-
-    async function loadData() {
-        if (!tenantId) return;
-        setLoading(true);
-        const supabase = createClient();
-
-        // 1. Get Categories
-        const { data: cats } = await supabase
-            .from('categories') // Use 'any' if types are strict
-            .select('id, name, display_order')
-            .eq('tenant_id', tenantId || '')
-            .order('display_order');
-
-        if (!cats) {
-            setLoading(false);
-            return;
-        }
-
-        // 2. Get Dishes
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: dishes } = await (supabase.from('dishes') as any)
-            .select('*')
-            .eq('tenant_id', tenantId || '')
-            .order('display_order'); // or created_at
-
-        // Merge
-        const merged = cats.map((c: any) => ({
-            ...c,
-            dishes: dishes?.filter((d: any) => d.category_id === c.id) || []
-        }));
-
-        setCategories(merged);
-        setLoading(false);
-    }
 
     function openAddModal(categoryId: string, dish?: Dish) {
         setSelectedCategoryId(categoryId);
@@ -110,26 +85,24 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
         if (!selectedCategoryId || !tenantId || !dishForm.name) return;
 
         try {
-            const supabase = createClient();
             const slug = dishForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             const priceVal = parseFloat(dishForm.price.replace(',', '.')) || 0;
 
             if (editingDish) {
                 // Update
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { error } = await (supabase.from('dishes') as any)
-                    .update({
+                await updateDishMutation.mutateAsync({
+                    id: editingDish.id,
+                    updates: {
                         name: dishForm.name,
                         description: dishForm.description,
                         price: priceVal,
                         slug: slug
-                    })
-                    .eq('id', editingDish.id);
-                if (error) throw error;
+                    }
+                });
+                toast.success('Piatto aggiornato');
             } else {
                 // Insert
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { error } = await (supabase.from('dishes') as any).insert({
+                await addDishMutation.mutateAsync({
                     tenant_id: tenantId,
                     category_id: selectedCategoryId,
                     name: dishForm.name,
@@ -137,14 +110,12 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                     price: priceVal,
                     slug: slug,
                     is_visible: true,
-                    // display_order...
+                    display_order: 0, // Should calculate order? Or default in DB/hook.
                 });
-                if (error) throw error;
+                toast.success('Piatto aggiunto');
             }
 
             setIsAddModalOpen(false);
-            loadData();
-            toast.success(editingDish ? 'Piatto aggiornato' : 'Piatto aggiunto');
         } catch (err) {
             console.error(err);
             toast.error('Errore salvataggio piatto');
@@ -153,10 +124,16 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
 
     async function handleDeleteDish(id: string) {
         if (!confirm("Eliminare il piatto?")) return;
-        const supabase = createClient();
-        await supabase.from('dishes').delete().eq('id', id);
-        loadData();
+        try {
+            await deleteDishMutation.mutateAsync({ id });
+            // toast handled by hook? No, hook invalidates.
+            // We can add toast here or in hook.
+        } catch (e) {
+            toast.error("Errore eliminazione");
+        }
     }
+
+    const loading = catsLoading || dishesLoading;
 
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -241,7 +218,8 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                     isOpen={isAiModalOpen}
                     onClose={() => setIsAiModalOpen(false)}
                     onSuccess={() => {
-                        loadData();
+                        queryClient.invalidateQueries({ queryKey: ['dishes'] });
+                        queryClient.invalidateQueries({ queryKey: ['categories'] });
                         toast.success("Menu importato con successo!");
                     }}
                     tenantId={tenantId}
@@ -285,7 +263,10 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Annulla</Button>
-                        <Button onClick={handleSaveDish} disabled={!dishForm.name} className="bg-orange-500 hover:bg-orange-600">Salva</Button>
+                        <Button onClick={handleSaveDish} disabled={!dishForm.name || addDishMutation.isPending || updateDishMutation.isPending} className="bg-orange-500 hover:bg-orange-600">
+                            {(addDishMutation.isPending || updateDishMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                            Salva
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

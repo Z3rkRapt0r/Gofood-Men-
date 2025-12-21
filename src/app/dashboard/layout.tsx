@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
-import type { Tenant } from '@/types/menu';
 import SubscriptionBanner from '@/components/dashboard/SubscriptionBanner';
 import ActivationModal from '@/components/dashboard/ActivationModal';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
+import { useTenant } from '@/hooks/useTenant';
+import { useState } from 'react';
 
 export default function DashboardLayout({
   children,
@@ -17,52 +17,32 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [tenant, setTenant] = useState<Tenant | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: tenant, isLoading, error } = useTenant();
   const [showActivationModal, setShowActivationModal] = useState(false);
 
   useEffect(() => {
-    async function loadTenant() {
-      try {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+    if (!isLoading) {
+      if (error) {
+        console.error('Error loading tenant:', error);
+        // If error is authentication related, redirect to login, otherwise maybe onboarding or error page
+        // For now, assuming most errors here mean strictly "User not authenticated" or DB fail
+        router.push('/login');
+        return;
+      }
 
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-
-        const { data: tenantData, error } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('owner_id', user.id)
-          .single();
-
-        if (error || !tenantData) {
-          router.push('/onboarding');
-          return;
-        }
-
-        const tenant = tenantData as Tenant;
-
+      if (tenant) {
         if (!tenant.onboarding_completed) {
           router.push('/onboarding');
-          return;
         }
-
-        setTenant(tenant);
-      } catch (err) {
-        console.error('Error loading tenant:', err);
+      } else if (!tenant && !error) {
+        // Should technically be covered by error or tenant creation logic in useTenant
+        // But if we get here, it's safe to push to onboarding or login
         router.push('/login');
-      } finally {
-        setLoading(false);
       }
     }
+  }, [tenant, isLoading, error, router]);
 
-    loadTenant();
-  }, [router]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

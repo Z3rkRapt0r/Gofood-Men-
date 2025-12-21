@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import QRCodeCard from '@/components/dashboard/QRCodeCard';
 import ActivationModal from '@/components/dashboard/ActivationModal';
 import toast from 'react-hot-toast';
 
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
+import { useTenant, useUpdateTenant } from '@/hooks/useTenant';
+import { useCategories, useDishes } from '@/hooks/useMenu';
 
 interface Stats {
   totalDishes: number;
@@ -20,33 +21,35 @@ export default function DashboardOverview() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasHandledPayment = useRef(false);
-  const [tenantId, setTenantId] = useState<string>('');
 
-  const [stats, setStats] = useState<Stats>({
-    totalDishes: 0,
-    totalCategories: 0,
-    visibleDishes: 0,
-  });
+  const { data: tenant, isLoading: isTenantLoading } = useTenant();
+  const { mutateAsync: updateTenant } = useUpdateTenant();
 
-  const [loading, setLoading] = useState(true);
-  const [restaurantName, setRestaurantName] = useState('');
-  const [slug, setSlug] = useState<string | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string>('');
-  const [isFreeTier, setIsFreeTier] = useState(false);
+  // Fetch categories and dishes using hooks - cached and efficient
+  const { data: categories = [], isLoading: isCategoriesLoading } = useCategories(tenant?.id);
+  const { data: dishes = [], isLoading: isDishesLoading } = useDishes(tenant?.id);
+
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+
+  // Derived state
+  const loading = isTenantLoading || isCategoriesLoading || isDishesLoading;
+
+  const stats: Stats = useMemo(() => {
+    return {
+      totalCategories: categories.length,
+      totalDishes: dishes.length,
+      visibleDishes: dishes.filter(d => d.is_visible).length
+    };
+  }, [categories, dishes]);
 
   // Handle payment success from Stripe
   useEffect(() => {
-    if (searchParams.get('payment') === 'success' && tenantId) {
+    if (searchParams.get('payment') === 'success' && tenant && !hasHandledPayment.current) {
       const activateSubscription = async () => {
         try {
           console.log('Payment successful! Activating subscription...');
           const newSlug = searchParams.get('new_slug');
-
-          const supabase = createClient();
 
           const updateData: any = {
             subscription_status: 'active',
@@ -57,28 +60,21 @@ export default function DashboardOverview() {
             updateData.slug = newSlug;
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase.from('tenants') as any)
-            .update(updateData)
-            .eq('id', tenantId);
+          await updateTenant({
+            id: tenant.id,
+            updates: updateData
+          });
+
+          // Custom toast and reload handled below, suppressing hook success toast in mind or letting it be
+          // Actually hook has toast too. 
+          toast.success('Abbonamento attivato con successo!');
 
           // Clean URL immediately to prevent loop
           const newUrl = window.location.pathname;
           window.history.replaceState({}, '', newUrl);
 
-          // Mark payment as handled to protect against stale data fetches
+          // Mark payment as handled
           hasHandledPayment.current = true;
-
-          // Force server data refresh - REMOVED to prevent race condition/remount
-          // router.refresh();
-
-          // Update local state to remove banner and update slug immediately
-          setIsFreeTier(false);
-          if (newSlug) {
-            setSlug(newSlug);
-          }
-          setSubscriptionTier('premium');
-          toast.success('Abbonamento attivato con successo!');
 
           // Force hard refresh after a short delay to ensure clean state
           setTimeout(() => {
@@ -91,120 +87,9 @@ export default function DashboardOverview() {
         }
       };
 
-      if (!hasHandledPayment.current) {
-        activateSubscription();
-      }
+      activateSubscription();
     }
-  }, [searchParams, tenantId, router]);
-
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-          console.log('No user found in Dashboard loadStats');
-          return;
-        }
-
-        console.log('Fetching tenant for user:', user.id);
-
-        // Get tenant info
-        const { data: tenant, error: tenantError } = await supabase
-          .from('tenants')
-          .select('id, restaurant_name, slug, logo_url, subscription_tier')
-          .eq('owner_id', user.id)
-          .maybeSingle();
-
-        if (tenantError) {
-          console.error('Error fetching tenant:', tenantError);
-          throw tenantError;
-        }
-
-        if (!tenant) {
-          console.error('No tenant found for user:', user.id);
-        }
-
-        let currentTenantId = '';
-
-        if (tenant) {
-          console.log('Tenant found:', tenant);
-          const tenantData = tenant as {
-            id: string;
-            restaurant_name: string;
-            slug: string | null;
-            logo_url: string;
-            subscription_tier: string;
-          };
-          currentTenantId = tenantData.id;
-
-          setRestaurantName(tenantData.restaurant_name);
-          setLogoUrl(tenantData.logo_url);
-          setTenantId(tenantData.id);
-
-          // Check for pending payment success to avoid race condition relative to stale DB data
-          // We check both the URL (first run) and our Ref (subsequent runs/re-renders)
-          const isPaymentSuccess = searchParams.get('payment') === 'success' || hasHandledPayment.current;
-
-          // Protect slug update:
-          // If DB has a slug, use it.
-          // If DB has null, ONLY set null if we are NOT in a payment success flow.
-          // In success flow, the other effect handles setting the new slug optimistically.
-          if (tenantData.slug) {
-            setSlug(tenantData.slug);
-          } else if (!isPaymentSuccess) {
-            setSlug(null);
-          }
-
-          // Force premium state if we just handled a payment, otherwise trust DB
-          const isDbFree = tenantData.subscription_tier === 'free';
-          setIsFreeTier(isPaymentSuccess ? false : isDbFree);
-          setSubscriptionTier(isPaymentSuccess ? 'premium' : tenantData.subscription_tier);
-        }
-
-        // Get categories count
-        const { count: categoriesCount } = await supabase
-          .from('categories')
-          .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', currentTenantId);
-
-        // Fetch actual categories for Import Modal
-        const { data: categoriesData } = await supabase
-          .from('categories')
-          .select('id, name')
-          .eq('tenant_id', currentTenantId)
-          .order('display_order');
-        setCategories(categoriesData || []);
-
-        // Get dishes count
-        const { count: dishesCount } = await supabase
-          .from('dishes')
-          .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', currentTenantId);
-
-        // Get visible dishes count
-        const { count: visibleCount } = await supabase
-          .from('dishes')
-          .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', currentTenantId)
-          .eq('is_visible', true);
-
-        setStats(prev => ({
-          ...prev,
-          totalCategories: categoriesCount || 0,
-          totalDishes: dishesCount || 0,
-          visibleDishes: visibleCount || 0,
-        }));
-      } catch (err) {
-        console.error('Error loading stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadStats();
-  }, []);
+  }, [searchParams, tenant, updateTenant]);
 
   if (loading) {
     return (
@@ -214,12 +99,17 @@ export default function DashboardOverview() {
     );
   }
 
+  // Fallback if tenant is null (layout should handle this but just in case)
+  if (!tenant) return null;
+
+  const isFreeTier = tenant.subscription_tier === 'free';
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <ActivationModal
         isOpen={showActivationModal}
         onClose={() => setShowActivationModal(false)}
-        restaurantName={restaurantName}
+        restaurantName={tenant.restaurant_name}
       />
 
       <MenuImportModal
@@ -227,10 +117,13 @@ export default function DashboardOverview() {
         onClose={() => setShowImportModal(false)}
         onSuccess={() => {
           toast.success('Piatti importati con successo!');
-          // Reload stats
+          // Query invalidation is automatic via mutation hooks in MenuImportModal (if refactored)
+          // Ideally MenuImportModal should trigger invalidation. 
+          // If it uses manual supabase, we might need manual invalidation or reload.
+          // For now, reload is safe as import is a heavy operation.
           window.location.reload();
         }}
-        tenantId={tenantId}
+        tenantId={tenant.id}
         categories={categories}
       />
 
@@ -247,7 +140,7 @@ export default function DashboardOverview() {
         <div className="self-start md:self-center">
           <span className={`px-4 py-2 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider ${isFreeTier ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-purple-100 text-purple-700 border border-purple-200'
             }`}>
-            {subscriptionTier === 'free' ? 'Piano Gratuito' : 'Premium Attivo'}
+            {isFreeTier ? 'Piano Gratuito' : 'Premium Attivo'}
           </span>
         </div>
       </div>
@@ -292,12 +185,12 @@ export default function DashboardOverview() {
           icon="📁"
           color="blue"
         />
-        <div className="cursor-pointer" onClick={() => (isFreeTier || !slug) && setShowActivationModal(true)}>
+        <div className="cursor-pointer" onClick={() => (isFreeTier || !tenant.slug) && setShowActivationModal(true)}>
           <QRCodeCard
-            slug={slug}
-            restaurantName={restaurantName}
-            logoUrl={logoUrl}
-            tenantId={tenantId}
+            slug={tenant.slug}
+            restaurantName={tenant.restaurant_name}
+            logoUrl={tenant.logo_url || ''}
+            tenantId={tenant.id}
             isLocked={isFreeTier}
           />
         </div>
@@ -463,3 +356,5 @@ function ActionCard({
     </Link>
   );
 }
+
+

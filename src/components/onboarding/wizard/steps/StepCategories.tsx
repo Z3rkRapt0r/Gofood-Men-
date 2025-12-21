@@ -27,13 +27,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 // --- Types ---
-interface Category {
-    id: string;
-    name: string;
-    slug: string;
-    display_order: number;
-    is_visible: boolean;
-}
+
 
 interface StepCategoriesProps {
     data: any;
@@ -97,11 +91,16 @@ function SortableCategoryItem({
 }
 
 // --- Main Component ---
+import { useCategories, useAddCategory, useDeleteCategory, useReorderCategories, Category } from '@/hooks/useMenu';
+
 export function StepCategories({ tenantId, onValidationChange }: StepCategoriesProps) {
+    const { data: serverCategories = [], isLoading } = useCategories(tenantId);
+    const addMutation = useAddCategory();
+    const deleteMutation = useDeleteCategory();
+    const reorderMutation = useReorderCategories();
+
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
     const [inputValue, setInputValue] = useState('');
-    const [addingIds, setAddingIds] = useState<string[]>([]); // Track which chips are adding
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -112,52 +111,21 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
 
     const SUGGESTED = ["Antipasti", "Primi", "Secondi", "Contorni", "Dolci", "Bevande", "Vini"];
 
+    // Sync server data to local state for DND
+    // Only update if server has data. 
+    useEffect(() => {
+        if (serverCategories) {
+            setCategories(serverCategories);
+        }
+    }, [serverCategories]);
+
     // Validation Effect
     useEffect(() => {
         onValidationChange(categories.length > 0);
     }, [categories, onValidationChange]);
 
-    useEffect(() => {
-        if (tenantId) {
-            loadCategories();
-        }
-    }, [tenantId]);
-
-    async function loadCategories() {
-        setLoading(true);
-        if (!tenantId) {
-            setLoading(false);
-            return;
-        }
-
-        const supabase = createClient();
-        const { data } = await supabase
-            .from('categories')
-            .select('*')
-            .eq('tenant_id', tenantId)
-            .order('display_order', { ascending: true });
-
-        if (data) setCategories(data);
-        setLoading(false);
-    }
-
-    function generateSlug(text: string): string {
-        return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    }
-
     async function addCategory(name: string) {
         if (!name.trim() || !tenantId) return;
-
-        // Optimistic UI for Quick Add
-        const tempId = 'temp-' + Date.now();
-        const newCategory = {
-            id: tempId,
-            name: name,
-            slug: generateSlug(name),
-            display_order: categories.length,
-            is_visible: true,
-            tenant_id: tenantId
-        };
 
         // Prevent duplicates in UI
         if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
@@ -165,43 +133,29 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setCategories(prev => [...prev, newCategory as any]);
-        setInputValue('');
-
         try {
-            const supabase = createClient();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data, error } = await (supabase.from('categories') as any)
-                .insert({
-                    tenant_id: tenantId,
-                    name: name,
-                    slug: generateSlug(name),
-                    display_order: categories.length,
-                    is_visible: true
-                })
-                .select()
-                .single();
-
-            if (error) throw error;
-
-            // Replace optimistic item with real one
-            setCategories(prev => prev.map(c => c.id === tempId ? data : c));
+            await addMutation.mutateAsync({
+                tenantId,
+                name,
+                displayOrder: categories.length
+            });
+            setInputValue('');
             toast.success(`Categoria "${name}" aggiunta!`);
         } catch (err) {
             console.error(err);
             toast.error('Errore creazione categoria');
-            setCategories(prev => prev.filter(c => c.id !== tempId));
         }
     }
 
     async function deleteCategory(id: string) {
         if (!confirm("Eliminare questa categoria?")) return;
-
-        setCategories(prev => prev.filter(c => c.id !== id));
-
-        const supabase = createClient();
-        await supabase.from('categories').delete().eq('id', id);
+        try {
+            await deleteMutation.mutateAsync({ id });
+            // Local state update handled by useEffect sync from server invalidation
+            // But for instant feedback we could filter locally too, but invalidation is fast.
+        } catch (e) {
+            toast.error("Errore cancellazione");
+        }
     }
 
     async function handleDragEnd(event: DragEndEvent) {
@@ -218,18 +172,14 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
 
                 const updates = newItems.map((item, index) => ({
                     id: item.id,
-                    tenant_id: tenantId!, // We know it exists from line 206 check
+                    tenant_id: tenantId!,
                     name: item.name,
                     slug: item.slug,
                     display_order: index,
                     updated_at: new Date().toISOString(),
                 }));
 
-                const supabase = createClient();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (supabase.from('categories') as any).upsert(updates, { onConflict: 'id' }).then(({ error }: any) => {
-                    if (error) console.error("Reorder error", error);
-                });
+                reorderMutation.mutate({ updates });
 
                 return newItems;
             });
@@ -277,17 +227,17 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
                 />
                 <Button
                     onClick={() => addCategory(inputValue)}
-                    disabled={!inputValue.trim()}
+                    disabled={!inputValue.trim() || addMutation.isPending}
                     size="icon"
                     className="h-full aspect-square bg-orange-500 hover:bg-orange-600"
                 >
-                    <Plus className="w-6 h-6" />
+                    {addMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
                 </Button>
             </div>
 
             {/* Categories List */}
             <div className="space-y-2 max-w-2xl">
-                {loading ? (
+                {isLoading && categories.length === 0 ? (
                     <div className="flex justify-center p-8">
                         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
                     </div>

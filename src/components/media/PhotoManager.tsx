@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Loader2, Upload, Trash2, Check, X, ImagePlus, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import toast from 'react-hot-toast';
+import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
+import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
 
 interface PhotoManagerProps {
     tenantId: string;
@@ -21,139 +22,58 @@ interface PhotoManagerProps {
     highlightUnassigned?: boolean;
 }
 
-interface Photo {
-    name: string;
-    url: string;
-}
-
-interface Dish {
-    id: string;
-    name: string;
-    image_url?: string | null;
-    category_id: string;
-}
-
-interface Category {
-    id: string;
-    name: string;
+interface CategoryWithDishes extends Category {
     dishes: Dish[];
 }
 
 export default function PhotoManager({ tenantId, onValidationChange, highlightUnassigned = false }: PhotoManagerProps) {
-    const [photos, setPhotos] = useState<Photo[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [uploading, setUploading] = useState(false);
+    const { data: photos = [], isLoading: photosLoading } = usePhotos(tenantId);
+    const { data: serverCats = [], isLoading: catsLoading } = useCategories(tenantId);
+    const { data: serverDishes = [], isLoading: dishesLoading } = useDishes(tenantId);
+
+    const uploadMutation = useUploadPhoto();
+    const deleteMutation = useDeletePhotos();
+    const updateDishMutation = useUpdateDish();
+
+    // Derived Menu Data
+    const categories: CategoryWithDishes[] = useMemo(() => {
+        if (!serverCats) return [];
+        return serverCats.map(c => ({
+            ...c,
+            dishes: serverDishes?.filter(d => d.category_id === c.id) || []
+        }));
+    }, [serverCats, serverDishes]);
+
+    const menuLoading = catsLoading || dishesLoading;
 
     // Derived state for highlighting
-    const assignedUrls = React.useMemo(() => {
+    const assignedUrls = useMemo(() => {
         const set = new Set<string>();
-        categories.forEach(cat => cat.dishes.forEach(dish => {
+        serverDishes.forEach(dish => {
             if (dish.image_url) set.add(dish.image_url);
-        }));
+        });
         return set;
-    }, [categories]);
+    }, [serverDishes]);
 
     // Selection State
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-
-    // Initialize
-    useEffect(() => {
-        if (!tenantId) return;
-        loadData();
-    }, [tenantId]);
 
     // Validation
     useEffect(() => {
         if (onValidationChange) onValidationChange(true);
     }, [onValidationChange]);
 
-    async function loadData() {
-        setLoading(true);
-        const supabase = createClient();
-        const folderPath = `${tenantId}/dishes`;
-
-        try {
-            // 1. Load Photos from Bucket 'dishes'
-            const { data: fileList, error: storageError } = await supabase.storage
-                .from('dishes')
-                .list(folderPath, { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
-
-            if (storageError) throw storageError;
-
-            const loadedPhotos: Photo[] = (fileList || [])
-                .filter(f => f.name !== '.emptyFolderPlaceholder')
-                .map(f => {
-                    const { data } = supabase.storage.from('dishes').getPublicUrl(`${folderPath}/${f.name}`);
-                    return { name: f.name, url: data.publicUrl };
-                });
-            setPhotos(loadedPhotos);
-
-            // 2. Load Categories & Dishes
-            const { data: cats } = await supabase
-                .from('categories')
-                .select('id, name')
-                .eq('tenant_id', tenantId)
-                .order('display_order');
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: dishes } = await (supabase.from('dishes') as any)
-                .select('*')
-                .eq('tenant_id', tenantId)
-                .order('display_order');
-
-
-            if (cats && dishes) {
-                const merged = cats.map((cat: any) => ({
-                    ...cat,
-                    dishes: dishes.filter((d: any) => d.category_id === cat.id)
-                }));
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setCategories(merged as any);
-            }
-
-        } catch (error) {
-            console.error("Error loading data:", error);
-            toast.error("Errore caricamento dati");
-        } finally {
-            setLoading(false);
-        }
-    }
-
     // Dropzone Logic
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         if (!tenantId) return;
-        setUploading(true);
-        const supabase = createClient();
-        const folderPath = `${tenantId}/dishes`;
-        let newCount = 0;
-
+        const promises = acceptedFiles.map(file => uploadMutation.mutateAsync({ tenantId, file }));
         try {
-            await Promise.all(acceptedFiles.map(async (file) => {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-                const filePath = `${folderPath}/${fileName}`;
-
-                const { error } = await supabase.storage
-                    .from('dishes')
-                    .upload(filePath, file);
-
-                if (!error) newCount++;
-            }));
-
-            if (newCount > 0) {
-                toast.success(`${newCount} foto caricate!`);
-                loadData(); // Reload to see new photos
-            }
-
-        } catch (error) {
-            console.error("Upload error:", error);
-            toast.error("Errore durante il caricamento");
-        } finally {
-            setUploading(false);
+            await Promise.all(promises);
+        } catch (e) {
+            // Error handled by mutation
         }
-    }, [tenantId]);
+    }, [tenantId, uploadMutation]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -163,51 +83,25 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     // Cleanup Logic
     async function handleDeletePhoto(photoName: string) {
         if (!confirm("Eliminare definitivamente questa foto?")) return;
-        const supabase = createClient();
-        const folderPath = `${tenantId}/dishes`;
-
-        await supabase.storage.from('dishes').remove([`${folderPath}/${photoName}`]);
-        setPhotos(prev => prev.filter(p => p.name !== photoName));
+        deleteMutation.mutate({ tenantId, photoNames: [photoName] });
     }
 
     async function handleCleanupUnused() {
         if (photos.length === 0) return;
         if (!confirm("Eliminare tutte le foto che NON sono state assegnate a nessun piatto?")) return;
 
-        setLoading(true);
-        const supabase = createClient();
-        const folderPath = `${tenantId}/dishes`;
+        const filesToDelete: string[] = [];
 
-        try {
-            // Use local assignedUrls for optimistic/fast check
-            // Only fetch from DB if needed, but local state is usually fresh enough
-
-            const filesToDelete: string[] = [];
-            const newPhotosList: Photo[] = [];
-
-            photos.forEach(photo => {
-                if (!assignedUrls.has(photo.url)) {
-                    filesToDelete.push(`${folderPath}/${photo.name}`);
-                } else {
-                    newPhotosList.push(photo);
-                }
-            });
-
-            if (filesToDelete.length === 0) {
-                toast("Tutte le foto sono attualmente in uso!", { icon: '👍' });
-            } else {
-                const { error } = await supabase.storage.from('dishes').remove(filesToDelete);
-                if (error) throw error;
-
-                setPhotos(newPhotosList);
-                toast.success(`${filesToDelete.length} foto inutilizzate eliminate.`);
+        photos.forEach((photo: any) => {
+            if (!assignedUrls.has(photo.url)) {
+                filesToDelete.push(photo.name);
             }
+        });
 
-        } catch (error) {
-            console.error("Cleanup error:", error);
-            toast.error("Errore durante la pulizia");
-        } finally {
-            setLoading(false);
+        if (filesToDelete.length === 0) {
+            toast("Tutte le foto sono attualmente in uso!", { icon: '👍' });
+        } else {
+            deleteMutation.mutate({ tenantId, photoNames: filesToDelete });
         }
     }
 
@@ -220,40 +114,36 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     async function assignPhotoToDish(photoUrl: string) {
         if (!selectedDishId) return;
 
-        // Optimistic Update
-        updateDishImageLocally(selectedDishId, photoUrl);
-        setIsGalleryOpen(false); // Close immediately for snappiness
-
-        // Server Update
-        const supabase = createClient();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase.from('dishes') as any)
-            .update({ image_url: photoUrl })
-            .eq('id', selectedDishId);
-
-        toast.success(`Foto assegnata!`);
-        setSelectedDishId(null);
-    }
-
-    function updateDishImageLocally(dishId: string, url: string | null) {
-        setCategories(prev => prev.map(cat => ({
-            ...cat,
-            dishes: cat.dishes.map(d => d.id === dishId ? { ...d, image_url: url } : d)
-        })));
+        try {
+            await updateDishMutation.mutateAsync({
+                id: selectedDishId,
+                updates: { image_url: photoUrl }
+            });
+            setIsGalleryOpen(false);
+            setSelectedDishId(null);
+            toast.success(`Foto assegnata!`);
+        } catch (e) {
+            toast.error('Errore assegnazione foto');
+        }
     }
 
     async function handleRemoveImageFromDish(dish: Dish) {
         if (!confirm(`Rimuovere foto da ${dish.name}?`)) return;
 
-        updateDishImageLocally(dish.id, null);
-        const supabase = createClient();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase.from('dishes') as any).update({ image_url: null }).eq('id', dish.id);
-        toast.success("Foto rimossa dal piatto");
+        try {
+            await updateDishMutation.mutateAsync({
+                id: dish.id,
+                updates: { image_url: null }
+            });
+            toast.success("Foto rimossa dal piatto");
+        } catch (e) {
+            toast.error('Errore rimozione foto');
+        }
     }
 
+    const isLoading = photosLoading || menuLoading;
 
-    if (loading) return (
+    if (isLoading && photos.length === 0 && categories.length === 0) return (
         <div className="flex justify-center items-center h-96">
             <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
         </div>
@@ -276,7 +166,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                         <input {...getInputProps()} />
                         <div className="text-center space-y-2">
                             <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto text-orange-500">
-                                {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+                                {uploadMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
                             </div>
                             <div>
                                 <p className="font-bold text-gray-900">Carica Foto</p>
@@ -295,8 +185,9 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                 onClick={handleCleanupUnused}
                                 className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 h-7"
                                 title="Elimina foto non assegnate a nessun piatto"
+                                disabled={deleteMutation.isPending}
                             >
-                                <Trash2 className="w-3 h-3 mr-1" />
+                                {deleteMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Trash2 className="w-3 h-3 mr-1" />}
                                 Pulisci Inutilizzate
                             </Button>
                         </div>
@@ -307,7 +198,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                             </div>
                         ) : (
                             <div className="grid grid-cols-3 gap-2">
-                                {photos.map(photo => {
+                                {photos.map((photo: any) => {
                                     const isAssigned = assignedUrls.has(photo.url);
                                     const showWarning = highlightUnassigned && !isAssigned;
 
@@ -453,7 +344,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                {photos.map(photo => (
+                                {photos.map((photo: any) => (
                                     <div
                                         key={photo.name}
                                         className={`relative group aspect-square rounded-xl overflow-hidden border-2 border-transparent transition-all bg-white

@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/database';
-import { SupabaseClient } from '@supabase/supabase-js';
+// import { SupabaseClient } from '@supabase/supabase-js';
+import { useImportMenu } from '@/hooks/useImportMenu';
 
 // Define types from Database definition
 // type DbCategoryInsert = Database['public']['Tables']['categories']['Insert'];
@@ -253,53 +254,24 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
         }
     };
 
+    const { mutateAsync: importMenu, isPending: isImporting } = useImportMenu();
+
     const handleSave = async () => {
         try {
-            const supabase = createClient();
-
-            // Filter selected items and valid categories
-            // Filter selected items and valid categories
+            // Check for valid dishes
             const dishesToImport = analyzedDishes.filter(d => d.selected && d.categoryId);
 
             if (dishesToImport.length > 0) {
-                // 1. Prepare items with slugs
-                const preparedItems: Database['public']['Tables']['dishes']['Insert'][] = dishesToImport.map(dish => ({
-                    tenant_id: tenantId,
-                    category_id: dish.categoryId!, // Checked in filter
-                    name: dish.name,
-                    description: dish.description,
-                    price: dish.price,
-                    is_visible: true,
-                    slug: dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                }));
-
-                // 2. Deduplicate within the batch (prefer last or first? First is fine)
-                // We key by `${category_id}-${slug}` to ensure uniqueness per category
-                const uniqueItemsMap = new Map<string, Database['public']['Tables']['dishes']['Insert']>();
-                preparedItems.forEach(item => {
-                    const key = `${item.category_id}-${item.slug}`;
-                    if (!uniqueItemsMap.has(key)) {
-                        uniqueItemsMap.set(key, item);
-                    }
+                await importMenu({
+                    tenantId,
+                    dishes: dishesToImport.map(d => ({
+                        ...d,
+                        // Fix potential undefined slug if simple mapping is needed
+                        // The hook generates the slug again but we can pass it if we want
+                        // The hook logic does simpler: slug: name...
+                        // Let's rely on the hook's mapping
+                    }))
                 });
-                const uniqueItems = Array.from(uniqueItemsMap.values());
-
-                // 3. Insert with ignoreDuplicates to skip existing DB items
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { error: dishesError } = await supabase
-                    .from('dishes')
-                    .upsert(uniqueItems as any, {
-                        onConflict: 'tenant_id,category_id,slug',
-                        ignoreDuplicates: true
-                    });
-
-                if (dishesError) throw dishesError;
-
-                // Show warning if some items were skipped?
-                if (uniqueItems.length < dishesToImport.length) {
-                    // Logic to detect skipping isn't trivial with ignoreDuplicates unless we check count.
-                    // But for now, success is enough.
-                }
             }
 
             // Clear draft on success
@@ -308,7 +280,7 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
             onClose();
         } catch (err) {
             console.error(err);
-            setError('Errore durante il salvataggio: ' + (err instanceof Error ? err.message : 'Dati duplicati o non validi'));
+            // Toast is handled by the hook
         }
     };
 

@@ -1,9 +1,10 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
-import { createClient } from '@/lib/supabase/client';
+// import { createClient } from '@/lib/supabase/client';
+import { useTenant } from '@/hooks/useTenant';
 import toast from 'react-hot-toast';
 
 interface QRCodeCardProps {
@@ -18,17 +19,21 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
     const [isOpen, setIsOpen] = useState(false);
 
     // QR State
-    const [qrColor, setQrColor] = useState('#000000');
-    const [bgColor, setBgColor] = useState('#ffffff');
-    const [includeLogo, setIncludeLogo] = useState(true);
-    const [logoWidth, setLogoWidth] = useState<number>(60);
-    const [logoHeight, setLogoHeight] = useState<number>(60);
-    const [logoPadding, setLogoPadding] = useState<number>(5);
+    const { data: tenant } = useTenant();
+
+    // Derive QR settings from tenant data
+    const qrConfig = tenant?.theme_options?.qrCode || {};
+    const qrColor = qrConfig.qrColor || '#000000';
+    const bgColor = qrConfig.bgColor || '#ffffff';
+    const includeLogo = qrConfig.includeLogo !== undefined ? qrConfig.includeLogo : true;
+    const logoWidth = qrConfig.logoWidth || 60;
+    const logoHeight = qrConfig.logoHeight || 60;
+    const logoPadding = qrConfig.logoPadding || 5;
+
+    // Logo Data URL State (still needed for canvas)
     const [logoDataUrl, setLogoDataUrl] = useState<string | undefined>(undefined);
 
-    // UI State
-
-
+    // UI state
     const [fullUrl, setFullUrl] = useState(`https://gofood.it/${slug}`);
 
     useEffect(() => {
@@ -37,36 +42,8 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
         }
     }, [slug]);
 
-    // Load saved settings
-    useEffect(() => {
-        const loadSettings = async () => {
-            if (!tenantId) return;
-            try {
-                const supabase = createClient();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { data } = await (supabase.from('tenant_design_settings') as any)
-                    .select('theme_config')
-                    .eq('tenant_id', tenantId)
-                    .single();
+    // No need for loadSettings useEffect anymore
 
-                if (data?.theme_config?.qrCode) {
-                    const config = data.theme_config.qrCode;
-                    if (config.qrColor) setQrColor(config.qrColor);
-                    if (config.bgColor) setBgColor(config.bgColor);
-                    if (config.includeLogo !== undefined) setIncludeLogo(config.includeLogo);
-                    if (config.logoWidth) setLogoWidth(config.logoWidth);
-                    if (config.logoHeight) setLogoHeight(config.logoHeight);
-                    if (config.logoPadding) setLogoPadding(config.logoPadding);
-                }
-            } catch (error: unknown) {
-                console.error('Error loading QR settings:', JSON.stringify(error, null, 2));
-            }
-        };
-
-        if (tenantId) {
-            loadSettings();
-        }
-    }, [tenantId]);
 
 
 
@@ -98,28 +75,7 @@ export default function QRCodeCard({ slug, logoUrl, tenantId, isLocked }: QRCode
                 reader.onloadend = () => {
                     const result = reader.result as string;
                     setLogoDataUrl(result);
-
-                    // Auto-calculate dimensions to preserve aspect ratio
-                    const img = new Image();
-                    img.onload = () => {
-                        const MAX_SIZE = 90; // Maximum size in pixels for the logo on the QR
-                        const aspect = img.width / img.height;
-
-                        let newWidth = MAX_SIZE;
-                        let newHeight = MAX_SIZE;
-
-                        if (img.width > img.height) {
-                            // Landscape
-                            newHeight = MAX_SIZE / aspect;
-                        } else {
-                            // Portrait or Square
-                            newWidth = MAX_SIZE * aspect;
-                        }
-
-                        setLogoWidth(newWidth);
-                        setLogoHeight(newHeight);
-                    };
-                    img.src = result;
+                    // Auto-calculation logic removed in favor of stored settings from Desgin Studio
                 };
                 reader.readAsDataURL(blob);
             } catch (error) {

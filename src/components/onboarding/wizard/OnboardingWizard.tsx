@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { fetchPhotos, useDeletePhotos } from '@/hooks/usePhotos';
 import { WizardStepper } from './WizardStepper';
 import { WizardControls } from './WizardControls';
 import { StepSettings } from './steps/StepSettings';
@@ -7,7 +11,6 @@ import { StepCategories } from './steps/StepCategories';
 import { StepDishes } from './steps/StepDishes';
 import { StepPhotos } from './steps/StepPhotos';
 import { StepBranding } from './steps/StepBranding';
-import { Tenant } from '@/types/menu';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,11 +22,12 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 interface OnboardingWizardProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialData: any;
     tenantId?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onUpdate: (data: any, nextStep?: number) => Promise<boolean>;
     onExit: () => void;
     currentStepProp?: number;
@@ -36,53 +40,63 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
     const [canGoNext, setCanGoNext] = useState(false);
 
     // Unassigned Photos Warning State
-    const [showUnassignedWarning, setShowUnassignedWarning] = useState(false);
-    const [unassignedCount, setUnassignedCount] = useState(0);
-    const [totalPhotosCount, setTotalPhotosCount] = useState(0);
+    const [showCleanupDialog, setShowCleanupDialog] = useState(false);
+    const [unassignedPhotos, setUnassignedPhotos] = useState<string[]>([]);
     const [highlightUnassignedErrors, setHighlightUnassignedErrors] = useState(false);
 
     const TOTAL_STEPS = 5;
 
+    const queryClient = useQueryClient();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const router = useRouter(); // Use if needed for navigation
+    const { mutateAsync: deletePhotos } = useDeletePhotos();
+
     const checkUnassignedPhotos = async (): Promise<boolean> => {
-        if (!tenantId) return true;
+        if (!tenantId) return true; // No tenantId, skip check
 
         setIsSaving(true);
-        const supabase = createClient();
-        const folderPath = `${tenantId}/dishes`;
-
         try {
-            // 1. Get all photos
-            const { data: fileList } = await supabase.storage
-                .from('dishes')
-                .list(folderPath, { limit: 100 });
+            // 1. Get all photos using shared fetcher
+            // We use ensureQueryData to get fresh data or cache. 
+            // Ideally we want fresh data for validation -> fetchQuery.
+            // But ensureQueryData is fine if we invalidated elsewhere properly.
+            // Let's use fetchQuery to be sure we see what's on server.
+            const fileList = await queryClient.fetchQuery({
+                queryKey: ['photos', tenantId],
+                queryFn: () => fetchPhotos(tenantId),
+                staleTime: 0 // Force fetch
+            });
 
-            const validFiles = (fileList || []).filter(f => f.name !== '.emptyFolderPlaceholder');
-            const total = validFiles.length;
-
-            if (total === 0) return true; // No photos, no problem
+            if (!fileList || fileList.length === 0) {
+                return true;
+            }
 
             // 2. Get all assigned images
+            const supabase = createClient();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { data: dishes } = await (supabase.from('dishes') as any)
                 .select('image_url')
                 .eq('tenant_id', tenantId)
                 .not('image_url', 'is', null);
 
+            // Normalize URLs to filename for comparison
+            // Assigned URLs are full public URLs.
+            // File list items have .name and .url (public url).
             const assignedUrls = new Set((dishes || []).map((d: any) => d.image_url));
 
-            // 3. Count unassigned
-            let unassigned = 0;
-            for (const file of validFiles) {
-                const { data } = supabase.storage.from('dishes').getPublicUrl(`${folderPath}/${file.name}`);
-                if (!assignedUrls.has(data.publicUrl)) {
-                    unassigned++;
-                }
-            }
+            const unassignedNames: string[] = [];
 
-            if (unassigned > 0) {
-                setTotalPhotosCount(total);
-                setUnassignedCount(unassigned);
-                setShowUnassignedWarning(true);
+            // Check based on Public URL match
+            fileList.forEach(f => {
+                if (f.name === '.emptyFolderPlaceholder') return;
+                if (!assignedUrls.has(f.url)) {
+                    unassignedNames.push(f.name);
+                }
+            });
+
+            if (unassignedNames.length > 0) {
+                setUnassignedPhotos(unassignedNames);
+                setShowCleanupDialog(true);
                 setHighlightUnassignedErrors(true);
                 return false; // Block navigation
             }
@@ -91,57 +105,11 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
 
         } catch (error) {
             console.error("Check photos error:", error);
-            return true; // Fail safe
+            // On error, we might default to letting them proceed or showing error
+            toast.error("Errore durante il controllo delle foto.");
+            return true; // Weak fail-safe: let them pass if check fails
         } finally {
             setIsSaving(false);
-        }
-    };
-
-    const handleProceedWithCleanup = async () => {
-        setShowUnassignedWarning(false);
-        setIsSaving(true);
-
-        try {
-            // Cleanup logic is repeated effectively here or we rely on the generic cleaning by re-fetching
-            // But since we are proceeding, we can assume the user wants to delete them.
-            // However, to keep it simple and robust, we will just proceed. 
-            // Wait, requirement: "la foto non assegnata deve essere cancellata dal bucket"
-            // So we MUST delete them here.
-
-            const supabase = createClient();
-            const folderPath = `${tenantId}/dishes`;
-
-            // Re-fetch to be safe
-            const { data: fileList } = await supabase.storage.from('dishes').list(folderPath, { limit: 100 });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: dishes } = await (supabase.from('dishes') as any)
-                .select('image_url')
-                .eq('tenant_id', tenantId)
-                .not('image_url', 'is', null);
-
-            const assignedUrls = new Set((dishes || []).map((d: any) => d.image_url));
-
-            const filesToDelete: string[] = [];
-            (fileList || []).forEach(f => {
-                if (f.name === '.emptyFolderPlaceholder') return;
-                const { data } = supabase.storage.from('dishes').getPublicUrl(`${folderPath}/${f.name}`);
-                if (!assignedUrls.has(data.publicUrl)) {
-                    filesToDelete.push(`${folderPath}/${f.name}`);
-                }
-            });
-
-            if (filesToDelete.length > 0) {
-                await supabase.storage.from('dishes').remove(filesToDelete);
-                toast.success(`${filesToDelete.length} foto non assegnate cancellate.`);
-            }
-
-            // Proceed Next
-            await performNextStep();
-
-        } catch (error) {
-            console.error("Cleanup error:", error);
-            toast.error("Errore durante la pulizia ma proseguro.");
-            await performNextStep();
         }
     };
 
@@ -152,17 +120,42 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
             if (success && step < TOTAL_STEPS) {
                 setStep(s => s + 1);
                 setCanGoNext(false);
-                setHighlightUnassignedErrors(false); // Reset warning highlight
+                setHighlightUnassignedErrors(false);
             }
         } catch (error) {
             console.error("Wizard error:", error);
         } finally {
             setIsSaving(false);
         }
-    }
+    };
+
+    const handleProceedWithCleanup = async () => {
+        if (!tenantId || unassignedPhotos.length === 0) {
+            setShowCleanupDialog(false);
+            await performNextStep();
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await deletePhotos({ tenantId, photoNames: unassignedPhotos });
+            // Success toast is handled by hook
+            setShowCleanupDialog(false);
+            await performNextStep();
+        } catch (error) {
+            console.error("Cleanup error:", error);
+            // Even if cleanup fails, we likely want to proceed or warn?
+            // Hook shows toast. We'll close dialog and try to proceed.
+            setShowCleanupDialog(false);
+            await performNextStep();
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleNext = async () => {
-        if (step === 4 && !showUnassignedWarning) {
+        // Validation for step 4 (Photos)
+        if (step === 4) {
             const isClean = await checkUnassignedPhotos();
             if (!isClean) return; // Dialog will show
         }
@@ -173,13 +166,15 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
     const handleBack = () => {
         if (step > 1) {
             setStep(s => s - 1);
-            setCanGoNext(true);
+            setCanGoNext(true); // Usually backing up implies we can go next again
         } else {
             onExit();
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateFormData = (updates: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setFormData((prev: any) => ({ ...prev, ...updates }));
     };
 
@@ -253,20 +248,20 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
             />
 
             {/* Unassigned Warning Dialog */}
-            <AlertDialog open={showUnassignedWarning} onOpenChange={setShowUnassignedWarning}>
+            <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Foto non assegnate rilevate</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Hai caricato <strong>{totalPhotosCount}</strong> foto, ma <strong>{unassignedCount}</strong> non sono state assegnate a nessun piatto.
+                            Ci sono <strong>{unassignedPhotos.length}</strong> foto caricate che non sono assegnate a nessun piatto.
                             <br /><br />
                             Le foto non assegnate sono state evidenziate in rosso.
                             <br />
-                            Se prosegui, <strong>le foto non assegnate verranno cancellate definitivamente</strong>.
+                            Se prosegui, <strong>le foto non assegnate verranno cancellate definitivamente</strong> per mantenere il menu ordinato.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setShowUnassignedWarning(false)}>Controlla e Assegna</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setShowCleanupDialog(false)}>Controlla e Assegna</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={(e) => {
                                 e.preventDefault();

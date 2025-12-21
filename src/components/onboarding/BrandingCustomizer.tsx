@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCheckSlug } from '@/hooks/useCheckSlug';
 
 interface BrandingCustomizerProps {
   formData: {
@@ -20,10 +22,16 @@ interface BrandingCustomizerProps {
 }
 
 export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack }: BrandingCustomizerProps) {
-  const [slugError, setSlugError] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [showCustomPickers, setShowCustomPickers] = useState(false);
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
+  const [manualSlugInput, setManualSlugInput] = useState<string | null>(null);
+
+  // Real-time slug validation
+  const { data: slugCheck, isLoading: isCheckingSlug } = useCheckSlug(formData.slug);
+
+  // Update internal error state based on hook
+  const slugError = slugCheck?.available === false ? 'Questo URL è già in uso' : '';
 
   // Genera slug da nome ristorante
   function generateSlug(name: string): string {
@@ -54,13 +62,6 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       return;
     }
 
-    // DEBUG: Verify slug is present and valid
-    console.log('[LOGO_UPLOAD] Current Slug:', formData.slug);
-    if (!formData.slug || formData.slug.trim() === '') {
-      alert('Attenzione: Lo slug non è stato generato correttamente via software. Riprova a scrivere il nome.');
-      return;
-    }
-
     setUploadingLogo(true);
 
     try {
@@ -68,7 +69,6 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       const fileExt = file.name.split('.').pop();
       const fileName = `logo-${Date.now()}.${fileExt}`;
       const filePath = `${formData.slug}/${fileName}`;
-      console.log('[LOGO_UPLOAD] Generated filePath:', filePath); // DEBUG LOG
 
       const { error: uploadError } = await supabase.storage
         .from('logos')
@@ -83,10 +83,10 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
         .getPublicUrl(filePath);
 
       onUpdate({ logo_url: data.publicUrl });
+      toast.success('Logo caricato con successo!');
     } catch (err: any) {
       console.error('Error uploading logo:', err);
-      console.error('Error details:', err.message, err.details, err.hint);
-      toast.error('Errore durante l\'upload del logo: ' + (err.message || 'Errore sconosciuto'));
+      toast.error('Errore durante l\'upload del logo');
     } finally {
       setUploadingLogo(false);
     }
@@ -96,7 +96,9 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
   async function generateUniqueSlug(name: string) {
     if (!name) return;
     setIsGeneratingSlug(true);
-    setSlugError('');
+
+    // Reset manual input override if standard generation is triggered
+    setManualSlugInput(null);
 
     const baseSlug = generateSlug(name);
     let uniqueSlug = baseSlug;
@@ -111,8 +113,8 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
           .from('tenants')
           .select('slug')
           .eq('slug', uniqueSlug)
-          .neq('slug', formData.slug) // Esclude se stesso (utile in caso di update futuri)
-          .maybeSingle(); // Usa maybeSingle per evitare errori se non trova nulla
+          .neq('slug', formData.slug) // Esclude se stesso
+          .maybeSingle();
 
         if (!data) {
           // Slug disponibile!
@@ -127,7 +129,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
       onUpdate({ slug: uniqueSlug });
     } catch (error) {
       console.error('Error generating slug:', error);
-      setSlugError('Errore nella generazione dello slug');
+      toast.error('Errore nella generazione dello slug');
     } finally {
       setIsGeneratingSlug(false);
     }
@@ -136,6 +138,11 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
   async function handleNext() {
     if (!formData.slug) {
       await generateUniqueSlug(formData.restaurant_name);
+    }
+    // Block if slug is invalid
+    if (slugCheck?.available === false) {
+      toast.error('L\'URL scelto non è disponibile. Riprova con un altro nome.');
+      return;
     }
     onNext();
   }
@@ -182,12 +189,15 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
                 <input
                   type="text"
                   id="slug"
-                  readOnly
                   value={formData.slug}
-                  className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
+                  onChange={(e) => onUpdate({ slug: e.target.value })}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${slugError ? 'border-red-300 focus:ring-red-500 bg-red-50' :
+                      slugCheck?.available ? 'border-green-300 focus:ring-green-500 bg-green-50' :
+                        'border-gray-200 focus:ring-orange-500 bg-gray-50'
+                    }`}
                   placeholder="Generazione automatica..."
                 />
-                {isGeneratingSlug && (
+                {(isGeneratingSlug || isCheckingSlug) && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent"></div>
                   </div>
@@ -195,7 +205,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
               </div>
             </div>
             {slugError && <p className="text-sm text-red-600">{slugError}</p>}
-            {!slugError && formData.slug && !isGeneratingSlug && (
+            {!slugError && formData.slug && !isGeneratingSlug && !isCheckingSlug && slugCheck?.available && (
               <p className="text-sm text-green-600">✓ URL disponibile e riservato per te</p>
             )}
           </div>
@@ -311,8 +321,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
               })}
             </div>
 
-            {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
-            {/* Custom Color Pickers - Show only if custom is selected (or implied) */}
+            {/* Custom Color Pickers */}
             {showCustomPickers && (
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 animate-in fade-in slide-in-from-top-2">
                 <div className="col-span-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 text-center">
@@ -459,7 +468,7 @@ export default function BrandingCustomizer({ formData, onUpdate, onNext, onBack 
         </button>
         <button
           onClick={handleNext}
-          disabled={!formData.restaurant_name || !formData.slug || !!slugError}
+          disabled={!formData.restaurant_name || !formData.slug || slugCheck?.available === false}
           className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
         >
           Continua →
