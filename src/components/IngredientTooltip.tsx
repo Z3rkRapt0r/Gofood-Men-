@@ -149,7 +149,7 @@ export default function IngredientTooltip({ term, info }: IngredientTooltipProps
         </button>
 
         <div className="pr-5 text-gray-700 text-xs leading-relaxed">
-          {info[language]}
+          {info[language as keyof IngredientInfo] || info.en || info.it}
         </div>
       </div>
     </div>
