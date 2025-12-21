@@ -109,8 +109,9 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
   if (!mounted) {
     return (
       <div className="relative z-50">
-        <div className={`flex items-center justify-center rounded-full bg-gray-100 ${compact ? 'w-8 h-8' : 'p-2'}`}>
-          <Languages className="w-6 h-6 text-gray-400" />
+        <div className={`flex items-center justify-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 ${compact ? 'p-1' : 'px-3 py-1.5'}`}>
+          <span className="text-lg leading-none">🇮🇹</span>
+          <Languages className="w-4 h-4 text-gray-500" />
         </div>
       </div>
     );
@@ -125,10 +126,11 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
         <DropdownMenuTrigger asChild>
           <button
             disabled={isChanging}
-            className={`flex items-center justify-center rounded-full transition-all hover:bg-gray-100 ${compact ? 'w-8 h-8' : 'p-2'}`}
+            className={`flex items-center justify-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 transition-all hover:bg-gray-50 ${compact ? 'p-1' : 'px-3 py-1.5'}`}
             aria-label="Select Language"
           >
-            <Languages className="w-6 h-6 text-gray-700" />
+            <span className="text-lg leading-none">{currentFlag}</span>
+            <Languages className="w-4 h-4 text-gray-500" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
