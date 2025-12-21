@@ -109,9 +109,24 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
   if (!mounted) {
     return (
       <div className="relative z-50">
-        <div className={`flex items-center justify-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 ${compact ? 'p-1' : 'px-3 py-1.5'}`}>
-          <span className="text-lg leading-none">🇮🇹</span>
-          <Languages className="w-4 h-4 text-gray-500" />
+        <div className={`flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-md border border-gray-200 ${compact ? 'scale-90' : ''}`}>
+          {/* Italian Button (Fixed - Default Active) */}
+          <button
+            disabled
+            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 bg-[#8B0000] text-white shadow-sm"
+          >
+            <span className="text-base">🇮🇹</span>
+            <span>IT</span>
+          </button>
+
+          {/* Dropdown Button (Default Inactive) */}
+          <button
+            disabled
+            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 text-gray-600"
+          >
+            <span className="text-base">🇬🇧</span>
+            <span>EN</span>
+          </button>
         </div>
       </div>
     );
@@ -122,33 +137,62 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
       {/* Hidden container for Google's widget */}
       <div id="google_translate_element" className="hidden"></div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            disabled={isChanging}
-            className={`flex items-center justify-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 transition-all hover:bg-gray-50 ${compact ? 'p-1' : 'px-3 py-1.5'}`}
-            aria-label="Select Language"
-          >
-            <span className="text-lg leading-none">{currentFlag}</span>
-            <Languages className="w-4 h-4 text-gray-500" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {LANGUAGES.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className="cursor-pointer gap-2"
+      <div className={`flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-md border border-gray-200 ${compact ? 'scale-90' : ''}`}>
+        {/* Italian Button (Fixed) */}
+        <button
+          onClick={() => handleLanguageChange('it')}
+          disabled={isChanging}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 ${currentLang === 'it'
+            ? 'bg-[#8B0000] text-white shadow-sm'
+            : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
+            }`}
+          aria-label="Passa all'italiano"
+          aria-pressed={currentLang === 'it'}
+        >
+          <span className="text-base">🇮🇹</span>
+          <span>IT</span>
+        </button>
+
+        {/* Dropdown for other languages */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              disabled={isChanging}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 ${currentLang !== 'it'
+                ? 'bg-[#8B0000] text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
+                }`}
+              aria-label="Scegli altra lingua"
+              aria-pressed={currentLang !== 'it'}
             >
-              <span className="text-lg">{lang.flag}</span>
-              <span>{lang.label}</span>
-              {currentLang === lang.code && (
-                <span className="ml-auto text-xs text-muted-foreground">Active</span>
-              )}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <span className="text-base">
+                {currentLang === 'it' ? '🇬🇧' : currentFlag}
+              </span>
+              <span>
+                {currentLang === 'it'
+                  ? 'EN'
+                  : (LANGUAGES.find(l => l.code === currentLang)?.label === 'English' ? 'EN' : currentLang.toUpperCase().slice(0, 2))
+                }
+              </span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {LANGUAGES.filter(lang => lang.code !== 'it').map((lang) => (
+              <DropdownMenuItem
+                key={lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                className="cursor-pointer gap-2"
+              >
+                <span className="text-lg">{lang.flag}</span>
+                <span>{lang.label}</span>
+                {currentLang === lang.code && (
+                  <span className="ml-auto text-xs text-muted-foreground">Active</span>
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
