@@ -1,7 +1,11 @@
-'use client';
-
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { Languages } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -15,20 +19,29 @@ interface LanguageSwitcherProps {
   compact?: boolean;
 }
 
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'ar', label: 'العربية', flag: '🇸🇦' }, // Using Saudi Arabia flag for Arabic generic
+  { code: 'zh-CN', label: '中文', flag: '🇨🇳' }, // Google Translate uses zh-CN for Chinese Simplified
+];
+
 export default function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const [currentLang, setCurrentLang] = useState('it');
-
-  // Flag per evitare loop di reload
   const [isChanging, setIsChanging] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Initialize Google Translate
     window.googleTranslateElementInit = () => {
       if (window.google?.translate?.TranslateElement) {
         new window.google.translate.TranslateElement(
           {
             pageLanguage: 'it',
-            includedLanguages: 'it,en',
+            includedLanguages: 'it,en,es,fr,ar,zh-CN',
             autoDisplay: false,
           },
           'google_translate_element'
@@ -50,7 +63,7 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     }
 
     // Check existing cookie
-    const match = document.cookie.match(/googtrans=\/it\/([a-z]{2})/);
+    const match = document.cookie.match(/googtrans=\/it\/([a-zA-Z-]+)/);
     if (match) {
       setCurrentLang(match[1]);
     }
@@ -91,40 +104,49 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     window.location.reload();
   };
 
+  const currentFlag = LANGUAGES.find(l => l.code === currentLang)?.flag || '🇮🇹';
+
+  if (!mounted) {
+    return (
+      <div className="relative z-50">
+        <div className={`flex items-center justify-center rounded-full bg-gray-100 ${compact ? 'w-8 h-8' : 'p-2'}`}>
+          <Languages className="w-6 h-6 text-gray-400" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`flex items-center gap-0.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 ${compact ? 'p-0.5' : 'px-2 py-1.5'}`}>
+    <div className="relative z-50">
       {/* Hidden container for Google's widget */}
       <div id="google_translate_element" className="hidden"></div>
 
-      <button
-        type="button"
-        onClick={() => handleLanguageChange('it')}
-        className={`rounded-full transition-all touch-manipulation flex items-center justify-center ${compact ? 'w-8 h-8' : 'px-3 py-1.5 text-sm gap-1.5'} ${currentLang === 'it'
-          ? 'bg-[var(--tenant-primary,#8B0000)] text-[var(--tenant-background,#FFFFFF)] shadow-sm'
-          : 'text-gray-400 hover:text-gray-900'
-          }`}
-        aria-label="Cambia lingua in Italiano"
-        title="Italiano"
-        disabled={isChanging}
-      >
-        <span className={compact ? 'text-lg leading-none' : 'text-base'}>🇮🇹</span>
-        {!compact && <span>IT</span>}
-      </button>
-
-      <button
-        type="button"
-        onClick={() => handleLanguageChange('en')}
-        className={`rounded-full transition-all touch-manipulation flex items-center justify-center ${compact ? 'w-8 h-8' : 'px-3 py-1.5 text-sm gap-1.5'} ${currentLang === 'en'
-          ? 'bg-[var(--tenant-primary,#8B0000)] text-[var(--tenant-background,#FFFFFF)] shadow-sm'
-          : 'text-gray-400 hover:text-gray-900'
-          }`}
-        aria-label="Switch language to English"
-        title="English"
-        disabled={isChanging}
-      >
-        <span className={compact ? 'text-lg leading-none' : 'text-base'}>🇬🇧</span>
-        {!compact && <span>EN</span>}
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            disabled={isChanging}
+            className={`flex items-center justify-center rounded-full transition-all hover:bg-gray-100 ${compact ? 'w-8 h-8' : 'p-2'}`}
+            aria-label="Select Language"
+          >
+            <Languages className="w-6 h-6 text-gray-700" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {LANGUAGES.map((lang) => (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              className="cursor-pointer gap-2"
+            >
+              <span className="text-lg">{lang.flag}</span>
+              <span>{lang.label}</span>
+              {currentLang === lang.code && (
+                <span className="ml-auto text-xs text-muted-foreground">Active</span>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

@@ -48,7 +48,7 @@ export interface AllergenData {
   coverCharge: string;
 }
 
-export type Language = 'it' | 'en';
+export type Language = 'it' | 'en' | 'es' | 'fr' | 'ar' | 'zh';
 
 // ============================================================
 // TYPES: Database (Supabase Multi-Tenant)
