@@ -12,36 +12,7 @@ import Footer from '@/components/Footer';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Use same MOCK DATA as DesignLab for consistency
-const MOCK_CATEGORIES = [
-    {
-        id: 'antipasti',
-        name: 'Antipasti',
-        dishes: [
-            {
-                id: 'd1',
-                name: 'Tartare di Tonno',
-                description: 'Tonno fresco, avocado, lime e sesamo.',
-                price: '18.00',
-                image: '/images/dish-placeholder.jpg',
-                allergens: ['fish', 'sesame']
-            }
-        ]
-    },
-    {
-        id: 'primi',
-        name: 'Primi Piatti',
-        dishes: [
-            {
-                id: 'd3',
-                name: 'Carbonara',
-                description: 'Spaghetti, guanciale croccante, pecorino, uovo.',
-                price: '14.00',
-                image: '/images/dish-placeholder.jpg',
-                allergens: ['gluten', 'egg', 'milk']
-            }
-        ]
-    }
-];
+// MOCK DATA REMOVED
 
 interface BrandingDesignLabProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,11 +27,43 @@ interface BrandingDesignLabProps {
     footerSlot?: React.ReactNode;
 }
 
+import { useCategories, useDishes } from '@/hooks/useMenu';
+
 export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, hideNavigation, tenantId, footerSlot }: BrandingDesignLabProps) {
     const { currentTheme } = useTheme();
-    const [activeCategory, setActiveCategory] = useState<string>('antipasti');
+    const [activeCategory, setActiveCategory] = useState<string>('');
     const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
     const mainRef = useRef<HTMLDivElement>(null);
+
+    // Fetch Real Data
+    const { data: categories = [] } = useCategories(tenantId);
+    const { data: dishes = [] } = useDishes(tenantId);
+
+    // Prepare Preview Data
+    const previewCategories = React.useMemo(() => {
+        if (!categories) return [];
+        return categories.map(c => ({
+            ...c,
+            dishes: dishes
+                ?.filter(d => d.category_id === c.id && d.is_visible !== false)
+                .map(d => ({
+                    ...d,
+                    image: d.image_url || '/images/dish-placeholder.jpg',
+                    price: d.price.toString(),
+                    description: d.description || '', // Ensure string
+                    allergens: d.allergen_ids,
+                    // Map other mismatching fields if necessary
+                    // UI Dish expects 'image' (string), DB has 'image_url'
+                })) || []
+        })).filter(c => c.dishes.length > 0);
+    }, [categories, dishes]);
+
+    // Set initial active category
+    React.useEffect(() => {
+        if (previewCategories.length > 0 && !activeCategory) {
+            setActiveCategory(previewCategories[0].id);
+        }
+    }, [previewCategories, activeCategory]);
 
     // Sync theme changes to parent form data
     React.useEffect(() => {
@@ -229,7 +232,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                 />
 
                                 <CategoryNav
-                                    categories={MOCK_CATEGORIES}
+                                    categories={previewCategories}
                                     activeCategory={activeCategory}
                                     onCategoryClick={handleCategoryClick}
                                     className="sticky top-[72px] z-10 w-full"
@@ -261,23 +264,30 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                 </section>
 
                                 <main className="container mx-auto px-4 relative z-10 space-y-8">
-                                    {MOCK_CATEGORIES.map((category) => (
-                                        <section key={category.id} id={category.id}>
-                                            <div className="flex items-center justify-center gap-4 mb-4">
-                                                <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
-                                                <h2 className="font-display text-xl font-bold text-center shrink-0 px-2 theme-heading" style={{ color: mockTenant.primary_color }}>
-                                                    {category.name}
-                                                </h2>
-                                                <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
-                                            </div>
+                                    {previewCategories.length === 0 ? (
+                                        <div className="text-center py-20 opacity-50">
+                                            <p className="theme-body">Nessun piatto visibile.</p>
+                                            <p className="text-xs">Aggiungi piatti nel passaggio precedente per vederli qui.</p>
+                                        </div>
+                                    ) : (
+                                        previewCategories.map((category) => (
+                                            <section key={category.id} id={category.id}>
+                                                <div className="flex items-center justify-center gap-4 mb-4">
+                                                    <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
+                                                    <h2 className="font-display text-xl font-bold text-center shrink-0 px-2 theme-heading" style={{ color: mockTenant.primary_color }}>
+                                                        {category.name}
+                                                    </h2>
+                                                    <ThemeDivider dividerStyle={currentTheme.dividerStyle} />
+                                                </div>
 
-                                            <div className="grid gap-6 grid-cols-1">
-                                                {category.dishes.map((dish) => (
-                                                    <DishCard key={dish.id} dish={dish} tenantSlug={mockTenant.slug} />
-                                                ))}
-                                            </div>
-                                        </section>
-                                    ))}
+                                                <div className="grid gap-6 grid-cols-1">
+                                                    {category.dishes.map((dish) => (
+                                                        <DishCard key={dish.id} dish={dish} tenantSlug={mockTenant.slug} />
+                                                    ))}
+                                                </div>
+                                            </section>
+                                        ))
+                                    )}
                                 </main>
 
                                 <Footer

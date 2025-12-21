@@ -9,6 +9,7 @@ import { WizardControls } from './WizardControls';
 import { StepSettings } from './steps/StepSettings';
 import { StepCategories } from './steps/StepCategories';
 import { StepDishes } from './steps/StepDishes';
+import { StepCharacteristics } from './steps/StepCharacteristics';
 import { StepPhotos } from './steps/StepPhotos';
 import { StepBranding } from './steps/StepBranding';
 import {
@@ -44,7 +45,7 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
     const [unassignedPhotos, setUnassignedPhotos] = useState<string[]>([]);
     const [highlightUnassignedErrors, setHighlightUnassignedErrors] = useState(false);
 
-    const TOTAL_STEPS = 5;
+    const TOTAL_STEPS = 6;
 
     const queryClient = useQueryClient();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -154,8 +155,8 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
     };
 
     const handleNext = async () => {
-        // Validation for step 4 (Photos)
-        if (step === 4) {
+        // Validation for step 5 (Photos) - previously 4
+        if (step === 5) {
             const isClean = await checkUnassignedPhotos();
             if (!isClean) return; // Dialog will show
         }
@@ -201,6 +202,13 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
                     onValidationChange={setCanGoNext}
                 />;
             case 4:
+                return <StepCharacteristics
+                    data={formData}
+                    tenantId={tenantId}
+                    onUpdate={updateFormData}
+                    onValidationChange={setCanGoNext}
+                />;
+            case 5:
                 return <StepPhotos
                     data={formData}
                     tenantId={tenantId}
@@ -208,7 +216,7 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
                     onValidationChange={setCanGoNext}
                     highlightUnassigned={highlightUnassignedErrors}
                 />;
-            case 5:
+            case 6:
                 return <StepBranding
                     data={formData}
                     tenantId={tenantId}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,8 +120,13 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
     }, [serverCategories]);
 
     // Validation Effect
+    const isValidRef = useRef<boolean | null>(null);
     useEffect(() => {
-        onValidationChange(categories.length > 0);
+        const isValid = categories.length > 0;
+        if (isValidRef.current !== isValid) {
+            onValidationChange(isValid);
+            isValidRef.current = isValid;
+        }
     }, [categories, onValidationChange]);
 
     async function addCategory(name: string) {

@@ -46,6 +46,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
+    const { mutateAsync: importMenu, isPending: isImporting } = useImportMenu();
+
     // Load draft on mount
     useEffect(() => {
         if (isOpen) {
@@ -254,7 +256,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
         }
     };
 
-    const { mutateAsync: importMenu, isPending: isImporting } = useImportMenu();
+    // Moved hook to top level
+    // const { mutateAsync: importMenu, isPending: isImporting } = useImportMenu();
 
     const handleSave = async () => {
         try {

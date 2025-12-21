@@ -121,6 +121,7 @@ export function useUpdateTenant() {
                 hero_tagline_color,
                 background_color,
                 footer_data,
+                tenant_locations, // Remove from update payload
                 ...tenantUpdates
             } = updates;
             /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -199,11 +200,11 @@ export function useUpdateTenant() {
             }
 
             // 1. Update Tenant
-            const { error } = await (supabase.from('tenants') as any)
+            const { error: updateError } = await (supabase.from('tenants') as any)
                 .update(updateData)
                 .eq('id', id);
 
-            if (error) throw error;
+            if (updateError) throw updateError;
 
             // 2. Update Design Settings
             if (theme_options) {

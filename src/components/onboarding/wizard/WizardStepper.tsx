@@ -1,4 +1,4 @@
-import { Zap, NotebookPen, UtensilsCrossed, Palette, CheckCircle, Circle, Image } from "lucide-react";
+import { Zap, NotebookPen, UtensilsCrossed, Palette, CheckCircle, Circle, Image, Tag } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
@@ -11,8 +11,9 @@ const STEPS = [
     { id: 1, label: "Impostazioni", icon: Zap },
     { id: 2, label: "Categorie", icon: NotebookPen },
     { id: 3, label: "Piatti", icon: UtensilsCrossed },
-    { id: 4, label: "Foto", icon: Image },
-    { id: 5, label: "Branding", icon: Palette },
+    { id: 4, label: "Caratteristiche", icon: Tag },
+    { id: 5, label: "Foto", icon: Image },
+    { id: 6, label: "Branding", icon: Palette },
 ];
 
 export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
@@ -23,15 +24,16 @@ export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
             {/* Mobile Progress Bar */}
             {/* Mobile Minimal Stepper */}
             {/* Mobile Minimal Stepper with Gofood Logo */}
-            <div className="md:hidden flex flex-col items-center gap-4 py-2">
-                {/* Large Logo */}
-                <div className="w-16 h-16 relative flex items-center justify-center">
+            {/* Mobile Compact Header */}
+            <div className="md:hidden flex items-center justify-between py-2 px-4 shadow-sm bg-white/90 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-100">
+                {/* Small Logo */}
+                <div className="w-8 h-8 relative flex items-center justify-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/favicon.svg" alt="Gofood Menu" className="w-full h-full object-contain" />
                 </div>
 
-                {/* Tiny Indicator */}
-                <div className="flex flex-col items-center gap-1">
+                {/* Steps Indicator */}
+                <div className="flex flex-col items-end gap-0.5">
                     <div className="flex items-center gap-1">
                         {STEPS.map((s) => (
                             <div
@@ -39,14 +41,13 @@ export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
                                 className={cn(
                                     "rounded-full transition-all duration-300",
                                     s.id === currentStep
-                                        ? "w-4 h-1 bg-orange-500" // Active: small dash
-                                        : "w-1 h-1 bg-gray-200"   // Inactive: tiny dot
+                                        ? "w-4 h-1 bg-orange-500" // Active
+                                        : "w-1 h-1 bg-gray-200"   // Inactive
                                 )}
                             />
                         ))}
                     </div>
-                    {/* Step Name */}
-                    <span className="text-xs font-medium text-gray-500 mt-1">
+                    <span className="text-[10px] font-medium text-gray-400">
                         {STEPS.find(s => s.id === currentStep)?.label}
                     </span>
                 </div>

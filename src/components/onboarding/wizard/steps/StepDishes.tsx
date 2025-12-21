@@ -11,6 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Plus, Sparkles, Image as ImageIcon, Trash2, Edit2, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import toast from 'react-hot-toast';
 
 
@@ -23,7 +25,8 @@ interface StepDishesProps {
 }
 
 // ... imports
-import { useCategories, useDishes, useAddDish, useUpdateDish, useDeleteDish, Dish, Category } from '@/hooks/useMenu';
+// ... imports
+import { useCategories, useDishes, useAddDish, useUpdateDish, useDeleteDish, useAllergens, Dish, Category } from '@/hooks/useMenu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
@@ -36,6 +39,7 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
     const queryClient = useQueryClient();
     const { data: serverCats = [], isLoading: catsLoading } = useCategories(tenantId);
     const { data: serverDishes = [], isLoading: dishesLoading } = useDishes(tenantId);
+    const { data: allergens = [] } = useAllergens();
 
     const addDishMutation = useAddDish();
     const updateDishMutation = useUpdateDish();
@@ -56,7 +60,12 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
     const [editingDish, setEditingDish] = useState<Dish | null>(null);
-    const [dishForm, setDishForm] = useState({ name: '', description: '', price: '' });
+
+    const [dishForm, setDishForm] = useState({
+        name: '',
+        description: '',
+        price: ''
+    });
 
     // Validation Effect
     useEffect(() => {
@@ -76,10 +85,15 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
             });
         } else {
             setEditingDish(null);
-            setDishForm({ name: '', description: '', price: '' });
+            setDishForm({
+                name: '',
+                description: '',
+                price: ''
+            });
         }
         setIsAddModalOpen(true);
     }
+
 
     async function handleSaveDish() {
         if (!selectedCategoryId || !tenantId || !dishForm.name) return;
@@ -110,7 +124,7 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                     price: priceVal,
                     slug: slug,
                     is_visible: true,
-                    display_order: 0, // Should calculate order? Or default in DB/hook.
+                    display_order: 0,
                 });
                 toast.success('Piatto aggiunto');
             }
