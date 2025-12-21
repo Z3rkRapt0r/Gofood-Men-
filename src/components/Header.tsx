@@ -46,7 +46,7 @@ export default function Header({
                 <button
                   type="button"
                   onClick={toggleGlutenFilter}
-                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30' : 'hover:bg-gray-100'}`}
+                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50' : 'hover:bg-gray-100'}`}
                   aria-label="Filtro senza glutine"
                   aria-pressed={isGlutenFree}
                 >
@@ -77,7 +77,7 @@ export default function Header({
                 <button
                   type="button"
                   onClick={toggleGlutenFilter}
-                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30' : 'hover:bg-gray-100'}`}
+                  className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50' : 'hover:bg-gray-100'}`}
                   aria-label="Filtro senza glutine"
                   aria-pressed={isGlutenFree}
                 >
@@ -113,7 +113,7 @@ export default function Header({
               type="button"
               onClick={toggleGlutenFilter}
               className={`p-2.5 rounded-lg transition-colors ${isGlutenFree
-                ? 'bg-[var(--tenant-secondary,#D4AF37)]/20 hover:bg-[var(--tenant-secondary,#D4AF37)]/30'
+                ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50'
                 : 'hover:bg-gray-100'
                 }`}
               aria-label="Filtro senza glutine"
