@@ -8,10 +8,11 @@ import { createClient } from '@/lib/supabase/client';
 import { ChevronsUpDown, ChevronDown } from 'lucide-react';
 
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -63,15 +64,6 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
     const { currentTheme, updateTheme, applyPreset, presets } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
-
-    // State for collapsibles
-    const [isOpenBrand, setIsOpenBrand] = useState(true);
-    const [isOpenContent, setIsOpenContent] = useState(true);
-    const [isOpenSurface, setIsOpenSurface] = useState(false);
-    const [isOpenTypography, setIsOpenTypography] = useState(false);
-    const [isOpenStyle, setIsOpenStyle] = useState(false);
-    const [isOpenFooter, setIsOpenFooter] = useState(false);
-
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -137,26 +129,16 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
 
     return (
         <div className="w-full bg-white border-r border-gray-200 flex-1 min-h-0 overflow-y-auto p-6 shadow-xl flex flex-col">
-
-
             <div className="flex-1 space-y-10">
 
-                {/* 0. CONTENUTI (Logo + Testi) */}
-                <div>
-                    <h3 className="section-title mb-4">Contenuti Menu</h3>
+                <Accordion type="single" collapsible defaultValue="content" className="w-full space-y-4">
 
-                    <Collapsible
-                        open={isOpenContent}
-                        onOpenChange={setIsOpenContent}
-                        className="w-full space-y-2"
-                    >
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Logo & Testi</span>
-                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenContent ? "" : "-rotate-90"}`} />
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
+                    {/* 0. CONTENUTI (Logo + Testi) */}
+                    <AccordionItem value="content" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Contenuti Menu</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
                             <div className="bg-gray-50 p-4 rounded-xl space-y-6 mt-2 border border-gray-100">
                                 {/* LOGO */}
                                 {onLogoChange && (
@@ -213,47 +195,48 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                         />
                                     </div>
                                 </div>
+
+                                {/* Header Layout */}
+                                <div className="mt-4">
+                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Allineamento Intestazione</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
+                                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
+                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                                }`}
+                                        >
+                                            <div className="flex w-full items-center justify-start gap-2 px-2 opacity-60">
+                                                <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                                <div className="w-16 h-2 bg-gray-200 rounded-sm"></div>
+                                            </div>
+                                            A Sinistra
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
+                                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${currentTheme.mobileHeaderStyle === 'center'
+                                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
+                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                                }`}
+                                        >
+                                            <div className="flex w-full items-center justify-center gap-2 px-2 opacity-60">
+                                                <div className="w-8 h-2 bg-current rounded-sm"></div>
+                                            </div>
+                                            Centrato
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </CollapsibleContent>
-                    </Collapsible>
+                        </AccordionContent>
+                    </AccordionItem>
 
 
-                </div>
+                    {/* 1. PRESETS (Always visible outside accordion or inside? User requested replace collapsible. Presets wasn't in collapsible but it has a title. Let's keep it separate or put it in a General section? The previous design had it separate. I'll keep it separate to allow quick switching, OR put it as the first Accordion Item "Stili Pronti"? Let's Keep it separate as it's a "Global" setting.) */}
 
-                {/* Header Layout */}
-                <div className="mt-4">
-                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Allineamento Intestazione</label>
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            onClick={() => updateTheme({ mobileHeaderStyle: 'left' })}
-                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${(currentTheme.mobileHeaderStyle || 'left') === 'left'
-                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
-                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                }`}
-                        >
-                            <div className="flex w-full items-center justify-start gap-2 px-2 opacity-60">
-                                <div className="w-8 h-2 bg-current rounded-sm"></div>
-                                <div className="w-16 h-2 bg-gray-200 rounded-sm"></div>
-                            </div>
-                            A Sinistra
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => updateTheme({ mobileHeaderStyle: 'center' })}
-                            className={`p-2 rounded-lg border text-xs flex flex-col items-center gap-2 transition-all ${currentTheme.mobileHeaderStyle === 'center'
-                                ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500 font-medium'
-                                : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                }`}
-                        >
-                            <div className="flex w-full items-center justify-center gap-2 px-2 opacity-60">
-                                <div className="w-8 h-2 bg-current rounded-sm"></div>
-                            </div>
-                            Centrato
-                        </button>
-                    </div>
-                </div>
-
+                </Accordion>
 
                 <hr className="border-gray-100" />
 
@@ -280,238 +263,199 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
 
                 <hr className="border-gray-100" />
 
-                {/* 2. COLORS & IDENTITY */}
-                <div>
-                    <h3 className="section-title mb-4">Colori & Identità</h3>
+                <Accordion type="single" collapsible className="w-full space-y-4">
+                    {/* 2. COLORS & IDENTITY */}
 
-                    <div className="space-y-4">
-                        {/* Brand Principal - Collapsible */}
-                        <Collapsible
-                            open={isOpenBrand}
-                            onOpenChange={setIsOpenBrand}
-                            className="w-full space-y-2"
-                        >
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Brand Principal</span>
-                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenBrand ? "" : "-rotate-90"}`} />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <ColorPicker
-                                            label="Principale"
-                                            description="Titoli categorie e pulsanti"
-                                            value={currentTheme.colors.primary}
-                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, primary: val } })}
-                                        />
-                                        <ColorPicker
-                                            label="Secondario"
-                                            description="Dettagli e decorazioni"
-                                            value={currentTheme.colors.secondary}
-                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, secondary: val } })}
-                                        />
-                                        <ColorPicker
-                                            label="Accento"
-                                            description="Allergeni e info"
-                                            value={currentTheme.colors.accent}
-                                            onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, accent: val } })}
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleContent>
-                        </Collapsible>
-
-                        {/* Surfaces & Borders - Collapsible */}
-                        <Collapsible
-                            open={isOpenSurface}
-                            onOpenChange={setIsOpenSurface}
-                            className="w-full space-y-2"
-                        >
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Superfici & Bordi</span>
-                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenSurface ? "" : "-rotate-90"}`} />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                    {/* Brand Principal */}
+                    <AccordionItem value="brand" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Colori & Identità</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                <div className="grid grid-cols-1 gap-4">
                                     <ColorPicker
-                                        label="Sfondo Menu"
-                                        description="Colore di fondo generale"
-                                        value={currentTheme.colors.background}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, background: val } })}
+                                        label="Principale"
+                                        description="Titoli categorie e pulsanti"
+                                        value={currentTheme.colors.primary}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, primary: val } })}
                                     />
                                     <ColorPicker
-                                        label="Superficie Piatti"
-                                        description="Sfondo delle card dei piatti"
-                                        value={currentTheme.colors.surface}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, surface: val } })}
+                                        label="Secondario"
+                                        description="Dettagli e decorazioni"
+                                        value={currentTheme.colors.secondary}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, secondary: val } })}
                                     />
                                     <ColorPicker
-                                        label="Divisori & Cornici"
-                                        description="Linee di separazione"
-                                        value={currentTheme.colors.border || '#e5e7eb'}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, border: val } })}
+                                        label="Accento"
+                                        description="Allergeni e info"
+                                        value={currentTheme.colors.accent}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, accent: val } })}
                                     />
                                 </div>
-                            </CollapsibleContent>
-                        </Collapsible>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                        {/* Typography - Collapsible */}
-                        <Collapsible
-                            open={isOpenTypography}
-                            onOpenChange={setIsOpenTypography}
-                            className="w-full space-y-2"
-                        >
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Tipografia</span>
-                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenTypography ? "" : "-rotate-90"}`} />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
-                                    <ColorPicker
-                                        label="Titoli Piatti"
-                                        description="Colore nome del piatto"
-                                        value={currentTheme.colors.text}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, text: val } })}
-                                    />
-                                    <ColorPicker
-                                        label="Descrizioni"
-                                        description="Ingredienti e dettagli"
-                                        value={currentTheme.colors.textSecondary || '#6b7280'}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, textSecondary: val } })}
-                                    />
-                                    <ColorPicker
-                                        label="Prezzi"
-                                        description="Evidenza del prezzo"
-                                        value={currentTheme.colors.price || '#000000'}
-                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, price: val } })}
-                                    />
-                                </div>
-                            </CollapsibleContent>
-                        </Collapsible>
+                    {/* Surfaces & Borders */}
+                    <AccordionItem value="surface" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Superfici & Bordi</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                <ColorPicker
+                                    label="Sfondo Menu"
+                                    description="Colore di fondo generale"
+                                    value={currentTheme.colors.background}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, background: val } })}
+                                />
+                                <ColorPicker
+                                    label="Superficie Piatti"
+                                    description="Sfondo delle card dei piatti"
+                                    value={currentTheme.colors.surface}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, surface: val } })}
+                                />
+                                <ColorPicker
+                                    label="Divisori & Cornici"
+                                    description="Linee di separazione"
+                                    value={currentTheme.colors.border || '#e5e7eb'}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, border: val } })}
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                        {/* Style & Finishes - Collapsible (Merged here as per user request to be part of the flow) */}
-                        <Collapsible
-                            open={isOpenStyle}
-                            onOpenChange={setIsOpenStyle}
-                            className="w-full space-y-2 border-t pt-4"
-                        >
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                    <span className="text-xs font-bold font-display uppercase tracking-wider text-gray-900 group-hover:text-orange-600">Stile & Finiture (Avanzato)</span>
-                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenStyle ? "" : "-rotate-90"}`} />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <div className="space-y-6 mt-4 pl-2">
-                                    {/* Fonts */}
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Titoli (Intestazioni)</label>
-                                            <select
-                                                value={currentTheme.fontHeading}
-                                                onChange={(e) => updateTheme({ fontHeading: e.target.value })}
-                                                className="styled-select"
-                                                style={{ fontFamily: currentTheme.fontHeading }}
-                                            >
-                                                {FONT_OPTIONS.map(f => (
-                                                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Testo (Corpo)</label>
-                                            <select
-                                                value={currentTheme.fontBody}
-                                                onChange={(e) => updateTheme({ fontBody: e.target.value })}
-                                                className="styled-select"
-                                                style={{ fontFamily: currentTheme.fontBody }}
-                                            >
-                                                {FONT_OPTIONS.map(f => (
-                                                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
+                    {/* Typography */}
+                    <AccordionItem value="typography" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Tipografia</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2">
+                                <ColorPicker
+                                    label="Titoli Piatti"
+                                    description="Colore nome del piatto"
+                                    value={currentTheme.colors.text}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, text: val } })}
+                                />
+                                <ColorPicker
+                                    label="Descrizioni"
+                                    description="Ingredienti e dettagli"
+                                    value={currentTheme.colors.textSecondary || '#6b7280'}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, textSecondary: val } })}
+                                />
+                                <ColorPicker
+                                    label="Prezzi"
+                                    description="Evidenza del prezzo"
+                                    value={currentTheme.colors.price || '#000000'}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, price: val } })}
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                                    {/* Frame */}
+                    {/* Style & Finishes - Advanced */}
+                    <AccordionItem value="style" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs font-bold font-display uppercase tracking-wider text-gray-900 group-hover:text-orange-600">Stile & Finiture (Avanzato)</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="space-y-6 mt-4 pl-2">
+                                {/* Fonts */}
+                                <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Cornice Esterna</label>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Titoli (Intestazioni)</label>
                                         <select
-                                            value={currentTheme.frame}
-                                            onChange={(e) => updateTheme({ frame: e.target.value as FrameStyle })}
+                                            value={currentTheme.fontHeading}
+                                            onChange={(e) => updateTheme({ fontHeading: e.target.value })}
                                             className="styled-select"
+                                            style={{ fontFamily: currentTheme.fontHeading }}
                                         >
-                                            <option value="none">Nessuna</option>
-                                            <option value="simple">Semplice</option>
-                                            <option value="double">Doppia Linea</option>
-                                            <option value="elegant">Elegante</option>
-                                            <option value="wooden">Legno Rustico</option>
-                                            <option value="gold-leaf">Fogliolina Oro</option>
-                                            <option value="minimal">Minimal</option>
+                                            {FONT_OPTIONS.map(f => (
+                                                <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+                                            ))}
                                         </select>
                                     </div>
-
-                                    {/* Dividers */}
                                     <div>
-                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Font Testo (Corpo)</label>
                                         <select
-                                            value={currentTheme.dividerStyle || 'solid'}
-                                            onChange={(e) => updateTheme({ dividerStyle: e.target.value as DividerStyle })}
+                                            value={currentTheme.fontBody}
+                                            onChange={(e) => updateTheme({ fontBody: e.target.value })}
                                             className="styled-select"
+                                            style={{ fontFamily: currentTheme.fontBody }}
                                         >
-                                            <option value="solid">Linea Solida</option>
-                                            <option value="dashed">Tratteggiata</option>
-                                            <option value="dotted">Puntini</option>
-                                            <option value="double">Doppia Linea</option>
-                                            <option value="groove">Incisa</option>
-                                            <option value="wavy">Ondulata (Wavy)</option>
-                                            <option value="slash">Obliquo (Street)</option>
-                                            <option value="filigree">Ornamentale</option>
+                                            {FONT_OPTIONS.map(f => (
+                                                <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
-                            </CollapsibleContent>
-                        </Collapsible>
 
-                        {/* FOOTER INFO - Moved Here */}
-                        <Collapsible
-                            open={isOpenFooter}
-                            onOpenChange={setIsOpenFooter}
-                            className="w-full space-y-2 border-t pt-4"
-                        >
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" className="flex w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group">
-                                    <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900">Footer & Info</span>
-                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpenFooter ? "" : "-rotate-90"}`} />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2 border border-gray-100">
-                                    <div className="space-y-1">
-                                        <Label className="text-xs font-semibold text-gray-500">Descrizione Brand</Label>
-                                        <p className="text-[10px] text-gray-400">Appare nel footer sotto il logo.</p>
-                                        <Textarea
-                                            value={brandDescription || ''}
-                                            onChange={(e) => onBrandDescriptionChange?.(e.target.value)}
-                                            placeholder="Scopri i nostri piatti..."
-                                            className="h-20 text-sm bg-white resize-none"
-                                        />
-                                    </div>
+                                {/* Frame */}
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Cornice Esterna</label>
+                                    <select
+                                        value={currentTheme.frame}
+                                        onChange={(e) => updateTheme({ frame: e.target.value as FrameStyle })}
+                                        className="styled-select"
+                                    >
+                                        <option value="none">Nessuna</option>
+                                        <option value="simple">Semplice</option>
+                                        <option value="double">Doppia Linea</option>
+                                        <option value="elegant">Elegante</option>
+                                        <option value="wooden">Legno Rustico</option>
+                                        <option value="gold-leaf">Fogliolina Oro</option>
+                                        <option value="minimal">Minimal</option>
+                                    </select>
                                 </div>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </div>
-                </div>
 
-                <div className="h-20"></div> {/* Spacer */}
-            </div >
+                                {/* Dividers */}
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>
+                                    <select
+                                        value={currentTheme.dividerStyle || 'solid'}
+                                        onChange={(e) => updateTheme({ dividerStyle: e.target.value as DividerStyle })}
+                                        className="styled-select"
+                                    >
+                                        <option value="solid">Linea Solida</option>
+                                        <option value="dashed">Tratteggiata</option>
+                                        <option value="dotted">Puntini</option>
+                                        <option value="double">Doppia Linea</option>
+                                        <option value="groove">Incisa</option>
+                                        <option value="wavy">Ondulata (Wavy)</option>
+                                        <option value="slash">Obliquo (Street)</option>
+                                        <option value="filigree">Ornamentale</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
 
+                    {/* FOOTER INFO */}
+                    <AccordionItem value="footer" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Footer & Info</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2 border border-gray-100">
+                                <div className="space-y-1">
+                                    <Label className="text-xs font-semibold text-gray-500">Descrizione Brand</Label>
+                                    <p className="text-[10px] text-gray-400">Appare nel footer sotto il logo.</p>
+                                    <Textarea
+                                        value={brandDescription || ''}
+                                        onChange={(e) => onBrandDescriptionChange?.(e.target.value)}
+                                        placeholder="Scopri i nostri piatti..."
+                                        className="h-20 text-sm bg-white resize-none"
+                                    />
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </div>
+
+            <div className="h-20"></div> {/* Spacer */}
             <style jsx>{`
                 .section-title {
                     font-size: 0.75rem;
