@@ -84,6 +84,13 @@ async function getMenuData(slug: string) {
 
   tenant.footer_data = mergedFooterData;
 
+  // FIX: Sync tagline from footer_data if root tagline is empty (Design Studio saves to footer_data)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!tenant.tagline && (mergedFooterData as any).tagline) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (tenant as any).tagline = (mergedFooterData as any).tagline;
+  }
+
   const tenantData = tenant as Tenant;
 
   // 2. Fetch categories con piatti
