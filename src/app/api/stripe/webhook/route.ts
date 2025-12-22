@@ -81,25 +81,9 @@ export async function POST(req: NextRequest) {
             }
 
             case 'customer.subscription.deleted': {
-                const subscription = event.data.object as any;
-                console.log('[STRIPE_WEBHOOK] Handling deletion. Metadata:', subscription.metadata);
-
-                let tenantId = subscription.metadata?.tenantId;
-
-                // Fallback: Try to find tenant by userId (Owner ID)
-                if (!tenantId && subscription.metadata?.userId) {
-                    console.warn('[STRIPE_WEBHOOK] tenantId missing, trying lookup by userId:', subscription.metadata.userId);
-                    const { data: tenant } = await supabaseAdmin
-                        .from('tenants')
-                        .select('id')
-                        .eq('owner_id', subscription.metadata.userId)
-                        .single();
-
-                    if (tenant) {
-                        tenantId = (tenant as any).id;
-                        console.log('[STRIPE_WEBHOOK] Found tenant via userId:', tenantId);
-                    }
-                }
+                // Subscription cancelled/deleted
+                const subscription = event.data.object;
+                const tenantId = subscription.metadata?.tenantId;
 
                 if (tenantId) {
                     console.log(`[STRIPE_WEBHOOK] Deactivating tenant ${tenantId}`);
@@ -119,32 +103,18 @@ export async function POST(req: NextRequest) {
             }
 
             case 'customer.subscription.updated': {
-                const subscription = event.data.object as any;
-                console.log('[STRIPE_WEBHOOK] Handling update. Status:', subscription.status);
-
-                let tenantId = subscription.metadata?.tenantId;
-
-                // Fallback: Try to find tenant by userId (Owner ID)
-                if (!tenantId && subscription.metadata?.userId) {
-                    const { data: tenant } = await supabaseAdmin
-                        .from('tenants')
-                        .select('id')
-                        .eq('owner_id', subscription.metadata.userId)
-                        .single();
-
-                    if (tenant) tenantId = (tenant as any).id;
-                }
+                // Handle renewal issues, past_due, etc.
+                const subscription = event.data.object;
+                const tenantId = subscription.metadata?.tenantId;
+                const status = subscription.status; // active, past_due, unpaid, canceled
 
                 if (tenantId) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const { error } = await (supabaseAdmin.from('tenants') as any)
+                    await (supabaseAdmin.from('tenants') as any)
                         .update({
-                            subscription_status: subscription.status
+                            subscription_status: status
                         })
                         .eq('id', tenantId);
-
-                    if (error) console.error('[STRIPE_WEBHOOK] DB Update Error:', error);
-                    else console.log(`[STRIPE_WEBHOOK] Updated status to ${subscription.status} for tenant ${tenantId}`);
                 }
                 break;
             }
