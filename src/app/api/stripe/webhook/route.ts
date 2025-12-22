@@ -88,12 +88,18 @@ export async function POST(req: NextRequest) {
                 if (tenantId) {
                     console.log(`[STRIPE_WEBHOOK] Deactivating tenant ${tenantId}`);
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    await (supabaseAdmin.from('tenants') as any)
+                    const { error } = await (supabaseAdmin.from('tenants') as any)
                         .update({
                             subscription_status: 'canceled',
                             subscription_tier: 'free'
                         })
                         .eq('id', tenantId);
+
+                    if (error) {
+                        console.error('[STRIPE_WEBHOOK] DB Error (deleted):', error);
+                        throw error;
+                    }
+                    console.log(`[STRIPE_WEBHOOK] Successfully deactivated tenant ${tenantId}`);
                 } else {
                     // Fallback: try to find by stripe_subscription_id if we implemented it, 
                     // but relying on metadata for now.
