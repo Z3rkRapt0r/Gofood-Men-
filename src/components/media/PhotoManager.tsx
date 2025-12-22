@@ -12,6 +12,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
 import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
@@ -59,6 +69,11 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
+    // Dialog States
+    const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
+    const [showCleanupDialog, setShowCleanupDialog] = useState(false);
+    const [dishToRemoveImage, setDishToRemoveImage] = useState<Dish | null>(null);
+
     // Validation
     useEffect(() => {
         if (onValidationChange) onValidationChange(true);
@@ -81,14 +96,22 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     });
 
     // Cleanup Logic
-    async function handleDeletePhoto(photoName: string) {
-        if (!confirm("Eliminare definitivamente questa foto?")) return;
-        deleteMutation.mutate({ tenantId, photoNames: [photoName] });
+    async function handleDeletePhotoClick(photoName: string) {
+        setPhotoToDelete(photoName);
     }
 
-    async function handleCleanupUnused() {
+    async function confirmDeletePhoto() {
+        if (!photoToDelete) return;
+        deleteMutation.mutate({ tenantId, photoNames: [photoToDelete] });
+        setPhotoToDelete(null);
+    }
+
+    async function handleCleanupUnusedClick() {
         if (photos.length === 0) return;
-        if (!confirm("Eliminare tutte le foto che NON sono state assegnate a nessun piatto?")) return;
+        setShowCleanupDialog(true);
+    }
+
+    async function confirmCleanupUnused() {
 
         const filesToDelete: string[] = [];
 
@@ -103,6 +126,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
         } else {
             deleteMutation.mutate({ tenantId, photoNames: filesToDelete });
         }
+        setShowCleanupDialog(false);
     }
 
     // Assignment Logic
@@ -127,17 +151,23 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
         }
     }
 
-    async function handleRemoveImageFromDish(dish: Dish) {
-        if (!confirm(`Rimuovere foto da ${dish.name}?`)) return;
+    async function handleRemoveImageFromDishClick(dish: Dish) {
+        setDishToRemoveImage(dish);
+    }
+
+    async function confirmRemoveImageFromDish() {
+        if (!dishToRemoveImage) return;
 
         try {
             await updateDishMutation.mutateAsync({
-                id: dish.id,
+                id: dishToRemoveImage.id,
                 updates: { image_url: null }
             });
             toast.success("Foto rimossa dal piatto");
         } catch (e) {
             toast.error('Errore rimozione foto');
+        } finally {
+            setDishToRemoveImage(null);
         }
     }
 
@@ -182,7 +212,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={handleCleanupUnused}
+                                onClick={handleCleanupUnusedClick}
                                 className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 h-7"
                                 title="Elimina foto non assegnate a nessun piatto"
                                 disabled={deleteMutation.isPending}
@@ -217,7 +247,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                             )}
 
                                             <button
-                                                onClick={() => handleDeletePhoto(photo.name)}
+                                                onClick={() => handleDeletePhotoClick(photo.name)}
                                                 className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all z-10 scale-75"
                                             >
                                                 <X className="w-3 h-3" />
@@ -272,7 +302,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                                                         size="icon"
                                                                         variant="ghost"
                                                                         className="text-white hover:bg-white/20 hover:text-red-400 w-8 h-8"
-                                                                        onClick={() => handleRemoveImageFromDish(dish)}
+                                                                        onClick={() => handleRemoveImageFromDishClick(dish)}
                                                                         title="Rimuovi foto"
                                                                     >
                                                                         <Trash2 className="w-4 h-4" />
@@ -375,6 +405,69 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                 </DialogContent>
             </Dialog>
 
-        </div>
+            {/* Delete Photo Dialog */}
+            <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Eliminare questa foto?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            L'azione è irreversibile. La foto verrà rimossa dall'archivio.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setPhotoToDelete(null)}>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDeletePhoto}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Elimina
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Cleanup Dialog */}
+            <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Pulizia Archivio</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Stai per eliminare tutte le foto che NON sono assegnate a nessun piatto. Questa operazione non può essere annullata.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setShowCleanupDialog(false)}>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmCleanupUnused}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Pulisci Tutto
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Remove Image From Dish Dialog */}
+            <AlertDialog open={!!dishToRemoveImage} onOpenChange={(open) => !open && setDishToRemoveImage(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Rimuovere foto?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            La foto verrà rimossa dal piatto {dishToRemoveImage?.name}, ma rimarrà disponibile nel tuo archivio.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDishToRemoveImage(null)}>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmRemoveImageFromDish}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Rimuovi dal Piatto
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+        </div >
     );
 }

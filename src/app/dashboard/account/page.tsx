@@ -74,6 +74,13 @@ export default function AccountPage() {
         e.preventDefault();
         if (!tenant) return;
 
+        // Email Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (formData.contactEmail && !emailRegex.test(formData.contactEmail)) {
+            toast.error('Inserisci un indirizzo email valido');
+            return;
+        }
+
         try {
             await updateTenantMutation.mutateAsync({
                 id: tenant.id,

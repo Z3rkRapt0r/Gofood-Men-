@@ -25,6 +25,16 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // --- Types ---
 
@@ -101,6 +111,7 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [inputValue, setInputValue] = useState('');
+    const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -160,14 +171,18 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
         }
     }
 
-    async function deleteCategory(id: string) {
-        if (!confirm("Eliminare questa categoria?")) return;
+    async function deleteCategoryClick(id: string) {
+        setCategoryToDelete(id);
+    }
+
+    async function confirmDelete() {
+        if (!categoryToDelete) return;
         try {
-            await deleteMutation.mutateAsync({ id });
-            // Local state update handled by useEffect sync from server invalidation
-            // But for instant feedback we could filter locally too, but invalidation is fast.
+            await deleteMutation.mutateAsync({ id: categoryToDelete });
         } catch (e) {
             toast.error("Errore cancellazione");
+        } finally {
+            setCategoryToDelete(null);
         }
     }
 
@@ -273,7 +288,7 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
                                     <SortableCategoryItem
                                         key={category.id}
                                         category={category}
-                                        onDelete={deleteCategory}
+                                        onDelete={deleteCategoryClick}
                                     />
                                 ))}
                             </div>
@@ -282,6 +297,25 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
                 )}
             </div>
 
+            <AlertDialog open={!!categoryToDelete} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Eliminare questa categoria?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Questa azione è irreversibile.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setCategoryToDelete(null)}>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDelete}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Elimina'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

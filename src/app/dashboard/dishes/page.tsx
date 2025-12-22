@@ -48,6 +48,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Sheet,
@@ -306,6 +316,8 @@ export default function DishesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterFlags, setFilterFlags] = useState<Set<string>>(new Set());
   const [filterAllergens, setFilterAllergens] = useState<Set<string>>(new Set());
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showDeleteImageDialog, setShowDeleteImageDialog] = useState(false);
 
   // ... (previous useEffects) ...
 
@@ -329,8 +341,10 @@ export default function DishesPage() {
 
   const handleBulkDelete = async () => {
     if (selectedDishes.size === 0) return;
+    setShowBulkDeleteDialog(true);
+  };
 
-    if (!confirm(`Eliminare ${selectedDishes.size} piatti?`)) return;
+  const confirmBulkDelete = async () => {
 
     try {
       const supabase = createClient();
@@ -359,8 +373,11 @@ export default function DishesPage() {
     } catch (err) {
       console.error('Error in bulk delete:', err);
       toast.error('Errore durante l\'eliminazione');
+    } finally {
+      setShowBulkDeleteDialog(false);
     }
   };
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -1290,10 +1307,7 @@ export default function DishesPage() {
                         variant="destructive"
                         size="icon"
                         onClick={async () => {
-                          if (confirm('Rimuovere immagine?')) {
-                            await handleDeleteImage(editingDish);
-                            setEditingDish({ ...editingDish, image_url: null });
-                          }
+                          setShowDeleteImageDialog(true);
                         }}
                         className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                       >
@@ -1506,6 +1520,54 @@ export default function DishesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Dialog */}
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Stai per eliminare {selectedDishes.size} piatti. Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Elimina Definitivamente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Image Dialog */}
+      <AlertDialog open={showDeleteImageDialog} onOpenChange={setShowDeleteImageDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rimuovere immagine?</AlertDialogTitle>
+            <AlertDialogDescription>
+              L'immagine verrà rimossa dal piatto. Potrai caricarne un'altra in seguito.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (editingDish) {
+                  await handleDeleteImage(editingDish);
+                  setEditingDish({ ...editingDish, image_url: null });
+                }
+                setShowDeleteImageDialog(false);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Rimuovi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <MenuImportModal
         isOpen={showImportModal}

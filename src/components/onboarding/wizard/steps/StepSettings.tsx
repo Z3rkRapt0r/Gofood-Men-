@@ -21,7 +21,8 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
 
     useEffect(() => {
         const hasName = !!data.restaurant_name && data.restaurant_name.trim().length > 0;
-        const hasEmail = !!data.contact_email && data.contact_email.trim().length > 0;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const hasEmail = !!data.contact_email && emailRegex.test(data.contact_email);
         const hasBrandDesc = !!footerData.brand_description?.it && footerData.brand_description.it.trim().length > 0;
         const hasLocations = footerData.locations && footerData.locations.length > 0;
 
@@ -34,6 +35,9 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
     const updateFooterData = (updates: any) => {
         onUpdate({ footer_data: { ...footerData, ...updates } });
     };
+
+    // Helper to check email validity for UI feedback
+    const isEmailInvalid = data.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact_email);
 
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -87,8 +91,13 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
                                     value={data.contact_email || ''}
                                     onChange={(e) => onUpdate({ contact_email: e.target.value })}
                                     placeholder="info@ristorante.it"
-                                    className="py-6"
+                                    className={`py-6 ${isEmailInvalid ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                 />
+                                {isEmailInvalid && (
+                                    <p className="text-xs text-red-500 mt-1">
+                                        Inserisci un indirizzo email valido.
+                                    </p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="coverCharge" className="font-bold">Costo Coperto (€)</Label>

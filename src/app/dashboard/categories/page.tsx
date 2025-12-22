@@ -34,6 +34,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import { useTenant } from '@/hooks/useTenant';
 import {
@@ -174,6 +184,9 @@ export default function CategoriesPage() {
     isVisible: true,
   });
 
+  // Delete Dialog State
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -277,13 +290,19 @@ export default function CategoriesPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Eliminare questa categoria?')) return;
+  async function handleDeleteClick(id: string) {
+    setCategoryToDelete(id);
+  }
+
+  async function confirmDelete() {
+    if (!categoryToDelete) return;
     try {
-      await deleteMutation.mutateAsync({ id });
+      await deleteMutation.mutateAsync({ id: categoryToDelete });
       toast.success('Categoria eliminata');
     } catch (e) {
       toast.error('Errore eliminazione');
+    } finally {
+      setCategoryToDelete(null);
     }
   }
 
@@ -374,7 +393,7 @@ export default function CategoriesPage() {
                   key={category.id}
                   category={category}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteClick}
                 />
               ))}
             </div>
@@ -434,6 +453,26 @@ export default function CategoriesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!categoryToDelete} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Questa azione non può essere annullata. La categoria e tutti i piatti contenuti verranno eliminati permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCategoryToDelete(null)}>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Elimina'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

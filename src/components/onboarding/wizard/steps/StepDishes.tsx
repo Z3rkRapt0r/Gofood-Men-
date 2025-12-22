@@ -14,6 +14,16 @@ import MenuImportModal from '@/components/dashboard/MenuImportModal';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 
@@ -66,6 +76,8 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
         description: '',
         price: ''
     });
+
+    const [dishToDelete, setDishToDelete] = useState<string | null>(null);
 
     // Validation Effect
     useEffect(() => {
@@ -136,14 +148,18 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
         }
     }
 
-    async function handleDeleteDish(id: string) {
-        if (!confirm("Eliminare il piatto?")) return;
+    async function handleDeleteDishClick(id: string) {
+        setDishToDelete(id);
+    }
+
+    async function confirmDeleteDish() {
+        if (!dishToDelete) return;
         try {
-            await deleteDishMutation.mutateAsync({ id });
-            // toast handled by hook? No, hook invalidates.
-            // We can add toast here or in hook.
+            await deleteDishMutation.mutateAsync({ id: dishToDelete });
         } catch (e) {
             toast.error("Errore eliminazione");
+        } finally {
+            setDishToDelete(null);
         }
     }
 
@@ -199,7 +215,7 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                                                         <Button variant="ghost" size="icon" onClick={() => openAddModal(category.id, dish)}>
                                                             <Edit2 className="w-4 h-4 text-blue-500" />
                                                         </Button>
-                                                        <Button variant="ghost" size="icon" onClick={() => handleDeleteDish(dish.id)}>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleDeleteDishClick(dish.id)}>
                                                             <Trash2 className="w-4 h-4 text-red-500" />
                                                         </Button>
                                                     </div>
@@ -284,6 +300,26 @@ export function StepDishes({ tenantId, onValidationChange }: StepDishesProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={!!dishToDelete} onOpenChange={(open) => !open && setDishToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Vuoi davvero eliminare questo piatto? L'azione è irreversibile.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDishToDelete(null)}>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDeleteDish}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {deleteDishMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Elimina'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

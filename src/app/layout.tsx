@@ -94,7 +94,7 @@ export default function RootLayout({
                   },
                 }}
               /> */}
-              <SonnerToaster />
+              <SonnerToaster position="top-center" />
             </GlutenFilterProvider>
           </QueryProvider>
         </LanguageProvider>
