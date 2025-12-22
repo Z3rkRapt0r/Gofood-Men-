@@ -431,6 +431,57 @@ export default function AccountPage() {
                 </div>
             </form>
 
+            {/* Gestione Abbonamento */}
+            <Card className="border-purple-100 shadow-sm bg-gradient-to-br from-white to-purple-50">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                            <span className="text-xl">💳</span>
+                        </div>
+                        <div>
+                            <CardTitle>Abbonamento</CardTitle>
+                            <CardDescription>Gestisci il tuo piano e i pagamenti.</CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-purple-100">
+                        <div>
+                            <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                                Stato:
+                                <span className={`uppercase text-xs px-2 py-1 rounded-full font-bold tracking-wider ${tenant?.subscription_status === 'active'
+                                    ? 'bg-green-100 text-green-700'
+                                    : tenant?.subscription_status === 'trialing'
+                                        ? 'bg-blue-100 text-blue-700'
+                                        : 'bg-red-100 text-red-700'
+                                    }`}>
+                                    {tenant?.subscription_status || 'Free'}
+                                </span>
+                            </h4>
+                            <p className="text-sm text-gray-600 mt-1">
+                                {tenant?.subscription_tier === 'premium'
+                                    ? 'Hai accesso completo a tutte le funzionalità.'
+                                    : 'Passa a Premium per sbloccare il menu pubblico.'}
+                            </p>
+
+                            {/* Async Renewal Date Display */}
+                            <SubscriptionDetails />
+                        </div>
+
+                        {tenant?.subscription_tier === 'premium' ? (
+                            <ManageSubscriptionButton />
+                        ) : (
+                            <Button
+                                onClick={() => window.location.href = '/dashboard?activate=true'} // Or logic to open modal
+                                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                            >
+                                Attiva Premium
+                            </Button>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Sicurezza e Password */}
             <Card>
                 <CardHeader>
@@ -622,5 +673,78 @@ export default function AccountPage() {
                 )
             }
         </div >
+    );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SubscriptionDetails() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [details, setDetails] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/stripe/subscription-details')
+            .then(res => res.json())
+            .then(data => {
+                setDetails(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div className="text-xs text-gray-400 mt-2">Caricamento dettagli...</div>;
+    // Check if subscription exists in details (api returns { subscription: null } or { status... })
+    // Adjust logic based on API response structure
+    if (!details || (details.subscription === null && !details.status)) return null;
+
+    const currentPeriodEnd = details.current_period_end;
+    if (!currentPeriodEnd) return null;
+
+    const date = new Date(currentPeriodEnd * 1000).toLocaleDateString();
+
+    return (
+        <p className="text-xs text-gray-500 mt-2 font-mono">
+            Prossimo rinnovo: <span className="font-bold">{date}</span>
+            {details.cancel_at_period_end && <span className="text-red-500 ml-2">(Si cancellerà)</span>}
+        </p>
+    );
+}
+
+function ManageSubscriptionButton() {
+    const [loading, setLoading] = useState(false);
+
+    const handlePortal = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/stripe/portal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ returnUrl: window.location.href })
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                toast.error('Impossibile aprire il portale');
+            }
+        } catch (e) {
+            toast.error('Errore di connessione');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Button
+            onClick={handlePortal}
+            variant="outline"
+            disabled={loading}
+            className="border-purple-200 text-purple-700 hover:bg-purple-50"
+        >
+            {loading ? 'Attendere...' : 'Gestisci Abbonamento'}
+        </Button>
     );
 }

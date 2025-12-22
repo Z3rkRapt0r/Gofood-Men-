@@ -76,10 +76,8 @@ export default function DashboardOverview() {
           // Mark payment as handled
           hasHandledPayment.current = true;
 
-          // Force hard refresh after a short delay to ensure clean state
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+          // Force hard refresh removed as per user request
+          // window.location.reload();
 
         } catch (err) {
           console.error('Error activating subscription:', err);
