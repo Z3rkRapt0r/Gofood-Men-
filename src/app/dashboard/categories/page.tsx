@@ -19,7 +19,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Plus, Trash2, Edit, Loader2 } from 'lucide-react';
+import { GripVertical, Plus, Trash2, Edit, Loader2, Search } from 'lucide-react';
 
 // Shadcn Imports
 import { Button } from '@/components/ui/button';
@@ -186,6 +186,12 @@ export default function CategoriesPage() {
 
   // Delete Dialog State
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -358,23 +364,48 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {categories.length === 0 ? (
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <Input
+          placeholder="Cerca categoria..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 bg-white border-gray-200"
+        />
+      </div>
+
+      {filteredCategories.length === 0 ? (
         <Card className="border-dashed border-2">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <span className="text-6xl mb-4">📁</span>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Nessuna categoria
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Inizia creando la tua prima categoria per organizzare il menu
-            </p>
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 shadow-lg hover:shadow-xl font-bold"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Crea Prima Categoria
-            </Button>
+            {searchQuery ? (
+              <>
+                <span className="text-6xl mb-4">🔍</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Nessun risultato
+                </h3>
+                <p className="text-muted-foreground">
+                  Nessuna categoria trovata per "{searchQuery}"
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="text-6xl mb-4">📁</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Nessuna categoria
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Inizia creando la tua prima categoria per organizzare il menu
+                </p>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 shadow-lg hover:shadow-xl font-bold"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Crea Prima Categoria
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -384,11 +415,11 @@ export default function CategoriesPage() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={categories.map((c) => c.id)}
+            items={filteredCategories.map((c) => c.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="grid gap-4">
-              {categories.map((category) => (
+              {filteredCategories.map((category) => (
                 <SortableCategoryItem
                   key={category.id}
                   category={category}
