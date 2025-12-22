@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
                         .single();
 
                     if (tenant) {
-                        tenantId = tenant.id;
+                        tenantId = (tenant as any).id;
                         console.log('[STRIPE_WEBHOOK] Found tenant via userId:', tenantId);
                     }
                 }
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
                         .eq('owner_id', subscription.metadata.userId)
                         .single();
 
-                    if (tenant) tenantId = tenant.id;
+                    if (tenant) tenantId = (tenant as any).id;
                 }
 
                 if (tenantId) {
