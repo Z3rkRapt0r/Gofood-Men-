@@ -81,9 +81,25 @@ export async function POST(req: NextRequest) {
             }
 
             case 'customer.subscription.deleted': {
-                // Subscription cancelled/deleted
-                const subscription = event.data.object;
-                const tenantId = subscription.metadata?.tenantId;
+                const subscription = event.data.object as any;
+                console.log('[STRIPE_WEBHOOK] Handling deletion. Metadata:', subscription.metadata);
+
+                let tenantId = subscription.metadata?.tenantId;
+
+                // Fallback: Try to find tenant by userId (Owner ID)
+                if (!tenantId && subscription.metadata?.userId) {
+                    console.warn('[STRIPE_WEBHOOK] tenantId missing, trying lookup by userId:', subscription.metadata.userId);
+                    const { data: tenant } = await supabaseAdmin
+                        .from('tenants')
+                        .select('id')
+                        .eq('owner_id', subscription.metadata.userId)
+                        .single();
+
+                    if (tenant) {
+                        tenantId = tenant.id;
+                        console.log('[STRIPE_WEBHOOK] Found tenant via userId:', tenantId);
+                    }
+                }
 
                 if (tenantId) {
                     console.log(`[STRIPE_WEBHOOK] Deactivating tenant ${tenantId}`);
