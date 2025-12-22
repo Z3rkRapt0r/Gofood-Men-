@@ -39,17 +39,20 @@ export async function GET(req: NextRequest) {
                 limit: 1,
             });
             if (otherSubs.data.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const sub: any = otherSubs.data[0];
                 // Return the most recent one even if not active (e.g. past_due, trialing)
                 return NextResponse.json({
-                    status: otherSubs.data[0].status,
-                    current_period_end: otherSubs.data[0].current_period_end,
-                    cancel_at_period_end: otherSubs.data[0].cancel_at_period_end
+                    status: sub.status,
+                    current_period_end: sub.current_period_end,
+                    cancel_at_period_end: sub.cancel_at_period_end
                 });
             }
             return NextResponse.json({ subscription: null });
         }
 
-        const sub = subscriptions.data[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sub: any = subscriptions.data[0];
 
         return NextResponse.json({
             status: sub.status,
