@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const { error } = await (supabaseAdmin.from('tenants') as any)
                         .update({
-                            subscription_status: 'canceled',
+                            subscription_status: 'active', // Fallback to 'active' for free tier to satisfy DB constraint
                             subscription_tier: 'free'
                         })
                         .eq('id', tenantId);
