@@ -450,12 +450,12 @@ export default function AccountPage() {
                             <h4 className="font-bold text-gray-900 flex items-center gap-2">
                                 Stato:
                                 <span className={`uppercase text-xs px-2 py-1 rounded-full font-bold tracking-wider ${tenant?.subscription_tier === 'free'
-                                        ? 'bg-orange-100 text-orange-700'
-                                        : tenant?.subscription_status === 'active'
-                                            ? 'bg-green-100 text-green-700'
-                                            : tenant?.subscription_status === 'trialing'
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : 'bg-red-100 text-red-700'
+                                    ? 'bg-orange-100 text-orange-700'
+                                    : tenant?.subscription_status === 'active'
+                                        ? 'bg-green-100 text-green-700'
+                                        : tenant?.subscription_status === 'trialing'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'bg-red-100 text-red-700'
                                     }`}>
                                     {tenant?.subscription_tier === 'free' ? 'Free (Piano Gratuito)' : (tenant?.subscription_status || 'Premium')}
                                 </span>
