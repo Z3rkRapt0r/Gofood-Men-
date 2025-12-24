@@ -24,6 +24,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Loader2, Plus, GripVertical, Trash2, Edit, Image as ImageIcon, Check } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 // Shadcn Imports
 import { Button } from '@/components/ui/button';
@@ -469,6 +470,8 @@ export default function DishesPage() {
       .replace(/^-+|-+$/g, '');
   }
 
+
+
   /**
    * Uploads a dish image to: [sanitized-name]-[id]/dishes/[filename]
    */
@@ -478,6 +481,28 @@ export default function DishesPage() {
     // NEW LOGIC: Use ONLY tenantId for folder name
     const folderName = `${tenantId}/dishes`;
 
+    // Compression Options
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      initialQuality: 0.8,
+    };
+
+    let fileToUpload = file;
+    try {
+      // Attempt compression
+      if (file.type.startsWith('image/')) {
+        console.log(`[DishesPage] Original size: ${file.size / 1024 / 1024} MB`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fileToUpload = await (imageCompression as any)(file, options);
+        console.log(`[DishesPage] Compressed size: ${fileToUpload.size / 1024 / 1024} MB`);
+      }
+    } catch (error) {
+      console.error("[DishesPage] Image compression failed, uploading original:", error);
+      // Fallback to original file
+    }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `${folderName}/${fileName}`;
@@ -486,7 +511,7 @@ export default function DishesPage() {
 
     const { error: uploadError } = await supabase.storage
       .from('dishes')
-      .upload(filePath, file);
+      .upload(filePath, fileToUpload);
 
     if (uploadError) {
       throw uploadError;
