@@ -96,6 +96,7 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
                 setImageError(true);
                 setImageLoaded(true);
               }}
+              unoptimized
             />
           </>
         )}

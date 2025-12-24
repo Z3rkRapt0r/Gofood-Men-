@@ -148,6 +148,7 @@ export default function GoogleTranslate() {
                     alt="Italiano"
                     fill
                     className="object-cover"
+                    unoptimized
                 />
             </button>
 
@@ -162,6 +163,7 @@ export default function GoogleTranslate() {
                     alt="English"
                     fill
                     className="object-cover"
+                    unoptimized
                 />
             </button>
         </div>

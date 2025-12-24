@@ -21,6 +21,7 @@ export default function LandingPage() {
                 width={150}
                 height={60}
                 className="h-14 w-auto"
+                unoptimized
               />
               <div className="hidden md:block h-8 w-px bg-orange-200" />
               <span className="hidden md:block font-bold text-gray-700 text-lg">
@@ -209,6 +210,7 @@ export default function LandingPage() {
                   alt="Magna Roma"
                   fill
                   className="object-contain"
+                  unoptimized
                 />
               </div>
 
@@ -359,6 +361,7 @@ export default function LandingPage() {
                 width={150}
                 height={60}
                 className="h-12 w-auto mb-4 brightness-0 invert"
+                unoptimized
               />
               <p className="text-gray-400 mb-6 max-w-md">
                 La piattaforma più semplice per creare menu digitali professionali. Usata da centinaia di ristoranti in tutta Italia.
