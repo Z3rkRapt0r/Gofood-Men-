@@ -92,7 +92,18 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: { 'image/*': [] }
+        accept: { 'image/*': [] },
+        maxSize: 10 * 1024 * 1024, // 10MB
+        onDropRejected: (fileRejections) => {
+            fileRejections.forEach((rejection) => {
+                const { file, errors } = rejection;
+                if (errors[0]?.code === 'file-too-large') {
+                    toast.error(`File troppo grande: ${file.name}. Max 10MB.`);
+                } else {
+                    toast.error(`Errore caricamento: ${file.name}`);
+                }
+            });
+        }
     });
 
     // Cleanup Logic
@@ -200,7 +211,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                             </div>
                             <div>
                                 <p className="font-bold text-gray-900">Carica Foto</p>
-                                <p className="text-xs text-gray-500">Trascina qui o clicca per caricare le foto nel tuo archivio.</p>
+                                <p className="text-xs text-gray-500">Trascina qui o clicca per caricare le foto nel tuo archivio. Max 10MB.</p>
                             </div>
                         </div>
                     </div>

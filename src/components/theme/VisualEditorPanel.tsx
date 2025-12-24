@@ -6,6 +6,7 @@ import { FrameStyle, DividerStyle } from '@/lib/theme-engine/types';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { ChevronsUpDown, ChevronDown } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 import {
     Accordion,
@@ -69,8 +70,8 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
         const file = e.target.files?.[0];
         if (!file || !onLogoChange) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            toast.error('Il logo deve essere inferiore a 2MB');
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Il logo deve essere inferiore a 10MB');
             return;
         }
 
@@ -85,6 +86,25 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
 
             setUploading(true);
             const supabase = createClient();
+
+            // Compression Options
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+                initialQuality: 0.8,
+            };
+
+            let fileToUpload = file;
+            try {
+                // Attempt compression
+                if (file.type.startsWith('image/')) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    fileToUpload = await (imageCompression as any)(file, options);
+                }
+            } catch (error) {
+                console.error("Image compression failed, uploading original:", error);
+            }
 
             // 1. Clean up old logos to save space
             // Since the folder is unique to this tenant, we can safely clear it.
@@ -107,7 +127,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
             // 2. Upload to Supabase Storage ('logos' bucket)
             const { error: uploadError } = await supabase.storage
                 .from('logos')
-                .upload(filePath, file, {
+                .upload(filePath, fileToUpload, {
                     upsert: true
                 });
 
@@ -162,7 +182,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                             >
                                                 {uploading ? 'Caricamento...' : (logoUrl ? 'Cambia Logo' : 'Carica Logo')}
                                             </button>
-                                            <p className="text-[10px] text-gray-400 mt-1">Max 2MB (PNG, JPG)</p>
+                                            <p className="text-[10px] text-gray-400 mt-1">Max 10MB (PNG, JPG)</p>
                                             <input
                                                 ref={fileInputRef}
                                                 type="file"

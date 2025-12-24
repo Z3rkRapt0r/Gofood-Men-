@@ -3,8 +3,65 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+
+/**
+ * Recursively deletes all files and subfolders within a given path in a storage bucket.
+ */
+async function cleanBucketFolder(supabaseAdmin: any, bucket: string, path: string) {
+    try {
+        console.log(`[CLEANUP] Listing items in ${bucket}/${path}...`);
+
+        // List all items in the current path
+        const { data: items, error } = await supabaseAdmin.storage
+            .from(bucket)
+            .list(path);
+
+        if (error) {
+            console.warn(`[CLEANUP] Error listing ${bucket}/${path}:`, error.message);
+            return;
+        }
+
+        if (!items || items.length === 0) {
+            console.log(`[CLEANUP] No items found in ${bucket}/${path}`);
+            return;
+        }
+
+        const filesToDelete: string[] = [];
+        const foldersToProcess: string[] = [];
+
+        for (const item of items) {
+            if (item.id === null) {
+                // It's a folder (Supabase/S3 convention usually returns null ID for folders in list)
+                foldersToProcess.push(`${path}/${item.name}`);
+            } else {
+                // It's a file
+                filesToDelete.push(`${path}/${item.name}`);
+            }
+        }
+
+        // 1. Delete all files in this level
+        if (filesToDelete.length > 0) {
+            const { error: deleteError } = await supabaseAdmin.storage
+                .from(bucket)
+                .remove(filesToDelete);
+
+            if (deleteError) {
+                console.warn(`[CLEANUP] Error deleting files in ${bucket}/${path}:`, deleteError.message);
+            } else {
+                console.log(`[CLEANUP] Deleted ${filesToDelete.length} files in ${bucket}/${path}`);
+            }
+        }
+
+        // 2. Recursively process subfolders
+        for (const folder of foldersToProcess) {
+            await cleanBucketFolder(supabaseAdmin, bucket, folder);
+        }
+
+    } catch (err) {
+        console.error(`[CLEANUP] Critical error cleaning ${bucket}/${path}:`, err);
+    }
+}
 
 export async function deleteAccount() {
     const supabase = await createServerClient();
@@ -26,7 +83,7 @@ export async function deleteAccount() {
         }
     );
 
-    console.log(`[DELETE_ACCOUNT] (v3) Attempting to delete user ${user.id}`);
+    console.log(`[DELETE_ACCOUNT] Attempting to delete user ${user.id}`);
 
     try {
         // 1. Fetch tenant info for storage cleanup
@@ -38,46 +95,16 @@ export async function deleteAccount() {
 
         if (tenant) {
             console.log(`[DELETE_ACCOUNT] Found tenant ${tenant.id}, starting storage cleanup...`);
+            const rootFolder = tenant.id;
 
-            // NEW: ID-Only Path
-            const folderPath = tenant.id;
-            console.log(`[DELETE_ACCOUNT] Cleaning storage for folder: ${folderPath}`);
+            // Clean 'logos' bucket (Recursive)
+            await cleanBucketFolder(supabaseAdmin, 'logos', rootFolder);
 
-            // Clean 'logos' bucket
-            try {
-                const { data: logoFiles } = await supabaseAdmin.storage
-                    .from('logos')
-                    .list(folderPath);
-
-                if (logoFiles && logoFiles.length > 0) {
-                    const filesToRemove = logoFiles.map(f => `${folderPath}/${f.name}`);
-                    await supabaseAdmin.storage.from('logos').remove(filesToRemove);
-                    console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from logos/${folderPath}`);
-                }
-            } catch (storageErr) {
-                console.warn(`[DELETE_ACCOUNT] Error cleaning logos for path ${folderPath}:`, storageErr);
-            }
-
-            // Clean 'dishes' bucket
-            try {
-                const dishesSubfolder = `${folderPath}/dishes`;
-                const { data: dishFiles } = await supabaseAdmin.storage
-                    .from('dishes')
-                    .list(dishesSubfolder);
-
-                if (dishFiles && dishFiles.length > 0) {
-                    const filesToRemove = dishFiles.map(f => `${dishesSubfolder}/${f.name}`);
-                    await supabaseAdmin.storage.from('dishes').remove(filesToRemove);
-                    console.log(`[DELETE_ACCOUNT] Cleaned ${filesToRemove.length} files from dishes/${dishesSubfolder}`);
-                }
-            } catch (storageErr) {
-                console.warn(`[DELETE_ACCOUNT] Error cleaning dishes for path ${folderPath}:`, storageErr);
-            }
+            // Clean 'dishes' bucket (Recursive)
+            await cleanBucketFolder(supabaseAdmin, 'dishes', rootFolder);
         }
 
         // 2. Manually delete the tenant first to ensure data cleanup and avoid FK constraints
-        // This assumes 1:1 relationship or similar. 
-        // We use supabaseAdmin to bypass RLS if needed, although user should be owner.
         const { error: tenantDeleteError } = await supabaseAdmin
             .from('tenants')
             .delete()
@@ -107,14 +134,13 @@ export async function deleteAccount() {
         throw new Error(error.message || 'Errore sconosciuto durante l\'eliminazione');
     }
 
-    // 2. Sign out the user session (ignore errors as user is already deleted)
+    // 2. Sign out the user session
     try {
         await supabase.auth.signOut();
     } catch (e) {
         console.warn('[DELETE_ACCOUNT] SignOut failed (expected since user is deleted):', e);
     }
 
-    // 3. Return success signal. Client will handle redirect.
     return { success: true };
 }
 
@@ -151,30 +177,15 @@ export async function resetMenu() {
         if (!tenant) throw new Error('Tenant non trovato');
 
         // 2. Clean 'dishes' bucket
-        // NEW: ID-Only Path
-        const folderPath = `${tenant.id}/dishes`;
-        console.log(`[RESET_MENU] Cleaning dishes from ${folderPath}`);
+        // Use recursive cleanup starting from tenant root to catch everything
+        // Although specifically for resetMenu we might only want to clean dishes? 
+        // Logic says clean everything in tenant's dishes bucket space.
+        const rootFolder = tenant.id;
+        console.log(`[RESET_MENU] Cleaning dishes bucket for ${rootFolder}`);
 
-        try {
-            const { data: dishFiles } = await supabaseAdmin.storage
-                .from('dishes')
-                .list(folderPath);
-
-            if (dishFiles && dishFiles.length > 0) {
-                const filesToRemove = dishFiles.map(f => `${folderPath}/${f.name}`);
-                const { error: removeError } = await supabaseAdmin.storage
-                    .from('dishes')
-                    .remove(filesToRemove);
-
-                if (removeError) console.warn(`[RESET_MENU] Error removing files from ${folderPath}:`, removeError);
-                else console.log(`[RESET_MENU] Cleaned ${filesToRemove.length} files from ${folderPath}`);
-            }
-        } catch (storageErr) {
-            console.warn(`[RESET_MENU] Error cleaning dishes path ${folderPath}:`, storageErr);
-        }
+        await cleanBucketFolder(supabaseAdmin, 'dishes', rootFolder);
 
         // 3. Delete DB Data
-        // Deleting all categories will cascade delete all dishes and dish_allergens
         const { error: deleteError } = await supabaseAdmin
             .from('categories')
             .delete()

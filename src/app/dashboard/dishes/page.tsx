@@ -1346,6 +1346,11 @@ export default function DishesPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          toast.error("Il file supera i 10MB.");
+                          e.target.value = ''; // Reset input
+                          return;
+                        }
                         setFormData({ ...formData, image: file });
                       }
                     }}
