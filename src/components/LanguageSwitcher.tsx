@@ -116,8 +116,8 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
             disabled
             className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 bg-[#8B0000] text-white shadow-sm"
           >
-            <span className="text-base">🇮🇹</span>
-            <span>IT</span>
+            <span className="text-base notranslate">🇮🇹</span>
+            <span className="notranslate">IT</span>
           </button>
 
           {/* Dropdown Button (Default Inactive) */}
@@ -125,8 +125,8 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
             disabled
             className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 text-gray-600"
           >
-            <span className="text-base">🇬🇧</span>
-            <span>EN</span>
+            <span className="text-base notranslate">🇬🇧</span>
+            <span className="notranslate">EN</span>
           </button>
         </div>
       </div>
@@ -150,8 +150,8 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
           aria-label="Passa all'italiano"
           aria-pressed={currentLang === 'it'}
         >
-          <span className="text-base">🇮🇹</span>
-          <span>IT</span>
+          <span className="text-base notranslate">🇮🇹</span>
+          <span className="notranslate">IT</span>
         </button>
 
         {/* Dropdown for other languages */}
@@ -166,10 +166,10 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
               aria-label="Scegli altra lingua"
               aria-pressed={currentLang !== 'it'}
             >
-              <span className="text-base">
+              <span className="text-base notranslate">
                 {currentLang === 'it' ? '🇬🇧' : currentFlag}
               </span>
-              <span>
+              <span className="notranslate">
                 {currentLang === 'it'
                   ? 'EN'
                   : (LANGUAGES.find(l => l.code === currentLang)?.label === 'English' ? 'EN' : currentLang.toUpperCase().slice(0, 2))
@@ -184,8 +184,8 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
                 onClick={() => handleLanguageChange(lang.code)}
                 className="cursor-pointer gap-2"
               >
-                <span className="text-lg">{lang.flag}</span>
-                <span>{lang.label}</span>
+                <span className="text-lg notranslate">{lang.flag}</span>
+                <span className="notranslate">{lang.label}</span>
                 {currentLang === lang.code && (
                   <span className="ml-auto text-xs text-muted-foreground">Active</span>
                 )}

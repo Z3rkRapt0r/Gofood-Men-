@@ -101,7 +101,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   return (
     <div
       ref={mainRef}
-      className="min-h-screen pt-[135px]"
+      className="min-h-screen pt-[135px] select-none"
       style={{
         backgroundColor: currentTheme.colors.background,
         color: currentTheme.colors.text,

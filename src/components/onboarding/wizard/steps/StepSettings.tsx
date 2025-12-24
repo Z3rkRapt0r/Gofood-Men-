@@ -6,6 +6,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, MapPin, Share2, Info } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useForm } from "@tanstack/react-form";
+import { zodValidator } from "@tanstack/zod-form-adapter";
+import { z } from "zod";
+import { useEffect } from 'react';
+import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
+
+const locationSchema = z.object({
+    city: z.string().min(1, "Inserisci una città"),
+    address: z.string().optional(),
+    phone: z.string().optional(),
+    opening_hours: z.string().optional(),
+});
+
+const socialSchema = z.object({
+    platform: z.string(),
+    url: z.string().url("Inserisci un URL valido"),
+});
+
+const formSchema = z.object({
+    restaurant_name: z.string().min(1, "Il nome del ristorante è obbligatorio"),
+    contact_email: z.string().email("Inserisci un'email valida"),
+    // Default is 0, so it's a number. Validation warns if < 0.
+    cover_charge: z.number().min(0),
+    footer_data: z.object({
+        brand_description: z.object({
+            it: z.string().min(1, "La descrizione è obbligatoria"),
+            en: z.string(),
+        }),
+        locations: z.array(locationSchema),
+        socials: z.array(socialSchema),
+        show_brand_column: z.boolean(),
+    }),
+});
 
 interface StepSettingsProps {
     data: any;
@@ -13,31 +46,49 @@ interface StepSettingsProps {
     onValidationChange: (isValid: boolean) => void;
 }
 
-import { useEffect } from 'react';
-
 export function StepSettings({ data, onUpdate, onValidationChange }: StepSettingsProps) {
 
-    const footerData = data.footer_data || { locations: [], socials: [], show_brand_column: true };
+    const form = useForm({
+        defaultValues: {
+            restaurant_name: data.restaurant_name || '',
+            contact_email: data.contact_email || '',
+            cover_charge: data.cover_charge || 0,
+            footer_data: {
+                brand_description: {
+                    it: data.footer_data?.brand_description?.it || '',
+                    en: data.footer_data?.brand_description?.en || '',
+                },
+                locations: data.footer_data?.locations || [],
+                socials: data.footer_data?.socials || [],
+                show_brand_column: data.footer_data?.show_brand_column ?? true,
+            },
+        },
+        validators: {
+            onChange: formSchema,
+        },
+        onSubmit: async ({ value }) => {
+            // Handle submit if needed, though we sync on change
+            console.log(value);
+        },
+    });
 
     useEffect(() => {
-        const hasName = !!data.restaurant_name && data.restaurant_name.trim().length > 0;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const hasEmail = !!data.contact_email && emailRegex.test(data.contact_email);
-        const hasBrandDesc = !!footerData.brand_description?.it && footerData.brand_description.it.trim().length > 0;
-        const hasLocations = footerData.locations && footerData.locations.length > 0;
+        const subscription = form.store.subscribe(() => {
+            const state = form.state;
+            onUpdate(state.values);
+        });
+        return () => subscription();
+    }, [form, onUpdate]);
 
-        // Check if all locations have at least a city
-        const locationsValid = hasLocations && footerData.locations.every((loc: any) => !!loc.city && loc.city.trim().length > 0);
+    // Sync validation state
+    useEffect(() => {
+        const subscription = form.store.subscribe(() => {
+            const state = form.state;
+            onValidationChange(state.isFormValid);
+        });
+        return () => subscription();
+    }, [form, onValidationChange]);
 
-        onValidationChange(hasName && hasEmail && hasBrandDesc && locationsValid);
-    }, [data.restaurant_name, data.contact_email, footerData, onValidationChange]);
-
-    const updateFooterData = (updates: any) => {
-        onUpdate({ footer_data: { ...footerData, ...updates } });
-    };
-
-    // Helper to check email validity for UI feedback
-    const isEmailInvalid = data.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact_email);
 
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -65,72 +116,93 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
                     </AccordionTrigger>
                     <AccordionContent className="pt-2 pb-6 space-y-6">
                         <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="restaurantName" className="font-bold">Nome Ristorante *</Label>
-                                <Input
-                                    id="restaurantName"
-                                    value={data.restaurant_name || ''}
-                                    onChange={(e) => onUpdate({ restaurant_name: e.target.value })}
-                                    placeholder="Es. Trattoria da Mario"
-                                    className="py-6"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Il nome ufficiale della tua attività.
-                                </p>
-                            </div>
+                            <form.Field
+                                name="restaurant_name"
+                                children={(field) => (
+                                    <Field>
+                                        <FieldLabel htmlFor={field.name} className="font-bold">Nome Ristorante *</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            name={field.name}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder="Es. Trattoria da Mario"
+                                            className="py-6"
+                                        />
+                                        <FieldDescription>
+                                            Il nome ufficiale della tua attività.
+                                        </FieldDescription>
+                                        <FieldError errors={field.state.meta.errors} />
+                                    </Field>
+                                )}
+                            />
                         </div>
-
-
 
                         <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="contactEmail" className="font-bold">Email Pubblica *</Label>
-                                <Input
-                                    id="contactEmail"
-                                    type="email"
-                                    value={data.contact_email || ''}
-                                    onChange={(e) => onUpdate({ contact_email: e.target.value })}
-                                    placeholder="info@ristorante.it"
-                                    className={`py-6 ${isEmailInvalid ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                                />
-                                {isEmailInvalid && (
-                                    <p className="text-xs text-red-500 mt-1">
-                                        Inserisci un indirizzo email valido.
-                                    </p>
+                            <form.Field
+                                name="contact_email"
+                                children={(field) => (
+                                    <Field>
+                                        <FieldLabel htmlFor={field.name} className="font-bold">Email Pubblica *</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            name={field.name}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder="info@ristorante.it"
+                                            className="py-6"
+                                        />
+                                        <FieldError errors={field.state.meta.errors} />
+                                    </Field>
                                 )}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="coverCharge" className="font-bold">Costo Coperto (€)</Label>
-                                <Input
-                                    id="coverCharge"
-                                    type="number"
-                                    step="0.10"
-                                    min="0"
-                                    value={data.cover_charge || ''}
-                                    onChange={(e) => onUpdate({ cover_charge: parseFloat(e.target.value) })}
-                                    placeholder="2.50"
-                                    className="py-6 font-mono"
-                                />
-                            </div>
+                            />
+                            <form.Field
+                                name="cover_charge"
+                                children={(field) => (
+                                    <Field>
+                                        <FieldLabel htmlFor={field.name} className="font-bold">Costo Coperto (€)</FieldLabel>
+                                        <Input
+                                            id={field.name}
+                                            name={field.name}
+                                            type="number"
+                                            step="0.10"
+                                            min="0"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(parseFloat(e.target.value))}
+                                            placeholder="2.50"
+                                            className="py-6 font-mono"
+                                        />
+                                    </Field>
+                                )}
+                            />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="brand-desc" className="font-bold">Descrizione Brand *</Label>
-                            <Textarea
-                                id="brand-desc"
-                                value={footerData.brand_description?.it || ''}
-                                onChange={(e) => updateFooterData({
-                                    brand_description: {
-                                        ...footerData.brand_description,
-                                        it: e.target.value,
-                                        en: e.target.value
-                                    }
-                                })}
-                                placeholder="Racconta brevemente la storia del tuo ristorante..."
-                                className="min-h-[100px]"
-                            />
-                            <p className="text-xs text-gray-500">Apparirà nel footer del menu.</p>
-                        </div>
+                        <form.Field
+                            name="footer_data.brand_description.it"
+                            children={(field) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name} className="font-bold">Descrizione Brand *</FieldLabel>
+                                    <Textarea
+                                        id={field.name}
+                                        name={field.name}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => {
+                                            field.handleChange(e.target.value);
+                                            // Also update english version for now to keep sync behavior
+                                            form.setFieldValue('footer_data.brand_description.en', e.target.value);
+                                        }}
+                                        placeholder="Racconta brevemente la storia del tuo ristorante..."
+                                        className="min-h-[100px]"
+                                    />
+                                    <FieldDescription>Apparirà nel footer del menu.</FieldDescription>
+                                    <FieldError errors={field.state.meta.errors} />
+                                </Field>
+                            )}
+                        />
                     </AccordionContent>
                 </AccordionItem>
 
@@ -148,84 +220,90 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-2 pb-6 space-y-4">
-                        {/* List Locations */}
-                        {(footerData.locations || []).map((loc: any, index: number) => (
-                            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 relative group">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                        const newLocs = footerData.locations.filter((_: any, i: number) => i !== index);
-                                        updateFooterData({ locations: newLocs });
-                                    }}
-                                    className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
+                        <form.Field
+                            name="footer_data.locations"
+                            mode="array"
+                            children={(field) => (
+                                <>
+                                    {field.state.value?.map((_: any, index: number) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 relative group">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => field.removeValue(index)}
+                                                className="absolute top-2 right-2 text-red-400 hover:text-red-600 hover:bg-red-50"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
 
-                                <div className="space-y-2">
-                                    <Label>Città *</Label>
-                                    <Input
-                                        value={loc.city}
-                                        onChange={(e) => {
-                                            const newLocs = [...footerData.locations];
-                                            newLocs[index].city = e.target.value;
-                                            updateFooterData({ locations: newLocs });
-                                        }}
-                                        placeholder="Roma"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Indirizzo</Label>
-                                    <Input
-                                        value={loc.address}
-                                        onChange={(e) => {
-                                            const newLocs = [...footerData.locations];
-                                            newLocs[index].address = e.target.value;
-                                            updateFooterData({ locations: newLocs });
-                                        }}
-                                        placeholder="Via del Corso, 123"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Telefono</Label>
-                                    <Input
-                                        value={loc.phone || ''}
-                                        onChange={(e) => {
-                                            const newLocs = [...footerData.locations];
-                                            newLocs[index].phone = e.target.value;
-                                            updateFooterData({ locations: newLocs });
-                                        }}
-                                        placeholder="+39 06 12345678"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Orari</Label>
-                                    <Input
-                                        value={loc.opening_hours || ''}
-                                        onChange={(e) => {
-                                            const newLocs = [...footerData.locations];
-                                            newLocs[index].opening_hours = e.target.value;
-                                            updateFooterData({ locations: newLocs });
-                                        }}
-                                        placeholder="Lun-Dom: 12-23"
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                                            <form.Field
+                                                name={`footer_data.locations[${index}].city` as any}
+                                                children={(subField) => (
+                                                    <div className="space-y-2">
+                                                        <Label>Città *</Label>
+                                                        <Input
+                                                            value={subField.state.value as string}
+                                                            onChange={(e) => subField.handleChange(e.target.value)}
+                                                            placeholder="Roma"
+                                                        />
+                                                        <FieldError errors={subField.state.meta.errors} />
+                                                    </div>
+                                                )}
+                                            />
 
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                                const newLocs = [...(footerData.locations || []), { city: '', address: '', phone: '', opening_hours: '' }];
-                                updateFooterData({ locations: newLocs });
-                            }}
-                            className="w-full border-dashed border-2 py-6 text-gray-500 hover:text-orange-600 hover:border-orange-300"
-                        >
-                            <Plus className="w-4 h-4 mr-2" /> Aggiungi un'altra sede
-                        </Button>
+                                            <form.Field
+                                                name={`footer_data.locations[${index}].address` as any}
+                                                children={(subField) => (
+                                                    <div className="space-y-2">
+                                                        <Label>Indirizzo</Label>
+                                                        <Input
+                                                            value={subField.state.value as string}
+                                                            onChange={(e) => subField.handleChange(e.target.value)}
+                                                            placeholder="Via del Corso, 123"
+                                                        />
+                                                    </div>
+                                                )}
+                                            />
+                                            <form.Field
+                                                name={`footer_data.locations[${index}].phone` as any}
+                                                children={(subField) => (
+                                                    <div className="space-y-2">
+                                                        <Label>Telefono</Label>
+                                                        <Input
+                                                            value={subField.state.value as string}
+                                                            onChange={(e) => subField.handleChange(e.target.value)}
+                                                            placeholder="+39 06 12345678"
+                                                        />
+                                                    </div>
+                                                )}
+                                            />
+                                            <form.Field
+                                                name={`footer_data.locations[${index}].opening_hours` as any}
+                                                children={(subField) => (
+                                                    <div className="space-y-2">
+                                                        <Label>Orari</Label>
+                                                        <Input
+                                                            value={subField.state.value as string}
+                                                            onChange={(e) => subField.handleChange(e.target.value)}
+                                                            placeholder="Lun-Dom: 12-23"
+                                                        />
+                                                    </div>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => field.pushValue({ city: '', address: '', phone: '', opening_hours: '' })}
+                                        className="w-full border-dashed border-2 py-6 text-gray-500 hover:text-orange-600 hover:border-orange-300"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" /> Aggiungi un'altra sede
+                                    </Button>
+                                </>
+                            )}
+                        />
                     </AccordionContent>
                 </AccordionItem>
 
@@ -243,71 +321,76 @@ export function StepSettings({ data, onUpdate, onValidationChange }: StepSetting
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-2 pb-6 space-y-4">
-                        {/* List Socials */}
-                        {(footerData.socials || []).map((social: any, index: number) => (
-                            <div key={index} className="flex gap-3 items-end">
-                                <div className="w-1/3 space-y-2">
-                                    <Label className="text-xs">Piattaforma</Label>
-                                    <Select
-                                        value={social.platform}
-                                        onValueChange={(value) => {
-                                            const newSocials = [...footerData.socials];
-                                            newSocials[index].platform = value;
-                                            updateFooterData({ socials: newSocials });
-                                        }}
+                        <form.Field
+                            name="footer_data.socials"
+                            mode="array"
+                            children={(field) => (
+                                <>
+                                    {field.state.value?.map((_: any, index: number) => (
+                                        <div key={index} className="flex gap-3 items-end">
+                                            <div className="w-1/3 space-y-2">
+                                                <Label className="text-xs">Piattaforma</Label>
+                                                <form.Field
+                                                    name={`footer_data.socials[${index}].platform` as any}
+                                                    children={(subField) => (
+                                                        <Select
+                                                            value={subField.state.value as string}
+                                                            onValueChange={(value) => subField.handleChange(value)}
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Social" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="facebook">Facebook</SelectItem>
+                                                                <SelectItem value="instagram">Instagram</SelectItem>
+                                                                <SelectItem value="tiktok">TikTok</SelectItem>
+                                                                <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                                                                <SelectItem value="website">Sito Web</SelectItem>
+                                                                <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                                                                <SelectItem value="other">Altro</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )}
+                                                />
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <Label className="text-xs">Link completo (URL)</Label>
+                                                <form.Field
+                                                    name={`footer_data.socials[${index}].url` as any}
+                                                    children={(subField) => (
+                                                        <>
+                                                            <Input
+                                                                value={subField.state.value as string}
+                                                                onChange={(e) => subField.handleChange(e.target.value)}
+                                                                placeholder="https://..."
+                                                            />
+                                                            <FieldError errors={subField.state.meta.errors} />
+                                                        </>
+                                                    )}
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => field.removeValue(index)}
+                                                className="mb-[2px] text-red-400 hover:text-red-600"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => field.pushValue({ platform: 'instagram', url: '' })}
+                                        className="w-full border-dashed border-2 py-6 text-gray-500 hover:text-purple-600 hover:border-purple-300"
                                     >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Social" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="facebook">Facebook</SelectItem>
-                                            <SelectItem value="instagram">Instagram</SelectItem>
-                                            <SelectItem value="tiktok">TikTok</SelectItem>
-                                            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-                                            <SelectItem value="website">Sito Web</SelectItem>
-                                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                                            <SelectItem value="other">Altro</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex-1 space-y-2">
-                                    <Label className="text-xs">Link completo (URL)</Label>
-                                    <Input
-                                        value={social.url}
-                                        onChange={(e) => {
-                                            const newSocials = [...footerData.socials];
-                                            newSocials[index].url = e.target.value;
-                                            updateFooterData({ socials: newSocials });
-                                        }}
-                                        placeholder="https://..."
-                                    />
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                        const newSocials = footerData.socials.filter((_: any, i: number) => i !== index);
-                                        updateFooterData({ socials: newSocials });
-                                    }}
-                                    className="mb-[2px] text-red-400 hover:text-red-600"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        ))}
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                                const newSocials = [...(footerData.socials || []), { platform: 'instagram', url: '' }];
-                                updateFooterData({ socials: newSocials });
-                            }}
-                            className="w-full border-dashed border-2 py-6 text-gray-500 hover:text-purple-600 hover:border-purple-300"
-                        >
-                            <Plus className="w-4 h-4 mr-2" /> Aggiungi Social link
-                        </Button>
+                                        <Plus className="w-4 h-4 mr-2" /> Aggiungi Social link
+                                    </Button>
+                                </>
+                            )}
+                        />
                     </AccordionContent>
                 </AccordionItem>
 
