@@ -316,26 +316,26 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                             value={cat.id}
                                             className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all ${isComplete ? 'border-green-100' : 'border-gray-100'}`}
                                         >
-                                            <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 hover:no-underline">
-                                                <div className="flex items-center gap-4 flex-1 text-left">
-                                                    <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
+                                            <AccordionTrigger className="px-3 md:px-4 py-3 hover:bg-gray-50 hover:no-underline">
+                                                <div className="flex items-center gap-2 md:gap-4 flex-1 text-left">
+                                                    <h3 className="font-black text-sm md:text-lg text-gray-800 flex items-center gap-2">
                                                         <span className={`w-1 h-6 rounded-full ${isComplete ? 'bg-green-500' : 'bg-orange-500'}`}></span>
                                                         {cat.name}
-                                                        <span className="ml-2 text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                        <span className="ml-1 md:ml-2 text-[10px] md:text-xs font-normal text-gray-400 bg-gray-100 px-1.5 md:px-2 py-0.5 rounded-full">
                                                             {cat.dishes.length}
                                                         </span>
                                                     </h3>
 
                                                     {/* Intelligent Status Indicators */}
                                                     {cat.dishes.length > 0 && (
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-1 md:gap-2">
                                                             {missingPhotosCount > 0 ? (
-                                                                <Badge variant="destructive" className="h-6 px-2 text-[10px] font-bold bg-red-100 text-red-600 border border-red-200 hover:bg-red-200 shadow-none">
+                                                                <Badge variant="destructive" className="h-5 md:h-6 px-1.5 md:px-2 text-[9px] md:text-xs font-bold bg-red-100 text-red-600 border border-red-200 hover:bg-red-200 shadow-none">
                                                                     <ImagePlus className="w-3 h-3 mr-1" />
-                                                                    Mancano {missingPhotosCount} foto
+                                                                    Mancano {missingPhotosCount} <span className="hidden sm:inline ml-1">foto</span>
                                                                 </Badge>
                                                             ) : (
-                                                                <Badge variant="secondary" className="h-6 px-2 text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 hover:bg-green-200 shadow-none">
+                                                                <Badge variant="secondary" className="h-5 md:h-6 px-1.5 md:px-2 text-[9px] md:text-xs font-bold bg-green-100 text-green-700 border border-green-200 hover:bg-green-200 shadow-none">
                                                                     <Check className="w-3 h-3 mr-1" />
                                                                     Completo
                                                                 </Badge>
