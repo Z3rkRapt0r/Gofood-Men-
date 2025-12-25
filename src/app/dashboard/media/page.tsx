@@ -24,16 +24,23 @@ export default function MediaPage() {
     }
 
     return (
-        <div className="p-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col">
-            <div className="mb-6 flex-shrink-0">
-                <h1 className="text-3xl font-black text-gray-900 mb-2">Galleria Foto 📸</h1>
-                <p className="text-gray-500">
-                    Carica le foto dei tuoi piatti in blocco e assegnale trascinandole.
-                </p>
-            </div>
+        <div className="flex-1 container mx-auto max-w-5xl p-6 pb-20">
+            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                                📸 Galleria Foto
+                            </h1>
+                            <p className="text-gray-500 mt-1 max-w-2xl">
+                                Carica le foto dei tuoi piatti, organizzale e assegnale facilmente al menu.
+                                Le foto assegnate appariranno nel menu digitale.
+                            </p>
+                        </div>
+                    </div>
 
-            <div className="flex-1 min-h-0">
-                <PhotoManager tenantId={tenant.id} />
+                    <PhotoManager tenantId={tenant.id} />
+                </div>
             </div>
         </div>
     );

@@ -47,6 +47,7 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
         { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
         { title: 'Categorie', url: '/dashboard/categories', icon: Folder },
         { title: 'Piatti', url: '/dashboard/dishes', icon: UtensilsCrossed },
+        { title: 'Immagini', url: '/dashboard/media', icon: ImageIcon },
 
         { title: 'Design Studio', url: '/dashboard/design-studio', icon: Palette },
         { title: 'Assistenza', url: '/dashboard/support', icon: HelpCircle },
