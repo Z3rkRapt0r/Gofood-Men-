@@ -238,7 +238,7 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 container mx-auto max-w-5xl p-4 md:py-8 pb-32">
+            <main className="flex-1 container mx-auto max-w-5xl p-4 pb-32">
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {renderStep()}
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useCategories, useDishes, useAllergens, useUpdateDish, Dish, Category, Allergen } from '@/hooks/useMenu';
+import { useCategories, useDishes, useAllergens, useUpdateDish, useBulkUpdateDishes, Dish, Category, Allergen } from '@/hooks/useMenu';
+import { useDetectAllergens, AllergenResult } from '@/hooks/useDetectAllergens';
 import { useMemo, useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,6 +10,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, Wand2, CheckCircle2, HelpCircle, Info, Loader2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 
 interface StepCharacteristicsProps {
@@ -28,6 +32,13 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
     const { data: allergens = [] } = useAllergens();
 
     const updateDishMutation = useUpdateDish();
+    const { mutateAsync: bulkUpdateDishes } = useBulkUpdateDishes();
+    const { mutateAsync: detectAllergens, isPending: isScanning } = useDetectAllergens();
+
+    const [showScanModal, setShowScanModal] = useState(false);
+    // Auto-assign is now enforced effectively by removal of toggle, treating as always true
+    const [aiResults, setAiResults] = useState<Map<string, AllergenResult>>(new Map());
+    const [scanStats, setScanStats] = useState<{ analyzed: number, toReview: number } | null>(null);
 
     // Merge logic
     const categories: CategoryWithDishes[] = useMemo(() => {
@@ -113,16 +124,242 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
         }
     };
 
+    const handleOpenScan = () => {
+        setShowScanModal(true);
+    };
+
+    const handleConfirmScan = async () => {
+        setShowScanModal(false);
+        setScanStats(null);
+        setAiResults(new Map());
+
+        try {
+            // Prepare dishes for analysis
+            const dishesToAnalyze = serverDishes.map(d => ({
+                id: d.id,
+                name: d.name,
+                description: d.description,
+                ingredients: d.description // Fallback if no specific ingredients field
+            }));
+
+            if (dishesToAnalyze.length === 0) {
+                toast.error("Nessun piatto da analizzare.");
+                return;
+            }
+
+            toast.info(`Analisi menu avviata provvisoria su ${dishesToAnalyze.length} piatti...`);
+
+            // BATCHING LOGIC
+            // Unlocked Speed for Paid Plan: 20 dishes/batch
+            const BATCH_SIZE = 20;
+            const batches = [];
+            for (let i = 0; i < dishesToAnalyze.length; i += BATCH_SIZE) {
+                batches.push(dishesToAnalyze.slice(i, i + BATCH_SIZE));
+            }
+
+            const resultsMap = new Map<string, AllergenResult>();
+            let toReviewCount = 0;
+
+            // Process batches sequentially
+            for (let i = 0; i < batches.length; i++) {
+                const batch = batches[i];
+                const batchUpdates: Partial<Dish>[] = [];
+                let retries = 0;
+                let success = false;
+
+                // Exponential Backoff Retry Loop
+                while (!success && retries < 3) {
+                    try {
+                        // FAST MODE: No base delay. Only retry delay if needed.
+                        const baseDelay = 0;
+                        const retryDelay = retries > 0 ? 2000 * Math.pow(2, retries) : 0; // Faster retries too: 4s, 8s...
+                        const totalDelay = baseDelay + retryDelay;
+
+                        if (totalDelay > 0) {
+                            if (retries > 0) {
+                                toast.warning(`Rate limit! Attendo ${totalDelay / 1000}s prima di riprovare...`, { id: 'ai-scan' });
+                            } else {
+                                toast.loading(`Analisi: batch ${i + 1}/${batches.length}...`, { id: 'ai-scan' });
+                            }
+                            await new Promise(resolve => setTimeout(resolve, totalDelay));
+                        } else {
+                            toast.loading(`Analisi: batch ${i + 1}/${batches.length}...`, { id: 'ai-scan' });
+                        }
+
+                        const response = await detectAllergens(batch);
+
+                        // Process Response
+                        response.results.forEach(result => {
+                            const dish = dishesToAnalyze.find(d => d.name.toLowerCase() === result.dishName.toLowerCase());
+                            if (!dish) return;
+
+                            resultsMap.set(dish.id, result);
+                            if (result.needs_review) toReviewCount++;
+
+                            // Auto-assign always ON
+                            {
+                                const fullDish = serverDishes.find(d => d.id === dish.id);
+                                if (!fullDish) return;
+
+                                let newAllergenIds = new Set(fullDish.allergen_ids || []);
+
+                                if (result.allergens && result.allergens.length > 0) {
+                                    result.allergens.forEach(detectedName => {
+                                        const matchedAllergen = allergens.find(a =>
+                                            a.name.toLowerCase().includes(detectedName.toLowerCase()) ||
+                                            detectedName.toLowerCase().includes(a.name.toLowerCase())
+                                        );
+                                        if (matchedAllergen) {
+                                            newAllergenIds.add(matchedAllergen.id);
+                                        }
+                                    });
+                                }
+
+                                let isGlutenFree = fullDish.is_gluten_free;
+                                if (result.contains_gluten === true) {
+                                    isGlutenFree = false;
+                                    if (glutenAllergen) newAllergenIds.add(glutenAllergen.id);
+                                } else if (result.contains_gluten === false) {
+                                    isGlutenFree = true;
+                                    if (glutenAllergen) newAllergenIds.delete(glutenAllergen.id);
+                                }
+
+                                batchUpdates.push({
+                                    id: dish.id,
+                                    tenant_id: fullDish.tenant_id,
+                                    category_id: fullDish.category_id,
+                                    slug: fullDish.slug,
+                                    name: fullDish.name,
+                                    price: fullDish.price,
+                                    display_order: fullDish.display_order,
+                                    allergen_ids: Array.from(newAllergenIds),
+                                    is_gluten_free: isGlutenFree
+                                });
+                            }
+                        });
+
+                        success = true;
+
+                    } catch (err: any) {
+                        console.error(`Error in batch ${i}, retry ${retries}:`, err);
+                        // Check if it's likely a rate limit or temp error
+                        retries++;
+                        if (retries >= 3) {
+                            toast.error(`Impossibile analizzare il blocco ${i + 1}. Salto al prossimo.`, { id: 'ai-scan' });
+                        }
+                    }
+                }
+
+                // Update UI stats incrementally
+                setAiResults(new Map(resultsMap));
+                setScanStats({ analyzed: resultsMap.size, toReview: toReviewCount });
+
+                // Apply updates for this batch if successful
+                if (success && batchUpdates.length > 0) {
+                    await bulkUpdateDishes({ updates: batchUpdates });
+                }
+            }
+
+            toast.dismiss('ai-scan');
+            toast.success("Analisi completata. Controlla i risultati.");
+
+        } catch (error: any) {
+            console.error("AI Scan General Error:", error);
+            if (typeof error === 'object') {
+                console.dir(error); // Detailed object inspection
+                try {
+                    console.error("Stringified Error:", JSON.stringify(error, null, 2));
+                } catch (e) {
+                    console.error("Could not stringify error");
+                }
+            }
+            toast.error(`Errore durante la scansione: ${error.message || 'Errore sconosciuto'}`);
+        }
+    };
+
     return (
         <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
             {/* Intro Section */}
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
-                <h2 className="text-xl font-bold text-blue-900 mb-2">🏷️ Caratteristiche e Allergeni</h2>
-                <p className="text-blue-800 leading-relaxed">
-                    Personalizza i tuoi piatti indicando caratteristiche e allergeni.<br />
-                    Queste icone aiuteranno i tuoi clienti a filtrare il menu.
-                </p>
+            {/* Intro Section */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 className="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                            🏷️ Caratteristiche e Allergeni
+                        </h2>
+                        <p className="text-blue-800/80 text-sm leading-relaxed max-w-2xl">
+                            Personalizza i piatti. Usa l'AI per rilevare automaticamente gli allergeni dai nomi e ingredienti.
+                        </p>
+                    </div>
+                    <Button
+                        onClick={handleOpenScan}
+                        disabled={isScanning || serverDishes.length === 0}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 transition-all hover:scale-105 active:scale-95"
+                    >
+                        {isScanning ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analisi in corso...</>
+                        ) : (
+                            <><Wand2 className="w-4 h-4 mr-2" /> Scansiona Allergeni AI</>
+                        )}
+                    </Button>
+                </div>
+
+                {scanStats && (
+                    <div className="mt-4 flex gap-4 text-sm animate-in fade-in slide-in-from-top-2">
+                        <div className="px-3 py-1.5 bg-white/60 rounded-lg text-indigo-900 border border-indigo-100">
+                            <b>{scanStats.analyzed}</b> piatti analizzati
+                        </div>
+                        {scanStats.toReview > 0 && (
+                            <div className="px-3 py-1.5 bg-amber-50 rounded-lg text-amber-800 border border-amber-100 flex items-center gap-2">
+                                <AlertTriangle className="w-3 h-3" />
+                                <b>{scanStats.toReview}</b> da rivedere
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
+
+            {/* Scan Modal */}
+            <AlertDialog open={showScanModal} onOpenChange={setShowScanModal}>
+                <AlertDialogContent className="max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-xl">
+                            <Wand2 className="w-6 h-6 text-indigo-600" />
+                            Assegnazione Automatica
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="space-y-4 pt-2 text-left" asChild>
+                            <div className="text-sm text-muted-foreground">
+                                <p>
+                                    L'intelligenza artificiale (Gemini) analizzerà i <b>{serverDishes.length} piatti</b> del tuo menu per identificare possibili allergeni e glutine.
+                                </p>
+
+                                <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-amber-800 text-xs flex gap-2">
+                                    <AlertTriangle className="w-10 h-10 shrink-0 opacity-50" />
+                                    <div>
+                                        <b>Attenzione:</b> L'analisi è automatica e può contenere errori. Ti invitiamo sempre a verificare i risultati, specialmente per allergie gravi.
+                                    </div>
+                                </div>
+
+                                <div className="p-3 bg-blue-50 text-blue-800 text-xs rounded-lg border border-blue-100 flex gap-3 items-start">
+                                    <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                                    <div className="flex-1 leading-relaxed">
+                                        Gli allergeni rilevati verranno <b>assegnati automaticamente</b> al menu. Potrai comunque modificarli manualmente dopo la scansione.
+                                    </div>
+                                </div>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmScan}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+                        >
+                            Avvia Scansione
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {categories.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
@@ -137,6 +374,14 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
                                     <div className="flex items-center gap-3">
                                         <div className="font-bold text-lg text-gray-800">{category.name}</div>
                                         <Badge variant="secondary" className="text-xs">{category.dishes?.length || 0} piatti</Badge>
+
+                                        {/* Helper badge for category review status */}
+                                        {aiResults.size > 0 && category.dishes?.some(d => aiResults.get(d.id)?.needs_review) && (
+                                            <Badge variant="outline" className="text-[10px] border-amber-200 bg-amber-50 text-amber-700 gap-1">
+                                                <AlertTriangle className="w-3 h-3" />
+                                                Da Rivedere
+                                            </Badge>
+                                        )}
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="pt-2 pb-6">
@@ -154,7 +399,18 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
                                                     <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 hover:no-underline data-[state=open]:bg-blue-50/50">
                                                         <div className="flex items-center justify-between w-full pr-4 text-left">
                                                             <div>
-                                                                <div className="font-bold text-gray-900">{dish.name}</div>
+                                                                <div className="font-bold text-gray-900 flex items-center gap-2">
+                                                                    {dish.name}
+                                                                    {aiResults.has(dish.id) && (
+                                                                        <span className="cursor-default inline-flex ml-1">
+                                                                            {aiResults.get(dish.id)?.confidence === 'high' ? (
+                                                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                                            ) : (
+                                                                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                                                                            )}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                                 <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{dish.description}</div>
                                                             </div>
                                                             <div className="flex items-center gap-4">
@@ -176,6 +432,40 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
                                                         </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent className="p-4 bg-white border-t border-gray-100">
+                                                        {/* AI Result Section (Permanent vs Tooltip) */}
+                                                        {aiResults.has(dish.id) && (
+                                                            <div className="mb-6 bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 animate-in fade-in slide-in-from-top-2">
+                                                                <div className="flex items-start gap-3">
+                                                                    <div className="p-2 bg-indigo-100 rounded-lg shrink-0">
+                                                                        <Wand2 className="w-4 h-4 text-indigo-600" />
+                                                                    </div>
+                                                                    <div className="space-y-2 w-full">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <h4 className="font-bold text-indigo-900 text-sm">Analisi Intelligenza Artificiale</h4>
+                                                                            <Badge variant={aiResults.get(dish.id)?.confidence === 'high' ? "default" : "outline"} className={aiResults.get(dish.id)?.confidence === 'high' ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "text-amber-700 border-amber-200 bg-amber-50"}>
+                                                                                {aiResults.get(dish.id)?.confidence === 'high' ? 'Alta Confidenza' : '⚠️ Da Revisionare'}
+                                                                            </Badge>
+                                                                        </div>
+
+                                                                        <p className="text-sm text-indigo-900/80 leading-relaxed italic">
+                                                                            "{aiResults.get(dish.id)?.rationale}"
+                                                                        </p>
+
+                                                                        {/* Detected Allergens Chips */}
+                                                                        {(aiResults.get(dish.id)?.allergens?.length || 0) > 0 && (
+                                                                            <div className="flex flex-wrap gap-2 pt-1">
+                                                                                <span className="text-xs font-semibold text-indigo-900 mt-1">Rilevati:</span>
+                                                                                {aiResults.get(dish.id)?.allergens.map(a => (
+                                                                                    <Badge key={a} variant="secondary" className="bg-white text-indigo-700 border border-indigo-100 text-xs shadow-sm">
+                                                                                        {a}
+                                                                                    </Badge>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                             {/* Filtri Speciali */}
                                                             <div className="space-y-3">

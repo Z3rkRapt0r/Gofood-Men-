@@ -242,3 +242,19 @@ export function useReorderDishes() {
         }
     });
 }
+
+export function useBulkUpdateDishes() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ updates }: { updates: Partial<Dish>[] }) => {
+            const supabase = createClient();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { error } = await (supabase.from('dishes') as any)
+                .upsert(updates, { onConflict: 'id' });
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['dishes'] });
+        }
+    });
+}
