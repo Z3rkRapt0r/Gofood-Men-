@@ -13,6 +13,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -57,6 +63,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     const menuLoading = catsLoading || dishesLoading;
 
     // Derived state for highlighting
+
     const assignedUrls = useMemo(() => {
         const set = new Set<string>();
         serverDishes.forEach(dish => {
@@ -64,6 +71,23 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
         });
         return set;
     }, [serverDishes]);
+
+    // Sorted Photos: Unassigned first, then by name
+    const sortedPhotos = useMemo(() => {
+        return [...photos].sort((a: any, b: any) => {
+            const aAssigned = assignedUrls.has(a.url);
+            const bAssigned = assignedUrls.has(b.url);
+
+            // If assignment status is different, unassigned (false) comes first
+            if (aAssigned !== bAssigned) {
+                return aAssigned ? 1 : -1;
+            }
+            // Otherwise sort by name/date (assuming name contains timestamp or just alphabetical)
+            return a.name.localeCompare(b.name);
+        });
+    }, [photos, assignedUrls]);
+
+
 
     // Selection State
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
@@ -191,16 +215,16 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     );
 
     return (
-        <div className="flex flex-col h-auto min-h-[500px] gap-6">
+        <div className="flex flex-col gap-6">
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-0">
+            <div className="flex flex-col gap-6">
 
-                {/* Left Column: Upload Area & Quick Gallery Preview */}
-                <Card className="col-span-1 border-2 border-gray-100 shadow-sm flex flex-col h-full min-h-0 overflow-hidden bg-white">
+                {/* Top Section: Upload Area & Quick Gallery Preview */}
+                <Card className="border-2 border-gray-100 shadow-sm flex flex-col lg:flex-row overflow-hidden bg-white">
                     {/* ... (Upload Dropzone) ... */}
                     <div
                         {...getRootProps()}
-                        className={`p-6 border-b-2 border-dashed transition-colors cursor-pointer shrink-0
+                        className={`p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed transition-colors cursor-pointer shrink-0 lg:w-1/3 flex flex-col justify-center
                         ${isDragActive ? 'bg-orange-50 border-orange-400' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
                         `}
                     >
@@ -217,7 +241,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                     </div>
 
                     {/* Mini Gallery (ReadOnly/Manage) */}
-                    <div className="flex-1 min-h-0 bg-gray-50/50 p-4">
+                    <div className="flex-1 min-h-0 bg-gray-50/50 p-4 overflow-y-auto max-h-[500px] custom-scrollbar">
                         <div className="flex items-center justify-between mb-3 px-1">
                             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Archivio ({photos.length})</h3>
                             <Button
@@ -238,8 +262,8 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                 Nessuna foto caricata
                             </div>
                         ) : (
-                            <div className="grid grid-cols-3 gap-2">
-                                {photos.map((photo: any) => {
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-2">
+                                {sortedPhotos.map((photo: any) => {
                                     const isAssigned = assignedUrls.has(photo.url);
                                     const showWarning = highlightUnassigned && !isAssigned;
 
@@ -272,97 +296,135 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                 </Card>
 
 
-                {/* Right Column: Dishes List */}
-                <Card className="col-span-1 lg:col-span-2 border-2 border-gray-100 shadow-sm flex flex-col h-full min-h-0 bg-white">
+                {/* Bottom Section: Dishes List */}
+                <Card className="border-2 border-gray-100 shadow-sm flex flex-col bg-white">
                     <div className="p-4 border-b border-gray-100 bg-white z-10">
                         <h2 className="text-xl font-bold text-gray-900">Assegna Foto ai Piatti</h2>
                         <p className="text-sm text-gray-500">Clicca su "Aggiungi Foto" per scegliere un'immagine dall'archivio.</p>
                     </div>
 
                     <div className="flex-1 p-4 bg-gray-50/30">
-                        <div className="space-y-6 max-w-3xl mx-auto pb-8">
-                            {categories.map(cat => (
-                                <div key={cat.id} className="space-y-3">
-                                    <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
-                                        <span className="w-1 h-6 bg-orange-500 rounded-full"></span>
-                                        {cat.name}
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {cat.dishes.length > 0 ? (
-                                            cat.dishes.map(dish => (
-                                                <div
-                                                    key={dish.id}
-                                                    className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
-                                                >
-                                                    {/* Dish Image Area */}
-                                                    <div className="relative shrink-0 w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 border border-gray-100">
-                                                        {dish.image_url ? (
-                                                            <div className="relative w-full h-full group">
-                                                                <img src={dish.image_url} alt={dish.name} className="w-full h-full object-cover" />
-                                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                    <Button
-                                                                        size="icon"
-                                                                        variant="ghost"
-                                                                        className="text-white hover:bg-white/20 hover:text-blue-400 w-8 h-8"
-                                                                        onClick={() => openGalleryForDish(dish.id)}
-                                                                        title="Cambia foto"
-                                                                    >
-                                                                        <RefreshCw className="w-4 h-4" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        size="icon"
-                                                                        variant="ghost"
-                                                                        className="text-white hover:bg-white/20 hover:text-red-400 w-8 h-8"
-                                                                        onClick={() => handleRemoveImageFromDishClick(dish)}
-                                                                        title="Rimuovi foto"
-                                                                    >
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <Button
-                                                                variant="ghost"
-                                                                className="w-full h-full flex flex-col items-center justify-center text-gray-400 hover:text-orange-500 hover:bg-orange-50"
-                                                                onClick={() => openGalleryForDish(dish.id)}
-                                                            >
-                                                                <ImagePlus className="w-6 h-6 mb-1" />
-                                                                <span className="text-[10px] font-bold">Aggiungi</span>
-                                                            </Button>
-                                                        )}
-                                                    </div>
+                        <div className="max-w-3xl mx-auto pb-8">
+                            <Accordion type="single" collapsible className="space-y-4" defaultValue={categories.length > 0 ? categories[0].id : undefined}>
+                                {categories.map(cat => {
+                                    const missingPhotosCount = cat.dishes.filter(d => !d.image_url).length;
+                                    const isComplete = missingPhotosCount === 0 && cat.dishes.length > 0;
 
-                                                    {/* Dish Info */}
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-bold text-gray-900 truncate">{dish.name}</h4>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            {dish.image_url ? (
-                                                                <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px]">
-                                                                    <Check className="w-3 h-3 mr-1" /> Foto OK
+                                    return (
+                                        <AccordionItem
+                                            key={cat.id}
+                                            value={cat.id}
+                                            className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all ${isComplete ? 'border-green-100' : 'border-gray-100'}`}
+                                        >
+                                            <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 hover:no-underline">
+                                                <div className="flex items-center gap-4 flex-1 text-left">
+                                                    <h3 className="font-black text-lg text-gray-800 flex items-center gap-2">
+                                                        <span className={`w-1 h-6 rounded-full ${isComplete ? 'bg-green-500' : 'bg-orange-500'}`}></span>
+                                                        {cat.name}
+                                                        <span className="ml-2 text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                            {cat.dishes.length}
+                                                        </span>
+                                                    </h3>
+
+                                                    {/* Intelligent Status Indicators */}
+                                                    {cat.dishes.length > 0 && (
+                                                        <div className="flex items-center gap-2">
+                                                            {missingPhotosCount > 0 ? (
+                                                                <Badge variant="destructive" className="h-6 px-2 text-[10px] font-bold bg-red-100 text-red-600 border border-red-200 hover:bg-red-200 shadow-none">
+                                                                    <ImagePlus className="w-3 h-3 mr-1" />
+                                                                    Mancano {missingPhotosCount} foto
                                                                 </Badge>
                                                             ) : (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="h-7 text-xs border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-                                                                    onClick={() => openGalleryForDish(dish.id)}
-                                                                >
-                                                                    <ImagePlus className="w-3 h-3 mr-1" />
-                                                                    Scegli Foto
-                                                                </Button>
+                                                                <Badge variant="secondary" className="h-6 px-2 text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 hover:bg-green-200 shadow-none">
+                                                                    <Check className="w-3 h-3 mr-1" />
+                                                                    Completo
+                                                                </Badge>
                                                             )}
                                                         </div>
-                                                    </div>
+                                                    )}
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <div className="col-span-2 py-4 text-center text-gray-400 text-sm bg-white/50 rounded-lg border border-dashed border-gray-200">
-                                                Nessun piatto in questa categoria
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                            </AccordionTrigger>
+
+                                            <AccordionContent className="px-4 pb-4 pt-0 border-t border-gray-50">
+                                                {cat.dishes.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                                                        {cat.dishes.map(dish => (
+                                                            <div
+                                                                key={dish.id}
+                                                                className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 bg-white hover:border-orange-200 transition-colors"
+                                                            >
+                                                                {/* Dish Image Area */}
+                                                                <div className="relative shrink-0 w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 border border-gray-100">
+                                                                    {dish.image_url ? (
+                                                                        <div className="relative w-full h-full group">
+                                                                            <img src={dish.image_url} alt={dish.name} className="w-full h-full object-cover" />
+                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                                                <Button
+                                                                                    size="icon"
+                                                                                    variant="ghost"
+                                                                                    className="text-white hover:bg-white/20 hover:text-blue-400 w-8 h-8"
+                                                                                    onClick={(e) => { e.stopPropagation(); openGalleryForDish(dish.id); }}
+                                                                                    title="Cambia foto"
+                                                                                >
+                                                                                    <RefreshCw className="w-4 h-4" />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    size="icon"
+                                                                                    variant="ghost"
+                                                                                    className="text-white hover:bg-white/20 hover:text-red-400 w-8 h-8"
+                                                                                    onClick={(e) => { e.stopPropagation(); handleRemoveImageFromDishClick(dish); }}
+                                                                                    title="Rimuovi foto"
+                                                                                >
+                                                                                    <Trash2 className="w-4 h-4" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            className="w-full h-full flex flex-col items-center justify-center text-gray-400 hover:text-orange-500 hover:bg-orange-50"
+                                                                            onClick={(e) => { e.stopPropagation(); openGalleryForDish(dish.id); }}
+                                                                        >
+                                                                            <ImagePlus className="w-6 h-6 mb-1" />
+                                                                            <span className="text-[10px] font-bold">Aggiungi</span>
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Dish Info */}
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className="font-bold text-gray-900 truncate">{dish.name}</h4>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        {dish.image_url ? (
+                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px]">
+                                                                                <Check className="w-3 h-3 mr-1" /> Foto OK
+                                                                            </Badge>
+                                                                        ) : (
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="outline"
+                                                                                className="h-7 text-xs border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                                                                                onClick={(e) => { e.stopPropagation(); openGalleryForDish(dish.id); }}
+                                                                            >
+                                                                                <ImagePlus className="w-3 h-3 mr-1" />
+                                                                                Scegli Foto
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-8 text-center text-gray-400 text-sm italic">
+                                                        Nessun piatto in questa categoria
+                                                    </div>
+                                                )}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    );
+                                })}
+                            </Accordion>
                         </div>
                     </div>
                 </Card>
