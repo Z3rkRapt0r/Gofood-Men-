@@ -26,6 +26,15 @@ function FieldDescription({
     )
 }
 
+// Helper to safely extract error messages from any format (string, object, array)
+function getErrorMessage(error: any): string {
+    if (!error) return "";
+    if (typeof error === "string") return error;
+    if (Array.isArray(error)) return error.map(getErrorMessage).join(", ");
+    if (typeof error === "object" && error.message) return String(error.message);
+    return JSON.stringify(error); // Fallback for unknown objects
+}
+
 function FieldError({
     className,
     errors,
@@ -40,7 +49,7 @@ function FieldError({
             className={cn("text-[0.8rem] font-medium text-destructive", className)}
             {...props}
         >
-            {errors.map((e: any) => e?.message ? String(e.message) : String(e)).join(", ")}
+            {errors.map(getErrorMessage).join(", ")}
         </p>
     )
 }

@@ -33,27 +33,40 @@ Se un piatto non sembra appartenere a nessuna categoria specifica, assegnalo all
             : 'Non ci sono categorie specifiche fornite.';
 
         const prompt = `
-      Analizza questo menu (immagini) e estrai TUTTI i piatti.
+      Sei un esperto ristoratore digitale. Il tuo compito è digitalizzare un menu fisico (foto) in dati strutturati.
+      
+      IMPORTANTE: L'utente ha GIÀ creato le seguenti categorie nel suo gestionale. 
+      DEVI categorizzare ogni piatto che trovi nell'immagine assegnandolo ESCLUSIVAMENTE a una di queste categorie (usando l'ID corretto).
       
       ${categoryContext}
+      
+      Istruzioni per l'estrazione:
+      1. **Analisi Struttura**: Prima di tutto, individua le SEZIONI o INTESTAZIONI nel menu fisico (es. "Antipasti", "Primi Piatti", "Vini").
+      2. **Mapping Categoria**: 
+         - Se trovi un piatto sotto l'intestazione "Antipasti", DEVI assegnarlo all'ID della categoria digitale che corrisponde a "Antipasti" (vedi lista sopra).
+         - Se i nomi non sono identici (es. Foto: "Le Nostre Paste" -> Digitale: "Primi"), usa il buon senso per collegarli.
+         - Se un piatto non ha una sezione chiara, deducila dagli ingredienti.
+      3. **Estrazione Dati Piatto**:
+         - **Nome**: Esatto come sul menu.
+         - **Ingredienti**: Tutto il testo descrittivo. IMPORTANTE: NON includere il prezzo qui. Se c'è solo il prezzo come descrizione, lascia vuoto.
+         - **Prezzo**: Numero (usa 0 se manca).
       
       Restituisci SOLO un oggetto JSON valido con questa struttura esatta:
         {
             "dishes": [
                 {
                     "name": "Nome Piatto",
-                    "description": "Descrizione (o stringa vuota)",
+                    "description": "Ingredienti o descrizione trovata (SENZA PREZZO)",
                     "price": 12.50,
-                    "categoryId": "ID_CATEGORIA_CORRISPONDENTE"
+                    "categoryId": "ID_ESATTO_DELLA_CATEGORIA_SCELTA"
                 }
             ]
         }
 
-      Regole:
-      1. Se non trovi prezzi, metti 0.
-      2. Se non trovi descrizioni, metti stringa vuota.
-      3. Mantieni i nomi dei piatti originali.
-      4. "categoryId" è OBBLIGATORIO se hai ricevuto le categorie. Cerca di indovinare la migliore.
+      Regole di Validazione:
+      - **CRUCIALE**: Usa SOLO gli ID forniti lista "Categorie disponibili". Non inventare ID.
+      - Se l'immagine contiene categorie che l'utente non ha creato (es. "Amaro"), assegna quei piatti alla categoria "Altro" o quella più simile.
+      - **CRUCIALE**: La descrizione NON deve contenere cifre di prezzo (es. "€12" o "12.00"). Solo ingredienti.
     `;
 
         const contentParts = [
@@ -67,7 +80,7 @@ Se un piatto non sembra appartenere a nessuna categoria specifica, assegnalo all
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'amazon/nova-2-lite-v1:free',
+            model: 'google/gemini-3-flash-preview',
             messages: [
                 {
                     role: 'user',
@@ -82,8 +95,15 @@ Se un piatto non sembra appartenere a nessuna categoria specifica, assegnalo all
             throw new Error('Nessuna risposta dall\'AI');
         }
 
-        // Clean up the response to ensure it's valid JSON
-        const jsonString = content.replace(/```json\n?|\n?```/g, '').trim();
+        // Robust JSON extraction: Find the first '{' and the last '}'
+        const firstBrace = content.indexOf('{');
+        const lastBrace = content.lastIndexOf('}');
+
+        if (firstBrace === -1 || lastBrace === -1) {
+            throw new Error('Risposta AI non valida: JSON non trovato');
+        }
+
+        const jsonString = content.substring(firstBrace, lastBrace + 1);
 
         try {
             const data = JSON.parse(jsonString);
@@ -106,7 +126,7 @@ Se un piatto non sembra appartenere a nessuna categoria specifica, assegnalo all
         }
         return NextResponse.json(
             { error: error.message || 'Errore durante l\'analisi del menu' },
-            { status: 500 }
+            { status: error.status || 500 }
         );
     }
 }

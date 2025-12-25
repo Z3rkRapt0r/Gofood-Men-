@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/database';
 // import { SupabaseClient } from '@supabase/supabase-js';
 import { useImportMenu } from '@/hooks/useImportMenu';
+import imageCompression from 'browser-image-compression';
 
 // Define types from Database definition
 // type DbCategoryInsert = Database['public']['Tables']['categories']['Insert'];
@@ -173,8 +174,20 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                         setError('Errore nella lettura del PDF. Riprova.');
                     }
                 } else {
-                    const base64 = await convertFileToBase64(file);
-                    newPreviews.push(base64);
+                    try {
+                        // Compress image before base64
+                        const compressedFile = await imageCompression(file, {
+                            maxSizeMB: 1,
+                            maxWidthOrHeight: 1920,
+                            useWebWorker: true
+                        });
+                        const base64 = await convertFileToBase64(compressedFile);
+                        newPreviews.push(base64);
+                    } catch (err) {
+                        console.error('Compression error, using original', err);
+                        const base64 = await convertFileToBase64(file);
+                        newPreviews.push(base64);
+                    }
                 }
             }
             setPreviews(prev => [...prev, ...newPreviews]);
@@ -191,7 +204,8 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
 
         try {
             const imagesToSend = previews.map(p => p.split(',')[1]);
-            const BATCH_SIZE = 3; // Process 3 pages at a time to avoid AI limits
+            // Process 3 pages at a time now that we have credits
+            const BATCH_SIZE = 3;
             const chunks = [];
 
             for (let i = 0; i < imagesToSend.length; i += BATCH_SIZE) {
@@ -205,6 +219,11 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
             let processedCount = 0;
 
             for (const chunk of chunks) {
+                // Small delay just to be safe
+                if (processedCount > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
                 try {
                     const response = await fetch('/api/ai/analyze-menu', {
                         method: 'POST',
@@ -218,11 +237,9 @@ export default function MenuImportModal({ isOpen, onClose, onSuccess, tenantId, 
                     });
 
                     if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        console.error('Batch error:', errorData);
-                        // Continue with other batches if one fails?
-                        // Or maybe just log it and show partial results?
-                        // For now let's just log and continue.
+                        const errorText = await response.text();
+                        console.error(`Batch error: ${response.status} ${response.statusText}`, errorText);
+                        // Continue to next batch
                     } else {
                         const data = await response.json();
                         if (data.dishes && Array.isArray(data.dishes)) {
