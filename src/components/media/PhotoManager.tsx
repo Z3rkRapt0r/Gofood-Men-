@@ -28,6 +28,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from 'sonner';
 import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
 import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
@@ -326,20 +332,35 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                                         </span>
                                                     </h3>
 
-                                                    {/* Intelligent Status Indicators */}
+
+                                                    {/* Intelligent Status Indicators - Tooltips */}
                                                     {cat.dishes.length > 0 && (
                                                         <div className="flex items-center gap-1 md:gap-2">
-                                                            {missingPhotosCount > 0 ? (
-                                                                <Badge variant="destructive" className="h-5 md:h-6 px-1.5 md:px-2 text-[9px] md:text-xs font-bold bg-red-100 text-red-600 border border-red-200 hover:bg-red-200 shadow-none">
-                                                                    <ImagePlus className="w-3 h-3 mr-1" />
-                                                                    Mancano {missingPhotosCount} <span className="hidden sm:inline ml-1">foto</span>
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge variant="secondary" className="h-5 md:h-6 px-1.5 md:px-2 text-[9px] md:text-xs font-bold bg-green-100 text-green-700 border border-green-200 hover:bg-green-200 shadow-none">
-                                                                    <Check className="w-3 h-3 mr-1" />
-                                                                    Completo
-                                                                </Badge>
-                                                            )}
+                                                            <TooltipProvider>
+                                                                {missingPhotosCount > 0 ? (
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600 cursor-help transition-colors hover:bg-red-200">
+                                                                                <ImagePlus className="w-3.5 h-3.5" />
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent className="bg-red-600 text-white border-red-700">
+                                                                            <p className="font-bold">Mancano {missingPhotosCount} foto</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                ) : (
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 cursor-help transition-colors hover:bg-green-200">
+                                                                                <Check className="w-3.5 h-3.5" />
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent className="bg-green-600 text-white border-green-700">
+                                                                            <p className="font-bold">Categoria Completa</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                )}
+                                                            </TooltipProvider>
                                                         </div>
                                                     )}
                                                 </div>
