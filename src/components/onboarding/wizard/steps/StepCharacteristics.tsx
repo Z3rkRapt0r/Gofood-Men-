@@ -142,7 +142,7 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
                                 <AccordionContent className="pt-2 pb-6">
                                     <Accordion type="single" collapsible className="space-y-2">
                                         {category.dishes?.map(dish => {
-                                            const containsGluten = !dish.is_gluten_free; // Default assumption
+                                            const containsGluten = !!glutenAllergen && dish.allergen_ids?.includes(glutenAllergen.id);
                                             const activeTagsCount = [
                                                 dish.is_vegetarian, dish.is_vegan, dish.is_seasonal,
                                                 dish.is_homemade, dish.is_frozen
@@ -211,6 +211,18 @@ export function StepCharacteristics({ tenantId, onValidationChange }: StepCharac
                                                                         onClick={() => handleToggleCharacteristic(dish, 'is_frozen', !dish.is_frozen)}>
                                                                         <span className="text-2xl mb-1">❄️</span>
                                                                         <span className={`text-xs font-bold ${dish.is_frozen ? 'text-cyan-700' : 'text-gray-500'}`}>Surgelato</span>
+                                                                    </div>
+                                                                    {/* Vegetariano */}
+                                                                    <div className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all cursor-pointer ${dish.is_vegetarian ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-100'}`}
+                                                                        onClick={() => handleToggleCharacteristic(dish, 'is_vegetarian', !dish.is_vegetarian)}>
+                                                                        <span className="text-2xl mb-1">🥗</span>
+                                                                        <span className={`text-xs font-bold ${dish.is_vegetarian ? 'text-green-700' : 'text-gray-500'}`}>Vegetariano</span>
+                                                                    </div>
+                                                                    {/* Vegano */}
+                                                                    <div className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all cursor-pointer ${dish.is_vegan ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-100'}`}
+                                                                        onClick={() => handleToggleCharacteristic(dish, 'is_vegan', !dish.is_vegan)}>
+                                                                        <span className="text-2xl mb-1">🌱</span>
+                                                                        <span className={`text-xs font-bold ${dish.is_vegan ? 'text-emerald-700' : 'text-gray-500'}`}>Vegano</span>
                                                                     </div>
                                                                 </div>
                                                             </div>

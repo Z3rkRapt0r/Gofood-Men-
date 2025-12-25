@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, GripVertical, Trash2 } from 'lucide-react';
+import { Loader2, Plus, GripVertical, Trash2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import {
     DndContext,
@@ -218,9 +218,17 @@ export function StepCategories({ tenantId, onValidationChange }: StepCategoriesP
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
             <div className="text-center md:text-left">
                 <h2 className="text-2xl font-black text-gray-900">Il Tuo Menu 🍔</h2>
-                <p className="text-gray-600 mt-1">
-                    Crea le categorie per il tuo menu. Es: Antipasti, Primi, Pizze.
-                </p>
+                <div className="mt-2 text-gray-600">
+                    <p>Crea le categorie per il tuo menu.</p>
+                    <div className="mt-3 flex gap-3 p-3 bg-orange-50 border border-orange-100 rounded-md text-sm text-orange-800">
+                        <Info className="w-5 h-5 shrink-0 text-orange-500" />
+                        <div>
+                            <span className="font-medium">Consiglio:</span> Usa le stesse categorie del menu cartaceo per facilitare l'importazione AI.
+                            <br />
+                            <span className="opacity-75">Es: Antipasti, Primi, Pizze.</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Suggested Chips */}
