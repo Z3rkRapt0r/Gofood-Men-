@@ -13,7 +13,8 @@ import {
     User,
     LogOut,
     Store,
-    Image as ImageIcon
+    Image as ImageIcon,
+    ShieldAlert
 } from 'lucide-react';
 
 import {
@@ -48,6 +49,7 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
         { title: 'Categorie', url: '/dashboard/categories', icon: Folder },
         { title: 'Piatti', url: '/dashboard/dishes', icon: UtensilsCrossed },
         { title: 'Immagini', url: '/dashboard/media', icon: ImageIcon },
+        { title: 'Allergeni', url: '/dashboard/allergens', icon: ShieldAlert },
 
         { title: 'Design Studio', url: '/dashboard/design-studio', icon: Palette },
         { title: 'Assistenza', url: '/dashboard/support', icon: HelpCircle },

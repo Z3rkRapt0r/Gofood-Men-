@@ -379,7 +379,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                                                     {dish.image_url ? (
                                                                         <div className="relative w-full h-full group">
                                                                             <img src={dish.image_url} alt={dish.name} className="w-full h-full object-cover" />
-                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center gap-2">
                                                                                 <Button
                                                                                     size="icon"
                                                                                     variant="ghost"
@@ -417,9 +417,31 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                                                     <h4 className="font-bold text-gray-900 truncate">{dish.name}</h4>
                                                                     <div className="flex items-center gap-2 mt-1">
                                                                         {dish.image_url ? (
-                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px]">
-                                                                                <Check className="w-3 h-3 mr-1" /> Foto OK
-                                                                            </Badge>
+                                                                            <>
+                                                                                <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px]">
+                                                                                    <Check className="w-3 h-3 mr-1" /> OK
+                                                                                </Badge>
+                                                                                <div className="flex items-center gap-1 md:hidden">
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        variant="ghost"
+                                                                                        className="h-6 w-6 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                                                                        onClick={(e) => { e.stopPropagation(); openGalleryForDish(dish.id); }}
+                                                                                        title="Cambia foto"
+                                                                                    >
+                                                                                        <RefreshCw className="w-3.5 h-3.5" />
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        variant="ghost"
+                                                                                        className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                                                        onClick={(e) => { e.stopPropagation(); handleRemoveImageFromDishClick(dish); }}
+                                                                                        title="Rimuovi foto"
+                                                                                    >
+                                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </>
                                                                         ) : (
                                                                             <Button
                                                                                 size="sm"

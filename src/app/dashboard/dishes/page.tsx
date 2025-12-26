@@ -121,7 +121,6 @@ function SortableDishCard({
   category,
   onEdit,
   onDelete,
-  onDeleteImage,
   selected,
   onSelect,
   isSelectionMode,
@@ -130,7 +129,6 @@ function SortableDishCard({
   category?: Category;
   onEdit: (dish: Dish) => void;
   onDelete: (id: string) => void;
-  onDeleteImage: (dish: Dish) => void;
   selected: boolean;
   onSelect: (id: string) => void;
   isSelectionMode: boolean;
@@ -193,22 +191,7 @@ function SortableDishCard({
                       alt={dish.name}
                       className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg border border-border"
                     />
-                    <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm('Eliminare immagine?')) {
-                            onDeleteImage(dish);
-                          }
-                        }}
-                        className="text-white hover:text-red-400 hover:bg-transparent h-8 w-8"
-                        title="Rimuovi immagine"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+
                   </div>
                 )}
 
@@ -318,7 +301,7 @@ export default function DishesPage() {
   const [filterFlags, setFilterFlags] = useState<Set<string>>(new Set());
   const [filterAllergens, setFilterAllergens] = useState<Set<string>>(new Set());
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
-  const [showDeleteImageDialog, setShowDeleteImageDialog] = useState(false);
+
 
   // ... (previous useEffects) ...
 
@@ -735,29 +718,7 @@ export default function DishesPage() {
     }
   }
 
-  async function handleDeleteImage(dish: Dish) {
-    try {
-      const supabase = createClient();
 
-      if (dish.image_url) {
-        await deleteDishImage(dish.image_url);
-      }
-
-      const { error } = await supabase
-        .from('dishes')
-        // @ts-ignore
-        .update({ image_url: null })
-        .eq('id', dish.id);
-
-      if (error) throw error;
-
-      toast.success('Immagine rimossa');
-      loadData();
-    } catch (err) {
-      console.error('Error removing image:', err);
-      toast.error('Errore durante la rimozione dell\'immagine');
-    }
-  }
 
   async function handleDelete(id: string) {
     if (!confirm('Sei sicuro di voler eliminare questo piatto?')) {
@@ -1236,7 +1197,6 @@ export default function DishesPage() {
                   category={categories.find(c => c.id === dish.category_id)}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  onDeleteImage={handleDeleteImage}
                   selected={selectedDishes.has(dish.id)}
                   onSelect={toggleSelection}
                   isSelectionMode={isSelectionMode}
@@ -1316,48 +1276,7 @@ export default function DishesPage() {
                 />
               </div>
 
-              {/* Immagine */}
-              <div className="space-y-2">
-                <Label>Immagine Piatto</Label>
-                <div className="flex items-center gap-4 border p-4 rounded-lg bg-muted/20">
-                  {editingDish?.image_url && !formData.image && (
-                    <div className="relative group shrink-0">
-                      <img
-                        src={editingDish.image_url}
-                        alt="Current"
-                        className="w-20 h-20 object-cover rounded-lg border border-border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={async () => {
-                          setShowDeleteImageDialog(true);
-                        }}
-                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  )}
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 10 * 1024 * 1024) {
-                          toast.error("Il file supera i 10MB.");
-                          e.target.value = ''; // Reset input
-                          return;
-                        }
-                        setFormData({ ...formData, image: file });
-                      }
-                    }}
-                    className="cursor-pointer"
-                  />
-                </div>
-              </div>
+
 
               {/* Status & Flags */}
               <div className="space-y-6 pt-4 border-t border-border">
@@ -1378,160 +1297,7 @@ export default function DishesPage() {
                 {/* Filtri Speciali */}
                 {/* Filtri Speciali */}
                 {/* Filtri Speciali */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Label className="flex items-center gap-2">
-                      Filtri Speciali
-                    </Label>
-                    <TooltipProvider>
-                      <Tooltip delayDuration={300}>
-                        <TooltipTrigger asChild>
-                          <Info className="w-4 h-4 text-muted-foreground hover:text-orange-500 cursor-help transition-colors" />
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-orange-50 text-orange-950 border-orange-200 max-w-[250px]">
-                          <p className="text-xs font-medium">
-                            Attenzione: utilizzando questi filtri si agirà sulla visibilità del piatto sul menu.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isSeasonal ? 'border-orange-500 bg-orange-50' : ''}`}
-                      onClick={() => setFormData({ ...formData, isSeasonal: !formData.isSeasonal })}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">🍂</span>
-                        <span className={`text-xs font-bold ${formData.isSeasonal ? 'text-orange-700' : 'text-muted-foreground'}`}>Stagionale</span>
-                      </CardContent>
-                    </Card>
-
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isGlutenFree ? 'border-green-500 bg-green-50' : ''}`}
-                      onClick={() => {
-                        const newIsGlutenFree = !formData.isGlutenFree;
-                        let newSelectedAllergens = formData.selectedAllergens;
-
-                        // If setting Gluten Free to TRUE, remove 'glutine' allergen if present
-                        if (newIsGlutenFree) {
-                          // Assuming 'glutine' is the ID for gluten allergen. If it's an ID from DB, we need to find it.
-                          // Based on previous code, allergen.id is used. We need to find the ID for gluten.
-                          // Actually, in the code below we see getAllergens uses IDs.
-                          // Let's protect against the hardcoded ID if possible, but for now we filter by text/logic.
-                          // However, looking at the Allergens section logic in lines 1433+, it uses `allergen.id`.
-                          // Usually 'glutine' is the ID if the seed data is consistent, but it's safer to find the ID.
-                          // Since I don't have the ID easily here without iterating allergens, let's look at how the Allergens section renders.
-                          // It iterates `allergens`. Ideally I should find the 'glutine' allergen ID.
-                          // But for now, let's assume I can iterate `allergens` state variable which is available in component scope.
-                          const glutineAllergen = allergens.find(a => a.name.toLowerCase() === 'glutine' || a.id === 'glutine');
-                          if (glutineAllergen) {
-                            newSelectedAllergens = newSelectedAllergens.filter(id => id !== glutineAllergen.id);
-                          }
-                        }
-
-                        setFormData({
-                          ...formData,
-                          isGlutenFree: newIsGlutenFree,
-                          selectedAllergens: newSelectedAllergens
-                        });
-                      }}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">🌾</span>
-                        <span className={`text-xs font-bold ${formData.isGlutenFree ? 'text-green-700' : 'text-muted-foreground'}`}>Senza Glutine</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-
-                {/* Caratteristiche */}
-                <div className="space-y-3">
-                  <Label>Caratteristiche</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isVegetarian ? 'border-green-500 bg-green-50' : ''}`}
-                      onClick={() => setFormData({ ...formData, isVegetarian: !formData.isVegetarian })}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">🥬</span>
-                        <span className={`text-xs font-bold ${formData.isVegetarian ? 'text-green-700' : 'text-muted-foreground'}`}>Vegetariano</span>
-                      </CardContent>
-                    </Card>
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-green-300 ${formData.isVegan ? 'border-green-500 bg-green-50' : ''}`}
-                      onClick={() => setFormData({ ...formData, isVegan: !formData.isVegan })}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">�</span>
-                        <span className={`text-xs font-bold ${formData.isVegan ? 'text-green-700' : 'text-muted-foreground'}`}>Vegano</span>
-                      </CardContent>
-                    </Card>
-
-                    {/* Fatto in casa */}
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-orange-300 ${formData.isHomemade ? 'border-orange-500 bg-orange-50' : ''}`}
-                      onClick={() => setFormData({ ...formData, isHomemade: !formData.isHomemade })}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">🏠</span>
-                        <span className={`text-xs font-bold ${formData.isHomemade ? 'text-orange-700' : 'text-muted-foreground'}`}>Fatto in casa</span>
-                      </CardContent>
-                    </Card>
-
-                    {/* Surgelato */}
-                    <Card
-                      className={`cursor-pointer transition-all hover:border-blue-300 ${formData.isFrozen ? 'border-blue-500 bg-blue-50' : ''}`}
-                      onClick={() => setFormData({ ...formData, isFrozen: !formData.isFrozen })}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                        <span className="text-2xl">❄️</span>
-                        <span className={`text-xs font-bold ${formData.isFrozen ? 'text-blue-700' : 'text-muted-foreground'}`}>Surgelato</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-
-                {/* Allergeni */}
-                <div className="space-y-3">
-                  <Label>Allergeni Presenti</Label>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                    {allergens.map((allergen) => (
-                      <Card
-                        key={allergen.id}
-                        className={`cursor-pointer transition-all min-h-[6rem] p-1 hover:border-red-300 ${formData.selectedAllergens.includes(allergen.id) ? 'border-red-500 bg-red-50' : ''}`}
-                        onClick={() => {
-                          const includes = formData.selectedAllergens.includes(allergen.id);
-                          const newSelected = !includes
-                            ? [...formData.selectedAllergens, allergen.id]
-                            : formData.selectedAllergens.filter(id => id !== allergen.id);
-
-                          // Mutual Exclusivity Check
-                          let newIsGlutenFree = formData.isGlutenFree;
-                          const isGluten = allergen.name.toLowerCase() === 'glutine' || allergen.id === 'glutine';
-
-                          // If checking 'Glutine', disable 'Senza Glutine'
-                          if (!includes && isGluten) {
-                            newIsGlutenFree = false;
-                          }
-
-                          setFormData({
-                            ...formData,
-                            selectedAllergens: newSelected,
-                            isGlutenFree: newIsGlutenFree
-                          });
-                        }}
-                      >
-                        <CardContent className="p-2 flex flex-col items-center justify-center h-full gap-1">
-                          <span className="text-2xl">{allergen.icon}</span>
-                          <span className={`text-xs font-bold text-center leading-tight ${formData.selectedAllergens.includes(allergen.id) ? 'text-red-700' : 'text-gray-600'}`}>
-                            {allergen.name}
-                          </span>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
+                {/* Filtri, Caratteristiche e Allergeni rimossi - gestiti in /dashboard/allergens */}
               </div>
             </form>
           </div>
@@ -1572,32 +1338,7 @@ export default function DishesPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete Image Dialog */}
-      <AlertDialog open={showDeleteImageDialog} onOpenChange={setShowDeleteImageDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Rimuovere immagine?</AlertDialogTitle>
-            <AlertDialogDescription>
-              L'immagine verrà rimossa dal piatto. Potrai caricarne un'altra in seguito.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                if (editingDish) {
-                  await handleDeleteImage(editingDish);
-                  setEditingDish({ ...editingDish, image_url: null });
-                }
-                setShowDeleteImageDialog(false);
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Rimuovi
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
 
       <MenuImportModal
         isOpen={showImportModal}
