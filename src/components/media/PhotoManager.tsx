@@ -180,10 +180,10 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
             <div className="flex flex-col gap-6">
 
                 {/* Top Section: Upload Area */}
-                <Card className="border-2 border-gray-100 shadow-sm flex flex-col bg-white">
+                <Card className="border-y md:border border-gray-100 shadow-none md:shadow-sm flex flex-col bg-white rounded-none md:rounded-xl">
                     <div
                         {...getRootProps()}
-                        className={`p-8 border-2 border-dashed transition-colors cursor-pointer flex flex-col justify-center items-center h-48
+                        className={`p-4 md:p-8 border-2 border-dashed transition-colors cursor-pointer flex flex-col justify-center items-center h-48
                         ${isDragActive ? 'bg-orange-50 border-orange-400' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
                         `}
                     >
@@ -202,7 +202,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
 
 
                 {/* Bottom Section: Dishes List */}
-                <Card className="border-2 border-gray-100 shadow-sm flex flex-col bg-white">
+                <Card className="border-y md:border border-gray-100 shadow-none md:shadow-sm flex flex-col bg-white rounded-none md:rounded-xl">
                     <div className="p-4 border-b border-gray-100 bg-white z-10">
                         <h2 className="text-xl font-bold text-gray-900">Assegna Foto ai Piatti</h2>
                         <p className="text-sm text-gray-500">Clicca su "Aggiungi Foto" per scegliere un'immagine dall'archivio.</p>
@@ -265,7 +265,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                                 </div>
                                             </AccordionTrigger>
 
-                                            <AccordionContent className="px-4 pb-4 pt-0 border-t border-gray-50">
+                                            <AccordionContent className="px-2 md:px-4 pb-4 pt-0 border-t border-gray-50">
                                                 {cat.dishes.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                                                         {cat.dishes.map(dish => (
