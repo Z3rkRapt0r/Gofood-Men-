@@ -142,7 +142,7 @@ export default function LandingPage() {
                         playsInline
                         className="absolute top-0 left-0 w-full h-full object-cover"
                       >
-                        <source src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/ScreenRecording_12-03-2025%2000-12-13_1%202.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL1NjcmVlblJlY29yZGluZ18xMi0wMy0yMDI1IDAwLTEyLTEzXzEgMi5tcDQiLCJpYXQiOjE3NjY5MzYyNzcsImV4cCI6MzM0MzczNjI3N30.LzMvBdhqc08nMbpP8USpYnKaUIkS7XZ-u7u5l5lCGH0" type="video/mp4" />
+                        <source src="/videos/VIDEO.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     </div>
@@ -216,7 +216,28 @@ export default function LandingPage() {
                   unoptimized
                 />
               </div>
-
+            </div>
+            <div className="flex items-center gap-4 transition-all duration-500">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/public/Go%20Food/Osteria%20Cilea%20Logo%20HD.png"
+                  alt="Osteria Cilea"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-4 transition-all duration-500">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/public/Go%20Food/images.png"
+                  alt="Partner Restaurant"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
             </div>
 
 
@@ -396,7 +417,6 @@ export default function LandingPage() {
               <h4 className="font-bold text-lg mb-4 text-orange-400">Supporto</h4>
               <ul className="space-y-3 text-gray-400">
                 <li><a href="mailto:info@gofoodmenu.it" className="hover:text-orange-400 transition-colors">info@gofoodmenu.it</a></li>
-                <li><span>© 2025 GO! FOOD</span></li>
               </ul>
             </div>
           </div>
