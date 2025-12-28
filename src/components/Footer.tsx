@@ -4,6 +4,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Script from 'next/script';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SocialIcon } from './SocialIcon';
 
@@ -141,6 +142,9 @@ export default function Footer({ footerData, restaurantName, logoUrl, slug, forc
           <div className="flex justify-center gap-4 text-xs">
             <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-[var(--tenant-primary,#8B0000)] transition-colors" title="Privacy Policy">Privacy Policy</a>
             <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-[var(--tenant-primary,#8B0000)] transition-colors" title="Cookie Policy">Cookie Policy</a>
+            <Script id="iubenda-loader" strategy="lazyOnload">
+              {`(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);`}
+            </Script>
           </div>
         </div>
       </div>

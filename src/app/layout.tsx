@@ -6,6 +6,7 @@ import { GlutenFilterProvider } from "@/contexts/GlutenFilterContext";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Script from 'next/script';
 import QueryProvider from "@/components/providers/QueryProvider";
+import CookieBanner from "@/components/CookieBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -63,14 +64,6 @@ export default function RootLayout({
           <QueryProvider>
             <GlutenFilterProvider>
               {children}
-              <Script
-                src="https://cdn.iubenda.com/iubenda.js"
-                strategy="lazyOnload"
-              />
-              <Script
-                src="https://embeds.iubenda.com/widgets/cb34db42-733e-43bb-b9e1-b1bf9d76e546.js"
-                strategy="afterInteractive"
-              />
               {/* <Toaster
                 position="top-center"
                 toastOptions={{
@@ -95,6 +88,7 @@ export default function RootLayout({
                 }}
               /> */}
               <SonnerToaster position="top-center" />
+              <CookieBanner />
             </GlutenFilterProvider>
           </QueryProvider>
         </LanguageProvider>

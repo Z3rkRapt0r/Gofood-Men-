@@ -134,14 +134,16 @@ export default function LandingPage() {
                   <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-gray-900 bg-black">
                     {/* Screen Content */}
                     <div className="relative bg-white w-full aspect-[1206/2374]">
-                      <iframe
-                        src="https://player.vimeo.com/video/1143247555?background=1&autoplay=1&loop=1&muted=1"
-                        frameBorder="0"
-                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                        title="ScreenRecording_12-03-2025 00-12-13_1 2"
-                      />
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="absolute top-0 left-0 w-full h-full object-cover"
+                      >
+                        <source src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/ScreenRecording_12-03-2025%2000-12-13_1%202.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL1NjcmVlblJlY29yZGluZ18xMi0wMy0yMDI1IDAwLTEyLTEzXzEgMi5tcDQiLCJpYXQiOjE3NjY5MzYyNzcsImV4cCI6MzM0MzczNjI3N30.LzMvBdhqc08nMbpP8USpYnKaUIkS7XZ-u7u5l5lCGH0" type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
                     </div>
                   </div>
 
