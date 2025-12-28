@@ -6,6 +6,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -32,18 +36,12 @@ export default function LandingPage() {
 
             {/* Navigation */}
             <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="text-gray-700 hover:text-orange-600 transition-colors font-semibold px-4 py-2 rounded-lg hover:bg-orange-50"
-              >
-                Accedi
-              </Link>
-              <Link
-                href="/register"
-                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:scale-105"
-              >
-                Inizia Ora
-              </Link>
+              <Button asChild variant="ghost" className="text-gray-700 hover:text-orange-600 hover:bg-orange-50 font-semibold">
+                <Link href="/login">Accedi</Link>
+              </Button>
+              <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold transition-all shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:scale-105 rounded-xl">
+                <Link href="/register">Inizia Ora</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -74,29 +72,24 @@ export default function LandingPage() {
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start">
-                <Link
-                  href="/register"
-                  className="group bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-orange-300/50 hover:shadow-orange-400/50 hover:scale-105 flex flex-col items-center justify-center gap-1"
-                >
-                  <span className="flex items-center gap-3">
-                    <span>Inizia Ora</span>
-                    <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
+                <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-orange-200 hover:shadow-2xl hover:shadow-orange-300 hover:scale-105 flex items-center justify-center gap-2">
+                  <Link href="/register">
+                    Crea il tuo Menu
+                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
-                  </span>
-                </Link>
-                <Link
-                  href="https://magnaroma-table-menu.vercel.app/"
-                  target="_blank"
-                  className="bg-white hover:bg-orange-50 text-orange-600 border-2 border-orange-300 hover:border-orange-400 px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span>Vedi esempio</span>
-                </Link>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="w-full sm:w-auto bg-white hover:bg-orange-50 text-orange-600 border-2 border-orange-300 hover:border-orange-400 px-10 py-6 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
+                  <Link href="https://gofoodmenu.it/bistrot107" target="_blank">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                    </span>
+                    Vedi Demo
+                  </Link>
+                </Button>
               </div>
 
               {/* Trust Indicators */}
@@ -308,21 +301,33 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <SolutionCard
-              icon="⚡"
-              title="Update istantaneo"
-              description="Modifica prezzi in tempo reale. I clienti vedono subito tutto."
-            />
-            <SolutionCard
-              icon="💰"
-              title="Zero stampa"
-              description="Mai più costi di ristampa. Tutto online, sempre aggiornato."
-            />
-            <SolutionCard
-              icon="🌍"
-              title="Multilingua"
-              description="IT ed EN con un click. Perfetto per turisti."
-            />
+            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
+              <CardHeader>
+                <div className="text-4xl mb-4">⚡</div>
+                <CardTitle className="text-xl font-bold text-gray-900">Update istantaneo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Modifica prezzi in tempo reale. I clienti vedono subito tutto.</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
+              <CardHeader>
+                <div className="text-4xl mb-4">💰</div>
+                <CardTitle className="text-xl font-bold text-gray-900">Zero stampa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Mai più costi di ristampa. Tutto online, sempre aggiornato.</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
+              <CardHeader>
+                <div className="text-4xl mb-4">🌍</div>
+                <CardTitle className="text-xl font-bold text-gray-900">Multilingua</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">IT ed EN con un click. Perfetto per turisti.</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -340,14 +345,17 @@ export default function LandingPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <FeatureCard icon="📱" title="Mobile First" />
-            <FeatureCard icon="✨" title="Importazione AI" />
-            <FeatureCard icon="🔄" title="Sync Live" />
-            <FeatureCard icon="🌐" title="Multilingua" />
-            <FeatureCard icon="🥜" title="Allergeni EU" />
-            <FeatureCard icon="🎨" title="Brand Custom" />
-            <FeatureCard icon="📊" title="Illimitato" />
-            <FeatureCard icon="⚡" title="QR Code" />
+            {["Mobile First", "Importazione AI", "Sync Live", "Multilingua", "Allergeni EU", "Brand Custom", "Illimitato", "QR Code"].map((title, i) => {
+              const icons = ["📱", "✨", "🔄", "🌐", "🥜", "🎨", "📊", "⚡"];
+              return (
+                <Card key={i} className="group hover:-translate-y-1 transition-all duration-300 border-none shadow-lg hover:shadow-xl bg-orange-50/50">
+                  <CardHeader className="p-6">
+                    <div className="text-3xl mb-3">{icons[i]}</div>
+                    <CardTitle className="font-bold text-gray-900">{title}</CardTitle>
+                  </CardHeader>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -367,15 +375,14 @@ export default function LandingPage() {
               Unisciti ai ristoratori che hanno già detto addio ai menu cartacei
             </p>
 
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 text-orange-600 px-12 py-6 rounded-2xl font-black text-xl transition-all shadow-2xl hover:scale-105"
-            >
-              <span>Inizia Ora</span>
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
+            <Button asChild size="lg" className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 text-orange-600 px-12 py-8 rounded-2xl font-black text-xl transition-all shadow-2xl hover:scale-105 h-auto">
+              <Link href="/register">
+                <span>Inizia Ora</span>
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </Button>
             <p className="mt-6 text-white/80 text-sm font-semibold">
               ✓ Tutti i vantaggi inclusi · ✓ Setup in 5 minuti · ✓ Cancella quando vuoi
             </p>
@@ -406,7 +413,7 @@ export default function LandingPage() {
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </a>
-                <a href="https://www.instagram.com/gofoodmenu/" className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-600 flex items-center justify-center transition-colors">
+                <a href="https://www.instagram.com/gofoodmenu/F" className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-600 flex items-center justify-center transition-colors">
                   <span className="sr-only">Instagram</span>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
@@ -454,25 +461,6 @@ function ProblemCard({ icon, title, description, color }: { icon: string; title:
       <div className="text-5xl mb-4">{icon}</div>
       <h3 className="font-black text-xl text-gray-900 mb-3">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-function SolutionCard({ icon, title, description }: { icon: string; title: string; description: string }) {
-  return (
-    <div className="bg-white border-2 border-orange-200 hover:border-orange-400 rounded-2xl p-8 hover:shadow-2xl transition-all group">
-      <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{icon}</div>
-      <h3 className="font-black text-xl text-gray-900 mb-3">{title}</h3>
-      <p className="text-gray-600 leading-relaxed">{description}</p>
-    </div>
-  );
-}
-
-function FeatureCard({ icon, title }: { icon: string; title: string }) {
-  return (
-    <div className="bg-gradient-to-br from-white to-orange-50 border-2 border-orange-100 hover:border-orange-300 rounded-xl p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1">
-      <div className="text-4xl mb-3">{icon}</div>
-      <h3 className="font-bold text-gray-900">{title}</h3>
     </div>
   );
 }
