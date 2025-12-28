@@ -35,7 +35,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
-import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
+import { usePhotos, useUploadPhoto } from '@/hooks/usePhotos';
 import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
 
 interface PhotoManagerProps {
@@ -54,7 +54,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     const { data: serverDishes = [], isLoading: dishesLoading } = useDishes(tenantId);
 
     const uploadMutation = useUploadPhoto();
-    const deleteMutation = useDeletePhotos();
+
     const updateDishMutation = useUpdateDish();
 
     // Derived Menu Data
@@ -78,20 +78,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
         return set;
     }, [serverDishes]);
 
-    // Sorted Photos: Unassigned first, then by name
-    const sortedPhotos = useMemo(() => {
-        return [...photos].sort((a: any, b: any) => {
-            const aAssigned = assignedUrls.has(a.url);
-            const bAssigned = assignedUrls.has(b.url);
 
-            // If assignment status is different, unassigned (false) comes first
-            if (aAssigned !== bAssigned) {
-                return aAssigned ? 1 : -1;
-            }
-            // Otherwise sort by name/date (assuming name contains timestamp or just alphabetical)
-            return a.name.localeCompare(b.name);
-        });
-    }, [photos, assignedUrls]);
 
 
 
@@ -100,8 +87,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
     // Dialog States
-    const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
-    const [showCleanupDialog, setShowCleanupDialog] = useState(false);
+
     const [dishToRemoveImage, setDishToRemoveImage] = useState<Dish | null>(null);
 
     // Validation
@@ -136,39 +122,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
         }
     });
 
-    // Cleanup Logic
-    async function handleDeletePhotoClick(photoName: string) {
-        setPhotoToDelete(photoName);
-    }
 
-    async function confirmDeletePhoto() {
-        if (!photoToDelete) return;
-        deleteMutation.mutate({ tenantId, photoNames: [photoToDelete] });
-        setPhotoToDelete(null);
-    }
-
-    async function handleCleanupUnusedClick() {
-        if (photos.length === 0) return;
-        setShowCleanupDialog(true);
-    }
-
-    async function confirmCleanupUnused() {
-
-        const filesToDelete: string[] = [];
-
-        photos.forEach((photo: any) => {
-            if (!assignedUrls.has(photo.url)) {
-                filesToDelete.push(photo.name);
-            }
-        });
-
-        if (filesToDelete.length === 0) {
-            toast("Tutte le foto sono attualmente in uso!", { icon: '👍' });
-        } else {
-            deleteMutation.mutate({ tenantId, photoNames: filesToDelete });
-        }
-        setShowCleanupDialog(false);
-    }
 
     // Assignment Logic
     function openGalleryForDish(dishId: string) {
@@ -225,79 +179,24 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
 
             <div className="flex flex-col gap-6">
 
-                {/* Top Section: Upload Area & Quick Gallery Preview */}
-                <Card className="border-2 border-gray-100 shadow-sm flex flex-col lg:flex-row overflow-hidden bg-white">
-                    {/* ... (Upload Dropzone) ... */}
+                {/* Top Section: Upload Area */}
+                <Card className="border-2 border-gray-100 shadow-sm flex flex-col bg-white">
                     <div
                         {...getRootProps()}
-                        className={`p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed transition-colors cursor-pointer shrink-0 lg:w-1/3 flex flex-col justify-center
+                        className={`p-8 border-2 border-dashed transition-colors cursor-pointer flex flex-col justify-center items-center h-48
                         ${isDragActive ? 'bg-orange-50 border-orange-400' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
                         `}
                     >
                         <input {...getInputProps()} />
-                        <div className="text-center space-y-2">
-                            <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto text-orange-500">
-                                {uploadMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
+                        <div className="text-center space-y-3">
+                            <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto text-orange-500">
+                                {uploadMutation.isPending ? <Loader2 className="w-7 h-7 animate-spin" /> : <Upload className="w-7 h-7" />}
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900">Carica Foto</p>
-                                <p className="text-xs text-gray-500">Trascina qui o clicca per caricare le foto nel tuo archivio. Max 10MB.</p>
+                                <p className="font-bold text-gray-900 text-lg">Carica Foto</p>
+                                <p className="text-sm text-gray-500">Trascina qui o clicca per caricare le foto nel tuo archivio. Max 10MB.</p>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Mini Gallery (ReadOnly/Manage) */}
-                    <div className="flex-1 min-h-0 bg-gray-50/50 p-4 overflow-y-auto max-h-[500px] custom-scrollbar">
-                        <div className="flex items-center justify-between mb-3 px-1">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Archivio ({photos.length})</h3>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleCleanupUnusedClick}
-                                className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 h-7"
-                                title="Elimina foto non assegnate a nessun piatto"
-                                disabled={deleteMutation.isPending}
-                            >
-                                {deleteMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Trash2 className="w-3 h-3 mr-1" />}
-                                Pulisci Inutilizzate
-                            </Button>
-                        </div>
-
-                        {photos.length === 0 ? (
-                            <div className="h-40 flex flex-col items-center justify-center text-gray-400 text-sm italic border-2 border-dashed border-gray-200 rounded-xl">
-                                Nessuna foto caricata
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-2">
-                                {sortedPhotos.map((photo: any) => {
-                                    const isAssigned = assignedUrls.has(photo.url);
-                                    const showWarning = highlightUnassigned && !isAssigned;
-
-                                    return (
-                                        <div
-                                            key={photo.name}
-                                            className={`relative group aspect-square rounded-md overflow-hidden bg-gray-200 transition-all
-                                                ${showWarning ? 'ring-4 ring-red-500 scale-95' : ''}
-                                                ${isAssigned ? 'opacity-40 grayscale pointer-events-none' : ''}
-                                            `}
-                                        >
-                                            <img src={photo.url} alt="Thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-
-                                            {showWarning && (
-                                                <div className="absolute inset-0 border-4 border-red-500 rounded-md animate-pulse pointer-events-none" />
-                                            )}
-
-                                            <button
-                                                onClick={() => handleDeletePhotoClick(photo.name)}
-                                                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all z-10 scale-75"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
                     </div>
                 </Card>
 
@@ -414,8 +313,8 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
 
                                                                 {/* Dish Info */}
                                                                 <div className="flex-1 min-w-0">
-                                                                    <h4 className="font-bold text-gray-900 truncate">{dish.name}</h4>
-                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                    <h4 className="font-bold text-gray-900 leading-tight text-wrap">{dish.name}</h4>
+                                                                    <div className="flex items-center gap-2 mt-2">
                                                                         {dish.image_url ? (
                                                                             <>
                                                                                 <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-[10px]">
@@ -490,7 +389,17 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                {photos.map((photo: any) => (
+                                {[...photos].sort((a: any, b: any) => {
+                                    const aAssigned = assignedUrls.has(a.url);
+                                    const bAssigned = assignedUrls.has(b.url);
+
+                                    // If assignment status is different, unassigned (false) comes first
+                                    if (aAssigned !== bAssigned) {
+                                        return aAssigned ? 1 : -1;
+                                    }
+                                    // Otherwise sort by name
+                                    return a.name.localeCompare(b.name);
+                                }).map((photo: any) => (
                                     <div
                                         key={photo.name}
                                         className={`relative group aspect-square rounded-xl overflow-hidden border-2 border-transparent transition-all bg-white
@@ -521,47 +430,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                 </DialogContent>
             </Dialog>
 
-            {/* Delete Photo Dialog */}
-            <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Eliminare questa foto?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            L'azione è irreversibile. La foto verrà rimossa dall'archivio.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setPhotoToDelete(null)}>Annulla</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDeletePhoto}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                            Elimina
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
 
-            {/* Cleanup Dialog */}
-            <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Pulizia Archivio</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Stai per eliminare tutte le foto che NON sono assegnate a nessun piatto. Questa operazione non può essere annullata.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setShowCleanupDialog(false)}>Annulla</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmCleanupUnused}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                            Pulisci Tutto
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
 
             {/* Remove Image From Dish Dialog */}
             <AlertDialog open={!!dishToRemoveImage} onOpenChange={(open) => !open && setDishToRemoveImage(null)}>
