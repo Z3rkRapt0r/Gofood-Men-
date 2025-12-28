@@ -183,18 +183,19 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                 <Card className="border-y md:border border-gray-100 shadow-none md:shadow-sm flex flex-col bg-white rounded-none md:rounded-xl">
                     <div
                         {...getRootProps()}
-                        className={`p-4 md:p-8 border-2 border-dashed transition-colors cursor-pointer flex flex-col justify-center items-center h-48
+                        className={`p-4 md:p-8 border-2 border-dashed transition-colors cursor-pointer flex flex-col justify-center items-center h-28 md:h-48
                         ${isDragActive ? 'bg-orange-50 border-orange-400' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
                         `}
                     >
                         <input {...getInputProps()} />
-                        <div className="text-center space-y-3">
-                            <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto text-orange-500">
-                                {uploadMutation.isPending ? <Loader2 className="w-7 h-7 animate-spin" /> : <Upload className="w-7 h-7" />}
+                        <div className="text-center space-y-2 md:space-y-3">
+                            <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto text-orange-500">
+                                {uploadMutation.isPending ? <Loader2 className="w-5 h-5 md:w-7 md:h-7 animate-spin" /> : <Upload className="w-5 h-5 md:w-7 md:h-7" />}
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900 text-lg">Carica Foto</p>
-                                <p className="text-sm text-gray-500">Trascina qui o clicca per caricare le foto nel tuo archivio. Max 10MB.</p>
+                                <p className="font-bold text-gray-900 text-base md:text-lg">Carica Foto</p>
+                                <p className="text-xs md:text-sm text-gray-500 hidden md:block">Trascina qui o clicca per caricare le foto nel tuo archivio. Max 10MB.</p>
+                                <p className="text-xs text-gray-500 md:hidden">Tocca per caricare (Max 10MB)</p>
                             </div>
                         </div>
                     </div>
@@ -205,7 +206,6 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                 <Card className="border-y md:border border-gray-100 shadow-none md:shadow-sm flex flex-col bg-white rounded-none md:rounded-xl">
                     <div className="p-4 border-b border-gray-100 bg-white z-10">
                         <h2 className="text-xl font-bold text-gray-900">Assegna Foto ai Piatti</h2>
-                        <p className="text-sm text-gray-500">Clicca su "Aggiungi Foto" per scegliere un'immagine dall'archivio.</p>
                     </div>
 
                     <div className="flex-1 p-4 bg-gray-50/30">

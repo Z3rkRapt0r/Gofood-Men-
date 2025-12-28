@@ -25,7 +25,7 @@ export function StepPhotos({ tenantId, onValidationChange, highlightUnassigned }
             <div className="text-center md:text-left">
                 <h2 className="text-2xl font-black text-gray-900">Foto Piatti 📸</h2>
                 <p className="text-gray-600 mt-1">
-                    Carica e assegna le foto ai tuoi piatti. Clicca su "Aggiungi Foto" per assegnare.
+                    Carica e assegna le foto ai tuoi piatti.
                 </p>
             </div>
 

@@ -32,10 +32,6 @@ export default function MediaPage() {
                             <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                                 📸 Galleria Foto
                             </h1>
-                            <p className="text-gray-500 mt-1 max-w-2xl">
-                                Carica le foto dei tuoi piatti, organizzale e assegnale facilmente al menu.
-                                Le foto assegnate appariranno nel menu digitale.
-                            </p>
                         </div>
                     </div>
 
