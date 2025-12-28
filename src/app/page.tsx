@@ -433,9 +433,10 @@ export default function LandingPage() {
             <p>Rag. Sociale: GO ! FOOD ITALIA DI GIORGIO DI MARTINO</p>
             <p>Indirizzo: VIA MARIANO STABILE 160 - 90139 - PALERMO (PA)</p>
             <p>Partita IVA: 06955440828</p>
-            <div className="flex justify-center gap-4 mt-4">
+            <div className="flex justify-center gap-4 mt-4 text-xs text-gray-400">
               <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Privacy Policy">Privacy Policy</a>
               <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Cookie Policy">Cookie Policy</a>
+              <Link href="/termini-e-condizioni" className="hover:text-orange-500 transition-colors">Termini e Condizioni</Link>
               <Script id="iubenda-loader-landing" strategy="lazyOnload">
                 {`(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);`}
               </Script>
