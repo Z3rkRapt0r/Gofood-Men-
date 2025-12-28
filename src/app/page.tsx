@@ -48,7 +48,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-2 md:px-4 pt-20 pb-16 md:py-32">
+      <section className="container mx-auto px-2 md:px-4 pt-10 pb-16 md:py-22">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Copy */}
@@ -197,7 +197,7 @@ export default function LandingPage() {
           <p className="text-center text-gray-500 font-semibold uppercase tracking-wider mb-8 text-sm">
             Scelto dai migliori ristoranti
           </p>
-          <div className="grid grid-cols-2 md:flex md:flex-wrap justify-items-center items-center gap-8 md:gap-20 transition-all duration-500">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap justify-items-center md:justify-center items-center gap-8 md:gap-20 transition-all duration-500">
             {/* Real Logos */}
             <Link href="/magna-roma" className="flex items-center gap-4 transition-all duration-500 hover:scale-110 hover:rotate-2 filter hover:drop-shadow-lg cursor-pointer">
               <div className="relative w-24 h-24 md:w-32 md:h-32">
@@ -345,7 +345,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {["Mobile First", "Importazione AI", "Sync Live", "Multilingua", "Allergeni EU", "Brand Custom", "Illimitato", "QR Code"].map((title, i) => {
+            {["Mobile First", "Importazione AI", "Sync Live", "Multilingua", "Allergeni EU", "Brand Custom", "Piatti e Categorie Illimitate", "QR Code"].map((title, i) => {
               const icons = ["📱", "✨", "🔄", "🌐", "🥜", "🎨", "📊", "⚡"];
               return (
                 <Card key={i} className="group hover:-translate-y-1 transition-all duration-300 border-none shadow-lg hover:shadow-xl bg-orange-50/50">
