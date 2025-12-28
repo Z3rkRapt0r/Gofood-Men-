@@ -425,22 +425,25 @@ export default function LandingPage() {
               <h4 className="font-bold text-lg mb-4 text-orange-400">Supporto</h4>
               <ul className="space-y-3 text-gray-400">
                 <li><a href="mailto:info@gofoodmenu.it" className="hover:text-orange-400 transition-colors">info@gofoodmenu.it</a></li>
+                <li><a href="https://wa.me/393714249089" className="hover:text-orange-400 transition-colors">WhatsApp</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-lg mb-4 text-orange-400">Risorse</h4>
+              <ul className="space-y-3 text-gray-400">
+                <li><a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-400 transition-colors" title="Privacy Policy">Privacy Policy</a></li>
+                <li><a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-400 transition-colors" title="Cookie Policy">Cookie Policy</a></li>
+                <li><Link href="/termini-e-condizioni" className="hover:text-orange-400 transition-colors">Termini e Condizioni</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-            <p>Rag. Sociale: GO ! FOOD ITALIA DI GIORGIO DI MARTINO</p>
-            <p>Indirizzo: VIA MARIANO STABILE 160 - 90139 - PALERMO (PA)</p>
-            <p>Partita IVA: 06955440828</p>
-            <div className="flex justify-center gap-4 mt-4 text-xs text-gray-400">
-              <a href="https://www.iubenda.com/privacy-policy/23100081" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Privacy Policy">Privacy Policy</a>
-              <a href="https://www.iubenda.com/privacy-policy/23100081/cookie-policy" className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe hover:text-orange-500 transition-colors" title="Cookie Policy">Cookie Policy</a>
-              <Link href="/termini-e-condizioni" className="hover:text-orange-500 transition-colors">Termini e Condizioni</Link>
-              <Script id="iubenda-loader-landing" strategy="lazyOnload">
-                {`(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);`}
-              </Script>
-            </div>
+          <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-400 text-sm">
+            <p>&copy; {new Date().getFullYear()} GO! FOOD. Tutti i diritti riservati.</p>
+            <p className="mt-2">P.IVA 06955440828 - Via Mariano Stabile 160, Palermo</p>
+            <Script id="iubenda-loader-landing" strategy="lazyOnload">
+              {`(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);`}
+            </Script>
           </div>
         </div>
       </footer>
