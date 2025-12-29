@@ -268,7 +268,7 @@ export default function RegisterPage() {
 
             <p className="text-xs text-center text-gray-500 leading-relaxed mt-2 px-6">
               Registrandoti accetti i nostri{' '}
-              <a href="#" className="font-medium text-orange-600 hover:underline">Termini di Servizio</a>
+              <Link href="/termini-e-condizioni" className="font-medium text-orange-600 hover:underline">Termini di Servizio</Link>
               {' '}e la{' '}
               <a href="https://www.iubenda.com/privacy-policy/23100081" className="font-medium text-orange-600 hover:underline">Privacy Policy</a>
             </p>

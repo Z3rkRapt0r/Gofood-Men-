@@ -420,7 +420,6 @@ export default function LandingPage() {
               <h4 className="font-bold text-lg mb-4 text-orange-400">Supporto</h4>
               <ul className="space-y-3 text-gray-400">
                 <li><a href="mailto:info@gofoodmenu.it" className="hover:text-orange-400 transition-colors">info@gofoodmenu.it</a></li>
-                <li><a href="https://wa.me/393714249089" className="hover:text-orange-400 transition-colors">WhatsApp</a></li>
               </ul>
             </div>
             <div>
