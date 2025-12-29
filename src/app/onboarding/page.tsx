@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -62,10 +63,19 @@ function OnboardingContent() {
     }
   };
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const queryClient = useQueryClient();
+
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/login');
+
+    // Clear all React Query caches
+    queryClient.removeQueries();
+    queryClient.clear();
+
+    // Force hard reload to login to ensure clean state
+    window.location.href = '/login';
   };
 
   // Effect to redirect if already completed

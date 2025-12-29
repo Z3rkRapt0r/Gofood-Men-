@@ -32,7 +32,7 @@ export function WizardControls({
                 <Button
                     variant="outline"
                     onClick={onBack}
-                    disabled={isSaving || (isFirstStep && !onSaveDraft)} // Disable back on step 1 unless we repurpose it for "Logout/Exit"
+                    disabled={isSaving} // Allow "Esci" on step 1
                     className="gap-2"
                 >
                     <ArrowLeft className="w-4 h-4" />
