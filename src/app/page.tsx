@@ -198,7 +198,7 @@ export default function LandingPage() {
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-items-center md:justify-center items-center gap-8 md:gap-20 transition-all duration-500">
             {/* Real Logos */}
-            <Link href="/magna-roma" className="flex items-center gap-4 transition-all duration-500 hover:scale-110 hover:rotate-2 filter hover:drop-shadow-lg cursor-pointer">
+            <Link href="https://magnaroma-table-menu.vercel.app/" className="flex items-center gap-4 transition-all duration-500 hover:scale-110 hover:rotate-2 filter hover:drop-shadow-lg cursor-pointer">
               <div className="relative w-24 h-24 md:w-32 md:h-32">
                 <Image
                   src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/magnaroma-logo1.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL21hZ25hcm9tYS1sb2dvMS5wbmciLCJpYXQiOjE3NjQ3OTQ1MDIsImV4cCI6MjA4MDE1NDUwMn0.iqkxWbz2bd8AoHLmk4RhxhTqMw4Wn_mjk99YlkEzAjM"
