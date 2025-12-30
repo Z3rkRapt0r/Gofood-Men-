@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Loader2, Upload, Trash2, Check, X, ImagePlus, RefreshCw } from 'lucide-react';
+import { Loader2, Upload, Trash2, Check, X, ImagePlus, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +35,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
-import { usePhotos, useUploadPhoto } from '@/hooks/usePhotos';
+import { usePhotos, useUploadPhoto, useDeletePhotos } from '@/hooks/usePhotos';
 import { useCategories, useDishes, useUpdateDish, Dish, Category } from '@/hooks/useMenu';
 
 interface PhotoManagerProps {
@@ -82,9 +82,16 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
 
 
 
+    const deletePhotosMutation = useDeletePhotos();
+
     // Selection State
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+    const [photosToDelete, setPhotosToDelete] = useState<Set<string>>(new Set());
+
+    // Warning Dialog for deleting assigned photos
+    const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
     // Dialog States
 
@@ -128,6 +135,8 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
     function openGalleryForDish(dishId: string) {
         setSelectedDishId(dishId);
         setIsGalleryOpen(true);
+        setIsDeleteMode(false);
+        setPhotosToDelete(new Set());
     }
 
     async function assignPhotoToDish(photoUrl: string) {
@@ -165,6 +174,49 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
             setDishToRemoveImage(null);
         }
     }
+
+    const togglePhotoSelection = (photoName: string) => {
+        setPhotosToDelete(prev => {
+            const next = new Set(prev);
+            if (next.has(photoName)) {
+                next.delete(photoName);
+            } else {
+                next.add(photoName);
+            }
+            return next;
+        });
+    };
+
+    const handleDeleteSelectedPhotos = async () => {
+        if (photosToDelete.size === 0) return;
+
+        // Check if any selected photo is currently assigned
+        const assignedPhotosSelected = photos.filter(p =>
+            photosToDelete.has(p.name) && assignedUrls.has(p.url)
+        );
+
+        if (assignedPhotosSelected.length > 0) {
+            setShowDeleteWarning(true);
+            return;
+        }
+
+        await executeDeletePhotos();
+    };
+
+    const executeDeletePhotos = async () => {
+        try {
+            await deletePhotosMutation.mutateAsync({
+                tenantId,
+                photoNames: Array.from(photosToDelete)
+            });
+            setPhotosToDelete(new Set());
+            setShowDeleteWarning(false);
+            // Optional: exit delete mode
+            // setIsDeleteMode(false); 
+        } catch (e) {
+            // Error handled by mutation
+        }
+    };
 
     const isLoading = photosLoading || menuLoading;
 
@@ -376,8 +428,32 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
             {/* Gallery Picker Logic Modal */}
             <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
                 <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
-                    <DialogHeader className="p-6 border-b shrink-0">
+                    <DialogHeader className="p-6 border-b shrink-0 flex flex-row items-center justify-between">
                         <DialogTitle>Seleziona una foto dall'archivio</DialogTitle>
+                        <div className="flex items-center gap-2">
+                            {isDeleteMode && photosToDelete.size > 0 && (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={handleDeleteSelectedPhotos}
+                                    disabled={deletePhotosMutation.isPending}
+                                >
+                                    Elimina ({photosToDelete.size})
+                                </Button>
+                            )}
+                            <Button
+                                variant={isDeleteMode ? "default" : "outline"}
+                                size="icon"
+                                onClick={() => {
+                                    setIsDeleteMode(!isDeleteMode);
+                                    if (isDeleteMode) setPhotosToDelete(new Set());
+                                }}
+                                title="Elimina foto"
+                                className={isDeleteMode ? "bg-red-600 hover:bg-red-700" : ""}
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </DialogHeader>
 
                     <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
@@ -399,38 +475,91 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                     }
                                     // Otherwise sort by name
                                     return a.name.localeCompare(b.name);
-                                }).map((photo: any) => (
-                                    <div
-                                        key={photo.name}
-                                        className={`relative group aspect-square rounded-xl overflow-hidden border-2 border-transparent transition-all bg-white
-                                            ${assignedUrls.has(photo.url)
-                                                ? 'opacity-30 cursor-not-allowed border-gray-200'
-                                                : 'hover:border-orange-500 cursor-pointer shadow-sm hover:shadow-md'
-                                            }
-                                        `}
-                                        onClick={() => {
-                                            if (!assignedUrls.has(photo.url)) assignPhotoToDish(photo.url);
-                                        }}
-                                    >
-                                        <img src={photo.url} alt="Selection" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                            {assignedUrls.has(photo.url) ? (
-                                                <Badge variant="secondary" className="bg-gray-800 text-white">In Uso</Badge>
+                                }).map((photo: any) => {
+                                    const isSelectedForDeletion = photosToDelete.has(photo.name);
+                                    const isAssigned = assignedUrls.has(photo.url);
+
+                                    return (
+                                        <div
+                                            key={photo.name}
+                                            className={`relative group aspect-square rounded-xl overflow-hidden border-2 transition-all bg-white
+                                                ${isDeleteMode
+                                                    ? (isSelectedForDeletion ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200 hover:border-red-300 cursor-pointer')
+                                                    : (isAssigned
+                                                        ? 'opacity-30 cursor-not-allowed border-gray-200'
+                                                        : 'border-transparent hover:border-orange-500 cursor-pointer shadow-sm hover:shadow-md'
+                                                    )
+                                                }
+                                            `}
+                                            onClick={() => {
+                                                if (isDeleteMode) {
+                                                    togglePhotoSelection(photo.name);
+                                                } else {
+                                                    if (!isAssigned) assignPhotoToDish(photo.url);
+                                                }
+                                            }}
+                                        >
+                                            <img src={photo.url} alt="Selection" className="w-full h-full object-cover" />
+
+                                            {/* Overlays */}
+                                            {isDeleteMode ? (
+                                                <div className={`absolute inset-0 transition-colors flex items-center justify-center ${isSelectedForDeletion ? 'bg-red-500/20' : 'group-hover:bg-red-500/10'}`}>
+                                                    {isAssigned && (
+                                                        <div className="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                                                            <AlertTriangle className="w-3 h-3" /> In Uso
+                                                        </div>
+                                                    )}
+                                                    {isSelectedForDeletion && (
+                                                        <div className="bg-red-500 text-white p-2 rounded-full transform scale-110 shadow-lg z-10">
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             ) : (
-                                                <span className="opacity-0 group-hover:opacity-100 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">
-                                                    Seleziona
-                                                </span>
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                    {isAssigned ? (
+                                                        <Badge variant="secondary" className="bg-gray-800 text-white">In Uso</Badge>
+                                                    ) : (
+                                                        <span className="opacity-0 group-hover:opacity-100 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">
+                                                            Seleziona
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
                 </DialogContent>
             </Dialog>
 
-
+            {/* Warning Dialog for Assigned Photos */}
+            <AlertDialog open={showDeleteWarning} onOpenChange={setShowDeleteWarning}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-yellow-600">
+                            <AlertTriangle className="w-5 h-5" />
+                            Foto in uso rilevate
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Hai selezionato una o più foto che sono attualmente assegnate a dei piatti nel menu.
+                            <br /><br />
+                            <strong>Se procedi, queste foto verranno rimosse anche dai piatti associati.</strong>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={executeDeletePhotos}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Elimina Comunque
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Remove Image From Dish Dialog */}
             <AlertDialog open={!!dishToRemoveImage} onOpenChange={(open) => !open && setDishToRemoveImage(null)}>
