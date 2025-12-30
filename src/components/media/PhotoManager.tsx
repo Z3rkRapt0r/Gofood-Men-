@@ -429,7 +429,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
             <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
                 <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
                     <DialogHeader className="p-4 md:p-6 border-b shrink-0 space-y-4">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mr-8 md:mr-0">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mr-8 md:mr-10">
                             <DialogTitle className="text-lg">Archivio Foto</DialogTitle>
 
                             <div className="flex items-center gap-2 self-end md:self-auto">
@@ -460,10 +460,7 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
                                             <span className="hidden md:inline">Annulla</span>
                                         </>
                                     ) : (
-                                        <>
-                                            <Trash2 className="w-4 h-4" />
-                                            <span className="hidden md:inline">Gestisci</span>
-                                        </>
+                                        <Trash2 className="w-4 h-4" />
                                     )}
                                 </Button>
                             </div>
