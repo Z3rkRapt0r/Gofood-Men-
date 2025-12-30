@@ -428,31 +428,45 @@ export default function PhotoManager({ tenantId, onValidationChange, highlightUn
             {/* Gallery Picker Logic Modal */}
             <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
                 <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
-                    <DialogHeader className="p-6 border-b shrink-0 flex flex-row items-center justify-between">
-                        <DialogTitle>Seleziona una foto dall'archivio</DialogTitle>
-                        <div className="flex items-center gap-2">
-                            {isDeleteMode && photosToDelete.size > 0 && (
+                    <DialogHeader className="p-4 md:p-6 border-b shrink-0 space-y-4">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mr-8 md:mr-0">
+                            <DialogTitle className="text-lg">Archivio Foto</DialogTitle>
+
+                            <div className="flex items-center gap-2 self-end md:self-auto">
+                                {isDeleteMode && photosToDelete.size > 0 && (
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={handleDeleteSelectedPhotos}
+                                        disabled={deletePhotosMutation.isPending}
+                                        className="h-8 text-xs md:text-sm"
+                                    >
+                                        Elimina ({photosToDelete.size})
+                                    </Button>
+                                )}
                                 <Button
-                                    variant="destructive"
+                                    variant={isDeleteMode ? "secondary" : "ghost"}
                                     size="sm"
-                                    onClick={handleDeleteSelectedPhotos}
-                                    disabled={deletePhotosMutation.isPending}
+                                    onClick={() => {
+                                        setIsDeleteMode(!isDeleteMode);
+                                        if (isDeleteMode) setPhotosToDelete(new Set());
+                                    }}
+                                    title={isDeleteMode ? "Esci da elimina" : "Elimina foto"}
+                                    className={`h-8 px-2 md:px-3 gap-2 ${isDeleteMode ? "bg-red-100 text-red-700 hover:bg-red-200" : "text-gray-500"}`}
                                 >
-                                    Elimina ({photosToDelete.size})
+                                    {isDeleteMode ? (
+                                        <>
+                                            <X className="w-4 h-4" />
+                                            <span className="hidden md:inline">Annulla</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Trash2 className="w-4 h-4" />
+                                            <span className="hidden md:inline">Gestisci</span>
+                                        </>
+                                    )}
                                 </Button>
-                            )}
-                            <Button
-                                variant={isDeleteMode ? "default" : "outline"}
-                                size="icon"
-                                onClick={() => {
-                                    setIsDeleteMode(!isDeleteMode);
-                                    if (isDeleteMode) setPhotosToDelete(new Set());
-                                }}
-                                title="Elimina foto"
-                                className={isDeleteMode ? "bg-red-600 hover:bg-red-700" : ""}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
+                            </div>
                         </div>
                     </DialogHeader>
 
