@@ -23,6 +23,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from 'lucide-react';
+import { OnboardingFeedback } from '../OnboardingFeedback';
 
 interface OnboardingWizardProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -233,7 +234,14 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
             {/* Header / Stepper Area */}
             <div className="bg-white border-b border-gray-200 pt-6 pb-4 px-4 sticky top-0 z-40 bg-white/90 backdrop-blur-md">
                 <div className="container mx-auto max-w-5xl">
-                    <WizardStepper currentStep={step} totalSteps={TOTAL_STEPS} />
+                    <WizardStepper
+                        currentStep={step}
+                        totalSteps={TOTAL_STEPS}
+                        feedbackProps={{
+                            email: formData.contact_email || '',
+                            name: formData.restaurant_name || ''
+                        }}
+                    />
                 </div>
             </div>
 
@@ -283,6 +291,14 @@ export function OnboardingWizard({ initialData, tenantId, onUpdate, onExit, curr
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Support / Feedback Trigger - Desktop Only (on mobile it's in header) */}
+            <div className="hidden md:block">
+                <OnboardingFeedback
+                    userEmail={formData.contact_email || ''}
+                    restaurantName={formData.restaurant_name || ''}
+                />
+            </div>
         </div>
     );
 }
