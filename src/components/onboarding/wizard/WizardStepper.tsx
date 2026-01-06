@@ -1,15 +1,11 @@
 import { Zap, NotebookPen, UtensilsCrossed, Palette, CheckCircle, Circle, Image, Tag } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { OnboardingFeedback } from "../OnboardingFeedback";
+
 
 interface WizardStepperProps {
     currentStep: number;
     totalSteps: number;
-    feedbackProps?: {
-        email: string;
-        name: string;
-    };
 }
 
 const STEPS = [
@@ -21,7 +17,7 @@ const STEPS = [
     { id: 6, label: "Branding", icon: Palette },
 ];
 
-export function WizardStepper({ currentStep, totalSteps, feedbackProps }: WizardStepperProps) {
+export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
     const progress = (currentStep / totalSteps) * 100;
 
     return (
@@ -35,13 +31,7 @@ export function WizardStepper({ currentStep, totalSteps, feedbackProps }: Wizard
                         <img src="/favicon.svg" alt="Gofood Menu" className="w-full h-full object-contain" />
                     </div>
 
-                    {feedbackProps && (
-                        <OnboardingFeedback
-                            userEmail={feedbackProps.email}
-                            restaurantName={feedbackProps.name}
-                            variant="header"
-                        />
-                    )}
+
                 </div>
 
                 {/* Steps Indicator */}
