@@ -165,11 +165,38 @@ export default async function Page({ params }: PageProps) {
   };
 
   return (
-    <MenuPageClient
-      tenant={transformedTenant}
-      categories={categories}
-      initialTheme={themeConfig}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Restaurant',
+            name: tenant.restaurant_name,
+            image: tenant.logo_url,
+            url: `https://gofood-menu.com/${slug}`,
+            telephone: tenant.footer_data?.locations?.[0]?.phone,
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: tenant.footer_data?.locations?.[0]?.address,
+              addressLocality: tenant.footer_data?.locations?.[0]?.city,
+              addressCountry: 'IT'
+            },
+            servesCuisine: 'Italian',
+            menu: `https://gofood-menu.com/${slug}`,
+            potentialAction: {
+              '@type': 'OrderAction',
+              target: `https://gofood-menu.com/${slug}`
+            }
+          })
+        }}
+      />
+      <MenuPageClient
+        tenant={transformedTenant}
+        categories={categories}
+        initialTheme={themeConfig}
+      />
+    </>
   );
 }
 
