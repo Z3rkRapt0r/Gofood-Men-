@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AlertTriangle, Wand2, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
@@ -30,6 +31,7 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
     const { mutateAsync: detectAllergens, isPending: isScanning } = useDetectAllergens();
 
     const [showScanModal, setShowScanModal] = useState(false);
+    const [forceRescan, setForceRescan] = useState(false);
     const [aiResults, setAiResults] = useState<Map<string, AllergenResult>>(new Map());
     const [scanStats, setScanStats] = useState<{ analyzed: number, toReview: number } | null>(null);
 
@@ -108,23 +110,37 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
     };
 
     const handleOpenScan = () => {
+        setForceRescan(false);
         setShowScanModal(true);
     };
 
     const handleConfirmScan = async () => {
         setShowScanModal(false);
 
-        // 1. Filter out dishes that already have allergens assigned
-        const validDishes = serverDishes.filter(d => !d.allergen_ids || d.allergen_ids.length === 0);
+        // 1. Filter out dishes based on user preference
+        const validDishes = serverDishes.filter(d => {
+            if (forceRescan) return true; // Include everything if forced
+
+            // Smart Skip Logic:
+            const hasAllergens = d.allergen_ids && d.allergen_ids.length > 0;
+            const hasCharacteristics = d.is_vegetarian || d.is_vegan || d.is_seasonal || d.is_homemade || d.is_frozen;
+
+            // Skip if it has ANY meaningful data assigned
+            return !(hasAllergens || hasCharacteristics);
+        });
+
         const skippedCount = serverDishes.length - validDishes.length;
 
         if (validDishes.length === 0) {
-            toast.info('Tutti i piatti hanno già degli allergeni assegnati (o esclusi).');
+            toast.info(forceRescan
+                ? 'Nessun piatto trovato.'
+                : 'Tutti i piatti hanno già dati assegnati. Usa "Riscansiona tutto" per forzare.'
+            );
             return;
         }
 
         if (skippedCount > 0) {
-            toast.info(`Scansione di ${validDishes.length} piatti (${skippedCount} saltati perché già configurati)`);
+            toast.info(`Scansione di ${validDishes.length} piatti (${skippedCount} saltati perché già curati)`);
         } else {
             toast.info(`Avvio scansione di ${validDishes.length} piatti...`);
         }
@@ -308,8 +324,27 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                         <AlertDialogDescription className="space-y-4 pt-2 text-left" asChild>
                             <div className="text-sm text-muted-foreground">
                                 <p>
-                                    L'intelligenza artificiale (Gemini) analizzerà i <b>{serverDishes.length} piatti</b> del tuo menu per identificare possibili allergeni e glutine.
+                                    L'intelligenza artificiale (Gemini) analizzerà <b>{forceRescan ? serverDishes.length : serverDishes.filter(d => !((d.allergen_ids && d.allergen_ids.length > 0) || (d.is_vegetarian || d.is_vegan || d.is_seasonal || d.is_homemade || d.is_frozen))).length} piatti</b> (su {serverDishes.length} totali) per identificare possibili allergeni e glutine.
                                 </p>
+
+                                <div className="flex items-start space-x-3 p-3 border rounded-md bg-white">
+                                    <Checkbox
+                                        id="force-rescan"
+                                        checked={forceRescan}
+                                        onCheckedChange={(checked) => setForceRescan(checked as boolean)}
+                                    />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <Label
+                                            htmlFor="force-rescan"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Riscansiona tutto (ignora dati esistenti)
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Se attivo, analizza anche i piatti che hanno già caratteristiche o allergeni assegnati, sovrascrivendoli.
+                                        </p>
+                                    </div>
+                                </div>
 
                                 <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-amber-800 text-xs flex gap-2">
                                     <AlertTriangle className="w-10 h-10 shrink-0 opacity-50" />
@@ -321,7 +356,7 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                                 <div className="p-3 bg-blue-50 text-blue-800 text-xs rounded-lg border border-blue-100 flex gap-3 items-start">
                                     <Info className="w-5 h-5 shrink-0 mt-0.5" />
                                     <div className="flex-1 leading-relaxed">
-                                        Gli allergeni rilevati verranno <b>assegnati automaticamente</b> al menu. Potrai comunque modificarli manualmente dopo la scansione.
+                                        Per default, <b>saltiamo i piatti già curati</b> (con allergeni o caratteristiche). Attiva l'opzione sopra per forzare una scansione completa.
                                     </div>
                                 </div>
                             </div>
