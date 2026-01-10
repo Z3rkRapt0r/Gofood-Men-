@@ -499,6 +499,14 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                     >
                                         <option value="solid">Linea Solida</option>
                                         <option value="dashed">Tratteggiata</option>
+                                        <option value="dotted">Punteggiata</option>
+                                        <option value="double">Doppia</option>
+                                        <option value="groove">Incisa (Groove)</option>
+                                        <option value="wavy">Ondulata</option>
+                                        <option value="slash">Barrata (Slash)</option>
+                                        <option value="filigree">Filigrana</option>
+                                        <option value="gradient">Sfumatura Oro</option>
+                                        <option value="dashed">Tratteggiata</option>
                                         <option value="dotted">Puntini</option>
                                         <option value="double">Doppia Linea</option>
                                         <option value="groove">Incisa</option>

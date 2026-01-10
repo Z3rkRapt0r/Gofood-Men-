@@ -100,6 +100,21 @@ export const ThemeDivider: React.FC<ThemeDividerProps> = ({
         );
     }
 
+    if (dividerStyle === 'gradient') {
+        return (
+            <div
+                className={`w-full ${className}`}
+                style={{
+                    height: '0.25rem', // --spacing * 1 (approx)
+                    border: '0 solid',
+                    backgroundImage: 'linear-gradient(to right, transparent, #d4af37, transparent)', // Gold gradient
+                    flexGrow: 1,
+                    opacity: 1 // Override default 0.6
+                }}
+            />
+        );
+    }
+
     // Default: solid, dashed, dotted
     return (
         <div

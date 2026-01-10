@@ -3,7 +3,7 @@ export type TextureType = 'none' | 'paper' | 'grain' | 'slate' | 'fabric' | 'mar
 export type PatternType = 'none' | 'dots' | 'lines' | 'waves' | 'grid' | 'leaves' | 'japanese-waves';
 export type AnimationType = 'none' | 'fade' | 'slide' | 'zoom' | 'float';
 export type ElementStyle = 'modern' | 'vintage' | ' handwritten' | 'bold';
-export type DividerStyle = 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'wavy' | 'slash' | 'filigree';
+export type DividerStyle = 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'wavy' | 'slash' | 'filigree' | 'gradient';
 
 export interface ThemeColors {
     primary: string;

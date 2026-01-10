@@ -170,14 +170,20 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
           >
             {/* Category Title with Dividers */}
             <div className="flex items-center justify-center gap-4 mb-8">
-              <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
+              <ThemeDivider
+                dividerStyle={currentTheme.dividerStyle}
+                className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+              />
               <h2
                 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
                 style={{ color: currentTheme.colors.primary }}
               >
                 {category.name}
               </h2>
-              <ThemeDivider dividerStyle={currentTheme.dividerStyle} className="max-w-[100px]" />
+              <ThemeDivider
+                dividerStyle={currentTheme.dividerStyle}
+                className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+              />
             </div>
 
             {/* Category Description */}

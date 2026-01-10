@@ -94,6 +94,13 @@ async function getMenuData(slug: string) {
     (tenant as any).tagline = (mergedFooterData as any).tagline;
   }
 
+  // FIX: Sync public_name from footer_data if present (Design Studio "Nome Visualizzato" overrides registration name)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((mergedFooterData as any).public_name) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (tenant as any).restaurant_name = (mergedFooterData as any).public_name;
+  }
+
   const tenantData = tenant as Tenant;
 
   // 2. Fetch categories con piatti
