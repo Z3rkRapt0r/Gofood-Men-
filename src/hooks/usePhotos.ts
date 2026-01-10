@@ -10,7 +10,7 @@ export async function fetchPhotos(tenantId: string | undefined) {
     const { data, error } = await supabase.storage
         .from('dishes')
         .list(folderPath, {
-            limit: 100,
+            limit: 1000,
             offset: 0,
             sortBy: { column: 'created_at', order: 'desc' },
         });
