@@ -6,6 +6,7 @@ import CategoryNav from '@/components/CategoryNav';
 import DishCard from '@/components/DishCard';
 import ScrollToTop from '@/components/ScrollToTop';
 import Footer from '@/components/Footer';
+import SplashScreen from '@/components/ui/splash-screen';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
 import { ThemeDivider } from '@/components/theme/ThemeDivider';
@@ -45,6 +46,7 @@ interface Category {
 function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Category[] }) {
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
+  const [showSplash, setShowSplash] = useState(true);
   const mainRef = useRef<HTMLDivElement>(null);
   const isManualScroll = useRef(false);
   const scrollTimeout = useRef<NodeJS.Timeout>(undefined);
@@ -116,6 +118,8 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
         '--tenant-accent': currentTheme.colors.accent,
       } as React.CSSProperties}
     >
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+
       <Header
         restaurantName={tenant.restaurant_name}
         logoUrl={tenant.logo_url}

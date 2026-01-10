@@ -22,19 +22,22 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Gofood Menù - Il tuo menu digitale",
-  description: "Crea e gestisci il tuo menu digitale con Gofood Menù",
-  keywords: "menu digitale, ristorante, gofood, menu online",
+  title: {
+    default: "Gofood Menù - Il Menu Digitale per Ristoranti",
+    template: "%s | Gofood Menù"
+  },
+  description: "La soluzione completa per il tuo ristorante: menu digitale multilingua, gestione allergeni e setup immediato. Scansiona il QR e ordina. Inizia oggi.",
+  keywords: "menu digitale, ristorante, gofood, menu online, qr code, menu multilingua, gestione allergeni",
   openGraph: {
-    title: "Gofood Menù - Il tuo menu digitale",
-    description: "Crea e gestisci il tuo menu digitale con Gofood Menù",
+    title: "Gofood Menù - Il Menu Digitale per Ristoranti",
+    description: "La soluzione completa per il tuo ristorante: menu digitale multilingua, gestione allergeni e setup immediato. Scansiona il QR e ordina. Inizia oggi.",
     type: "website",
     images: [
       {
-        url: '/icon.svg',
-        width: 512,
-        height: 512,
-        alt: 'Gofood Menù Logo',
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Gofood Menù Anteprima',
       },
     ],
   },

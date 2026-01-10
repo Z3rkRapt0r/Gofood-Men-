@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
     return {
         name: 'Gofood Menù',
         short_name: 'Gofood',
-        description: 'Il tuo menu digitale sempre a portata di mano',
+        description: 'Menu digitale multilingua, gestione allergeni e setup immediato.',
         start_url: '/',
         display: 'standalone',
         background_color: '#FFF8E7',
