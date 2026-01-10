@@ -219,6 +219,7 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                     logoUrl={mockTenant.logo_url}
                                     logoHeight={currentTheme.logoHeight}
                                     forceMobile={true}
+                                    disableLanguageSwitcher={true}
                                     className="sticky top-0 z-20 w-full"
                                     mobileHeaderStyle={currentTheme.mobileHeaderStyle}
                                 />

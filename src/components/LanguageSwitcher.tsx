@@ -17,6 +17,7 @@ declare global {
 
 interface LanguageSwitcherProps {
   compact?: boolean;
+  disabled?: boolean;
 }
 
 const LANGUAGES = [
@@ -29,7 +30,9 @@ const LANGUAGES = [
   { code: 'zh-CN', label: '中文', flag: '🇨🇳' }, // Google Translate uses zh-CN for Chinese Simplified
 ];
 
-export default function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
+
+
+export default function LanguageSwitcher({ compact = false, disabled = false }: LanguageSwitcherProps) {
   const [currentLang, setCurrentLang] = useState('it');
   const [isChanging, setIsChanging] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -51,16 +54,19 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     };
 
     const scriptId = 'google-translate-script';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      document.body.appendChild(script);
-    } else if (window.google && window.google.translate) {
-      // Re-init if script already loaded (e.g. navigation)
-      window.googleTranslateElementInit();
+    // Only load script if NOT disabled (don't load translate widget in preview)
+    if (!disabled) {
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        document.body.appendChild(script);
+      } else if (window.google && window.google.translate) {
+        // Re-init if script already loaded (e.g. navigation)
+        window.googleTranslateElementInit();
+      }
     }
 
     // Check existing cookie
@@ -68,9 +74,10 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
     if (match) {
       setCurrentLang(match[1]);
     }
-  }, []);
+  }, [disabled]);
 
   const handleLanguageChange = (lang: string) => {
+    if (disabled) return; // Prevent change if disabled
     if (lang === currentLang) return;
     setIsChanging(true);
 
@@ -135,7 +142,7 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
   }
 
   return (
-    <div className="relative z-50">
+    <div className={`relative z-50 ${disabled ? 'opacity-70 pointer-events-none' : ''}`}>
       {/* Hidden container for Google's widget */}
       <div id="google_translate_element" className="hidden"></div>
 
@@ -143,7 +150,7 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
         {/* Italian Button (Fixed) */}
         <button
           onClick={() => handleLanguageChange('it')}
-          disabled={isChanging}
+          disabled={isChanging || disabled}
           className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang === 'it'
             ? 'text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
@@ -158,9 +165,9 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
 
         {/* Dropdown for other languages */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild disabled={disabled}>
             <button
-              disabled={isChanging}
+              disabled={isChanging || disabled}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang !== 'it'
                 ? 'text-white shadow-sm'
                 : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
