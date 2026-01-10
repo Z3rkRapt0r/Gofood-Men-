@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://gofood-menu.com'; // Replace with your actual domain
+    const baseUrl = 'https://www.gofoodmenu.it'; // Replace with actual domain
     const supabase = await createClient();
 
     // 1. Static Pages

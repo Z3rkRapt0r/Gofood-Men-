@@ -2,7 +2,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = 'https://gofood-menu.com'; // Replace with actual domain
+    const baseUrl = 'https://www.gofoodmenu.it'; // Replace with actual domain
 
     return {
         rules: {
