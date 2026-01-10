@@ -56,12 +56,10 @@ export function ThemeWrapper({ children, className }: { children: React.ReactNod
             .theme-body { font-family: '${fontBody}', sans-serif; text-shadow: var(--tenant-text-shadow); }
         `}} />
 
-            <MenuFrame>
-                {/* Content Layer */}
-                <div className="relative z-10 h-full bg-[var(--tenant-background,#FFF8E7)]">
-                    {children}
-                </div>
-            </MenuFrame>
+            {/* Content Layer */}
+            <div className="relative z-10 h-full bg-[var(--tenant-background,#FFF8E7)]">
+                {children}
+            </div>
         </div>
     );
 }

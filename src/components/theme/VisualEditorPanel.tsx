@@ -471,23 +471,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                     </div>
                                 </div>
 
-                                {/* Frame */}
-                                <div>
-                                    <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Cornice Esterna</label>
-                                    <select
-                                        value={currentTheme.frame}
-                                        onChange={(e) => updateTheme({ frame: e.target.value as FrameStyle })}
-                                        className="styled-select"
-                                    >
-                                        <option value="none">Nessuna</option>
-                                        <option value="simple">Semplice</option>
-                                        <option value="double">Doppia Linea</option>
-                                        <option value="elegant">Elegante</option>
-                                        <option value="wooden">Legno Rustico</option>
-                                        <option value="gold-leaf">Fogliolina Oro</option>
-                                        <option value="minimal">Minimal</option>
-                                    </select>
-                                </div>
+
 
                                 {/* Dividers */}
                                 <div>
@@ -506,13 +490,6 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                         <option value="slash">Barrata (Slash)</option>
                                         <option value="filigree">Filigrana</option>
                                         <option value="gradient">Sfumatura Oro</option>
-                                        <option value="dashed">Tratteggiata</option>
-                                        <option value="dotted">Puntini</option>
-                                        <option value="double">Doppia Linea</option>
-                                        <option value="groove">Incisa</option>
-                                        <option value="wavy">Ondulata (Wavy)</option>
-                                        <option value="slash">Obliquo (Street)</option>
-                                        <option value="filigree">Ornamentale</option>
                                     </select>
                                 </div>
                             </div>
