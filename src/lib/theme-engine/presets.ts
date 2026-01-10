@@ -5,19 +5,31 @@ export const THEME_PRESETS: ThemePreset[] = [
     {
         id: 'osteria-romana',
         name: 'Osteria Romana',
-        description: 'Vibes autentiche: pergamena crema e rosso mattone.',
+        description: 'Vibes autentiche: pergamena crema, rosso Roma e oro.',
         category: 'restaurant',
         colors: {
-            primary: '#7C2D12',
-            secondary: '#D97706',
-            accent: '#B45309',
-            background: '#FFF8E1',
-            surface: '#FFFFFF',
-            text: '#27272a',
-            textSecondary: '#57534e',
-            border: '#ECD0A9',
-            price: '#9A3412',
-            success: '#166534',
+            // Updated to match Magna Roma Live Site (Verified)
+            primary: '#8B0000',    // Roma Red
+            secondary: '#C5A059',  // Antique Gold (Verified)
+            accent: '#C5A059',     // Antique Gold (Verified)
+            background: '#FFF8E7', // Cream Background
+            surface: '#FFFFFF',    // White Surface (Cards)
+            text: '#171717',       // Coal Text
+            textSecondary: '#374151', // Gray-700 (Darker than before to match inactive buttons)
+            border: '#E5E7EB',     // Border Gray
+            price: '#171717',      // Price matches text color
+            success: '#16A34A',
+
+            // New Granular Slots
+            priceBackground: '#C5A059', // Antique Gold
+            badgeBackground: '#C5A059', // Antique Gold
+            badgeText: '#FFFFFF',       // White text on Gold (Verified)
+            // footerBackground removed to restore default gradient/background
+            footerText: '#374151',      // Darker Gray (Text Secondary)
+            headerBackground: '#FFFFFF', // Header is white
+            headerText: '#8B0000',       // Header text/icons are red
+            overlay: '#8B0000',          // Default overlay matches primary
+            overlayOpacity: 0.1          // Default subtle opacity
         },
         frame: 'none',
         texture: 'none',
@@ -27,8 +39,9 @@ export const THEME_PRESETS: ThemePreset[] = [
         scale: 1,
         rounded: 'sm',
         shadows: 'soft',
-        dividerStyle: 'filigree',
+        dividerStyle: 'filigree', // Keep filigree as it fits the style
         logoHeight: 60,
+        textShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)', // Subtle shadow for legibility
     },
 
     // 2. STREET BURGER

@@ -60,10 +60,10 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
       ? 'opacity-50 pointer-events-none'
       : 'hover:shadow-2xl hover:-translate-y-1'
       }`}>
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-[var(--tenant-background,#FFF8E7)] to-[var(--tenant-secondary,#D4AF37)]/20">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--tenant-background,#FFF8E7)]">
         {/* Placeholder "Fuori stagione" per piatti stagionali */}
         {isSeasonalDish ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[var(--tenant-background,#FFF8E7)] via-[#F5E6D3] to-[#E8D9C4]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-[var(--tenant-background,#FFF8E7)]">
             <div className="text-center max-w-xs">
               <div className="text-7xl mb-6 opacity-40">🌿</div>
               <div className="text-xl md:text-2xl font-serif font-bold text-[var(--tenant-primary,#8B0000)] mb-3">
@@ -101,8 +101,8 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
         )}
         {/* Price badge */}
         <div
-          className="absolute top-4 right-4 text-[var(--tenant-background,#FFFFFF)] px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm"
-          style={{ backgroundColor: 'var(--tenant-price, var(--tenant-secondary, #D4AF37))' }}
+          className="absolute top-4 right-4 text-[var(--tenant-price,#171717)] px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm"
+          style={{ backgroundColor: 'var(--tenant-price-bg, var(--tenant-secondary, #D4AF37))' }}
         >
           <span className="font-bold text-base">€{dish.price}</span>
         </div>
@@ -120,7 +120,13 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
         {/* Badge Fatto in casa e Surgelato */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {!isDisabled && dish.is_homemade && (
-            <div className="bg-[var(--tenant-primary,#8B0000)] text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+            <div
+              className="px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm"
+              style={{
+                backgroundColor: 'var(--tenant-badge-bg, var(--tenant-primary, #8B0000))',
+                color: 'var(--tenant-badge-text, #FFFFFF)'
+              }}
+            >
               <span className="font-semibold text-xs flex items-center gap-1">
                 <span>🏠</span>
                 Fatto in casa
@@ -185,7 +191,7 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
                   className="text-xs px-2.5 py-1 rounded-full border transition-colors"
                   style={{
                     backgroundColor: 'color-mix(in srgb, var(--tenant-accent, #d97706) 10%, transparent)',
-                    color: 'var(--tenant-accent, #d97706)',
+                    color: 'var(--tenant-primary, #8B0000)',
                     borderColor: 'color-mix(in srgb, var(--tenant-accent, #d97706) 30%, transparent)'
                   }}
                 >
@@ -196,7 +202,7 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
             <Link
               href={`/${tenantSlug}/allergeni`}
               className="inline-flex items-center gap-1.5 text-sm hover:brightness-75 font-medium transition-all"
-              style={{ color: 'var(--tenant-accent, #8B0000)' }}
+              style={{ color: 'var(--tenant-primary, #8B0000)' }}
             >
               <span>ℹ️</span>
               Vedi info allergeni

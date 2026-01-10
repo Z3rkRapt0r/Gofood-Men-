@@ -39,7 +39,7 @@ export default function CategoryNav({ categories, activeCategory, onCategoryClic
   const positionClass = className || "fixed top-[72px] left-0 w-full z-40";
 
   return (
-    <nav className={`${positionClass} bg-gradient-to-r from-[var(--tenant-background,#FFF8E7)] to-[var(--tenant-surface,#FFFFFF)] shadow-md border-b border-gray-200/50`}>
+    <nav className={`${positionClass} bg-[var(--tenant-surface,#FFFFFF)] shadow-md border-b border-gray-200/50`}>
       <div ref={navRef} className="overflow-x-auto scrollbar-hide">
         <div className="flex gap-2 px-4 py-3 min-w-max">
           {categories.map((category) => (

@@ -138,8 +138,8 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundColor: currentTheme.colors.primary,
-            opacity: 0.1
+            backgroundColor: currentTheme.colors.overlay || currentTheme.colors.primary,
+            opacity: currentTheme.colors.overlayOpacity ?? 0.1
           }}
         />
         {/* Optional: Add a real image back if available, currently using color overlay pattern */}

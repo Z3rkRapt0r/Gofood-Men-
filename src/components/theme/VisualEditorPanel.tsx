@@ -312,7 +312,66 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
                                         value={currentTheme.colors.accent}
                                         onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, accent: val } })}
                                     />
+                                    <ColorPicker
+                                        label="Colore Overlay Hero"
+                                        description="Colore filtro sull'immagine principale"
+                                        value={currentTheme.colors.overlay || currentTheme.colors.primary}
+                                        onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, overlay: val } })}
+                                    />
+                                    <div className="space-y-1.5 pt-2 border-t border-gray-100">
+                                        <div className="flex justify-between">
+                                            <Label className="text-xs font-semibold text-gray-500">Opacità Overlay</Label>
+                                            <span className="text-xs text-gray-400">{Math.round((currentTheme.colors.overlayOpacity ?? 0.1) * 100)}%</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.05"
+                                            value={currentTheme.colors.overlayOpacity ?? 0.1}
+                                            onChange={(e) => updateTheme({ colors: { ...currentTheme.colors, overlayOpacity: parseFloat(e.target.value) } })}
+                                            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                                        />
+                                    </div>
                                 </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Granular Defaults (Component Colors) */}
+                    <AccordionItem value="granular" className="border-b-0">
+                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
+                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Dettagli Componenti (Avanzato)</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2 border border-gray-100">
+                                <ColorPicker
+                                    label="Sfondo Prezzo"
+                                    description="Badge del prezzo"
+                                    value={currentTheme.colors.priceBackground || 'transparent'}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, priceBackground: val } })}
+                                />
+                                <div className="border-t border-gray-200 my-2 pt-2"></div>
+                                <div className="border-t border-gray-200 my-2 pt-2"></div>
+                                <ColorPicker
+                                    label="Testo Footer"
+                                    description="Colore testo piè di pagina"
+                                    value={currentTheme.colors.footerText || currentTheme.colors.textSecondary}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, footerText: val } })}
+                                />
+                                <div className="border-t border-gray-200 my-2 pt-2"></div>
+                                <ColorPicker
+                                    label="Sfondo Header"
+                                    description="Colore fondo intestazione"
+                                    value={currentTheme.colors.headerBackground || currentTheme.colors.surface}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, headerBackground: val } })}
+                                />
+                                <ColorPicker
+                                    label="Icona Filtro (Glutine)"
+                                    description="Colore tasto celiaci"
+                                    value={currentTheme.colors.headerText || currentTheme.colors.primary}
+                                    onChange={(val) => updateTheme({ colors: { ...currentTheme.colors, headerText: val } })}
+                                />
                             </div>
                         </AccordionContent>
                     </AccordionItem>

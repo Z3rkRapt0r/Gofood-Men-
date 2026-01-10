@@ -209,16 +209,8 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                 ref={mainRef}
                                 className="min-h-full pb-8 md:overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
                                 style={{
+                                    // Cleaned up: ThemeWrapper handles CSS variables now
                                     backgroundColor: mockTenant.background_color,
-                                    '--tenant-primary': mockTenant.primary_color,
-                                    '--tenant-secondary': mockTenant.secondary_color,
-                                    '--tenant-background': mockTenant.background_color,
-                                    '--tenant-surface': currentTheme.colors.surface,
-                                    '--tenant-text': currentTheme.colors.text,
-                                    '--tenant-text-secondary': currentTheme.colors.textSecondary,
-                                    '--tenant-border': currentTheme.colors.border,
-                                    '--tenant-price': currentTheme.colors.price,
-                                    '--tenant-accent': currentTheme.colors.accent,
                                     color: currentTheme.colors.text
                                 } as React.CSSProperties}
                             >
@@ -243,8 +235,8 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                                     <div
                                         className="absolute inset-0 bg-cover bg-center"
                                         style={{
-                                            backgroundColor: mockTenant.primary_color,
-                                            opacity: 0.1
+                                            backgroundColor: currentTheme.colors.overlay || mockTenant.primary_color,
+                                            opacity: currentTheme.colors.overlayOpacity ?? 0.1
                                         }}
                                     />
                                     <div className="relative z-10 text-center px-4">

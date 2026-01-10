@@ -16,6 +16,17 @@ export interface ThemeColors {
     border: string;
     price: string;
     success: string;
+
+    // New granular slots for advanced contrast control
+    priceBackground?: string;
+    badgeBackground?: string;
+    badgeText?: string;
+    footerBackground?: string;
+    footerText?: string;
+    headerBackground?: string;
+    headerText?: string;
+    overlay?: string;
+    overlayOpacity?: number;
 }
 
 export interface ThemeConfig {
@@ -33,6 +44,7 @@ export interface ThemeConfig {
     dividerStyle: DividerStyle;
     logoHeight?: number; // Pixel height for logo (default 40-50)
     mobileHeaderStyle?: 'center' | 'left';
+    textShadow?: string; // CSS text-shadow value
 }
 
 export interface ThemePreset extends ThemeConfig {

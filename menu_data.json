@@ -1,0 +1,753 @@
+[
+  {
+    "name": "Per cominciare",
+    "dishes": [
+      {
+        "name": "Tagliere Magna Romā",
+        "description": "Tagliere con salumi e formaggi per due persone",
+        "price": "20.00",
+        "tags": ["Lattosio", "Frutta secca"]
+      },
+      {
+        "name": "Patate Magna Romā",
+        "description": "Patate fritte scavate con crema di pecorino",
+        "price": "6.50",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Arrosticini della Casa",
+        "description": "Arrosticini di carne ovina (10 pz) con patate al forno, sale, pepe, olio E.V.O. aromatizzati al rosmarino",
+        "price": "14.00",
+        "tags": []
+      },
+      {
+        "name": "Mozzarella in Carrozza",
+        "description": "Fette di pane in cassetta, mozzarella fiordilatte, uova, con o senza alici, panate e fritte (2 pz)",
+        "price": "6.50",
+        "tags": ["Glutine", "Uova", "Pesce", "Soia", "Lattosio"]
+      },
+      {
+        "name": "Tagliere del Porchettaro",
+        "description": "Porchetta, aromi, con assaggi di pecorino e miele, pepe, sfumata con vino bianco",
+        "price": "15.00",
+        "tags": ["Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Fritti Romani in Pastella",
+        "description": "Fiori di zucca con mozzarella fiordilatte, alici, melanzane, zucchine, patate in pastella",
+        "price": "6.50",
+        "tags": ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Lattosio", "Frutta secca", "Sedano", "Senape", "Sesamo", "Solfiti", "Lupini", "Molluschi"]
+      },
+      {
+        "name": "Trippa Romana",
+        "description": "Trippa, salsa di pomodoro, sedano, carote, cipolla, pecorino, menta, vino bianco, olio E.V.O., pepe",
+        "price": "11.00",
+        "tags": ["Lattosio", "Sedano", "Solfiti"]
+      },
+      {
+        "name": "Supplì",
+        "description": "Riso, tritato di manzo e maiale, salsa di pomodoro, cipolla, sedano, carote, alloro, mozzarella fiordilatte, vino bianco, grana (2 pz)",
+        "price": "6.00",
+        "tags": ["Glutine", "Lattosio", "Frutta secca", "Sedano", "Solfiti"]
+      },
+      {
+        "name": "Fagioli con le Cotiche",
+        "description": "Fagioli, cotiche di maiale, sedano, salsa di pomodoro, cipolla, carote, pepe, prezzemolo, vino bianco, olio E.V.O.",
+        "price": "9.00",
+        "tags": ["Sedano", "Solfiti"]
+      },
+      {
+        "name": "Filetti di Baccalà in Pastella",
+        "description": "Filetti di baccalà fritti in pastella",
+        "price": "9.00",
+        "tags": ["Glutine", "Pesce", "Lupini"]
+      },
+      {
+        "name": "Polpette al Sugo alla Giannone",
+        "description": "Tritato di manzo e maiale, salsa di pomodoro, grana, cipolla, uova, latte, pangrattato, basilico, prezzemolo",
+        "price": "9.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Solo Fiori",
+        "description": "Fiori di zucca con mozzarella, alici in pastella (4 pz)",
+        "price": "8.00",
+        "tags": ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Lattosio", "Frutta secca", "Sedano", "Senape", "Sesamo", "Solfiti", "Lupini", "Molluschi"]
+      },
+      {
+        "name": "Carciofi alla Romana",
+        "description": "Fuori stagione",
+        "price": "7.00",
+        "tags": ["Lattosio", "Pesce"]
+      },
+      {
+        "name": "Carciofo alla Giudia",
+        "description": "Fuori stagione",
+        "price": "6.00",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Carpaccio di Manzo",
+        "description": "Carpaccio di manzo, rucola, olio, sale e pepe, scaglie di grana",
+        "price": "10.00",
+        "tags": ["Lattosio"]
+      },
+      {
+        "name": "Sformato di Melanzane",
+        "description": "Salsa di pomodoro, melanzane fritte, scamorza bianca, mozzarella fiordilatte, basilico, grana",
+        "price": "8.00",
+        "tags": ["Lattosio"]
+      },
+      {
+        "name": "Puntarelle alla Romana",
+        "description": "Germogli di cicoria con battuto di olio E.V.O., aceto di vino, acciughe, pepe - Secondo la stagione",
+        "price": "9.00",
+        "tags": ["Pesce", "Solfiti"]
+      },
+      {
+        "name": "Crudo e Bufala",
+        "description": "Prosciutto crudo, mozzarella di bufala",
+        "price": "11.00",
+        "tags": ["Lattosio"]
+      }
+    ]
+  },
+  {
+    "name": "Bruschette",
+    "dishes": [
+      {
+        "name": "Bruschetta Tradizionale",
+        "description": "Pomodoro a dadini, aglio, olio EVO, sale, basilico, pepe",
+        "price": "5.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Lardo e Miele",
+        "description": "Lardo pancettato, miele, rosmarino",
+        "price": "6.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Stracciatella e Alici",
+        "description": "Stracciatella, alici, scorza di limone",
+        "price": "6.50",
+        "tags": ["Glutine", "Pesce", "Lattosio"]
+      },
+      {
+        "name": "Salmone e Rucola",
+        "description": "Salmone, rucola, stracciatella, olio EVO, pepe",
+        "price": "7.50",
+        "tags": ["Glutine", "Pesce", "Lattosio"]
+      }
+    ]
+  },
+  {
+    "name": "I Primi",
+    "dishes": [
+      {
+        "name": "Tonnarello alla Checca",
+        "description": "Salsa di pomodoro, pomodorino, stracciatella, basilico, peperoncino, pepe",
+        "price": "12.00",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Tonnarello Broccoli e Salsiccia",
+        "description": "Broccoletti, salsiccia, cipolla, pecorino, menta, pepe",
+        "price": "13.00",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "La Fagioli e Cotiche",
+        "description": "Pasta mista, fagioli, cotiche di maiale, salsa di pomodoro, carote, cipolle, sedano, vino bianco, prezzemolo, olio E.V.O., pepe",
+        "price": "11.00",
+        "tags": ["Glutine", "Sedano", "Solfiti"]
+      },
+      {
+        "name": "Raviolacci ai Carciofi",
+        "description": "Ravioli ripieni di ricotta e carciofi, burro, salvia, pecorino, pepe",
+        "price": "14.00",
+        "tags": ["Glutine", "Crostacei", "Uova", "Pesce", "Arachidi", "Soia", "Lattosio", "Frutta secca", "Sedano", "Senape", "Sesamo", "Solfiti", "Lupini", "Molluschi"]
+      },
+      {
+        "name": "Gnocchi Burro e Salvia",
+        "description": "Burro, salvia, pecorino, pepe",
+        "price": "11.00",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Tonnarello alle Vongole",
+        "description": "Vongole, olio E.V.O., aglio, vino bianco, prezzemolo, pepe",
+        "price": "18.00",
+        "tags": ["Glutine", "Solfiti", "Molluschi"]
+      },
+      {
+        "name": "Fettuccine Impero",
+        "description": "Aragostina, salsa di pomodoro, pomodorini, sfumata al vino, prezzemolo, aglio, menta, pepe",
+        "price": "20.00",
+        "tags": ["Glutine", "Crostacei", "Solfiti"]
+      },
+      {
+        "name": "Mezzi Rigatoni alla Vignarola",
+        "description": "Fave, piselli, crema di carciofi, cipolla, guanciale, scaglie di pecorino, pepe",
+        "price": "14.00",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Mezzi Rigatoni alla Zozzona",
+        "description": "Salsiccia, guanciale, cipolla, salsa di pomodoro, pomodorini, vino bianco, uova pastorizzate, pecorino, pepe, peperoncino",
+        "price": "14.00",
+        "tags": ["Glutine", "Uova", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Tonnarello Magna Romā",
+        "description": "Guanciale, funghi porcini, crema di carciofi, aglio, vino bianco, scaglie di pecorino, prezzemolo, pepe",
+        "price": "14.00",
+        "tags": ["Glutine", "Lattosio", "Sedano", "Solfiti"]
+      },
+      {
+        "name": "Tonnarello Sora Norma",
+        "description": "Salsa di pomodoro, melanzane fritte, basilico, sale, pepe, pecorino a scaglie, peperoncino",
+        "price": "11.00",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Fettuccine alla Magnona",
+        "description": "Tritato di manzo e maiale, cipolla, sedano, carote, salsa di pomodoro, funghi champignon, pepe, vino rosso",
+        "price": "14.00",
+        "tags": ["Glutine", "Lattosio", "Sedano", "Solfiti"]
+      },
+      {
+        "name": "Mezzi Rigatoni alla Buttarona",
+        "description": "Salsiccia, cotenna di maiale, salsa di pomodoro, guanciale, vino bianco, cipolla, pepe",
+        "price": "14.00",
+        "tags": ["Glutine", "Solfiti"]
+      },
+      {
+        "name": "Tonnarello al Sugo di Coda alla Vaccinara",
+        "description": "Coda di manzo, pomodoro pelato, cipolla, carota, sedano, pepe, vino rosso, olio E.V.O.",
+        "price": "14.00",
+        "tags": ["Glutine", "Sedano", "Solfiti"]
+      }
+    ]
+  },
+  {
+    "name": "I Primi della Tradizione",
+    "dishes": [
+      {
+        "name": "Tonnarello Cacio e Pepe",
+        "description": "Pecorino, pepe, serviti in cialda di pecorino",
+        "price": "12.50",
+        "tags": ["Glutine", "Lattosio"]
+      },
+      {
+        "name": "Tonnarello alla Carbonara",
+        "description": "Guanciale, uova pastorizzate, pecorino, pepe, serviti in cialda di pecorino",
+        "price": "12.50",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Tonnarello alla Amatriciana",
+        "description": "Salsa di pomodoro, guanciale, pecorino, pepe",
+        "price": "12.50",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Tonnarello alla Gricia",
+        "description": "Guanciale, vino bianco, pecorino, pepe",
+        "price": "12.50",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Bis della Tradizione",
+        "description": "Due tipologie di pasta a scelta tra i primi della tradizione, servite nello stesso piatto - Minimo per due persone",
+        "price": "14.00",
+        "tags": ["Glutine", "Uova", "Lattosio", "Solfiti"]
+      }
+    ]
+  },
+  {
+    "name": "I Secondi",
+    "dishes": [
+      {
+        "name": "Abbacchio Scottadito",
+        "description": "Costolette di abbacchio ai ferri con patate al forno, rosmarino, olio E.V.O.",
+        "price": "17.00",
+        "tags": []
+      },
+      {
+        "name": "Scaloppine al Vino o Limone",
+        "description": "Carne di manzo saltata in padella al limone o al vino, con burro, farina, contorno di patate al forno, olio E.V.O., pepe",
+        "price": "13.00",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Scaloppine ai Funghi",
+        "description": "Carne di manzo saltata in padella, funghi champignon, burro, farina, vino bianco, olio E.V.O., pepe",
+        "price": "15.00",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Coda alla Vaccinara",
+        "description": "Coda di manzo, pomodoro pelato, sedano, carote, cipolla, sfumata al vino rosso, olio E.V.O.",
+        "price": "16.00",
+        "tags": ["Sedano", "Solfiti"]
+      },
+      {
+        "name": "Saltimbocca alla Romana",
+        "description": "Carne di manzo saltata in padella con burro, farina, prosciutto crudo, salvia sfumata con vino bianco, con contorno di patate al forno, olio E.V.O. e pepe",
+        "price": "14.00",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Gran Tagliere della Casa",
+        "description": "Costolette di abbacchio scottadito, salsiccia, arrosticini, porchetta, carne alla Picchiapo, patate al forno e fritte, trincià romani, crema di pecorino, peperoncino, pepe",
+        "price": "28.00",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Spadellata di Salsiccia e Patate",
+        "description": "Salsiccia, patate, cipolla, rosmarino, sale, pepe, olio E.V.O.",
+        "price": "12.00",
+        "tags": []
+      },
+      {
+        "name": "Baccalà alla Giudia",
+        "description": "Baccalà cotto in salsa di pomodoro, pomodorini, peperoncino, menta, prezzemolo, aglio, olio E.V.O.",
+        "price": "14.00",
+        "tags": ["Glutine", "Pesce"]
+      },
+      {
+        "name": "Carne alla Picchiapo",
+        "description": "Carne di manzo, salsa di pomodoro, vino bianco, cipolla, olio E.V.O., menta, peperoncino",
+        "price": "12.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Tagliata di Filetto",
+        "description": "Tagliata di filetto di manzo all'aceto balsamico o al rosmarino, con contorno di patate al forno, pepe",
+        "price": "20.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Calamaro Arrosto",
+        "description": "Calamaro arrostito al salmoriglio con insalarina e patate al forno",
+        "price": "16.00",
+        "tags": ["Pesce"]
+      },
+      {
+        "name": "Filetto ai Funghi",
+        "description": "Filetto, funghi champignon, burro, farina, pepe, sfumato con sambuca romana",
+        "price": "22.00",
+        "tags": ["Glutine", "Lattosio", "Solfiti"]
+      },
+      {
+        "name": "Bistecca di Manzo",
+        "description": "Bistecca di manzo ai ferri o panata",
+        "price": "14.00",
+        "tags": []
+      },
+      {
+        "name": "Petto di Pollo",
+        "description": "Petto di pollo ai ferri, panato o cotoletta",
+        "price": "10.00",
+        "tags": ["Glutine", "Uova"]
+      }
+    ]
+  },
+  {
+    "name": "Pinse Romane",
+    "dishes": [
+      {
+        "name": "Giulio Cesare",
+        "description": "Prosciutto crudo, stracciatella, pomodorini caramellati, miele",
+        "price": "14.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Mortazza",
+        "description": "Mortadella, burrata, granella di pistacchi",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Frutta secca", "Senape"]
+      },
+      {
+        "name": "Romana",
+        "description": "Salsa di pomodoro, mozzarella fiordilatte, prosciutto cotto, origano",
+        "price": "10.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Amatriciana",
+        "description": "Salsa di pomodoro, scaglie di pecorino, guanciale croccante, mozzarella fiordilatte, pepe",
+        "price": "11.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Buciarda",
+        "description": "Salsa di pomodoro, mozzarella di bufala, basilico, origano",
+        "price": "10.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Der Pupone",
+        "description": "Salsa di pomodoro, pomodorino, mozzarella di bufala, basilico, origano",
+        "price": "11.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Bruciacculo",
+        "description": "Salsa di pomodoro, salame piccante, mozzarella fiordilatte, melanzane fritte, scaglie di grana, pomodorino, pepe",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Cuppolone",
+        "description": "Salsa di pomodoro, mozzarella fiordilatte, porchetta, miele, scaglie di pecorino, pepe",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Sora Lella",
+        "description": "Prosciutto crudo, mozzarella di bufala, crema di fichi",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Magna Roma'",
+        "description": "Mozzarella fiordilatte, crema di carciofi, guanciale croccante, funghi porcini, scaglie di pecorino, pepe, aglio",
+        "price": "14.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "La Caciarona",
+        "description": "Salsa di pomodoro, prosciutto cotto, funghi champignon, carciofi, mozzarella fiordilatte, olio E.V.O., olive, origano",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      },
+      {
+        "name": "Villa Borghese",
+        "description": "Speck, crema di radicchio, noci, stracciatella",
+        "price": "13.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Frutta secca", "Senape", "Solfiti"]
+      },
+      {
+        "name": "La Fiatella",
+        "description": "Salsa di pomodoro, mozzarella fiordilatte, tonno, cipolla, olive, olio E.V.O., pepe",
+        "price": "12.00",
+        "tags": ["Glutine", "Arachidi", "Soia", "Lattosio", "Senape"]
+      }
+    ]
+  },
+  {
+    "name": "Contorni",
+    "dishes": [
+      {
+        "name": "Cicoria in Padella",
+        "description": "Cicoria in padella con olio E.V.O., aglio, peperoncino - Fresca in base alla stagione",
+        "price": "7.00",
+        "tags": []
+      },
+      {
+        "name": "Verdure Grigliate",
+        "description": "Zucchinette, melanzane, pomodoro, radicchio, funghi, prezzemolo",
+        "price": "7.00",
+        "tags": []
+      },
+      {
+        "name": "Patate al Forno",
+        "description": "Patate, rosmarino, sale, olio E.V.O.",
+        "price": "6.00",
+        "tags": []
+      }
+    ]
+  },
+  {
+    "name": "Insalate",
+    "dishes": [
+      {
+        "name": "Insalatona della Casa",
+        "description": "Pomodorini, tonno, rucola, mais, olive, noci, iceberg, mozzarella fiordilatte, uova sode (altri ingredienti su richiesta)",
+        "price": "10.00",
+        "tags": ["Uova", "Pesce", "Lattosio", "Frutta secca"]
+      },
+      {
+        "name": "Insalata Mista",
+        "description": "Iceberg, rucola e pomodorini",
+        "price": "6.00",
+        "tags": []
+      }
+    ]
+  },
+  {
+    "name": "Dolci",
+    "dishes": [
+      {
+        "name": "Tiramisù Scomposto",
+        "description": "Mascarpone, uova pastorizzate, zucchero, cacao, caffè, savoiardi",
+        "price": "7.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Panna Cotta",
+        "description": "Panna, zucchero, vanillina, gelatina alimentare, guarnita a scelta tra: nutella, cioccolato, fragola, frutti di bosco, caramello",
+        "price": "6.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Tortino Ricotta e Pere",
+        "description": "Farina 00, zucchero, uova, vanillina, ricotta, panna montata, pere",
+        "price": "6.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Tortino Cuore Caldo al Cioccolato",
+        "description": "Farina 00, zucchero, uova, vanillina, cioccolato fondente, cacao, lievito",
+        "price": "7.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Crostata di Visciole",
+        "description": "Farina 00, uova, zucchero, vanillina, burro, marmellata di visciole",
+        "price": "7.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      },
+      {
+        "name": "Sorbetto al Limone",
+        "description": "Acqua, zucchero, limone",
+        "price": "3.00",
+        "tags": []
+      },
+      {
+        "name": "Frutta di Stagione",
+        "description": "Frutta fresca di stagione",
+        "price": "5.00",
+        "tags": []
+      },
+      {
+        "name": "Sbriciolata",
+        "description": "Farina 00, uova pastorizzate, zucchero, panna, limone, sfoglia guarnita a scelta tra: nutella, cioccolato, fragola, frutti di bosco, caramello",
+        "price": "6.00",
+        "tags": ["Glutine", "Uova", "Lattosio"]
+      }
+    ]
+  },
+  {
+    "name": "Il Bere della Casa",
+    "dishes": [
+      {
+        "name": "Vino Rosso Magna Romā 375ml",
+        "description": "Vino della casa 'Il Rosso' - Per una scelta completa, consulta la nostra carta dei vini",
+        "price": "6.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Vino Bianco Magna Romā 375ml",
+        "description": "Vino della casa 'Il Bianco' - Per una scelta completa, consulta la nostra carta dei vini",
+        "price": "6.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Vino Rosso Magna Romā 750ml",
+        "description": "Vino della casa 'Il Rosso' - Per una scelta completa, consulta la nostra carta dei vini",
+        "price": "10.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Vino Bianco Magna Romā 750ml",
+        "description": "Vino della casa 'Il Bianco' - Per una scelta completa, consulta la nostra carta dei vini",
+        "price": "10.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Vino Frizzante Magna Romā 750ml",
+        "description": "Vino della casa 'Il Frizzante' - Per una scelta completa, consulta la nostra carta dei vini",
+        "price": "12.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Calice Magna Romā",
+        "description": "Calice di vino della casa",
+        "price": "3.50",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Calice in Bottiglia",
+        "description": "Calice di vino in bottiglia",
+        "price": "5.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Birra Bionda alla Spina 20cl",
+        "description": "Birra bionda alla spina",
+        "price": "3.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Bionda alla Spina 40cl",
+        "description": "Birra bionda alla spina",
+        "price": "5.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Bionda Weiss alla Spina 20cl",
+        "description": "Birra bionda Weiss alla spina",
+        "price": "4.00",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Bionda Weiss alla Spina 40cl",
+        "description": "Birra bionda Weiss alla spina",
+        "price": "6.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Rossa alla Spina 20cl",
+        "description": "Birra rossa alla spina",
+        "price": "4.00",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Rossa alla Spina 40cl",
+        "description": "Birra rossa alla spina",
+        "price": "6.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Analcolica 33cl",
+        "description": "Birra analcolica in bottiglia",
+        "price": "3.50",
+        "tags": []
+      },
+      {
+        "name": "Birra Senza Glutine 33cl",
+        "description": "Birra senza glutine in bottiglia",
+        "price": "3.50",
+        "tags": []
+      },
+      {
+        "name": "Birra Artigianale Magna Romā Bionda 5,5° 33cl",
+        "description": "Birra artigianale Magna Romā Bionda 5,5°",
+        "price": "3.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Artigianale Magna Romā Weiss 5° 33cl",
+        "description": "Birra artigianale Magna Romā Weiss 5°",
+        "price": "3.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Artigianale Magna Romā Rossa 5° 33cl",
+        "description": "Birra artigianale Magna Romā Rossa 5°",
+        "price": "3.50",
+        "tags": ["Glutine"]
+      },
+      {
+        "name": "Birra Artigianale Magna Romā Strong 7,3° 33cl",
+        "description": "Birra artigianale Magna Romā Strong 7,3°",
+        "price": "4.50",
+        "tags": ["Glutine"]
+      }
+    ]
+  },
+  {
+    "name": "Bevande",
+    "dishes": [
+      {
+        "name": "Acqua in Vetro 75cl",
+        "description": "Acqua in bottiglia di vetro",
+        "price": "2.50",
+        "tags": []
+      },
+      {
+        "name": "Coca Cola Vetro 33cl",
+        "description": "Coca Cola in bottiglia di vetro",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Coca Cola Zero Vetro 33cl",
+        "description": "Coca Cola Zero in bottiglia di vetro",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Fanta Vetro 33cl",
+        "description": "Fanta in bottiglia di vetro",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Chinotto Vetro 33cl",
+        "description": "Chinotto in bottiglia di vetro",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Sprite Vetro 33cl",
+        "description": "Sprite in bottiglia di vetro",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Kinley Lemon o Tonica 33cl",
+        "description": "Kinley lemon o tonica",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Thè alla Pesca o al Limone 33cl",
+        "description": "Thè freddo alla pesca o al limone",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Caffè",
+        "description": "Caffè espresso",
+        "price": "1.50",
+        "tags": []
+      },
+      {
+        "name": "Caffè Decaffeinato",
+        "description": "Caffè decaffeinato",
+        "price": "2.00",
+        "tags": []
+      },
+      {
+        "name": "Amari",
+        "description": "Selezione di amari",
+        "price": "4.00",
+        "tags": []
+      },
+      {
+        "name": "Amari Speciali",
+        "description": "Selezione di amari speciali",
+        "price": "5.00",
+        "tags": []
+      },
+      {
+        "name": "Amaro Magna Romā",
+        "description": "Amaro Averna, rosmarino, salvia, menta, scorza di agrumi",
+        "price": "6.00",
+        "tags": []
+      },
+      {
+        "name": "Distillati",
+        "description": "Selezione di distillati",
+        "price": "5.00",
+        "tags": []
+      },
+      {
+        "name": "Aperol Spritz",
+        "description": "Aperol, prosecco",
+        "price": "7.00",
+        "tags": ["Solfiti"]
+      },
+      {
+        "name": "Spritz Magna Romā",
+        "description": "Cynar, prosecco, sprite, limone, menta, salvia",
+        "price": "7.00",
+        "tags": ["Solfiti"]
+      }
+    ]
+  }
+]

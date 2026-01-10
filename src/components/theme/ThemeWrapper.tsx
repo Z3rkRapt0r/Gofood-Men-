@@ -33,6 +33,18 @@ export function ThemeWrapper({ children, className }: { children: React.ReactNod
                 '--tenant-price': colors.price,
                 '--tenant-accent': colors.accent,
                 '--tenant-success': colors.success,
+
+                // Granular Variables
+                '--tenant-price-bg': colors.priceBackground || 'transparent',
+                '--tenant-badge-bg': colors.badgeBackground || colors.accent,
+                '--tenant-badge-text': colors.badgeText ?? colors.surface,
+                '--tenant-footer-bg': colors.footerBackground || colors.background, // Fallback to main background
+                '--tenant-footer-text': colors.footerText ?? colors.textSecondary,
+                '--tenant-header-bg': colors.headerBackground ?? colors.surface,
+                '--tenant-header-text': colors.headerText ?? colors.primary,
+                '--tenant-overlay': colors.overlay ?? colors.primary,
+                '--tenant-overlay-opacity': colors.overlayOpacity ?? 0.1,
+                '--tenant-text-shadow': currentTheme.textShadow ?? 'none',
             } as React.CSSProperties}
         >
             {getFontUrl() && (
@@ -40,8 +52,8 @@ export function ThemeWrapper({ children, className }: { children: React.ReactNod
             )}
             <style dangerouslySetInnerHTML={{
                 __html: `
-            .theme-heading { font-family: '${fontHeading}', serif; }
-            .theme-body { font-family: '${fontBody}', sans-serif; }
+            .theme-heading { font-family: '${fontHeading}', serif; text-shadow: var(--tenant-text-shadow); }
+            .theme-body { font-family: '${fontBody}', sans-serif; text-shadow: var(--tenant-text-shadow); }
         `}} />
 
             <MenuFrame>

@@ -114,7 +114,7 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
 
                     {/* Info Box */}
                     <div className="max-w-4xl mx-auto">
-                        <div className="bg-gradient-to-r from-[var(--tenant-primary,#8B0000)] to-[var(--tenant-primary,#8B0000)] rounded-2xl p-6 md:p-8 text-white shadow-xl">
+                        <div className="bg-[var(--tenant-primary,#8B0000)] rounded-2xl p-6 md:p-8 text-white shadow-xl">
                             <div className="flex items-start gap-4">
                                 <span className="text-3xl md:text-4xl flex-shrink-0">💬</span>
                                 <div>

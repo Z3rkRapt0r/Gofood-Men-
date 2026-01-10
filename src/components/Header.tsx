@@ -32,7 +32,7 @@ export default function Header({
   const positionClass = className || "fixed top-0 left-0 w-full z-50";
 
   return (
-    <header className={`${positionClass} bg-[var(--tenant-surface,#FFFFFF)] transition-all duration-200 shadow-sm h-[72px]`}>
+    <header className={`${positionClass} bg-[var(--tenant-header-bg,var(--tenant-surface,#FFFFFF))] text-[var(--tenant-primary,#8B0000)] transition-all duration-200 shadow-sm h-[72px]`}>
       <div className="container mx-auto px-4 h-full">
         {/* Layout mobile: logo sx, filtri dx */}
         {/* Layout mobile: filtro sx, logo centro, lingua dx */}
@@ -47,6 +47,7 @@ export default function Header({
                   type="button"
                   onClick={toggleGlutenFilter}
                   className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50' : 'hover:bg-gray-100'}`}
+                  style={{ color: 'var(--tenant-header-text, var(--tenant-primary, #8B0000))' }}
                   aria-label="Filtro senza glutine"
                   aria-pressed={isGlutenFree}
                 >
@@ -78,6 +79,7 @@ export default function Header({
                   type="button"
                   onClick={toggleGlutenFilter}
                   className={`p-2 rounded-lg transition-colors ${isGlutenFree ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50' : 'hover:bg-gray-100'}`}
+                  style={{ color: 'var(--tenant-header-text, var(--tenant-primary, #8B0000))' }}
                   aria-label="Filtro senza glutine"
                   aria-pressed={isGlutenFree}
                 >
@@ -116,6 +118,7 @@ export default function Header({
                 ? 'bg-[#D4AF37]/40 hover:bg-[#D4AF37]/50'
                 : 'hover:bg-gray-100'
                 }`}
+              style={{ color: 'var(--tenant-header-text, var(--tenant-primary, #8B0000))' }}
               aria-label="Filtro senza glutine"
               aria-pressed={isGlutenFree}
             >

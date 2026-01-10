@@ -114,7 +114,8 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
           {/* Italian Button (Fixed - Default Active) */}
           <button
             disabled
-            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 bg-[#8B0000] text-white shadow-sm"
+            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 text-white shadow-sm"
+            style={{ backgroundColor: 'var(--tenant-primary, #8B0000)' }}
           >
             <span className="text-base notranslate">🇮🇹</span>
             <span className="notranslate">IT</span>
@@ -143,15 +144,16 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
         <button
           onClick={() => handleLanguageChange('it')}
           disabled={isChanging}
-          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 ${currentLang === 'it'
-            ? 'bg-[#8B0000] text-white shadow-sm'
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang === 'it'
+            ? 'text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
             }`}
+          style={{ backgroundColor: currentLang === 'it' ? 'var(--tenant-primary, #8B0000)' : undefined }}
           aria-label="Passa all'italiano"
           aria-pressed={currentLang === 'it'}
         >
-          <span className="text-base notranslate">🇮🇹</span>
-          <span className="notranslate">IT</span>
+          <span className="text-base">🇮🇹</span>
+          <span>IT</span>
         </button>
 
         {/* Dropdown for other languages */}
@@ -159,10 +161,11 @@ export default function LanguageSwitcher({ compact = false }: LanguageSwitcherPr
           <DropdownMenuTrigger asChild>
             <button
               disabled={isChanging}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 ${currentLang !== 'it'
-                ? 'bg-[#8B0000] text-white shadow-sm'
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang !== 'it'
+                ? 'text-white shadow-sm'
                 : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
                 }`}
+              style={{ backgroundColor: currentLang !== 'it' ? 'var(--tenant-primary, #8B0000)' : undefined }}
               aria-label="Scegli altra lingua"
               aria-pressed={currentLang !== 'it'}
             >

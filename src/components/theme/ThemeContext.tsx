@@ -16,17 +16,26 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children, initialTheme }: { children: React.ReactNode; initialTheme?: ThemeConfig }) {
     const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(() => {
-        // Handle case where initialTheme is null, undefined, or empty object
         if (!initialTheme || Object.keys(initialTheme).length === 0) {
             return DEFAULT_THEME;
         }
-        // Merge with defaults to ensure all required properties exist (like colors)
         return {
             ...DEFAULT_THEME,
             ...initialTheme,
             colors: { ...DEFAULT_THEME.colors, ...(initialTheme.colors || {}) }
         };
     });
+
+    // Update state when initialTheme changes (e.g. loaded from DB)
+    React.useEffect(() => {
+        if (initialTheme && Object.keys(initialTheme).length > 0) {
+            setCurrentTheme((prev) => ({
+                ...DEFAULT_THEME,
+                ...initialTheme,
+                colors: { ...DEFAULT_THEME.colors, ...(initialTheme.colors || {}) }
+            }));
+        }
+    }, [initialTheme]);
 
     const applyPreset = (presetId: string) => {
         const preset = THEME_PRESETS.find((p) => p.id === presetId);
