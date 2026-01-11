@@ -436,59 +436,7 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
 
 
                     {/* Style & Finishes - Advanced */}
-                    <AccordionItem value="layout" className="border-b-0">
-                        <AccordionTrigger className="w-full justify-between p-2 font-semibold hover:bg-muted/50 rounded-lg group hover:underline-0">
-                            <span className="text-xs uppercase tracking-wider text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-orange-600">Layout & Navigazione</span>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 mt-2 border border-gray-100">
-                                <div>
-                                    <label className="text-xs font-semibold text-gray-500 mb-2 block">Stile Navigazione</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button
-                                            onClick={() => updateTheme({ layout: { ...currentTheme.layout, navigationStyle: 'classic' } })}
-                                            className={`
-                                                relative p-3 rounded-xl border text-left transition-all duration-200
-                                                ${currentTheme.layout?.navigationStyle === 'classic' || !currentTheme.layout?.navigationStyle
-                                                    ? 'bg-white border-orange-500 ring-1 ring-orange-500 shadow-sm'
-                                                    : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400'
-                                                }
-                                            `}
-                                        >
-                                            <div className="mb-2 w-full h-12 bg-gray-100 rounded-lg flex flex-col gap-1 p-1 overflow-hidden opacity-50">
-                                                <div className="w-full h-8 bg-current rounded-md shrink-0" />
-                                                <div className="w-full h-8 bg-current rounded-md shrink-0" />
-                                                <div className="w-full h-8 bg-current rounded-md shrink-0" />
-                                            </div>
-                                            <div className="text-xs font-bold text-gray-900">Classico</div>
-                                            <div className="text-[10px] text-gray-500 leading-tight mt-0.5">Scorrimento verticale continuo</div>
-                                        </button>
 
-                                        <button
-                                            onClick={() => updateTheme({ layout: { ...currentTheme.layout, navigationStyle: 'modern' } })}
-                                            className={`
-                                                relative p-3 rounded-xl border text-left transition-all duration-200
-                                                ${currentTheme.layout?.navigationStyle === 'modern'
-                                                    ? 'bg-white border-orange-500 ring-1 ring-orange-500 shadow-sm'
-                                                    : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400'
-                                                }
-                                            `}
-                                        >
-                                            <div className="mb-2 w-full h-12 bg-gray-100 rounded-lg flex flex-col p-1 overflow-hidden opacity-50">
-                                                <div className="flex gap-1 mb-1">
-                                                    <div className="w-1/3 h-1.5 bg-current rounded-full" />
-                                                    <div className="w-1/3 h-1.5 bg-current rounded-full" />
-                                                </div>
-                                                <div className="w-full h-full bg-current rounded-md" />
-                                            </div>
-                                            <div className="text-xs font-bold text-gray-900">Moderno (Tab)</div>
-                                            <div className="text-[10px] text-gray-500 leading-tight mt-0.5">Transizione animata tra categorie</div>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
 
                     {/* Style & Finishes - Advanced */}
                     <AccordionItem value="style" className="border-b-0">

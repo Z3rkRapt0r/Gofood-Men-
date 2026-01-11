@@ -42,7 +42,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         dividerStyle: 'filigree', // Keep filigree as it fits the style
         logoHeight: 60,
         textShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)', // Subtle shadow for legibility
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 2. STREET BURGER
@@ -73,7 +73,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'hard',
         dividerStyle: 'slash',
         logoHeight: 60,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 3. CANDY POP
@@ -104,7 +104,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'soft',
         dividerStyle: 'dotted',
         logoHeight: 80,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 4. RISTORANTINO DI PESCE
@@ -135,7 +135,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'soft',
         dividerStyle: 'wavy',
         logoHeight: 60,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 5. BISTROT ELEGANTE
@@ -166,7 +166,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'soft',
         dividerStyle: 'double',
         logoHeight: 65,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 6. PIZZERIA NAPOLETANA
@@ -197,7 +197,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'soft',
         dividerStyle: 'dotted',
         logoHeight: 70,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 7. SUSHI BAR MODERNO
@@ -228,7 +228,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'none',
         dividerStyle: 'solid',
         logoHeight: 60,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 8. STEAKHOUSE PREMIUM
@@ -259,7 +259,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'hard',
         dividerStyle: 'double',
         logoHeight: 65,
-        layout: { navigationStyle: 'classic' }
+
     },
 
     // 9. TRATTORIA TOSCANA
@@ -290,7 +290,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         shadows: 'soft',
         dividerStyle: 'filigree',
         logoHeight: 60,
-        layout: { navigationStyle: 'classic' }
+
     },
 ];
 

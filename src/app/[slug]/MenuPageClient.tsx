@@ -48,67 +48,15 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
   const [showSplash, setShowSplash] = useState(true);
-  const mainRef = useRef<HTMLDivElement>(null);
-  const isManualScroll = useRef(false);
-  const scrollTimeout = useRef<NodeJS.Timeout>(undefined);
 
   const handleCategoryClick = (categoryId: string) => {
-    // Set manual scroll flag to prevent IntersectionObserver from fighting back
-    isManualScroll.current = true;
     setActiveCategory(categoryId);
-
-    // Clear existing timeout
-    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-
-    if (currentTheme.layout?.navigationStyle === 'modern') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      if (mainRef.current) {
-        const section = mainRef.current.querySelector(`#${categoryId}`) as HTMLElement;
-        if (section) {
-          section.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-    }
-
-    // Release lock after animation (approx 1s)
-    scrollTimeout.current = setTimeout(() => {
-      isManualScroll.current = false;
-    }, 1000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  useEffect(() => {
-    const options = {
-      rootMargin: '-150px 0px -60% 0px',
-      threshold: 0
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      // Skip updates if we are manually scrolling
-      if (isManualScroll.current) return;
-
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveCategory(entry.target.id);
-        }
-      });
-    }, options);
-
-    categories.forEach((category) => {
-      const element = document.getElementById(category.id);
-      if (element) observer.observe(element);
-    });
-
-    return () => {
-      observer.disconnect();
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-    };
-  }, [categories]);
 
   return (
     <div
-      ref={mainRef}
-      className={`min-h-screen pt-[135px] select-none ${currentTheme.layout?.navigationStyle === 'modern' ? 'overflow-x-hidden' : ''}`}
+      className="min-h-screen pt-[135px] select-none overflow-x-hidden"
       style={{
         backgroundColor: currentTheme.colors.background,
         color: currentTheme.colors.text,
@@ -166,98 +114,54 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
 
       {/* Menu Sections */}
       <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh]">
-        {currentTheme.layout?.navigationStyle === 'modern' ? (
-          /* MODERN MODE: TABS / CAROUSEL */
-          <AnimatePresence mode="wait">
-            {categories.map((category) => (
-              activeCategory === category.id && (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="w-full"
-                >
-                  <section id={category.id}>
-                    {/* Category Title with Dividers */}
-                    <div className="flex items-center justify-center gap-4 mb-8">
-                      <ThemeDivider
-                        dividerStyle={currentTheme.dividerStyle}
-                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                      />
-                      <h2
-                        className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
-                        style={{ color: currentTheme.colors.primary }}
-                      >
-                        {category.name}
-                      </h2>
-                      <ThemeDivider
-                        dividerStyle={currentTheme.dividerStyle}
-                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                      />
-                    </div>
+        <AnimatePresence mode="wait">
+          {categories.map((category) => (
+            activeCategory === category.id && (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full"
+              >
+                <section id={category.id}>
+                  {/* Category Title with Dividers */}
+                  <div className="flex items-center justify-center gap-4 mb-8">
+                    <ThemeDivider
+                      dividerStyle={currentTheme.dividerStyle}
+                      className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                    />
+                    <h2
+                      className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
+                      style={{ color: currentTheme.colors.primary }}
+                    >
+                      {category.name}
+                    </h2>
+                    <ThemeDivider
+                      dividerStyle={currentTheme.dividerStyle}
+                      className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                    />
+                  </div>
 
-                    {/* Category Description */}
-                    {category.description && (
-                      <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
-                        {category.description}
-                      </p>
-                    )}
+                  {/* Category Description */}
+                  {category.description && (
+                    <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
+                      {category.description}
+                    </p>
+                  )}
 
-                    {/* Dishes Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {category.dishes.map((dish) => (
-                        <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
-                      ))}
-                    </div>
-                  </section>
-                </motion.div>
-              )
-            ))}
-          </AnimatePresence>
-        ) : (
-          /* CLASSIC MODE: SCROLL */
-          categories.map((category) => (
-            <section
-              key={category.id}
-              id={category.id}
-              className="scroll-mt-32"
-            >
-              {/* Category Title with Dividers */}
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <ThemeDivider
-                  dividerStyle={currentTheme.dividerStyle}
-                  className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                />
-                <h2
-                  className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
-                  style={{ color: currentTheme.colors.primary }}
-                >
-                  {category.name}
-                </h2>
-                <ThemeDivider
-                  dividerStyle={currentTheme.dividerStyle}
-                  className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                />
-              </div>
-
-              {/* Category Description */}
-              {category.description && (
-                <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
-                  {category.description}
-                </p>
-              )}
-
-              {/* Dishes Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.dishes.map((dish) => (
-                  <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
-                ))}
-              </div>
-            </section>
-          ))
-        )}
+                  {/* Dishes Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {category.dishes.map((dish) => (
+                      <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
+                    ))}
+                  </div>
+                </section>
+              </motion.div>
+            )
+          ))}
+        </AnimatePresence>
       </main>
 
       <Footer

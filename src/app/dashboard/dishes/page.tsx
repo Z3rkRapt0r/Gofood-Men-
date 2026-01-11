@@ -714,7 +714,9 @@ export default function DishesPage() {
       loadData();
     } catch (err) {
       console.error('Error saving dish:', err);
-      toast.error(err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errorMessage = (err as any)?.message || (err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
+      toast.error(errorMessage);
     }
   }
 

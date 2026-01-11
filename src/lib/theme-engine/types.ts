@@ -45,9 +45,6 @@ export interface ThemeConfig {
     logoHeight?: number; // Pixel height for logo (default 40-50)
     mobileHeaderStyle?: 'center' | 'left';
     textShadow?: string; // CSS text-shadow value
-    layout?: {
-        navigationStyle: 'classic' | 'modern';
-    };
 }
 
 export interface ThemePreset extends ThemeConfig {
