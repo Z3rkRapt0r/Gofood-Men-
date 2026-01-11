@@ -713,9 +713,16 @@ export default function DishesPage() {
       resetForm();
       loadData();
     } catch (err) {
-      console.error('Error saving dish:', err);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const errorMessage = (err as any)?.message || (err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
+      const errorAny = err as any;
+
+      // Check for duplicate slug error (Postgres code 23505)
+      if (errorAny?.code === '23505' || errorAny?.message?.includes('unique_tenant_category_slug')) {
+        toast.error('Esiste già un piatto con questo nome in questa categoria. Prova a cambiarlo.');
+        return;
+      }
+
+      const errorMessage = errorAny?.message || (err instanceof Error ? err.message : 'Errore nel salvataggio del piatto');
       toast.error(errorMessage);
     }
   }
