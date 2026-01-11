@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -11,11 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ChevronRight, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,6 +32,25 @@ export default function RegisterPage() {
     setError(null);
 
     try {
+      if (!captchaToken) {
+        throw new Error('Per favore, completa il controllo "Non sono un robot".');
+      }
+
+      // Verify captcha with our backend
+      const verifyRes = await fetch('/api/verify-recaptcha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: captchaToken }),
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (!verifyRes.ok || !verifyData.success) {
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
+        throw new Error(verifyData.message || 'Verifica reCAPTCHA fallita. Riprova.');
+      }
+
       const supabase = createClient();
 
       // 1. Sign up with Supabase Auth
@@ -106,6 +128,9 @@ export default function RegisterPage() {
     } catch (err) {
       console.error('Registration error:', err);
       setError(err instanceof Error ? err.message : 'Errore durante la registrazione. Riprova.');
+      // Reset captcha on error if needed
+      // recaptchaRef.current?.reset();
+      // setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -229,6 +254,15 @@ export default function RegisterPage() {
                 <p className="text-[0.8rem] text-muted-foreground ml-1">
                   La password deve contenere almeno 6 caratteri.
                 </p>
+              </div>
+
+              <div className="flex justify-center py-2">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+                  onChange={(token) => setCaptchaToken(token)}
+                  hl="it"
+                />
               </div>
 
               <Button
