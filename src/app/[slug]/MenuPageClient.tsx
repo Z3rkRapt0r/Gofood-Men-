@@ -21,15 +21,15 @@ interface Tenant {
   footer_data?: FooterData;
 }
 
-// Tuned animations for "Snappy" feel
+// Tuned animations for "Fluid Harmony" feel
 const variants: Variants = {
   enter: (direction: number) => {
     return {
-      x: direction > 0 ? 150 : -150, // Reduced distance for faster feel
+      x: direction > 0 ? 200 : -200, // Slightly more distance for flow
       opacity: 0,
       transition: {
-        x: { type: "tween", duration: 0.25, ease: "easeOut" }, // Snappy entry
-        opacity: { duration: 0.2 }
+        x: { type: "tween", duration: 0.35, ease: "easeInOut" }, // Smooth entry
+        opacity: { duration: 0.35 }
       } as const
     };
   },
@@ -38,18 +38,18 @@ const variants: Variants = {
     x: 0,
     opacity: 1,
     transition: {
-      x: { type: "tween", duration: 0.25, ease: "easeOut" },
-      opacity: { duration: 0.2 }
+      x: { type: "tween", duration: 0.35, ease: "easeInOut" },
+      opacity: { duration: 0.35 }
     } as const
   },
   exit: (direction: number) => {
     return {
       zIndex: 0,
-      x: direction < 0 ? 150 : -150, // Reduced distance
+      x: direction < 0 ? 200 : -200, // Matching distance
       opacity: 0,
       transition: {
-        x: { type: "tween", duration: 0.1, ease: "easeIn" }, // Fast exit
-        opacity: { duration: 0.1 }
+        x: { type: "tween", duration: 0.35, ease: "easeInOut" }, // Smooth exit matching entry
+        opacity: { duration: 0.35 }
       } as const
     };
   },
