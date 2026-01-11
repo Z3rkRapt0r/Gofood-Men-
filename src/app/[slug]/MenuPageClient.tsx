@@ -72,23 +72,36 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     return Math.abs(offset) * velocity;
   };
 
+  // Tuned animations for "Snappy" feel
   const variants = {
     enter: (direction: number) => {
       return {
-        x: direction > 0 ? 50 : -50,
+        x: direction > 0 ? 150 : -150, // Reduced distance for faster feel
         opacity: 0,
+        transition: {
+          x: { type: "tween", duration: 0.25, ease: "easeOut" }, // Snappy entry
+          opacity: { duration: 0.2 }
+        }
       };
     },
     center: {
       zIndex: 1,
       x: 0,
       opacity: 1,
+      transition: {
+        x: { type: "tween", duration: 0.25, ease: "easeOut" },
+        opacity: { duration: 0.2 }
+      }
     },
     exit: (direction: number) => {
       return {
         zIndex: 0,
-        x: direction < 0 ? 50 : -50,
+        x: direction < 0 ? 150 : -150, // Reduced distance
         opacity: 0,
+        transition: {
+          x: { type: "tween", duration: 0.1, ease: "easeIn" }, // Fast exit
+          opacity: { duration: 0.1 }
+        }
       };
     },
   };
@@ -163,10 +176,6 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{
-                  x: { type: "tween", ease: "easeOut", duration: 0.15 },
-                  opacity: { duration: 0.15 }
-                }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={1}
