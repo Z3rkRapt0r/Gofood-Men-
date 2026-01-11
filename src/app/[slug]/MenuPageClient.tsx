@@ -47,49 +47,72 @@ interface Category {
 function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Category[] }) {
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
-  const [direction, setDirection] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
 
-  const handleCategoryClick = (categoryId: string) => {
+  // Direction: 1 for next (swipe left), -1 for previous (swipe right)
+  const [[page, direction], setPage] = useState([0, 0]);
+
+  // Sync page state with activeCategory
+  useEffect(() => {
+    const index = categories.findIndex(c => c.id === activeCategory);
+    if (index !== -1 && index !== page) {
+      // Determine direction based on index difference if not set via swipe
+      // If we jumped via nav, we strictly don't have a "swipe" direction, but we can infer
+      const newDirection = index > page ? 1 : -1;
+      setPage([index, newDirection]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory, categories]);
+
+  const paginate = (newDirection: number) => {
     const currentIndex = categories.findIndex(c => c.id === activeCategory);
+    if (currentIndex === -1) return;
+
+    const nextIndex = currentIndex + newDirection;
+
+    // Check bounds
+    if (nextIndex < 0 || nextIndex >= categories.length) return;
+
+    setPage([nextIndex, newDirection]);
+    setActiveCategory(categories[nextIndex].id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
     const newIndex = categories.findIndex(c => c.id === categoryId);
-
-    // Determine direction: 1 for right (next), -1 for left (prev)
+    const currentIndex = categories.findIndex(c => c.id === activeCategory);
     const newDirection = newIndex > currentIndex ? 1 : -1;
-    setDirection(newDirection);
 
+    setPage([newIndex, newDirection]);
     setActiveCategory(categoryId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const slideVariants = {
+  const variants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? '100%' : '-100%',
-      scale: 0.9, // Start slightly smaller for depth
+      x: direction > 0 ? "100%" : "-100%",
       opacity: 0,
-      position: 'absolute' as const,
+      position: "absolute" as const, // Absolute for smooth transition overlap? Or relative?
+      // Relative is usually better for height flow, but absolute is smoother for slide.
+      // Let's stick to default flow first, but x translation usually works better if containers are aligned.
+      // Actually, for "wait" mode, we don't need absolute.
     }),
     center: {
       zIndex: 1,
       x: 0,
-      scale: 1,
       opacity: 1,
-      position: 'relative' as const,
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? '100%' : '-100%',
-      scale: 0.9, // Exit slightly smaller
+      x: direction < 0 ? "100%" : "-100%",
       opacity: 0,
-      position: 'absolute' as const,
     }),
   };
 
-  const swipeTransition = {
-    x: { type: "spring", stiffness: 120, damping: 20, mass: 1 }, // Very fluid, like paper
-    scale: { duration: 0.35, ease: "easeOut" },
-    opacity: { duration: 0.35, ease: "linear" }
-  } as const;
+  // Correction for standard "wait" mode (no overlap)
+  // If mode="wait", components don't exist efficiently at same time.
+  // Sliding usually requires "popLayout" or absolute positioning for overlap.
+  // Given the user wants "swipe", overlap is nicer. But let's try standard sliding first.
 
   return (
     <div
@@ -150,25 +173,37 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
       </section>
 
       {/* Menu Sections */}
-      <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh] relative overflow-hidden">
-        <AnimatePresence
-          initial={false}
-          mode="popLayout" // changed from "wait" to allow overlap
-          custom={direction}
-        >
+      <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh] overflow-hidden">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           {categories.map((category) => (
             activeCategory === category.id && (
               <motion.div
                 key={category.id}
                 custom={direction}
-                variants={slideVariants}
+                variants={variants}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={swipeTransition}
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
                 className="w-full"
+                // Drag properties for Swipe
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = Math.abs(offset.x) * velocity.x;
+                  // If swipe is massive or offset is large enough
+                  if (swipe < -10000 || offset.x < -100) {
+                    paginate(1); // Swipe Left -> Next
+                  } else if (swipe > 10000 || offset.x > 100) {
+                    paginate(-1); // Swipe Right -> Prev
+                  }
+                }}
               >
-                <section id={category.id}>
+                <section id={category.id} className="touch-pan-y">
                   {/* Category Title with Dividers */}
                   <div className="flex items-center justify-center gap-4 mb-8">
                     <ThemeDivider
