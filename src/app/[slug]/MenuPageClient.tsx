@@ -166,73 +166,76 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
 
       {/* Menu Sections */}
       <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh] overflow-hidden">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          {categories.map((category) => (
-            activeCategory === category.id && (
-              <motion.div
-                key={category.id}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={1}
-                onDragEnd={(e, { offset, velocity }) => {
-                  const swipe = swipePower(offset.x, velocity.x);
+        {/* Grid Stack Container for Simultaneous Transitions */}
+        <div className="grid grid-cols-1">
+          <AnimatePresence initial={false} custom={direction}>
+            {categories.map((category) => (
+              activeCategory === category.id && (
+                <motion.div
+                  key={category.id}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={1}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipe = swipePower(offset.x, velocity.x);
 
-                  if (swipe < -swipeConfidenceThreshold) {
-                    // Swipe Left -> Next Category
-                    if (activeIndex < categories.length - 1) {
-                      handleCategoryChange(categories[activeIndex + 1].id);
+                    if (swipe < -swipeConfidenceThreshold) {
+                      // Swipe Left -> Next Category
+                      if (activeIndex < categories.length - 1) {
+                        handleCategoryChange(categories[activeIndex + 1].id);
+                      }
+                    } else if (swipe > swipeConfidenceThreshold) {
+                      // Swipe Right -> Prev Category
+                      if (activeIndex > 0) {
+                        handleCategoryChange(categories[activeIndex - 1].id);
+                      }
                     }
-                  } else if (swipe > swipeConfidenceThreshold) {
-                    // Swipe Right -> Prev Category
-                    if (activeIndex > 0) {
-                      handleCategoryChange(categories[activeIndex - 1].id);
-                    }
-                  }
-                }}
-                className="w-full touch-pan-y"
-              >
-                <section id={category.id}>
-                  {/* Category Title with Dividers */}
-                  <div className="flex items-center justify-center gap-4 mb-8">
-                    <ThemeDivider
-                      dividerStyle={currentTheme.dividerStyle}
-                      className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                    />
-                    <h2
-                      className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
-                      style={{ color: currentTheme.colors.primary }}
-                    >
-                      {category.name}
-                    </h2>
-                    <ThemeDivider
-                      dividerStyle={currentTheme.dividerStyle}
-                      className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-                    />
-                  </div>
+                  }}
+                  className="w-full col-start-1 row-start-1 touch-pan-y"
+                >
+                  <section id={category.id}>
+                    {/* Category Title with Dividers */}
+                    <div className="flex items-center justify-center gap-4 mb-8">
+                      <ThemeDivider
+                        dividerStyle={currentTheme.dividerStyle}
+                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                      />
+                      <h2
+                        className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
+                        style={{ color: currentTheme.colors.primary }}
+                      >
+                        {category.name}
+                      </h2>
+                      <ThemeDivider
+                        dividerStyle={currentTheme.dividerStyle}
+                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                      />
+                    </div>
 
-                  {/* Category Description */}
-                  {category.description && (
-                    <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
-                      {category.description}
-                    </p>
-                  )}
+                    {/* Category Description */}
+                    {category.description && (
+                      <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
+                        {category.description}
+                      </p>
+                    )}
 
-                  {/* Dishes Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {category.dishes.map((dish) => (
-                      <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
-                    ))}
-                  </div>
-                </section>
-              </motion.div>
-            )
-          ))}
-        </AnimatePresence>
+                    {/* Dishes Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {category.dishes.map((dish) => (
+                        <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
+                      ))}
+                    </div>
+                  </section>
+                </motion.div>
+              )
+            ))}
+          </AnimatePresence>
+        </div>
       </main>
 
       <Footer
