@@ -11,6 +11,7 @@ import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
 import { ThemeDivider } from '@/components/theme/ThemeDivider';
 import { ThemeConfig } from '@/lib/theme-engine/types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Tenant {
   restaurant_name: string;
@@ -59,10 +60,14 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     // Clear existing timeout
     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
 
-    if (mainRef.current) {
-      const section = mainRef.current.querySelector(`#${categoryId}`) as HTMLElement;
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (currentTheme.layout?.navigationStyle === 'modern') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      if (mainRef.current) {
+        const section = mainRef.current.querySelector(`#${categoryId}`) as HTMLElement;
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       }
     }
 
@@ -103,7 +108,7 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
   return (
     <div
       ref={mainRef}
-      className="min-h-screen pt-[135px] select-none"
+      className={`min-h-screen pt-[135px] select-none ${currentTheme.layout?.navigationStyle === 'modern' ? 'overflow-x-hidden' : ''}`}
       style={{
         backgroundColor: currentTheme.colors.background,
         color: currentTheme.colors.text,
@@ -143,11 +148,10 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
           }}
         />
         {/* Optional: Add a real image back if available, currently using color overlay pattern */}
-
         <div className="relative z-10 text-center px-4">
           <h1
             className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-4 theme-heading"
-            style={{ color: currentTheme.colors.primary }} // Or specific hero color? Using primary for now
+            style={{ color: currentTheme.colors.primary }}
           >
             {tenant.restaurant_name}
           </h1>
@@ -161,46 +165,99 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
       </section>
 
       {/* Menu Sections */}
-      <main className="container mx-auto px-4 py-4 space-y-16">
-        {categories.map((category) => (
-          <section
-            key={category.id}
-            id={category.id}
-            className="scroll-mt-32"
-          >
-            {/* Category Title with Dividers */}
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <ThemeDivider
-                dividerStyle={currentTheme.dividerStyle}
-                className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-              />
-              <h2
-                className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
-                style={{ color: currentTheme.colors.primary }}
-              >
-                {category.name}
-              </h2>
-              <ThemeDivider
-                dividerStyle={currentTheme.dividerStyle}
-                className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
-              />
-            </div>
+      <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh]">
+        {currentTheme.layout?.navigationStyle === 'modern' ? (
+          /* MODERN MODE: TABS / CAROUSEL */
+          <AnimatePresence mode="wait">
+            {categories.map((category) => (
+              activeCategory === category.id && (
+                <motion.div
+                  key={category.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="w-full"
+                >
+                  <section id={category.id}>
+                    {/* Category Title with Dividers */}
+                    <div className="flex items-center justify-center gap-4 mb-8">
+                      <ThemeDivider
+                        dividerStyle={currentTheme.dividerStyle}
+                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                      />
+                      <h2
+                        className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
+                        style={{ color: currentTheme.colors.primary }}
+                      >
+                        {category.name}
+                      </h2>
+                      <ThemeDivider
+                        dividerStyle={currentTheme.dividerStyle}
+                        className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                      />
+                    </div>
 
-            {/* Category Description */}
-            {category.description && (
-              <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
-                {category.description}
-              </p>
-            )}
+                    {/* Category Description */}
+                    {category.description && (
+                      <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
+                        {category.description}
+                      </p>
+                    )}
 
-            {/* Dishes Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {category.dishes.map((dish) => (
-                <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
-              ))}
-            </div>
-          </section>
-        ))}
+                    {/* Dishes Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {category.dishes.map((dish) => (
+                        <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
+                      ))}
+                    </div>
+                  </section>
+                </motion.div>
+              )
+            ))}
+          </AnimatePresence>
+        ) : (
+          /* CLASSIC MODE: SCROLL */
+          categories.map((category) => (
+            <section
+              key={category.id}
+              id={category.id}
+              className="scroll-mt-32"
+            >
+              {/* Category Title with Dividers */}
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <ThemeDivider
+                  dividerStyle={currentTheme.dividerStyle}
+                  className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                />
+                <h2
+                  className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-center shrink-0 px-4 theme-heading"
+                  style={{ color: currentTheme.colors.primary }}
+                >
+                  {category.name}
+                </h2>
+                <ThemeDivider
+                  dividerStyle={currentTheme.dividerStyle}
+                  className={currentTheme.dividerStyle === 'gradient' ? 'flex-1' : 'max-w-[100px] w-full'}
+                />
+              </div>
+
+              {/* Category Description */}
+              {category.description && (
+                <p className="text-center text-lg mb-8 max-w-2xl mx-auto theme-body" style={{ color: currentTheme.colors.secondary }}>
+                  {category.description}
+                </p>
+              )}
+
+              {/* Dishes Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {category.dishes.map((dish) => (
+                  <DishCard key={dish.id} dish={dish} tenantSlug={tenant.slug} />
+                ))}
+              </div>
+            </section>
+          ))
+        )}
       </main>
 
       <Footer
