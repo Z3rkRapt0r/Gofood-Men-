@@ -47,12 +47,49 @@ interface Category {
 function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Category[] }) {
   const { currentTheme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id ?? null);
+  const [direction, setDirection] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
 
   const handleCategoryClick = (categoryId: string) => {
+    const currentIndex = categories.findIndex(c => c.id === activeCategory);
+    const newIndex = categories.findIndex(c => c.id === categoryId);
+
+    // Determine direction: 1 for right (next), -1 for left (prev)
+    const newDirection = newIndex > currentIndex ? 1 : -1;
+    setDirection(newDirection);
+
     setActiveCategory(categoryId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? '100%' : '-100%',
+      scale: 0.9, // Start slightly smaller for depth
+      opacity: 0,
+      position: 'absolute' as const,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      scale: 1,
+      opacity: 1,
+      position: 'relative' as const,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? '100%' : '-100%',
+      scale: 0.9, // Exit slightly smaller
+      opacity: 0,
+      position: 'absolute' as const,
+    }),
+  };
+
+  const swipeTransition = {
+    x: { type: "spring", stiffness: 120, damping: 20, mass: 1 }, // Very fluid, like paper
+    scale: { duration: 0.35, ease: "easeOut" },
+    opacity: { duration: 0.35, ease: "linear" }
+  } as const;
 
   return (
     <div
@@ -113,16 +150,22 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
       </section>
 
       {/* Menu Sections */}
-      <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh]">
-        <AnimatePresence mode="wait">
+      <main className="container mx-auto px-4 py-4 space-y-16 min-h-[60vh] relative overflow-hidden">
+        <AnimatePresence
+          initial={false}
+          mode="popLayout" // changed from "wait" to allow overlap
+          custom={direction}
+        >
           {categories.map((category) => (
             activeCategory === category.id && (
               <motion.div
                 key={category.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={swipeTransition}
                 className="w-full"
               >
                 <section id={category.id}>

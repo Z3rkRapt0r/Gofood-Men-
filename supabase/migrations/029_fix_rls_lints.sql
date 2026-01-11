@@ -55,11 +55,36 @@ CREATE POLICY "Tenant owners can delete tenant_locations"
 -- 3. Fix Function Search Path Mutable Warnings
 -- Set search_path to public to prevent malicious schema usage
 
-ALTER FUNCTION public.update_updated_at_column() SET search_path = public;
-ALTER FUNCTION public.check_category_tenant_match() SET search_path = public;
-ALTER FUNCTION public.populate_dish_allergen_tenant() SET search_path = public;
-ALTER FUNCTION public.check_dish_limit() SET search_path = public;
-ALTER FUNCTION public.check_category_limit() SET search_path = public;
+-- Fix Function Search Path Mutable Warnings
+-- Set search_path to public to prevent malicious schema usage (Safely check if they exist)
+
+DO $$
+BEGIN
+    -- update_updated_at_column
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'update_updated_at_column') THEN
+        ALTER FUNCTION public.update_updated_at_column() SET search_path = public;
+    END IF;
+
+    -- check_category_tenant_match
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'check_category_tenant_match') THEN
+        ALTER FUNCTION public.check_category_tenant_match() SET search_path = public;
+    END IF;
+
+    -- populate_dish_allergen_tenant
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'populate_dish_allergen_tenant') THEN
+        ALTER FUNCTION public.populate_dish_allergen_tenant() SET search_path = public;
+    END IF;
+
+    -- check_dish_limit (Might be dropped in previous migrations)
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'check_dish_limit') THEN
+        ALTER FUNCTION public.check_dish_limit() SET search_path = public;
+    END IF;
+
+    -- check_category_limit (Might be dropped in previous migrations)
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'check_category_limit') THEN
+        ALTER FUNCTION public.check_category_limit() SET search_path = public;
+    END IF;
+END $$;
 
 -- Fix handle_new_user if it exists (usually from triggers)
 DO $$
