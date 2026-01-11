@@ -11,7 +11,7 @@ import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { ThemeWrapper } from '@/components/theme/ThemeWrapper';
 import { ThemeDivider } from '@/components/theme/ThemeDivider';
 import { ThemeConfig } from '@/lib/theme-engine/types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface Tenant {
   restaurant_name: string;
@@ -19,8 +19,41 @@ interface Tenant {
   slug: string;
   tagline?: string;
   footer_data?: FooterData;
-  // Legacy fields are ignored now
 }
+
+// Tuned animations for "Snappy" feel
+const variants: Variants = {
+  enter: (direction: number) => {
+    return {
+      x: direction > 0 ? 150 : -150, // Reduced distance for faster feel
+      opacity: 0,
+      transition: {
+        x: { type: "tween", duration: 0.25, ease: "easeOut" }, // Snappy entry
+        opacity: { duration: 0.2 }
+      } as const
+    };
+  },
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+    transition: {
+      x: { type: "tween", duration: 0.25, ease: "easeOut" },
+      opacity: { duration: 0.2 }
+    } as const
+  },
+  exit: (direction: number) => {
+    return {
+      zIndex: 0,
+      x: direction < 0 ? 150 : -150, // Reduced distance
+      opacity: 0,
+      transition: {
+        x: { type: "tween", duration: 0.1, ease: "easeIn" }, // Fast exit
+        opacity: { duration: 0.1 }
+      } as const
+    };
+  },
+};
 
 interface Dish {
   id: string;
@@ -72,39 +105,6 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     return Math.abs(offset) * velocity;
   };
 
-  // Tuned animations for "Snappy" feel
-  const variants = {
-    enter: (direction: number) => {
-      return {
-        x: direction > 0 ? 150 : -150, // Reduced distance for faster feel
-        opacity: 0,
-        transition: {
-          x: { type: "tween", duration: 0.25, ease: "easeOut" }, // Snappy entry
-          opacity: { duration: 0.2 }
-        }
-      };
-    },
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      transition: {
-        x: { type: "tween", duration: 0.25, ease: "easeOut" },
-        opacity: { duration: 0.2 }
-      }
-    },
-    exit: (direction: number) => {
-      return {
-        zIndex: 0,
-        x: direction < 0 ? 150 : -150, // Reduced distance
-        opacity: 0,
-        transition: {
-          x: { type: "tween", duration: 0.1, ease: "easeIn" }, // Fast exit
-          opacity: { duration: 0.1 }
-        }
-      };
-    },
-  };
 
   return (
     <div
