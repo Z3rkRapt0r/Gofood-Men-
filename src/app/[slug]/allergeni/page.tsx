@@ -13,12 +13,46 @@ async function getTenantData(slug: string) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: tenant, error } = await (supabase.from('tenants') as any)
-        .select('*')
+        .select('*, tenant_locations(*)')
         .eq('slug', slug)
         .single();
 
     if (error || !tenant) {
         return null;
+    }
+
+    // Prepare Footer Data with Locations from DB (Priority: DB Locations > Legacy Fields > JSON)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dbLocations = (tenant as any).tenant_locations || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mappedLocations = dbLocations.map((l: any) => ({
+        city: l.city,
+        address: l.address,
+        phone: l.phone || '',
+        opening_hours: l.opening_hours || ''
+    }));
+
+    // Merge into footer_data
+    const existingFooterData = tenant.footer_data || { links: [], socials: [], show_brand_column: true };
+    const mergedFooterData = {
+        ...existingFooterData,
+        locations: mappedLocations.length > 0 ? mappedLocations : (existingFooterData.locations || [])
+    };
+
+    tenant.footer_data = mergedFooterData;
+
+    // FIX: Sync tagline from footer_data if root tagline is empty (Design Studio saves to footer_data)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!tenant.tagline && (mergedFooterData as any).tagline) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (tenant as any).tagline = (mergedFooterData as any).tagline;
+    }
+
+    // FIX: Sync public_name from footer_data if present (Design Studio "Nome Visualizzato" overrides registration name)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((mergedFooterData as any).public_name) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (tenant as any).restaurant_name = (mergedFooterData as any).public_name;
     }
 
     // Fetch Design Settings
