@@ -183,13 +183,14 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
                   dragElastic={1}
                   onDragEnd={(e, { offset, velocity }) => {
                     const swipe = swipePower(offset.x, velocity.x);
+                    const distanceThreshold = 100; // Allow change if dragged more than 100px regardless of speed
 
-                    if (swipe < -swipeConfidenceThreshold) {
+                    if (swipe < -swipeConfidenceThreshold || offset.x < -distanceThreshold) {
                       // Swipe Left -> Next Category
                       if (activeIndex < categories.length - 1) {
                         handleCategoryChange(categories[activeIndex + 1].id);
                       }
-                    } else if (swipe > swipeConfidenceThreshold) {
+                    } else if (swipe > swipeConfidenceThreshold || offset.x > distanceThreshold) {
                       // Swipe Right -> Prev Category
                       if (activeIndex > 0) {
                         handleCategoryChange(categories[activeIndex - 1].id);
