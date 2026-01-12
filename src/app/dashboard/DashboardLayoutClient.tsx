@@ -49,10 +49,12 @@ export default function DashboardLayoutClient({
           document.title = `${pageTitle} - ${tenant.restaurant_name}`;
 
           // 2. TAWK.TO IDENTIFICATION: Identify the user
-          if (window.Tawk_API) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((window as any).Tawk_API) {
             // We use a small timeout to ensure Tawk is loaded or try/catch around it
             try {
-              window.Tawk_API.setAttributes({
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (window as any).Tawk_API.setAttributes({
                 name: tenant.restaurant_name,
                 email: tenant?.owner_id ? `${tenant.slug || 'owner'}@gofood-menu.com` : undefined,
                 restaurant: tenant.restaurant_name
