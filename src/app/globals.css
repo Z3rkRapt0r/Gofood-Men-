@@ -229,3 +229,12 @@ body.goog-te-banner-show {
     @apply bg-background text-foreground;
   }
 }
+/* FORCE HIDE TAWK.TO */
+/* Extra layer of protection in case the API call is slow or fails */
+div[class^="tawk-"],
+iframe[src*="tawk.to"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
