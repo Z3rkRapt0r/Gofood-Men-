@@ -7,7 +7,7 @@ import { Dish } from '@/types/menu';
 import { useTranslation } from '@/hooks/useTranslation';
 import { parseIngredients } from '@/utils/ingredientParser';
 import { useGlutenFilter } from '@/contexts/GlutenFilterContext';
-import { Leaf, Wheat, Home, Snowflake } from 'lucide-react';
+import { Leaf, Home, Snowflake } from 'lucide-react';
 
 interface DishCardProps {
   dish: Dish & {
@@ -165,11 +165,7 @@ export default function DishCard({ dish, tenantSlug }: DishCardProps) {
               <Leaf className="w-3 h-3" /> Vegano
             </span>
           )}
-          {dish.is_gluten_free && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-              <Wheat className="w-3 h-3" /> Senza Glutine
-            </span>
-          )}
+
           {dish.is_homemade && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
               <Home className="w-3 h-3" /> Fatto in casa
