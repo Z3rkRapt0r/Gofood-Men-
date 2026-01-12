@@ -222,11 +222,7 @@ function SortableDishCard({
                           <Leaf className="w-3 h-3" /> Vegano
                         </Badge>
                       )}
-                      {dish.is_gluten_free && (
-                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
-                          <Wheat className="w-3 h-3" /> Senza Glutine
-                        </Badge>
-                      )}
+
                       {dish.is_homemade && (
                         <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 rounded-lg px-2 py-0.5 text-[10px] gap-1 font-medium">
                           <Home className="w-3 h-3" /> Fatto in casa

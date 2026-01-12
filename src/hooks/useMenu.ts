@@ -31,6 +31,13 @@ export interface Dish {
     is_homemade?: boolean;
     is_frozen?: boolean;
     allergen_ids?: string[];
+    ai_data?: {
+        rationale?: string;
+        confidence?: 'high' | 'medium' | 'low';
+        needs_review?: boolean;
+        allergens_detected?: string[];
+        last_scan?: string;
+    };
 }
 
 export interface Allergen {

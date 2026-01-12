@@ -242,7 +242,14 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                                 price: fullDish.price,
                                 display_order: fullDish.display_order,
                                 allergen_ids: Array.from(newAllergenIds),
-                                is_gluten_free: isGlutenFree
+                                is_gluten_free: isGlutenFree,
+                                ai_data: {
+                                    rationale: result.rationale,
+                                    confidence: result.confidence,
+                                    needs_review: result.needs_review,
+                                    allergens_detected: result.allergens,
+                                    last_scan: new Date().toISOString()
+                                }
                             });
                         }
                     });
@@ -310,6 +317,22 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                             )}
                         </div>
                     )}
+
+                    <div className="mt-6 pt-4 border-t border-blue-100/50">
+                        <p className="text-xs font-bold uppercase text-blue-900/60 mb-3 tracking-wider">Legenda Simboli</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-6 text-xs text-slate-600">
+
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                <span>Analisi AI Sicura</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                                <span>Analisi AI Incerta</span>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -406,6 +429,23 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                                             ].filter(Boolean).length + (containsGluten ? 1 : 0);
                                             const allergenCount = dish.allergen_ids?.length || 0;
 
+
+                                            const activeAI = aiResults.get(dish.id);
+                                            const savedAI = dish.ai_data;
+                                            const showAI = activeAI || (savedAI && savedAI.rationale); // Show if we have active result OR saved rationale
+
+                                            const aiDisplay = activeAI ? {
+                                                confidence: activeAI.confidence,
+                                                rationale: activeAI.rationale,
+                                                allergens: activeAI.allergens,
+                                                isSaved: false
+                                            } : (savedAI ? {
+                                                confidence: savedAI.confidence,
+                                                rationale: savedAI.rationale,
+                                                allergens: savedAI.allergens_detected || [],
+                                                isSaved: true
+                                            } : null);
+
                                             return (
                                                 <AccordionItem key={dish.id} value={dish.id} className="border border-gray-100 rounded-lg overflow-hidden">
                                                     <AccordionTrigger className="px-4 py-3 hover:bg-gray-50 hover:no-underline data-[state=open]:bg-blue-50/50">
@@ -413,12 +453,12 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                                                             <div>
                                                                 <div className="font-bold text-gray-900 flex items-center gap-2">
                                                                     {dish.name}
-                                                                    {aiResults.has(dish.id) && (
+                                                                    {showAI && aiDisplay && (
                                                                         <span className="cursor-default inline-flex ml-1">
-                                                                            {aiResults.get(dish.id)?.confidence === 'high' ? (
-                                                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                                            {aiDisplay.confidence === 'high' ? (
+                                                                                <CheckCircle2 className={`w-4 h-4 ${aiDisplay.isSaved ? 'text-green-500/70' : 'text-green-500'}`} />
                                                                             ) : (
-                                                                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                                                                                <AlertTriangle className={`w-4 h-4 ${aiDisplay.isSaved ? 'text-amber-500/70' : 'text-amber-500'}`} />
                                                                             )}
                                                                         </span>
                                                                     )}
@@ -427,45 +467,68 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                                                             </div>
                                                             <div className="flex items-center gap-4">
                                                                 <div className="flex gap-2">
-                                                                    {activeTagsCount > 0 && (
-                                                                        <Badge variant="outline" className="text-[10px] bg-white text-gray-600 border-gray-200">
-                                                                            {activeTagsCount} <span className="ml-1 text-xs">🏷️</span>
-                                                                        </Badge>
-                                                                    )}
-                                                                    {allergenCount > 0 && (
-                                                                        <Badge variant="outline" className="text-[10px] bg-white text-red-600 border-red-200">
-                                                                            {allergenCount} <span className="ml-1 text-xs">⚠️</span>
-                                                                        </Badge>
-                                                                    )}
                                                                 </div>
                                                                 <div className="font-mono font-bold text-gray-400">€ {dish.price}</div>
                                                             </div>
                                                         </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent className="p-4 bg-white border-t border-gray-100">
-                                                        {aiResults.has(dish.id) && (
-                                                            <div className="mb-6 bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 animate-in fade-in slide-in-from-top-2">
+                                                        {showAI && aiDisplay && (
+                                                            <div className={`mb-6 border rounded-lg p-4 animate-in fade-in slide-in-from-top-2 ${aiDisplay.isSaved ? 'bg-gray-50/50 border-gray-100' : 'bg-indigo-50/50 border-indigo-100'}`}>
                                                                 <div className="flex items-start gap-3">
-                                                                    <div className="p-2 bg-indigo-100 rounded-lg shrink-0">
-                                                                        <Wand2 className="w-4 h-4 text-indigo-600" />
+                                                                    <div className={`p-2 rounded-lg shrink-0 ${aiDisplay.isSaved ? 'bg-gray-100' : 'bg-indigo-100'}`}>
+                                                                        <Wand2 className={`w-4 h-4 ${aiDisplay.isSaved ? 'text-gray-500' : 'text-indigo-600'}`} />
                                                                     </div>
                                                                     <div className="space-y-2 w-full">
-                                                                        <div className="flex items-center justify-between">
-                                                                            <h4 className="font-bold text-indigo-900 text-sm">Analisi Intelligenza Artificiale</h4>
-                                                                            <Badge variant={aiResults.get(dish.id)?.confidence === 'high' ? "default" : "outline"} className={aiResults.get(dish.id)?.confidence === 'high' ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "text-amber-700 border-amber-200 bg-amber-50"}>
-                                                                                {aiResults.get(dish.id)?.confidence === 'high' ? 'Alta Confidenza' : '⚠️ Da Revisionare'}
-                                                                            </Badge>
+                                                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-y-2">
+                                                                            <h4 className={`font-bold text-sm ${aiDisplay.isSaved ? 'text-gray-700' : 'text-indigo-900'}`}>
+                                                                                {aiDisplay.isSaved ? 'Analisi AI (Salvata)' : 'Analisi Intelligenza Artificiale'}
+                                                                            </h4>
+                                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                                <Badge variant={aiDisplay.confidence === 'high' ? "default" : "outline"} className={aiDisplay.confidence === 'high' ? (aiDisplay.isSaved ? "bg-gray-600 hover:bg-gray-700 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white") : "text-amber-700 border-amber-200 bg-amber-50"}>
+                                                                                    {aiDisplay.confidence === 'high' ? 'Alta Confidenza' : '⚠️ Da Revisionare'}
+                                                                                </Badge>
+                                                                                {aiDisplay.confidence !== 'high' && (
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        variant="outline"
+                                                                                        className="h-6 text-xs border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                                                                                        onClick={async (e) => {
+                                                                                            e.stopPropagation();
+                                                                                            try {
+                                                                                                const newAiData = {
+                                                                                                    ...dish.ai_data,
+                                                                                                    confidence: 'high' as 'high' | 'medium' | 'low',
+                                                                                                    needs_review: false,
+                                                                                                    rationale: (dish.ai_data?.rationale || '') + ' (Confermato manualmente)'
+                                                                                                };
+
+                                                                                                await updateDishMutation.mutateAsync({
+                                                                                                    id: dish.id,
+                                                                                                    updates: { ai_data: newAiData }
+                                                                                                });
+                                                                                                toast.success('Analisi confermata');
+                                                                                            } catch (err) {
+                                                                                                toast.error('Errore conferma');
+                                                                                            }
+                                                                                        }}
+                                                                                    >
+                                                                                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                                                                                        Conferma
+                                                                                    </Button>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
 
-                                                                        <p className="text-sm text-indigo-900/80 leading-relaxed italic">
-                                                                            "{aiResults.get(dish.id)?.rationale}"
+                                                                        <p className={`text-sm leading-relaxed italic ${aiDisplay.isSaved ? 'text-gray-600' : 'text-indigo-900/80'}`}>
+                                                                            "{aiDisplay.rationale}"
                                                                         </p>
 
-                                                                        {(aiResults.get(dish.id)?.allergens?.length || 0) > 0 && (
+                                                                        {(aiDisplay.allergens?.length || 0) > 0 && (
                                                                             <div className="flex flex-wrap gap-2 pt-1">
-                                                                                <span className="text-xs font-semibold text-indigo-900 mt-1">Rilevati:</span>
-                                                                                {aiResults.get(dish.id)?.allergens.map(a => (
-                                                                                    <Badge key={a} variant="secondary" className="bg-white text-indigo-700 border border-indigo-100 text-xs shadow-sm">
+                                                                                <span className={`text-xs font-semibold mt-1 ${aiDisplay.isSaved ? 'text-gray-600' : 'text-indigo-900'}`}>Rilevati:</span>
+                                                                                {aiDisplay.allergens.map(a => (
+                                                                                    <Badge key={a} variant="secondary" className={`bg-white text-xs shadow-sm ${aiDisplay.isSaved ? 'text-gray-700 border-gray-200' : 'text-indigo-700 border-indigo-100'}`}>
                                                                                         {a}
                                                                                     </Badge>
                                                                                 ))}

@@ -68,9 +68,13 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
     // Sync theme changes to parent form data
     React.useEffect(() => {
         if (currentTheme) {
-            onUpdate({ theme_options: currentTheme });
+            // Prevent infinite loop: only update if the theme is effectively different
+            // This prevents the cycle: onUpdate -> parent re-render -> initialTheme change -> setCurrentTheme -> currentTheme change -> onUpdate
+            if (JSON.stringify(currentTheme) !== JSON.stringify(formData.theme_options)) {
+                onUpdate({ theme_options: currentTheme });
+            }
         }
-    }, [currentTheme]);
+    }, [currentTheme, formData.theme_options]);
 
     const handleCategoryClick = (categoryId: string) => {
         setActiveCategory(categoryId);

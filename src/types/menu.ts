@@ -218,6 +218,13 @@ export interface DishDB {
   is_frozen: boolean;
 
   allergen_ids: string[]; // Array of Strings (New Schema)
+  ai_data?: {
+    rationale?: string;
+    confidence?: 'high' | 'medium' | 'low';
+    needs_review?: boolean;
+    allergens_detected?: string[];
+    last_scan?: string;
+  };
 
   display_order: number;
 

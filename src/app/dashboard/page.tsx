@@ -234,6 +234,28 @@ export default function DashboardOverview() {
             color="blue"
           />
 
+          <div
+            onClick={() => {
+              if (isFreeTier) {
+                setShowActivationModal(true);
+              } else {
+                const url = `${window.location.origin}/${tenant.slug}`;
+                navigator.clipboard.writeText(url);
+                toast.success('Link copiato negli appunti!');
+              }
+            }}
+            className="cursor-pointer text-left"
+          >
+            <ActionCard
+              title="Condividi Menu"
+              description="Copia il link del tuo menu"
+              icon="🔗"
+              href="#"
+              color="green"
+              preventLink
+              disabled={isFreeTier}
+            />
+          </div>
         </div>
       </div>
 
