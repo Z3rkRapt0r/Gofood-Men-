@@ -235,13 +235,35 @@ export default function DashboardOverview() {
           />
 
           <div
-            onClick={() => {
+            onClick={async () => {
               if (isFreeTier) {
                 setShowActivationModal(true);
               } else {
                 const url = `${window.location.origin}/${tenant.slug}`;
-                navigator.clipboard.writeText(url);
-                toast.success('Link copiato negli appunti!');
+                const title = `Menu di ${tenant.restaurant_name}`;
+                const text = `Scopri il nostro menu digitale su GoFood!`;
+
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: title,
+                      text: text,
+                      url: url,
+                    });
+                    // Optional: toast.success('Menu condiviso!'); // Often not needed as system UI confirms
+                  } catch (err) {
+                    // User aborted or error
+                    console.log('Share aborted', err);
+                  }
+                } else {
+                  // Fallback
+                  try {
+                    await navigator.clipboard.writeText(url);
+                    toast.success('Link copiato negli appunti!');
+                  } catch (err) {
+                    toast.error('Impossibile copiare il link');
+                  }
+                }
               }
             }}
             className="cursor-pointer text-left"
