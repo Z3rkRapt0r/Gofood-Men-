@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertTriangle, Wand2, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from 'sonner';
 
 interface CharacteristicsManagerProps {
@@ -290,6 +291,13 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
                             <p className="text-blue-800/80 text-sm leading-relaxed max-w-2xl">
                                 Personalizza i piatti. Usa l'AI per rilevare automaticamente gli allergeni dai nomi e ingredienti.
                             </p>
+
+                            <Alert className="mt-4 bg-amber-50 border-amber-200 text-amber-900 max-w-2xl">
+                                <AlertTriangle className="h-4 w-4 stroke-amber-600" />
+                                <AlertDescription className="text-xs md:text-sm ml-2">
+                                    <strong>Attenzione:</strong> L&apos;intelligenza artificiale può commettere errori. Si prega di verificare sempre la correttezza degli allergeni inseriti.
+                                </AlertDescription>
+                            </Alert>
                         </div>
                         <Button
                             onClick={handleOpenScan}
@@ -324,7 +332,7 @@ export function CharacteristicsManager({ tenantId, showIntro = true }: Character
 
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                <span>Analisi AI Sicura</span>
+                                <span>Analisi AI Completa</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <AlertTriangle className="w-4 h-4 text-amber-500" />

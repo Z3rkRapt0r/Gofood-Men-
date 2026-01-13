@@ -1,14 +1,66 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import SubscriptionBanner from '@/components/dashboard/SubscriptionBanner';
 import ActivationModal from '@/components/dashboard/ActivationModal';
 import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger, SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { useTenant } from '@/hooks/useTenant';
+
+// Logic to handle Android Back Button for Sidebar
+function SidebarBackButtonHandler() {
+  const { openMobile, setOpenMobile } = useSidebar();
+  const pathname = usePathname();
+  const isClosingByBack = useRef(false);
+  const wasOpen = useRef(openMobile);
+  const openPathname = useRef(pathname);
+
+  // 1. Close sidebar on route change (navigation)
+  useEffect(() => {
+    if (openMobile && pathname !== openPathname.current) {
+      setOpenMobile(false);
+    }
+  }, [pathname, openMobile, setOpenMobile]);
+
+  // 2. Handle PopState (Hardware Back Button)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (openMobile) {
+        isClosingByBack.current = true;
+        setOpenMobile(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [openMobile, setOpenMobile]);
+
+  // 3. Manage History State
+  useEffect(() => {
+    if (openMobile && !wasOpen.current) {
+      // Closed -> Open: Push state and capture current path
+      window.history.pushState(null, '', window.location.pathname);
+      isClosingByBack.current = false;
+      openPathname.current = pathname;
+    } else if (!openMobile && wasOpen.current) {
+      // Open -> Closed
+      // Only go back if:
+      // a) Not closed by Back button (isClosingByBack)
+      // b) Pathname hasn't changed (if it changed, it's a navigation, so DON'T go back)
+      if (!isClosingByBack.current && pathname === openPathname.current) {
+        // Closed by UI (X or Backdrop) on the SAME page -> Keep history consistent
+        window.history.back();
+      }
+      isClosingByBack.current = false;
+    }
+    wasOpen.current = openMobile;
+  }, [openMobile, pathname]); // Depend on pathname to ensure correct logic
+
+  return null;
+}
 
 // Helper to get page title based on path
 function getPageTitle(pathname: string): string {
@@ -90,6 +142,7 @@ export default function DashboardLayoutClient({
 
   return (
     <SidebarProvider>
+      <SidebarBackButtonHandler />
       <div className="flex w-full min-h-screen bg-gray-50">
         <ActivationModal
           isOpen={showActivationModal}

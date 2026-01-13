@@ -36,7 +36,6 @@ import { AnimateIcon } from '@/components/ui/animate-icon';
 export function AppSidebar({ tenant }: { tenant: Tenant }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { setOpenMobile, isMobile } = useSidebar();
 
     async function handleLogout() {
         const supabase = createClient();
@@ -109,11 +108,6 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
                                         <Link
                                             href={item.url}
                                             className="flex items-center gap-3"
-                                            onClick={() => {
-                                                if (isMobile) {
-                                                    setOpenMobile(false);
-                                                }
-                                            }}
                                         >
                                             <AnimateIcon icon={item.icon} className="w-5 h-5" />
                                             <span>{item.title}</span>
