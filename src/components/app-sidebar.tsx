@@ -14,7 +14,8 @@ import {
     LogOut,
     Store,
     Image as ImageIcon,
-    ShieldAlert
+    ShieldAlert,
+    CalendarDays
 } from 'lucide-react';
 
 import {
@@ -49,6 +50,7 @@ export function AppSidebar({ tenant }: { tenant: Tenant }) {
         { title: 'Piatti', url: '/dashboard/dishes', icon: UtensilsCrossed },
         { title: 'Immagini', url: '/dashboard/media', icon: ImageIcon },
         { title: 'Allergeni', url: '/dashboard/allergens', icon: ShieldAlert },
+        // { title: 'Prenotazioni', url: '/dashboard/reservations', icon: CalendarDays },
 
         { title: 'Design Studio', url: '/dashboard/design-studio', icon: Palette },
         { title: 'Assistenza', url: '/dashboard/support', icon: HelpCircle },

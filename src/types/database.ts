@@ -270,6 +270,163 @@ export interface Database {
           created_at?: string;
         };
       };
+      reservation_settings: {
+        Row: {
+          tenant_id: string;
+          is_active: boolean;
+          notification_email: string | null;
+          total_seats: number;
+          total_high_chairs: number;
+          min_advance_hours: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          is_active?: boolean;
+          notification_email?: string | null;
+          total_seats?: number;
+          total_high_chairs?: number;
+          min_advance_hours?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          tenant_id?: string;
+          is_active?: boolean;
+          notification_email?: string | null;
+          total_seats?: number;
+          total_high_chairs?: number;
+          min_advance_hours?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      reservation_tables: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          name: string;
+          seats: number;
+          display_order: number;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          name: string;
+          seats?: number;
+          display_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          name?: string;
+          seats?: number;
+          display_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+        };
+      };
+      reservation_shifts: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          name: string;
+          start_time: string;
+          end_time: string;
+          days_of_week: number[];
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          name: string;
+          start_time: string;
+          end_time: string;
+          days_of_week?: number[];
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          name?: string;
+          start_time?: string;
+          end_time?: string;
+          days_of_week?: number[];
+          is_active?: boolean;
+          created_at?: string;
+        };
+      };
+      reservations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          customer_name: string;
+          customer_email: string;
+          customer_phone: string;
+          guests: number;
+          high_chairs: number;
+          reservation_date: string;
+          reservation_time: string;
+          status: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          customer_name: string;
+          customer_email: string;
+          customer_phone: string;
+          guests: number;
+          high_chairs?: number;
+          reservation_date: string;
+          reservation_time: string;
+          status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          customer_name?: string;
+          customer_email?: string;
+          customer_phone?: string;
+          guests?: number;
+          high_chairs?: number;
+          reservation_date?: string;
+          reservation_time?: string;
+          status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      reservation_assignments: {
+        Row: {
+          reservation_id: string;
+          table_id: string;
+          assigned_at: string;
+        };
+        Insert: {
+          reservation_id: string;
+          table_id: string;
+          assigned_at?: string;
+        };
+        Update: {
+          reservation_id?: string;
+          table_id?: string;
+          assigned_at?: string;
+        };
+      };
     };
     Views: {
       menu_with_allergens: {

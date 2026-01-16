@@ -5,7 +5,7 @@
 
 DO $$
 DECLARE
-    v_tenant_id uuid := 'REPLACE_WITH_TENANT_ID';
+    v_tenant_id uuid := 'b16564b1-8c1a-45e7-bca6-bd59f6a3b06e';
     v_cat_id uuid;
 BEGIN
     -- Ensure tenant exists or error out if invalid UUID (handled by Postgres runtime)
