@@ -198,7 +198,7 @@ export default function LandingPage() {
           </p>
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-items-center md:justify-center items-center gap-8 md:gap-20 transition-all duration-500">
             {/* Real Logos */}
-            <Link href="https://magnaroma-table-menu.vercel.app/" className="flex items-center gap-4 transition-all duration-500 hover:scale-110 hover:rotate-2 filter hover:drop-shadow-lg cursor-pointer">
+            <Link href="https://gofoodmenu.it/magnaromatrattoria" className="flex items-center gap-4 transition-all duration-500 hover:scale-110 hover:rotate-2 filter hover:drop-shadow-lg cursor-pointer">
               <div className="relative w-24 h-24 md:w-32 md:h-32">
                 <Image
                   src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/sign/Go%20Food/magnaroma-logo1.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zNzE5MDI4MC1kOTI1LTQ2YmQtOTFhMC0wMTIzZTlmZDY0MDciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHbyBGb29kL21hZ25hcm9tYS1sb2dvMS5wbmciLCJpYXQiOjE3NjQ3OTQ1MDIsImV4cCI6MjA4MDE1NDUwMn0.iqkxWbz2bd8AoHLmk4RhxhTqMw4Wn_mjk99YlkEzAjM"
@@ -280,55 +280,99 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Solution Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-br from-orange-50 to-amber-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <span className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
-              LA SOLUZIONE
-            </span>
-            <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6">
-              Menu digitali <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">via QR code</span>
-            </h2>
-            <p className="text-xl text-gray-600">
-              I tuoi clienti scansionano, vedono il menu aggiornato in tempo reale. Semplice.
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
-              <CardHeader>
-                <div className="text-4xl mb-4">⚡</div>
-                <CardTitle className="text-xl font-bold text-gray-900">Update istantaneo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Modifica prezzi in tempo reale. I clienti vedono subito tutto.</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
-              <CardHeader>
-                <div className="text-4xl mb-4">💰</div>
-                <CardTitle className="text-xl font-bold text-gray-900">Zero stampa</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Mai più costi di ristampa. Tutto online, sempre aggiornato.</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white/50 backdrop-blur-sm border-orange-100 hover:shadow-xl hover:shadow-orange-100 transition-all border-none shadow-lg">
-              <CardHeader>
-                <div className="text-4xl mb-4">🌍</div>
-                <CardTitle className="text-xl font-bold text-gray-900">Multilingua</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">IT ed EN con un click. Perfetto per turisti.</p>
-              </CardContent>
-            </Card>
+
+      {/* How It Works Section */}
+      <section className="pb-20 md:pb-32 pt-0 bg-white overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-16 items-center max-w-7xl mx-auto">
+
+            {/* Left: Image */}
+            <div className="relative">
+              {/* Blob Background */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-br from-orange-100 to-amber-100 rounded-full blur-3xl opacity-60" />
+
+              {/* Image */}
+              <div className="relative transform hover:scale-[1.02] transition-transform duration-500">
+                <Image
+                  src="/images/how-it-works-phone.jpg"
+                  alt="Anteprima del menu digitale su smartphone"
+                  width={600}
+                  height={800}
+                  className="relative z-10 w-full max-w-md mx-auto drop-shadow-2xl rounded-[2.5rem]"
+                />
+              </div>
+            </div>
+
+            {/* Right: Steps */}
+            <div className="text-center lg:text-left">
+              <div className="mb-10">
+                <span className="inline-block bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                  SEMPLICE E VELOCE
+                </span>
+                <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-4 leading-tight">
+                  Come creo il mio Menu <br />
+                  <span className="text-orange-600">con QR Code?</span>
+                </h2>
+                <p className="text-xl text-gray-600 font-medium">
+                  Bastano pochi minuti. <Link href="/register" className="text-orange-600 underline hover:text-orange-700">Registrati gratuitamente</Link> e inizia subito:
+                </p>
+              </div>
+
+              <div className="space-y-8">
+                {[
+                  {
+                    title: "Registrati e crea il tuo locale",
+                    description: "Inserisci i dati del tuo ristorante e personalizza il tuo profilo.",
+                  },
+                  {
+                    title: "Carica il tuo menu",
+                    description: "Usa la nostra AI per importare il menu da una foto o PDF, oppure crealo manualmente.",
+                  },
+                  {
+                    title: "Organizza le portate",
+                    description: "Crea categorie (Antipasti, Primi...) e ordina i piatti come preferisci.",
+                  },
+                  {
+                    title: "Personalizza i dettagli",
+                    description: "Aggiungi foto, allergeni, etichette e traduzioni in altre lingue.",
+                  },
+                  {
+                    title: "Anteprima e pubblicazione",
+                    description: "Controlla come vedranno il menu i tuoi clienti e rendilo visibile.",
+                  },
+                  {
+                    title: "Scarica il QR Code",
+                    description: "Scarica, stampa ed esponi il QR Code sui tavoli del tuo locale.",
+                  }
+                ].map((step, index) => (
+                  <div key={index} className="flex flex-col lg:flex-row items-center lg:items-start gap-3 lg:gap-5 group">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-black text-lg group-hover:bg-orange-600 group-hover:text-white transition-colors border border-orange-200">
+                        {index + 1}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 md:py-32 bg-white">
+      <section className="pb-20 md:pb-32 pt-0 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6">
