@@ -100,10 +100,26 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
     handleCategoryChange(categoryId);
   };
 
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset: number, velocity: number) => {
     return Math.abs(offset) * velocity;
   };
+
+  // Update URL and Title for tracking (Tawk.to etc)
+  useEffect(() => {
+    const category = categories.find(c => c.id === activeCategory);
+    if (!category) return;
+
+    // 1. Update URL hash (e.g. /restaurant#category)
+    // We use replaceState to avoid cluttering browser history
+    const url = new URL(window.location.href);
+    url.hash = category.id;
+    window.history.replaceState({}, '', url.toString());
+
+    // 2. Update Document Title
+    document.title = `${category.name} | ${tenant.restaurant_name}`;
+  }, [activeCategory, categories, tenant.restaurant_name]);
 
 
   return (

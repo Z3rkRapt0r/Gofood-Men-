@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Accedi - Gofood Menù',
+    title: 'Accedi',
     description: 'Effettua il login per gestire il tuo menu digitale.',
 };
 

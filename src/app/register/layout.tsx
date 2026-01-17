@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Registrati - Gofood Menù',
+    title: 'Registrati',
     description: 'Crea un account gratuito e inizia a creare il tuo menu digitale.',
 };
 
