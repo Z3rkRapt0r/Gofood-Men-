@@ -101,39 +101,60 @@ export function RoomLayoutEditor({
 }: RoomLayoutEditorProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [tempTable, setTempTable] = useState<TableConfig | null>(null);
 
     const handleTableClick = (id: string) => {
         if (mode === 'edit') {
-            setSelectedId(id);
-            setIsEditDialogOpen(true);
+            const t = tables.find(tb => tb.id === id);
+            if (t) {
+                setTempTable({ ...t });
+                setSelectedId(id);
+                setIsEditDialogOpen(true);
+            }
         } else if (onTableClick) {
             onTableClick(id);
         }
     };
 
     const addTable = () => {
-        if (!onUpdateTables) return;
         const newTable: TableConfig = {
             id: uuidv4(),
             name: `T${tables.length + 1}`,
             seats: 4,
             isActive: true
         };
-        onUpdateTables([...tables, newTable]);
-        setSelectedId(newTable.id);
+        setTempTable(newTable);
+        setSelectedId(null);
         setIsEditDialogOpen(true);
     };
 
-    const updateSelectedTable = (updates: Partial<TableConfig>) => {
-        if (!selectedId || !onUpdateTables) return;
-        onUpdateTables(tables.map(t =>
-            t.id === selectedId ? { ...t, ...updates } : t
-        ));
+    const handleSave = () => {
+        if (!tempTable || !onUpdateTables) return;
+
+        const exists = tables.find(t => t.id === tempTable.id);
+        if (exists) {
+            onUpdateTables(tables.map(t => t.id === tempTable.id ? tempTable : t));
+        } else {
+            onUpdateTables([...tables, tempTable]);
+        }
+        setTempTable(null);
+        setIsEditDialogOpen(false);
     };
 
+    const updateTempTable = (updates: Partial<TableConfig>) => {
+        if (!tempTable) return;
+        setTempTable({ ...tempTable, ...updates });
+    };
+
+
+
     const deleteSelectedTable = () => {
-        if (!selectedId || !onUpdateTables) return;
-        onUpdateTables(tables.filter(t => t.id !== selectedId));
+        const idToDelete = tempTable?.id || selectedId;
+        if (!idToDelete || !onUpdateTables) return;
+
+        onUpdateTables(tables.filter(t => t.id !== idToDelete));
+        setIsEditDialogOpen(false);
+        setTempTable(null);
         setSelectedId(null);
     };
 
@@ -182,20 +203,28 @@ export function RoomLayoutEditor({
                 </div>
             </div>
 
-            {/* Edit Dialog - For both Mobile and Desktop */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            {/* Edit/Create Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+                setIsEditDialogOpen(open);
+                if (!open) {
+                    setTempTable(null);
+                    setSelectedId(null);
+                }
+            }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Modifica Tavolo</DialogTitle>
+                        <DialogTitle>
+                            {tempTable ? 'Aggiungi Tavolo' : 'Modifica Tavolo'}
+                        </DialogTitle>
                     </DialogHeader>
-                    {selectedTable && (
+
+                    {tempTable && (
                         <TableEditForm
-                            table={selectedTable}
-                            onUpdate={updateSelectedTable}
-                            onDelete={() => {
-                                deleteSelectedTable();
-                                setIsEditDialogOpen(false);
-                            }}
+                            table={tempTable}
+                            onUpdate={updateTempTable}
+                            onDelete={deleteSelectedTable}
+                            mode={selectedId ? 'edit' : 'create'}
+                            onSave={handleSave}
                         />
                     )}
                 </DialogContent>
