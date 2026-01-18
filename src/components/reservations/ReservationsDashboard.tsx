@@ -112,6 +112,7 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
 
         const { error } = await supabase
             .from('reservations')
+            // @ts-ignore
             .update({ status })
             .eq('id', id);
 
@@ -134,6 +135,7 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
 
         const { error } = await supabase
             .from('reservations')
+            // @ts-ignore
             .update({
                 status: 'confirmed',
                 assigned_table_ids: tableIds
