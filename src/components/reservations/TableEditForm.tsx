@@ -18,16 +18,13 @@ interface TableEditFormProps {
 export function TableEditForm({ table, onUpdate, onDelete, mode = 'edit', onSave }: TableEditFormProps) {
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center border-b pb-2">
-                <h4 className="font-semibold text-lg">
-                    {mode === 'create' ? 'Aggiungi Tavolo' : 'Modifica Tavolo'}
-                </h4>
-                {mode === 'edit' && (
+            {mode === 'edit' && (
+                <div className="flex justify-end border-b pb-2">
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={onDelete}>
                         <Trash2 className="w-4 h-4" />
                     </Button>
-                )}
-            </div>
+                </div>
+            )}
 
             <div className="space-y-4">
                 <div className="space-y-2">
