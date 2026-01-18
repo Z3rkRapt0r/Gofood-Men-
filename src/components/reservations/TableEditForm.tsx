@@ -1,5 +1,4 @@
-"use client";
-
+import { useState, useEffect } from "react";
 import { TableConfig } from "./types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,23 +10,75 @@ interface TableEditFormProps {
     table: TableConfig;
     onUpdate: (updates: Partial<TableConfig>) => void;
     onDelete: () => void;
-    mode?: 'create' | 'edit';
-    onSave?: () => void;
+    isNew?: boolean;
+    onSave?: (table: TableConfig) => void;
 }
 
-export function TableEditForm({ table, onUpdate, onDelete, mode = 'edit', onSave }: TableEditFormProps) {
+export function TableEditForm({ table, onUpdate, onDelete, isNew = false, onSave }: TableEditFormProps) {
+    const [formData, setFormData] = useState<TableConfig>(table);
+
+    // Sync local state when table prop changes (important for switching selections)
+    useEffect(() => {
+        setFormData(table);
+    }, [table]);
+
+    const handleNameChange = (name: string) => {
+        const newData = { ...formData, name };
+        setFormData(newData);
+        if (!isNew) {
+            onUpdate({ name });
+        }
+    };
+
+    const handleSeatsChange = (seats: number) => {
+        const newData = { ...formData, seats: seats || 0 };
+        setFormData(newData);
+        if (!isNew) {
+            onUpdate({ seats: newData.seats });
+        }
+    };
+
+    const handleSave = () => {
+        if (onSave) {
+            onSave(formData);
+        }
+    };
+
     return (
         <div className="space-y-4">
-            <div className="pt-4 flex gap-2">
-                {mode === 'edit' && (
-                    <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" onClick={onDelete}>
-                        <Trash2 className="w-4 h-4 mr-2" /> Elimina
+            <div className="flex justify-between items-center border-b pb-2">
+                <h4 className="font-semibold">{isNew ? "Aggiungi Tavolo" : "Modifica Tavolo"}</h4>
+                {!isNew && (
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={onDelete}>
+                        <Trash2 className="w-4 h-4" />
                     </Button>
                 )}
-                <Button onClick={onSave} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
-                    {mode === 'create' ? 'Crea' : 'Salva'}
-                </Button>
             </div>
+
+            <div className="space-y-2">
+                <Label>Nome/Numero</Label>
+                <Input
+                    value={formData.name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label>Posti (Pax)</Label>
+                <Input
+                    type="number"
+                    value={formData.seats}
+                    onChange={(e) => handleSeatsChange(parseInt(e.target.value))}
+                />
+            </div>
+
+            {isNew && (
+                <div className="pt-2 flex justify-end">
+                    <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
+                        Crea
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

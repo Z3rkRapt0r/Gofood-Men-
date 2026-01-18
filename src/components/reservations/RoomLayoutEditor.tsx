@@ -101,64 +101,58 @@ export function RoomLayoutEditor({
 }: RoomLayoutEditorProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [tempTable, setTempTable] = useState<TableConfig | null>(null);
+    // State for creating a new table
+    const [newTable, setNewTable] = useState<TableConfig | null>(null);
 
     const handleTableClick = (id: string) => {
         if (mode === 'edit') {
-            const t = tables.find(tb => tb.id === id);
-            if (t) {
-                setTempTable({ ...t });
-                setSelectedId(id);
-                setIsEditDialogOpen(true);
-            }
+            setSelectedId(id);
+            setNewTable(null); // Ensure we are not in create mode
+            setIsEditDialogOpen(true);
         } else if (onTableClick) {
             onTableClick(id);
         }
     };
 
     const addTable = () => {
-        const newTable: TableConfig = {
+        if (!onUpdateTables) return;
+        const tempTable: TableConfig = {
             id: uuidv4(),
             name: `T${tables.length + 1}`,
             seats: 4,
             isActive: true
         };
-        setTempTable(newTable);
-        setSelectedId(null);
+        // Do NOT add to tables yet
+        setNewTable(tempTable);
+        setSelectedId(null); // Ensure no existing table is selected
         setIsEditDialogOpen(true);
     };
 
-    const handleSave = () => {
-        if (!tempTable || !onUpdateTables) return;
-
-        const exists = tables.find(t => t.id === tempTable.id);
-        if (exists) {
-            onUpdateTables(tables.map(t => t.id === tempTable.id ? tempTable : t));
-        } else {
-            onUpdateTables([...tables, tempTable]);
-        }
-        setTempTable(null);
+    const handleCreateConfirm = (createdTable: TableConfig) => {
+        if (!onUpdateTables) return;
+        onUpdateTables([...tables, createdTable]);
+        setNewTable(null);
         setIsEditDialogOpen(false);
     };
 
-    const updateTempTable = (updates: Partial<TableConfig>) => {
-        if (!tempTable) return;
-        setTempTable({ ...tempTable, ...updates });
+    const updateSelectedTable = (updates: Partial<TableConfig>) => {
+        if (!selectedId || !onUpdateTables) return;
+        onUpdateTables(tables.map(t =>
+            t.id === selectedId ? { ...t, ...updates } : t
+        ));
     };
-
-
 
     const deleteSelectedTable = () => {
-        const idToDelete = tempTable?.id || selectedId;
-        if (!idToDelete || !onUpdateTables) return;
-
-        onUpdateTables(tables.filter(t => t.id !== idToDelete));
-        setIsEditDialogOpen(false);
-        setTempTable(null);
+        if (!selectedId || !onUpdateTables) return;
+        onUpdateTables(tables.filter(t => t.id !== selectedId));
         setSelectedId(null);
     };
 
     const selectedTable = tables.find(t => t.id === selectedId);
+
+    // Determine what to show in the dialog
+    const editingTable = newTable || selectedTable;
+    const isCreating = !!newTable;
 
     return (
         <div className="flex flex-col space-y-4">
@@ -203,28 +197,22 @@ export function RoomLayoutEditor({
                 </div>
             </div>
 
-            {/* Edit/Create Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
-                setIsEditDialogOpen(open);
-                if (!open) {
-                    setTempTable(null);
-                    setSelectedId(null);
-                }
-            }}>
+            {/* Edit Dialog - For both Mobile and Desktop */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            {selectedId ? 'Modifica Tavolo' : 'Aggiungi Tavolo'}
-                        </DialogTitle>
+                        <DialogTitle>{isCreating ? "Aggiungi Tavolo" : "Modifica Tavolo"}</DialogTitle>
                     </DialogHeader>
-
-                    {tempTable && (
+                    {editingTable && (
                         <TableEditForm
-                            table={tempTable}
-                            onUpdate={updateTempTable}
-                            onDelete={deleteSelectedTable}
-                            mode={selectedId ? 'edit' : 'create'}
-                            onSave={handleSave}
+                            table={editingTable}
+                            onUpdate={isCreating ? () => { } : updateSelectedTable} // No-op for update in create mode (handled by local state)
+                            onDelete={() => {
+                                deleteSelectedTable();
+                                setIsEditDialogOpen(false);
+                            }}
+                            isNew={isCreating}
+                            onSave={handleCreateConfirm}
                         />
                     )}
                 </DialogContent>
