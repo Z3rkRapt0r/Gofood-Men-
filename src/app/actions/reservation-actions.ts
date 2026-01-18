@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = "reservations@gofoodmenu.it";
+const FROM_EMAIL = "help@gofoodmenu.it";
 
 function logToFile(message: string) {
     try {
