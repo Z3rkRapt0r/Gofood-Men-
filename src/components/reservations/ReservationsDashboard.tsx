@@ -11,6 +11,7 @@ import { EmailSettingsDialog } from "./EmailSettingsDialog";
 import { TableAssignmentDialog } from "./TableAssignmentDialog";
 import { useTenant } from "@/hooks/useTenant";
 import { createClient } from "@/lib/supabase/client";
+import { updateReservationStatus } from "@/app/actions/reservation-actions";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -110,13 +111,10 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
         // Optimistic update
         setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
 
-        const { error } = await supabase
-            .from('reservations')
-            // @ts-ignore
-            .update({ status })
-            .eq('id', id);
+        // Rejection needs reason handling, but for now we send generic message
+        const result = await updateReservationStatus(id, status as 'confirmed' | 'rejected');
 
-        if (error) {
+        if (!result.success) {
             toast.error("Errore aggiornamento stato");
             fetchReservations(); // Revert on error
         } else {
@@ -131,18 +129,16 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
 
         // Optimistic
         setReservations(prev => prev.map(r => r.id === reservationToAssign.id ? updatedRes : r));
-        setReservationToAssign(null);
+        const reservationId = reservationToAssign.id;
+        setReservationToAssign(null); // Close dialog immediately
 
-        const { error } = await supabase
-            .from('reservations')
-            // @ts-ignore
-            .update({
-                status: 'confirmed',
-                assigned_table_ids: tableIds
-            })
-            .eq('id', reservationToAssign.id);
+        const result = await updateReservationStatus(
+            reservationId,
+            'confirmed',
+            tableIds
+        );
 
-        if (error) {
+        if (!result.success) {
             toast.error("Errore assegnazione tavolo");
             fetchReservations();
         } else {

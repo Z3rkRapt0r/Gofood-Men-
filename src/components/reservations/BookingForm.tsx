@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Calendar as CalendarIcon, Clock, Users, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { submitReservation } from "@/app/actions/reservation-actions";
 
 interface BookingFormProps {
     config: ReservationConfig;
@@ -105,21 +106,23 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         setIsSubmitting(true);
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { error } = await (supabase.from('reservations') as any).insert({
-                tenant_id: tenantId,
-                customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
-                customer_email: formData.email,
-                customer_phone: formData.phone,
+            const result = await submitReservation({
+                tenantId,
+                restaurantName,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
                 guests: parseInt(formData.guests),
-                high_chairs: parseInt(formData.highChairs),
-                reservation_date: formData.date,
-                reservation_time: formData.time,
-                notes: formData.notes || null,
-                status: 'pending'
+                highChairs: parseInt(formData.highChairs),
+                date: formData.date,
+                time: formData.time,
+                notes: formData.notes
             });
 
-            if (error) throw error;
+            if (!result.success) {
+                throw new Error(result.error);
+            }
 
             setIsSuccess(true);
             toast.success("Richiesta inviata con successo!");
