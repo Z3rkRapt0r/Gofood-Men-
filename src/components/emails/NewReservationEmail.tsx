@@ -43,73 +43,128 @@ export const NewReservationEmail = ({
 
     return (
         <EmailLayout preview={`Nuova prenotazione da ${customerName}`}>
-            <Heading className="text-2xl font-bold text-center text-stone-800 mb-6">
-                Nuova Richiesta di Prenotazione
-            </Heading>
-            <Text className="text-base text-stone-600 mb-6 text-center">
+            <Heading style={h1}>Nuova Richiesta di Prenotazione</Heading>
+            <Text style={text}>
                 Ciao <strong>{restaurantName}</strong>, hai ricevuto una nuova richiesta.
             </Text>
 
-            <Section className="bg-stone-50 rounded-lg p-6 mb-8 border border-stone-100">
-                <Row className="mb-4">
-                    <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                        Cliente
-                    </Column>
-                    <Column className="text-stone-800 font-medium">
-                        {customerName}
+            <Section style={card}>
+                <Row style={row}>
+                    <Column style={labelCol}>Cliente</Column>
+                    <Column style={valueCol}><strong>{customerName}</strong></Column>
+                </Row>
+                <Row style={row}>
+                    <Column style={labelCol}>Persone</Column>
+                    <Column style={valueCol}>
+                        {guests} {highChairs > 0 && <span style={subInfo}>({highChairs} bambini)</span>}
                     </Column>
                 </Row>
-                <Row className="mb-4">
-                    <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                        Persone
-                    </Column>
-                    <Column className="text-stone-800 font-medium">
-                        {guests} {highChairs > 0 && <span className="text-xs text-stone-500 font-normal">({highChairs} bambini)</span>}
-                    </Column>
-                </Row>
-                <Row className="mb-4">
-                    <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                        Quando
-                    </Column>
-                    <Column className="text-stone-800 font-medium">
+                <Row style={row}>
+                    <Column style={labelCol}>Quando</Column>
+                    <Column style={valueCol}>
                         {formattedDate} alle {time}
                     </Column>
                 </Row>
-                <Row className="mb-4">
-                    <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                        Contatti
-                    </Column>
-                    <Column className="text-stone-800">
-                        <div className="mb-1">{customerPhone}</div>
-                        <div className="text-sm text-stone-500">{customerEmail}</div>
+                <Row style={row}>
+                    <Column style={labelCol}>Contatti</Column>
+                    <Column style={valueCol}>
+                        <div style={{ marginBottom: '4px' }}>{customerPhone}</div>
+                        <div style={subInfo}>{customerEmail}</div>
                     </Column>
                 </Row>
 
                 {notes && (
-                    <Row>
-                        <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                            Note
-                        </Column>
-                        <Column className="text-stone-700 italic border-l-2 border-stone-200 pl-3">
+                    <Row style={{ ...row, borderBottom: 'none' }}>
+                        <Column style={labelCol}>Note</Column>
+                        <Column style={{ ...valueCol, fontStyle: 'italic', color: '#555' }}>
                             "{notes}"
                         </Column>
                     </Row>
                 )}
             </Section>
 
-            <Section className="text-center">
+            <Section style={{ textAlign: 'center', marginTop: '32px' }}>
                 <Button
-                    className="bg-stone-900 text-white font-medium px-8 py-3 rounded-md hover:bg-stone-800 transition-colors"
+                    style={button}
                     href={dashboardUrl}
                 >
                     Gestisci Prenotazione
                 </Button>
-                <Text className="text-xs text-stone-400 mt-4">
+                <Text style={footerNote}>
                     Cliccando accederai alla dashboard per accettare o rifiutare.
                 </Text>
             </Section>
         </EmailLayout>
     );
+};
+
+// Styles
+const h1 = {
+    color: '#333',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    textAlign: 'center' as const,
+    margin: '10px 0 20px 0',
+};
+
+const text = {
+    color: '#333',
+    fontSize: '16px',
+    lineHeight: '26px',
+    textAlign: 'center' as const,
+    marginBottom: '20px',
+};
+
+const card = {
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    border: '1px solid #eee',
+    padding: '20px',
+};
+
+const row = {
+    borderBottom: '1px solid #eee',
+    padding: '10px 0',
+};
+
+const labelCol = {
+    width: '30%',
+    color: '#666',
+    fontWeight: 'bold',
+    fontSize: '14px',
+    textTransform: 'uppercase' as const,
+    verticalAlign: 'top',
+    paddingTop: '4px',
+};
+
+const valueCol = {
+    width: '70%',
+    color: '#333',
+    fontSize: '16px',
+    verticalAlign: 'top',
+};
+
+const subInfo = {
+    fontSize: '14px',
+    color: '#888',
+};
+
+const button = {
+    backgroundColor: '#000',
+    borderRadius: '5px',
+    color: '#fff',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    textAlign: 'center' as const,
+    display: 'inline-block',
+    padding: '12px 24px',
+};
+
+const footerNote = {
+    fontSize: '12px',
+    color: '#999',
+    marginTop: '12px',
 };
 
 export default NewReservationEmail;

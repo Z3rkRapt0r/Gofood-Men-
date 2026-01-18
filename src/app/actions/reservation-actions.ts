@@ -5,9 +5,21 @@ import { Resend } from "resend";
 import NewReservationEmail from "@/components/emails/NewReservationEmail";
 import ReservationStatusEmail from "@/components/emails/ReservationStatusEmail";
 import { revalidatePath } from "next/cache";
+import fs from 'fs';
+import path from 'path';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = "reservations@gofoodmenu.it";
+
+function logToFile(message: string) {
+    try {
+        const logPath = path.join(process.cwd(), 'reservation-debug.log');
+        const timestamp = new Date().toISOString();
+        fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`);
+    } catch (e) {
+        console.error("Failed to write to log file", e);
+    }
+}
 
 // --- Submit Reservation (Public) ---
 export async function submitReservation(formData: {
@@ -56,11 +68,13 @@ export async function submitReservation(formData: {
         .single();
 
     const ownerEmail = settings?.notification_email;
+    logToFile(`[submitReservation] Owner email: ${ownerEmail}`);
 
     if (ownerEmail) {
         // 3. Send Email to Owner
         try {
-            await resend.emails.send({
+            logToFile(`[submitReservation] Attempting to send email to: ${ownerEmail}`);
+            const data = await resend.emails.send({
                 from: FROM_EMAIL,
                 to: ownerEmail,
                 subject: `Nuova Richiesta di Prenotazione - ${formData.date} ${formData.time}`,
@@ -74,13 +88,19 @@ export async function submitReservation(formData: {
                     date: formData.date,
                     time: formData.time,
                     notes: formData.notes,
-                    dashboardUrl: "https://gofoodmenu.it/dashboard/reservations" // TODO: Update with real prod URL if dynamic
+                    dashboardUrl: "https://gofoodmenu.it/dashboard/reservations"
                 }),
             });
+            logToFile(`[submitReservation] Email sent result: ${JSON.stringify(data)}`);
+            if (data.error) {
+                logToFile(`[submitReservation] Resend Error: ${JSON.stringify(data.error)}`);
+            }
         } catch (emailError) {
-            console.error("Email Sending Error (Owner):", emailError);
+            logToFile(`[submitReservation] Email Sending Exception: ${JSON.stringify(emailError)}`);
             // We don't fail the request if email fails, but we log it
         }
+    } else {
+        logToFile(`[submitReservation] No owner email configured for tenant: ${formData.tenantId}`);
     }
 
     return { success: true, reservation };

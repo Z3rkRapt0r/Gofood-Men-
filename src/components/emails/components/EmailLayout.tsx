@@ -9,7 +9,6 @@ import {
     Preview,
     Section,
     Text,
-    Tailwind,
 } from "@react-email/components";
 import * as React from "react";
 
@@ -23,52 +22,85 @@ export const EmailLayout = ({ preview, children }: EmailLayoutProps) => {
         <Html>
             <Head />
             <Preview>{preview}</Preview>
-            <Tailwind>
-                <Body className="bg-white font-sans text-stone-800">
-                    <Container className="mx-auto p-5 pb-10 max-w-[580px]">
-                        {/* Header */}
-                        <Section className="mt-8 mb-8 text-center">
-                            <Img
-                                src="https://gofoodmenu.vercel.app/gofood-logoHD.png" // Hosting externally or using full URL is safer for emails
-                                width="180"
-                                height="40"
-                                alt="GoFood Menu"
-                                className="mx-auto object-contain"
-                            />
-                        </Section>
+            <Body style={main}>
+                <Container style={container}>
+                    {/* Header */}
+                    <Section style={{ marginTop: '32px', marginBottom: '10px', textAlign: 'center' as const }}>
+                        <Img
+                            src="https://sgdxmtqrjgxuajxxvajf.supabase.co/storage/v1/object/public/Go%20Food/gofood-logoHD.jpg"
+                            width="300"
+                            height="66"
+                            alt="GO! FOOD"
+                            style={{ margin: '0 auto', objectFit: 'contain' }}
+                        />
+                    </Section>
 
-                        {/* Content */}
-                        <Section className="bg-white rounded-lg px-2">
-                            {children}
-                        </Section>
+                    {/* Content */}
+                    <Section style={content}>
+                        {children}
+                    </Section>
 
-                        {/* Footer */}
-                        <Section className="mt-12 text-center text-xs text-stone-400">
-                            <Hr className="border-stone-200 my-6" />
-                            <Text className="mb-4 text-stone-500">
-                                Powered by <strong>GoFood Menu</strong>
-                            </Text>
-                            <div className="space-x-4">
-                                <Link
-                                    href="https://gofoodmenu.it/privacy"
-                                    className="text-stone-400 underline decoration-stone-300"
-                                >
-                                    Privacy Policy
-                                </Link>
-                                <Link
-                                    href="https://gofoodmenu.it/terms"
-                                    className="text-stone-400 underline decoration-stone-300"
-                                >
-                                    Termini di Servizio
-                                </Link>
-                            </div>
-                            <Text className="mt-4 text-[10px] text-stone-300">
-                                GoFood Menu © {new Date().getFullYear()} - P.IVA 12345678901
-                            </Text>
-                        </Section>
-                    </Container>
-                </Body>
-            </Tailwind>
-        </Html>
+                    {/* Footer */}
+                    <Section style={footer}>
+                        <Hr style={hr} />
+                        <Text style={{ marginBottom: '16px', color: '#666' }}>
+                            Powered by <strong>GoFood Menu</strong>
+                        </Text>
+                        <div style={{ marginBottom: '16px' }}>
+                            <Link
+                                href="https://www.iubenda.com/privacy-policy/23100081"
+                                style={link}
+                            >
+                                Privacy Policy
+                            </Link>
+                            <span style={{ margin: '0 8px', color: '#ccc' }}>|</span>
+                            <Link
+                                href="https://gofoodmenu.it/termini-e-condizioni"
+                                style={link}
+                            >
+                                Termini di Servizio
+                            </Link>
+                        </div>
+                        <Text style={{ fontSize: '10px', color: '#ccc' }}>
+                            GO! FOOD © {new Date().getFullYear()} Tutti i diritti riservati. - P.IVA 06955440828
+                        </Text>
+                    </Section>
+                </Container>
+            </Body >
+        </Html >
     );
+};
+
+const main = {
+    backgroundColor: '#ffffff',
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+    color: '#333333',
+};
+
+const container = {
+    margin: '0 auto',
+    padding: '20px 0 48px',
+    maxWidth: '580px',
+};
+
+const content = {
+    backgroundColor: '#ffffff',
+    padding: '0 10px',
+};
+
+const footer = {
+    marginTop: '48px',
+    textAlign: 'center' as const,
+    fontSize: '12px',
+    color: '#999',
+};
+
+const hr = {
+    borderColor: '#e6ebf1',
+    margin: '20px 0',
+};
+
+const link = {
+    color: '#999',
+    textDecoration: 'underline',
 };
