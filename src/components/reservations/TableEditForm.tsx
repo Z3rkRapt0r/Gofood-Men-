@@ -20,8 +20,8 @@ export function TableEditForm({ table, onUpdate, onDelete, mode = 'edit', onSave
         <div className="space-y-4">
             {mode === 'edit' && (
                 <div className="flex justify-end border-b pb-2">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={onDelete}>
-                        <Trash2 className="w-4 h-4" />
+                    <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={onDelete}>
+                        <Trash2 className="w-4 h-4 mr-2" /> Elimina
                     </Button>
                 </div>
             )}

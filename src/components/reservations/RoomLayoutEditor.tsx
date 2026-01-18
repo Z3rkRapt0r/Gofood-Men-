@@ -214,7 +214,7 @@ export function RoomLayoutEditor({
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
-                            {tempTable ? 'Aggiungi Tavolo' : 'Modifica Tavolo'}
+                            {selectedId ? 'Modifica Tavolo' : 'Aggiungi Tavolo'}
                         </DialogTitle>
                     </DialogHeader>
 
