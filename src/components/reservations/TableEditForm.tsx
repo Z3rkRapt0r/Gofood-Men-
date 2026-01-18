@@ -18,37 +18,13 @@ interface TableEditFormProps {
 export function TableEditForm({ table, onUpdate, onDelete, mode = 'edit', onSave }: TableEditFormProps) {
     return (
         <div className="space-y-4">
-            {mode === 'edit' && (
-                <div className="flex justify-end border-b pb-2">
-                    <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={onDelete}>
+            <div className="pt-4 flex gap-2">
+                {mode === 'edit' && (
+                    <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" onClick={onDelete}>
                         <Trash2 className="w-4 h-4 mr-2" /> Elimina
                     </Button>
-                </div>
-            )}
-
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label>Nome/Numero</Label>
-                    <Input
-                        value={table.name}
-                        onChange={(e) => onUpdate({ name: e.target.value })}
-                        placeholder="Es. T1, Sala A..."
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label>Posti (Pax)</Label>
-                    <Input
-                        type="number"
-                        min={1}
-                        value={table.seats}
-                        onChange={(e) => onUpdate({ seats: parseInt(e.target.value) || 0 })}
-                    />
-                </div>
-            </div>
-
-            <div className="pt-4 flex justify-end">
-                <Button onClick={onSave} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                )}
+                <Button onClick={onSave} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
                     {mode === 'create' ? 'Crea' : 'Salva'}
                 </Button>
             </div>
