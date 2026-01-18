@@ -200,7 +200,7 @@ export function RoomLayoutEditor({
             {/* Edit Dialog - For both Mobile and Desktop */}
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent>
-                    <DialogHeader>
+                    <DialogHeader className="sr-only">
                         <DialogTitle>{isCreating ? "Aggiungi Tavolo" : "Modifica Tavolo"}</DialogTitle>
                     </DialogHeader>
                     {editingTable && (
