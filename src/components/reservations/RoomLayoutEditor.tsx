@@ -135,11 +135,12 @@ export function RoomLayoutEditor({
         setIsEditDialogOpen(false);
     };
 
-    const updateSelectedTable = (updates: Partial<TableConfig>) => {
+    const handleEditConfirm = (updatedTable: TableConfig) => {
         if (!selectedId || !onUpdateTables) return;
         onUpdateTables(tables.map(t =>
-            t.id === selectedId ? { ...t, ...updates } : t
+            t.id === selectedId ? updatedTable : t
         ));
+        setIsEditDialogOpen(false);
     };
 
     const deleteSelectedTable = () => {
@@ -206,13 +207,13 @@ export function RoomLayoutEditor({
                     {editingTable && (
                         <TableEditForm
                             table={editingTable}
-                            onUpdate={isCreating ? () => { } : updateSelectedTable} // No-op for update in create mode (handled by local state)
+                            onUpdate={() => { }} // No-op, updates handled by onSave
                             onDelete={() => {
                                 deleteSelectedTable();
                                 setIsEditDialogOpen(false);
                             }}
                             isNew={isCreating}
-                            onSave={handleCreateConfirm}
+                            onSave={isCreating ? handleCreateConfirm : handleEditConfirm}
                         />
                     )}
                 </DialogContent>

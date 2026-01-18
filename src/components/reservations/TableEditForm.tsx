@@ -25,17 +25,11 @@ export function TableEditForm({ table, onUpdate, onDelete, isNew = false, onSave
     const handleNameChange = (name: string) => {
         const newData = { ...formData, name };
         setFormData(newData);
-        if (!isNew) {
-            onUpdate({ name });
-        }
     };
 
     const handleSeatsChange = (seats: number) => {
         const newData = { ...formData, seats: seats || 0 };
         setFormData(newData);
-        if (!isNew) {
-            onUpdate({ seats: newData.seats });
-        }
     };
 
     const handleSave = () => {
@@ -72,13 +66,11 @@ export function TableEditForm({ table, onUpdate, onDelete, isNew = false, onSave
                 />
             </div>
 
-            {isNew && (
-                <div className="pt-2 flex justify-end">
-                    <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
-                        Crea
-                    </Button>
-                </div>
-            )}
+            <div className="pt-2 flex justify-end">
+                <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
+                    {isNew ? "Crea" : "Conferma"}
+                </Button>
+            </div>
         </div>
     );
 }
