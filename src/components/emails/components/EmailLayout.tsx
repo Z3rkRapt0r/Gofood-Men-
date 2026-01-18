@@ -21,7 +21,7 @@ export const EmailLayout = ({ preview, children }: EmailLayoutProps) => {
     return (
         <Html>
             <Head />
-            <Preview>{preview}</Preview>
+            <Preview>{preview || ""} </Preview>
             <Body style={main}>
                 <Container style={container}>
                     {/* Header */}
