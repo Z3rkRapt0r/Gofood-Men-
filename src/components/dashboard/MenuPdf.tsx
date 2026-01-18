@@ -226,8 +226,6 @@ const MenuDocument = ({
                         {/* List of Dishes for this Category */}
                         <View>
                             {catDishes.map((dish) => {
-                                const dishAllergens = getDishesAllergens(dish.allergen_ids);
-
                                 return (
                                     <View key={dish.id} style={styles.dishRow} wrap={false}>
                                         <View style={styles.dishContent}>
