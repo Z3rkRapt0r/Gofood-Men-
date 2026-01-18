@@ -27,9 +27,21 @@ export function ReservationPageClient({ tenant, config }: ReservationPageClientP
                         />
                     </div>
                 ) : (
-                    <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-3xl">
-                        {tenant.restaurant_name.charAt(0)}
-                    </div>
+                    <a
+                        href="https://www.gofoodmenu.it/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative w-40 h-32 mx-auto flex items-center justify-center mb-2 hover:opacity-90 transition-opacity"
+                    >
+                        <Image
+                            src="/gofood-logoHD.svg"
+                            alt="GoFood Menu"
+                            width={160}
+                            height={128}
+                            className="w-full h-full object-contain"
+                            priority
+                        />
+                    </a>
                 )}
 
                 {/* Name and Subtitle removed as requested */}
