@@ -4,20 +4,20 @@
  * Usage: node supabase/run-migrations.js
  *
  * Questo script esegue automaticamente tutte le migrations SQL
- * sul database Supabase usando le credenziali da .env.local
+ * sul database Supabase usando le credenziali da .env
  */
 
 const fs = require('fs');
 const path = require('path');
 
 // Carica environment variables
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('❌ Errore: Credenziali Supabase mancanti in .env.local');
+  console.error('❌ Errore: Credenziali Supabase mancanti in .env');
   console.error('Assicurati di avere:');
   console.error('- NEXT_PUBLIC_SUPABASE_URL');
   console.error('- SUPABASE_SERVICE_ROLE_KEY');
@@ -62,8 +62,9 @@ async function runMigration(filename) {
       });
 
       if (!response.ok) {
-        console.error(`❌ Errore: ${error.message}`);
-        console.error('⚠️  Esegui manualmente questo file tramite SQL Editor nella dashboard Supabase');
+        // Se anche questo fallisce, prova via SQL REST endpoint standard se abilitato o stampa errore
+        const errText = await response.text();
+        console.error(`❌ Errore (Fallback REST): ${errText}`);
         return false;
       }
     }
@@ -72,7 +73,6 @@ async function runMigration(filename) {
     return true;
   } catch (err) {
     console.error(`❌ Errore durante l'esecuzione di ${filename}:`, err.message);
-    console.error('⚠️  Esegui manualmente questo file tramite SQL Editor nella dashboard Supabase');
     return false;
   }
 }
@@ -83,14 +83,7 @@ async function main() {
   console.log('🔑 Service Role Key: Presente\n');
 
   const migrations = [
-    '001_schema.sql',
-    '002_seed.sql',
-    '003_policies.sql',
-    '004_auto_create_profile.sql',
-    '005_add_tagline.sql',
-    '006_storage_policies.sql',
-    '007_remove_limits.sql',
-    '008_go_food_bucket_policies.sql',
+    '034_seed_shifts_magnaroma.sql'
   ];
 
   let success = 0;
@@ -110,20 +103,9 @@ async function main() {
 
   if (failed > 0) {
     console.log(`❌ Migrations fallite: ${failed}/${migrations.length}`);
-    console.log('\n⚠️  NOTA: Se le migrations falliscono con questo script,');
-    console.log('esegui i file SQL manualmente tramite SQL Editor:');
-    console.log('Dashboard Supabase → SQL Editor → New Query → Incolla SQL → Run');
   }
 
   console.log('='.repeat(50));
-
-  console.log('\n📚 Prossimi step:');
-  console.log('1. Crea i bucket Storage (dishes e logos) tramite dashboard');
-  console.log('2. Esegui storage-policies.sql tramite SQL Editor');
-  console.log('3. Aggiungi NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local');
-  console.log('4. Testa la connessione con: npm run dev');
-
-  console.log('\n✨ Setup completato!');
 }
 
 main().catch(err => {

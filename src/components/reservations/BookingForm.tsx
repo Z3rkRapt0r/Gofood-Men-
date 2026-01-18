@@ -29,7 +29,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         lastName: "",
         email: "",
         phone: "",
-        guests: "2",
+        guests: "",
         highChairs: "0",
         date: "",
         time: "",
@@ -269,7 +269,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                                     id="guests"
                                     type="number"
                                     min="1"
-                                    max={config.totalSeats || 50}
+                                    max={config.totalSeats || 999}
                                     required
                                     value={formData.guests}
                                     onChange={(e) => handleChange("guests", e.target.value)}

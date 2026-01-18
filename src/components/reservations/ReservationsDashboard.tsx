@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Reservation, ReservationConfig, ReservationStatus } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Mail, Link as LinkIcon, Copy, ExternalLink, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { Check, X, Mail, Link as LinkIcon, Copy, ExternalLink, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
 import { EmailSettingsDialog } from "./EmailSettingsDialog";
-import { Input } from "@/components/ui/input";
 import { TableAssignmentDialog } from "./TableAssignmentDialog";
 import { useTenant } from "@/hooks/useTenant";
+import { createClient } from "@/lib/supabase/client";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,35 +19,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Mock Data Wrapper
-const MOCK_RESERVATIONS: Reservation[] = [
-    {
-        id: uuidv4(),
-        customerName: "Mario Rossi",
-        customerEmail: "mario@example.com",
-        customerPhone: "3331234567",
-        guests: 4,
-        highChairs: 1,
-        date: new Date().toISOString().split('T')[0], // Today
-        time: "20:00",
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        notes: "Tavolo lontano dall'ingresso se possibile"
-    },
-    {
-        id: uuidv4(),
-        customerName: "Luigi Verdi",
-        customerEmail: "luigi@example.com",
-        customerPhone: "3339876543",
-        guests: 2,
-        highChairs: 0,
-        date: new Date().toISOString().split('T')[0], // Today
-        time: "20:30",
-        status: 'confirmed',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-    }
-];
-
 interface ReservationsDashboardProps {
     config: ReservationConfig;
     onEditConfig: () => void;
@@ -56,12 +26,69 @@ interface ReservationsDashboardProps {
 }
 
 export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: ReservationsDashboardProps) {
-    const [reservations, setReservations] = useState<Reservation[]>(MOCK_RESERVATIONS);
+    const [reservations, setReservations] = useState<Reservation[]>([]);
+    const [isLoadingReservations, setIsLoadingReservations] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [reservationToAssign, setReservationToAssign] = useState<Reservation | null>(null);
 
     const { data: tenant } = useTenant();
+    const supabase = createClient();
+
     const publicLink = typeof window !== 'undefined' && tenant?.slug ? `${window.location.origin}/prenota/${tenant.slug}` : '';
+
+    const fetchReservations = useCallback(async () => {
+        if (!tenant?.id) return;
+
+        setIsLoadingReservations(true);
+        // Fetch reservations for the selected date (or all if needed, but per-date is better for large datasets)
+        const { data, error } = await supabase
+            .from('reservations')
+            .select('*')
+            .eq('tenant_id', tenant.id);
+
+        if (error) {
+            console.error("Error fetching reservations:", error);
+            toast.error("Errore nel caricamento delle prenotazioni");
+        } else {
+            const mappedData: Reservation[] = data.map((r: any) => ({
+                id: r.id,
+                customerName: r.customer_name,
+                customerEmail: r.customer_email || "",
+                customerPhone: r.customer_phone || "",
+                guests: r.guests,
+                highChairs: r.high_chairs || 0,
+                date: r.reservation_date,
+                time: r.reservation_time,
+                status: r.status,
+                createdAt: r.created_at,
+                notes: r.notes || "",
+                assignedTableIds: r.assigned_table_ids || []
+            }));
+            setReservations(mappedData);
+        }
+        setIsLoadingReservations(false);
+    }, [tenant?.id, supabase]);
+
+    useEffect(() => {
+        fetchReservations();
+
+        // Realtime subscription
+        if (!tenant?.id) return;
+
+        const channel = supabase
+            .channel('reservations_realtime')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'reservations', filter: `tenant_id=eq.${tenant.id}` },
+                () => {
+                    fetchReservations();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [fetchReservations, tenant?.id, supabase]);
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(publicLink);
@@ -73,33 +100,57 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
         toast.success("Email notifiche aggiornata");
     }
 
-    const handleStatusChange = (id: string, status: ReservationStatus) => {
+    const handleStatusChange = async (id: string, status: ReservationStatus) => {
         if (status === 'confirmed') {
             const res = reservations.find(r => r.id === id);
             if (res) setReservationToAssign(res);
             return;
         }
 
+        // Optimistic update
         setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-        toast.success(`Prenotazione ${status === 'rejected' ? 'rifiutata' : 'aggiornata'}`);
+
+        const { error } = await supabase
+            .from('reservations')
+            .update({ status })
+            .eq('id', id);
+
+        if (error) {
+            toast.error("Errore aggiornamento stato");
+            fetchReservations(); // Revert on error
+        } else {
+            toast.success(`Prenotazione ${status === 'rejected' ? 'rifiutata' : 'aggiornata'}`);
+        }
     };
 
-    const handleAssignmentConfirm = (tableIds: string[]) => {
+    const handleAssignmentConfirm = async (tableIds: string[]) => {
         if (!reservationToAssign) return;
 
-        setReservations(prev => prev.map(r =>
-            r.id === reservationToAssign.id
-                ? { ...r, status: 'confirmed', assignedTableIds: tableIds }
-                : r
-        ));
+        const updatedRes = { ...reservationToAssign, status: 'confirmed' as const, assignedTableIds: tableIds };
 
-        toast.success("Prenotazione accettata e tavolo assegnato!");
+        // Optimistic
+        setReservations(prev => prev.map(r => r.id === reservationToAssign.id ? updatedRes : r));
         setReservationToAssign(null);
+
+        const { error } = await supabase
+            .from('reservations')
+            .update({
+                status: 'confirmed',
+                assigned_table_ids: tableIds
+            })
+            .eq('id', reservationToAssign.id);
+
+        if (error) {
+            toast.error("Errore assegnazione tavolo");
+            fetchReservations();
+        } else {
+            toast.success("Prenotazione accettata e tavolo assegnato!");
+        }
     };
 
-    // Simple analysis of availability (Mock logic)
+    // Simple analysis of availability
     const getAvailabilityWarning = (reservation: Reservation) => {
-        if (reservation.guests > 10) return "Attenzione: Richiesta elevata per l'orario.";
+        if (reservation.guests > 10) return "Attenzione: Gruppo numeroso.";
         return null;
     };
 
@@ -119,6 +170,12 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
 
     const pendingCount = filteredReservations.filter(r => r.status === 'pending').length;
     const confirmedCount = filteredReservations.filter(r => r.status === 'confirmed').length;
+
+    // Remote pending count across ALL dates (from fetched data)
+    // If we only fetch ALL reservations, this is accurate. 
+    // If we fetch only selected date, we lose this global counter.
+    // For now, let's assume we fetch all since the query above doesn't filter by date.
+    // Ideally we should have a separate count query, but for small scale Fetch All is fine.
     const totalRemotePending = reservations.filter(r => r.status === 'pending').length;
 
     return (
@@ -164,7 +221,9 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                         <CardTitle className="text-sm font-medium">In Attesa (Globali)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-orange-600">{totalRemotePending}</div>
+                        <div className="text-2xl font-bold text-orange-600">
+                            {isLoadingReservations ? <Loader2 className="h-4 w-4 animate-spin" /> : totalRemotePending}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -172,7 +231,9 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                         <CardTitle className="text-sm font-medium">Confermate Oggi</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{reservations.filter(r => r.status === 'confirmed' && r.date === new Date().toISOString().split('T')[0]).length}</div>
+                        <div className="text-2xl font-bold">
+                            {isLoadingReservations ? <Loader2 className="h-4 w-4 animate-spin" /> : reservations.filter(r => r.status === 'confirmed' && r.date === new Date().toISOString().split('T')[0]).length}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -225,7 +286,12 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                 </CardHeader>
                 <CardContent className="flex-1 p-0">
                     <div className="divide-y">
-                        {filteredReservations.length === 0 ? (
+                        {isLoadingReservations ? (
+                            <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
+                                <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                                <p>Caricamento prenotazioni...</p>
+                            </div>
+                        ) : filteredReservations.length === 0 ? (
                             <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
                                 <CalendarIcon className="w-12 h-12 mb-4 opacity-20" />
                                 <p>Nessuna prenotazione per questa data.</p>

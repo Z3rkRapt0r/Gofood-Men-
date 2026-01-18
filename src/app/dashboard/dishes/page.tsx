@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const DownloadMenuButton = dynamic(() => import('@/components/dashboard/MenuPdf'), {
+  ssr: false,
+});
+
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
 import MenuImportModal from '@/components/dashboard/MenuImportModal';
@@ -290,6 +296,8 @@ export default function DishesPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [tenantId, setTenantId] = useState('');
+  const [tenant, setTenant] = useState<{ restaurant_name: string; logo_url: string | null } | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -394,17 +402,19 @@ export default function DishesPage() {
 
       if (!user) return;
 
-      const { data: tenant } = await supabase
+      const { data: tenantData } = await supabase
         .from('tenants')
-        .select('id, restaurant_name')
+        .select('id, restaurant_name, logo_url')
         .eq('owner_id', user.id)
         .single();
 
-      if (!tenant) return;
+      if (!tenantData) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tenantData = tenant as any;
-      setTenantId(tenantData.id);
+      const tenantDataAny = tenantData as any;
+      setTenantId(tenantDataAny.id);
+      setTenant(tenantDataAny);
+
 
       // Load categories
       const { data: categoriesData } = await supabase
@@ -890,6 +900,14 @@ export default function DishesPage() {
           </p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
+          {tenant && (
+            <DownloadMenuButton
+              dishes={dishes}
+              categories={categories}
+              allergens={allergens}
+              tenant={tenant}
+            />
+          )}
           <Button
             onClick={() => {
               resetForm();
