@@ -420,7 +420,7 @@ export default function DishesPage() {
       const { data: categoriesData } = await supabase
         .from('categories')
         .select('id, name')
-        .eq('tenant_id', tenantData.id)
+        .eq('tenant_id', tenantDataAny.id)
         .order('display_order');
 
       setCategories(categoriesData || []);
@@ -437,7 +437,7 @@ export default function DishesPage() {
       const { data: dishesData } = await supabase
         .from('dishes')
         .select('*')
-        .eq('tenant_id', tenantData.id)
+        .eq('tenant_id', tenantDataAny.id)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: true })
         .order('name', { ascending: true });
