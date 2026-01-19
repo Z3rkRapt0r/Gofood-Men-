@@ -21,6 +21,7 @@ interface TableAssignmentDialogProps {
     reservation: Reservation;
     allTables: TableConfig[];
     existingReservations: Reservation[];
+    onUpdateTables?: (tables: TableConfig[]) => void;
 }
 
 export function TableAssignmentDialog({
@@ -30,8 +31,10 @@ export function TableAssignmentDialog({
     reservation,
     allTables,
     existingReservations,
+    onUpdateTables,
 }: TableAssignmentDialogProps) {
     const [selectedTableIds, setSelectedTableIds] = useState<string[]>([]);
+    const [mode, setMode] = useState<'select' | 'edit'>('select');
 
     // Reset selection when dialog opens/changes
     useMemo(() => {
@@ -39,22 +42,33 @@ export function TableAssignmentDialog({
     }, [isOpen, reservation.id]);
 
 
-    const { availableTables, occupiedTableIds } = useMemo(() => {
+    const { availableTables, occupiedTableIds, occupancyDetails } = useMemo(() => {
         const occupiedIds = new Set<string>();
+        const details: Record<string, { time: string; guests: number; customerName: string; notes?: string }> = {};
 
         existingReservations.forEach(res => {
             if (res.status === 'confirmed' &&
                 res.date === reservation.date &&
-                res.time === reservation.time &&
-                res.assignedTableIds) {
+                res.assignedTableIds &&
+                res.assignedTableIds.length > 0) {
 
-                res.assignedTableIds.forEach(id => occupiedIds.add(id));
+                // Block table for the entire date regardless of time
+                res.assignedTableIds.forEach(id => {
+                    occupiedIds.add(id);
+                    details[id] = {
+                        time: res.time,
+                        guests: res.guests,
+                        customerName: res.customerName,
+                        notes: res.notes
+                    };
+                });
             }
         });
 
         return {
             availableTables: allTables.filter(t => !occupiedIds.has(t.id)),
-            occupiedTableIds: Array.from(occupiedIds)
+            occupiedTableIds: Array.from(occupiedIds),
+            occupancyDetails: details
         };
     }, [allTables, existingReservations, reservation]);
 
@@ -108,11 +122,25 @@ export function TableAssignmentDialog({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Assegna Tavolo per {reservation.customerName}</DialogTitle>
-                    <DialogDescription>
-                        Richiesti: <span className="font-bold text-foreground">{reservation.guests} posti</span>.
-                        Seleziona i tavoli dalla griglia sottostante.
-                    </DialogDescription>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <DialogTitle>Assegna Tavolo per {reservation.customerName}</DialogTitle>
+                            <DialogDescription>
+                                Richiesti: <span className="font-bold text-foreground">{reservation.guests} posti</span>.
+                                {mode === 'edit' ? ' Modifica la disposizione dei tavoli.' : ' Seleziona i tavoli dalla griglia sottostante.'}
+                            </DialogDescription>
+                        </div>
+                        {onUpdateTables && (
+                            <Button
+                                variant={mode === 'edit' ? "secondary" : "outline"}
+                                size="sm"
+                                className="mr-8"
+                                onClick={() => setMode(prev => prev === 'select' ? 'edit' : 'select')}
+                            >
+                                {mode === 'edit' ? 'Fatto' : 'Aggiungi Tavolo'}
+                            </Button>
+                        )}
+                    </div>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
@@ -154,10 +182,13 @@ export function TableAssignmentDialog({
                     <div className="border rounded-md overflow-hidden">
                         <RoomLayoutEditor
                             tables={allTables}
-                            mode="select"
+                            mode={mode} // Dynamic mode
                             selectedTableIds={selectedTableIds}
                             occupiedTableIds={occupiedTableIds}
+                            occupancyDetails={occupancyDetails}
                             onTableClick={toggleTable}
+                            onUpdateTables={onUpdateTables} // Pass update handler
+                            allowEditExisting={false} // Only allow adding new tables
                         />
                     </div>
 

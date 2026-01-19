@@ -115,20 +115,51 @@ export async function updateReservationStatus(
 ) {
     const supabase = await createClient();
 
-    // 1. Update DB
-    const updateData: any = { status };
-    if (status === 'confirmed' && tableIds.length > 0) {
-        updateData.assigned_table_ids = tableIds;
-    }
+    // 1. Update Reservation Status
+    logToFile(`[updateReservationStatus] Updating ${reservationId} to ${status}`);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: dbError } = await (supabase.from('reservations') as any)
-        .update(updateData)
+    const { error: statusError } = await (supabase.from('reservations') as any)
+        .update({ status })
         .eq('id', reservationId);
 
-    if (dbError) {
-        console.error("DB Update Error:", dbError);
-        return { success: false, error: "Database error" };
+    if (statusError) {
+        logToFile(`[updateReservationStatus] Status Update Error: ${JSON.stringify(statusError)}`);
+        console.error("Status Update Error:", statusError);
+        return { success: false, error: "Database error updating status" };
+    }
+
+    // 2. Handle Table Assignments if confirmed
+    if (status === 'confirmed') {
+        logToFile(`[updateReservationStatus] Handling assignments for confirmed reservation: ${JSON.stringify(tableIds)}`);
+
+        // 2a. Remove existing assignments
+        const { error: deleteError } = await (supabase.from('reservation_assignments') as any)
+            .delete()
+            .eq('reservation_id', reservationId);
+
+        if (deleteError) {
+            logToFile(`[updateReservationStatus] Delete Assignments Error: ${JSON.stringify(deleteError)}`);
+            console.error("Delete Assignments Error:", deleteError);
+            // We log but continue, hoping to overwrite or that it was empty
+        }
+
+        // 2b. Insert new assignments
+        if (tableIds.length > 0) {
+            const assignments = tableIds.map(tId => ({
+                reservation_id: reservationId,
+                table_id: tId
+            }));
+
+            const { error: insertError } = await (supabase.from('reservation_assignments') as any)
+                .insert(assignments);
+
+            if (insertError) {
+                logToFile(`[updateReservationStatus] Insert Assignments Error: ${JSON.stringify(insertError)}`);
+                console.error("Insert Assignments Error:", insertError);
+                return { success: false, error: "Database error assigning tables" };
+            }
+        }
     }
 
     // 2. Fetch Reservation & Tenant Details for Email
@@ -146,10 +177,14 @@ export async function updateReservationStatus(
         try {
             const tenantName = reservation.tenants?.restaurant_name || "Ristorante";
 
+            const subject = status === 'confirmed'
+                ? `Prenotazione Confermata - ${tenantName}`
+                : `La tua prenotazione è stata rifiutata - ${tenantName}`;
+
             await resend.emails.send({
                 from: FROM_EMAIL,
                 to: reservation.customer_email,
-                subject: `Aggiornamento Prenotazione - ${tenantName}`,
+                subject: subject,
                 react: ReservationStatusEmail({
                     status: status,
                     restaurantName: tenantName,

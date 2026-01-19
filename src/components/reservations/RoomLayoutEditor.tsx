@@ -7,11 +7,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Users, LayoutGrid } from "lucide-react";
+import { Plus, Trash2, Users, LayoutGrid, Clock } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { TableEditForm } from "./TableEditForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface RoomLayoutEditorProps {
     tables: TableConfig[];
@@ -20,6 +20,8 @@ interface RoomLayoutEditorProps {
     selectedTableIds?: string[];
     onTableClick?: (tableId: string) => void;
     occupiedTableIds?: string[];
+    allowEditExisting?: boolean;
+    occupancyDetails?: Record<string, { time: string; guests: number; customerName: string; notes?: string }>;
 }
 
 function GridTable({
@@ -27,13 +29,15 @@ function GridTable({
     onSelect,
     selected,
     mode,
-    isOccupied
+    isOccupied,
+    occupancyInfo
 }: {
     table: TableConfig,
     onSelect: (id: string) => void,
     selected: boolean,
     mode: 'edit' | 'select' | 'view',
-    isOccupied?: boolean
+    isOccupied?: boolean,
+    occupancyInfo?: { time: string; guests: number; customerName: string; notes?: string }
 }) {
 
     // Main table shape styles
@@ -41,7 +45,7 @@ function GridTable({
 
     // Status colors applied directly to the table shape
     if (isOccupied && mode !== 'edit') {
-        shapeStyles += " bg-red-100 border-red-200 text-red-700 cursor-not-allowed opacity-60";
+        shapeStyles += " bg-red-100 border-red-200 text-red-700 cursor-pointer hover:bg-red-200";
     } else if (selected) {
         shapeStyles += " bg-primary text-primary-foreground border-primary ring-offset-2 ring-2 ring-primary cursor-pointer scale-105";
     } else {
@@ -58,34 +62,51 @@ function GridTable({
         if (name.length <= 2) return "text-xl";
         if (name.length <= 3) return "text-lg";
         if (name.length <= 4) return "text-base";
-        if (name.length <= 6) return "text-sm";
-        return "text-[10px] leading-tight break-all px-1";
+        return "text-xs";
     };
 
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div
-                className={cn(shapeStyles)}
-                onClick={() => {
-                    if (isOccupied && mode !== 'edit') return;
-                    onSelect(table.id);
-                }}
-            >
-                <span className={cn("font-bold text-center", getFontSize(table.name))}>
-                    {table.name}
-                </span>
-
-                {selected && mode === 'select' && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground border-2 border-background flex items-center justify-center text-[10px] shadow-sm">
-                        ✓
+        <div
+            className={cn(shapeStyles)}
+            onClick={() => onSelect(table.id)}
+        >
+            <div className="flex flex-col items-center justify-center text-center p-0.5 w-full">
+                {isOccupied && occupancyInfo && mode !== 'edit' ? (
+                    // Occupied View: Minimal info
+                    <div className="flex flex-col items-center justify-center space-y-0.5">
+                        <span className="font-bold text-[10px] leading-tight truncate w-14 block">
+                            {table.name}
+                        </span>
+                        <div className="flex items-center gap-2 text-[10px] font-bold">
+                            <div className="flex items-center">
+                                <Clock className="w-3 h-3 mr-0.5" />
+                                {occupancyInfo.time.slice(0, 5)}
+                            </div>
+                        </div>
+                        <div className="flex items-center text-[10px]">
+                            <Users className="w-3 h-3 mr-0.5" />
+                            {occupancyInfo.guests}
+                        </div>
                     </div>
+                ) : (
+                    // Normal View
+                    <>
+                        <span className={`font-bold leading-none ${getFontSize(table.name)}`}>
+                            {table.name}
+                        </span>
+                        <div className="flex items-center mt-1 text-xs opacity-70 font-medium">
+                            <Users className="w-3 h-3 mr-0.5" />
+                            {table.seats}
+                        </div>
+                    </>
                 )}
             </div>
-
-            <div className={`flex items-center gap-1 text-xs font-medium ${selected ? 'text-primary' : 'text-muted-foreground'}`}>
-                <Users className="w-3 h-3" />
-                <span>{table.seats}</span>
-            </div>
+            {/* Selection/Occupied Indicator */}
+            {selected && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-sm text-[10px] border border-white">
+                    ✓
+                </div>
+            )}
         </div>
     );
 }
@@ -94,18 +115,36 @@ function GridTable({
 export function RoomLayoutEditor({
     tables,
     onUpdateTables,
-    mode = 'edit',
+    mode = 'view',
     selectedTableIds = [],
     onTableClick,
-    occupiedTableIds = []
+    occupiedTableIds = [],
+    allowEditExisting = true,
+    occupancyDetails
 }: RoomLayoutEditorProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     // State for creating a new table
     const [newTable, setNewTable] = useState<TableConfig | null>(null);
+    const [viewOccupiedTable, setViewOccupiedTable] = useState<{ id: string, name: string, info: any } | null>(null);
 
     const handleTableClick = (id: string) => {
+        // Handle click on occupied table for summary
+        if (occupiedTableIds && occupiedTableIds.includes(id) && mode !== 'edit') {
+            if (occupancyDetails && occupancyDetails[id]) {
+                const table = tables.find(t => t.id === id);
+                setViewOccupiedTable({
+                    id,
+                    name: table?.name || "??",
+                    info: occupancyDetails[id]
+                });
+            }
+            return;
+        }
+
         if (mode === 'edit') {
+            if (!allowEditExisting) return; // Prevent editing existing tables if disabled
+
             setSelectedId(id);
             setNewTable(null); // Ensure we are not in create mode
             setIsEditDialogOpen(true);
@@ -185,6 +224,7 @@ export function RoomLayoutEditor({
                                 selected={mode === 'edit' ? selectedId === table.id : selectedTableIds.includes(table.id)}
                                 mode={mode}
                                 isOccupied={occupiedTableIds.includes(table.id)}
+                                occupancyInfo={occupancyDetails ? occupancyDetails[table.id] : undefined}
                             />
                         ))}
                         {tables.length === 0 && (
@@ -198,7 +238,7 @@ export function RoomLayoutEditor({
                 </div>
             </div>
 
-            {/* Edit Dialog - For both Mobile and Desktop */}
+            {/* Edit Dialog */}
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader className="sr-only">
@@ -216,6 +256,41 @@ export function RoomLayoutEditor({
                             onSave={isCreating ? handleCreateConfirm : handleEditConfirm}
                         />
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Occupied Table Summary Dialog */}
+            <Dialog open={!!viewOccupiedTable} onOpenChange={(open) => !open && setViewOccupiedTable(null)}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Tavolo {viewOccupiedTable?.name} - Occupato</DialogTitle>
+                    </DialogHeader>
+
+                    {viewOccupiedTable && (
+                        <div className="space-y-4 py-2">
+                            <div className="grid grid-cols-3 gap-2 text-sm">
+                                <div className="font-medium text-muted-foreground">Cliente:</div>
+                                <div className="col-span-2 font-medium">{viewOccupiedTable.info.customerName}</div>
+
+                                <div className="font-medium text-muted-foreground">Orario:</div>
+                                <div className="col-span-2">{viewOccupiedTable.info.time.slice(0, 5)}</div>
+
+                                <div className="font-medium text-muted-foreground">Ospiti:</div>
+                                <div className="col-span-2">{viewOccupiedTable.info.guests} persone</div>
+
+                                {viewOccupiedTable.info.notes && (
+                                    <>
+                                        <div className="font-medium text-muted-foreground">Note:</div>
+                                        <div className="col-span-2 italic text-muted-foreground">"{viewOccupiedTable.info.notes}"</div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter>
+                        <Button onClick={() => setViewOccupiedTable(null)}>Chiudi</Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

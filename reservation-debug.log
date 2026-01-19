@@ -1,0 +1,29 @@
+[2026-01-18T16:16:02.790Z] [submitReservation] Owner email: gabrielegiacomobellante@gmail.com
+[2026-01-18T16:16:02.790Z] [submitReservation] Attempting to send email to: gabrielegiacomobellante@gmail.com
+[2026-01-18T16:16:03.737Z] [submitReservation] Email sent result: {"data":{"id":"03100877-0458-444f-b858-e752dd889d25"},"error":null,"headers":{"cf-cache-status":"DYNAMIC","cf-ray":"9bff65030f5cca01-PMO","connection":"keep-alive","content-encoding":"br","content-type":"application/json","date":"Sun, 18 Jan 2026 16:16:03 GMT","ratelimit-limit":"2","ratelimit-policy":"2;w=1","ratelimit-remaining":"1","ratelimit-reset":"1","server":"cloudflare","transfer-encoding":"chunked","x-resend-daily-quota":"7","x-resend-monthly-quota":"11"}}
+[2026-01-18T16:18:26.505Z] [submitReservation] Owner email: gabrielegiacomobellante@gmail.com
+[2026-01-18T16:18:26.505Z] [submitReservation] Attempting to send email to: gabrielegiacomobellante@gmail.com
+[2026-01-18T16:18:27.782Z] [submitReservation] Email sent result: {"data":{"id":"2bd68e06-4db0-48ae-9509-c0686b044f44"},"error":null,"headers":{"cf-cache-status":"DYNAMIC","cf-ray":"9bff68852f14794e-PMO","connection":"keep-alive","content-encoding":"br","content-type":"application/json","date":"Sun, 18 Jan 2026 16:18:27 GMT","ratelimit-limit":"2","ratelimit-policy":"2;w=1","ratelimit-remaining":"1","ratelimit-reset":"1","server":"cloudflare","transfer-encoding":"chunked","x-resend-daily-quota":"8","x-resend-monthly-quota":"12"}}
+[2026-01-19T15:52:41.683Z] [updateReservationStatus] Updating 86063fc7-3251-4f91-8917-3a0805ee1003 to confirmed with tables: ["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]
+[2026-01-19T15:52:41.683Z] [updateReservationStatus] updateData: {"status":"confirmed","assigned_table_ids":["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]}
+[2026-01-19T15:52:41.871Z] [updateReservationStatus] DB Error: {"code":"PGRST204","details":null,"hint":null,"message":"Could not find the 'assigned_table_ids' column of 'reservations' in the schema cache"}
+[2026-01-19T15:52:56.363Z] [updateReservationStatus] Updating 86063fc7-3251-4f91-8917-3a0805ee1003 to confirmed with tables: ["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]
+[2026-01-19T15:52:56.363Z] [updateReservationStatus] updateData: {"status":"confirmed","assigned_table_ids":["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]}
+[2026-01-19T15:52:56.511Z] [updateReservationStatus] DB Error: {"code":"PGRST204","details":null,"hint":null,"message":"Could not find the 'assigned_table_ids' column of 'reservations' in the schema cache"}
+[2026-01-19T15:57:32.120Z] [updateReservationStatus] Updating 9c54ff58-c31b-4c41-9729-1f604ad11dd7 to confirmed
+[2026-01-19T15:57:32.309Z] [updateReservationStatus] Handling assignments for confirmed reservation: ["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]
+[2026-01-19T16:19:18.561Z] [updateReservationStatus] Updating 86063fc7-3251-4f91-8917-3a0805ee1003 to confirmed
+[2026-01-19T16:19:18.709Z] [updateReservationStatus] Handling assignments for confirmed reservation: ["aa3c99c5-3932-4fd0-9329-bfbecc6f6437"]
+[2026-01-19T16:21:46.447Z] [submitReservation] Owner email: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:21:46.447Z] [submitReservation] Attempting to send email to: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:21:47.231Z] [submitReservation] Email sent result: {"data":{"id":"ff597dd2-eb07-445d-ad7a-e7bc177e72df"},"error":null,"headers":{"cf-cache-status":"DYNAMIC","cf-ray":"9c07aac6ac5eea73-FCO","connection":"keep-alive","content-encoding":"br","content-type":"application/json","date":"Mon, 19 Jan 2026 16:21:47 GMT","ratelimit-limit":"2","ratelimit-policy":"2;w=1","ratelimit-remaining":"1","ratelimit-reset":"1","server":"cloudflare","transfer-encoding":"chunked","x-resend-daily-quota":"5","x-resend-monthly-quota":"23"}}
+[2026-01-19T16:22:44.554Z] [updateReservationStatus] Updating 56b51eed-3ca5-4796-8a0d-1e51853cb32c to confirmed
+[2026-01-19T16:22:44.708Z] [updateReservationStatus] Handling assignments for confirmed reservation: ["49dd07ae-dae6-49bb-a52e-808a83952fd5"]
+[2026-01-19T16:22:56.090Z] [submitReservation] Owner email: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:22:56.090Z] [submitReservation] Attempting to send email to: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:22:56.581Z] [submitReservation] Email sent result: {"data":{"id":"2e2a1740-c96a-4445-b5c9-d5616834345c"},"error":null,"headers":{"cf-cache-status":"DYNAMIC","cf-ray":"9c07ac79efe29dfb-ATH","connection":"keep-alive","content-encoding":"br","content-type":"application/json","date":"Mon, 19 Jan 2026 16:22:56 GMT","ratelimit-limit":"2","ratelimit-policy":"2;w=1","ratelimit-remaining":"1","ratelimit-reset":"1","server":"cloudflare","transfer-encoding":"chunked","x-resend-daily-quota":"7","x-resend-monthly-quota":"25"}}
+[2026-01-19T16:49:32.669Z] [updateReservationStatus] Updating 51c5894c-bc6a-48c6-b1f7-592ec93d21b3 to confirmed
+[2026-01-19T16:49:32.833Z] [updateReservationStatus] Handling assignments for confirmed reservation: ["51223cb9-899b-4cc4-af6d-7c72a8c2b364"]
+[2026-01-19T16:49:44.786Z] [submitReservation] Owner email: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:49:44.786Z] [submitReservation] Attempting to send email to: gabrielegiacomobellante@gmail.com
+[2026-01-19T16:49:45.196Z] [submitReservation] Email sent result: {"data":{"id":"4ed9cd98-5eee-43d8-826e-3a83bd8643d8"},"error":null,"headers":{"cf-cache-status":"DYNAMIC","cf-ray":"9c07d3bff964a325-FCO","connection":"keep-alive","content-encoding":"br","content-type":"application/json","date":"Mon, 19 Jan 2026 16:49:45 GMT","ratelimit-limit":"2","ratelimit-policy":"2;w=1","ratelimit-remaining":"1","ratelimit-reset":"1","server":"cloudflare","transfer-encoding":"chunked","x-resend-daily-quota":"9","x-resend-monthly-quota":"27"}}

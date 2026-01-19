@@ -37,50 +37,45 @@ export const ReservationStatusEmail = ({
         month: "long",
         day: "numeric",
     });
+    const formattedTime = time.split(':').slice(0, 2).join(':');
 
-    const title = isConfirmed ? "Prenotazione Confermata!" : "Aggiornamento Prenotazione";
-    const colorClass = isConfirmed ? "text-green-600" : "text-stone-800";
-    const icon = isConfirmed ? "✅" : "❌";
+    const title = isConfirmed ? "Prenotazione Confermata!" : "Prenotazione Rifiutata";
+    const colorStyle = isConfirmed ? { color: '#16a34a' } : { color: '#dc2626' }; // green-600 : red-600
+    const icon = isConfirmed ? "✅" : null;
 
     return (
         <EmailLayout preview={`${title} - ${restaurantName}`}>
-            <Section className="text-center mb-6">
-                <Text className="text-4xl mb-2">{icon}</Text>
-                <Heading className={`text-2xl font-bold ${colorClass}`}>
+            <Section style={headerSection}>
+                {icon && <Text style={iconStyle}>{icon}</Text>}
+                <Heading style={{ ...h1, ...colorStyle }}>
                     {title}
                 </Heading>
             </Section>
 
-            <Text className="text-base text-stone-600 mb-6 text-center">
+            <Text style={text}>
                 Ciao <strong>{customerName}</strong>,
                 {isConfirmed
                     ? ` siamo felici di confermare la tua prenotazione da ${restaurantName}.`
-                    : ` ci dispiace informarti che non possiamo accettare la tua richiesta per ${restaurantName}.`}
+                    : ` ci dispiace informarti che non possiamo accettare la tua richiesta di prenotazione presso ${restaurantName}.`}
             </Text>
 
             {isConfirmed && (
-                <Section className="bg-green-50 rounded-lg p-6 mb-8 border border-green-100">
-                    <Row className="mb-3">
-                        <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                            Quando
-                        </Column>
-                        <Column className="text-stone-800 font-medium">
-                            {formattedDate} ore {time}
+                <Section style={greenCard}>
+                    <Row style={row}>
+                        <Column style={labelCol}>Quando</Column>
+                        <Column style={valueCol}>
+                            {formattedDate} ore {formattedTime}
                         </Column>
                     </Row>
-                    <Row className="mb-3">
-                        <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                            Ospiti
-                        </Column>
-                        <Column className="text-stone-800 font-medium">
+                    <Row style={row}>
+                        <Column style={labelCol}>Ospiti</Column>
+                        <Column style={valueCol}>
                             {guests} persone
                         </Column>
                     </Row>
-                    <Row>
-                        <Column className="w-1/3 text-stone-500 text-sm font-semibold uppercase tracking-wider">
-                            Dove
-                        </Column>
-                        <Column className="text-stone-800 font-medium">
+                    <Row style={{ ...row, borderBottom: 'none' }}>
+                        <Column style={labelCol}>Dove</Column>
+                        <Column style={valueCol}>
                             {restaurantName}
                         </Column>
                     </Row>
@@ -88,23 +83,19 @@ export const ReservationStatusEmail = ({
             )}
 
             {!isConfirmed && (
-                <Section className="bg-red-50 rounded-lg p-6 mb-8 border border-red-100">
-                    <Heading as="h3" className="text-lg font-semibold text-red-800 mb-2">
-                        Motivo / Messaggio:
-                    </Heading>
-                    <Text className="text-stone-700">
-                        {rejectionReason || "Il ristorante non ha specificato un motivo, ma potrebbe essere al completo per l'orario richiesto."}
+                <Section style={stoneCard}>
+                    <Text style={{ ...text, marginBottom: 0, marginTop: 0 }}>
+                        Purtroppo non abbiamo disponibilità per la data o l'orario richiesto.
+                        <br />
+                        Ti invitiamo a contattarci telefonicamente per trovare una soluzione alternativa.
                     </Text>
                 </Section>
             )}
 
-            <Section className="text-center border-t border-stone-100 pt-6">
-                <Text className="text-stone-500 text-sm mb-4">
-                    Hai bisogno di modificare o cancellare?
-                </Text>
+            <Section style={footerSection}>
                 {restaurantPhone && (
                     <Button
-                        className="bg-white text-stone-800 border border-stone-200 font-medium px-6 py-2 rounded-md hover:bg-stone-50 transition-colors"
+                        style={button}
                         href={`tel:${restaurantPhone}`}
                     >
                         Chiama {restaurantPhone}
@@ -115,4 +106,90 @@ export const ReservationStatusEmail = ({
     );
 };
 
+// Styles
+const headerSection = {
+    textAlign: 'center' as const,
+    marginBottom: '24px',
+};
+
+const iconStyle = {
+    fontSize: '36px',
+    marginBottom: '8px',
+    textAlign: 'center' as const,
+};
+
+const h1 = {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    textAlign: 'center' as const,
+    margin: '0',
+};
+
+const text = {
+    color: '#44403c', // stone-700ish
+    fontSize: '16px',
+    lineHeight: '24px',
+    textAlign: 'center' as const,
+    marginBottom: '24px',
+};
+
+const greenCard = {
+    backgroundColor: '#f0fdf4', // green-50
+    borderRadius: '8px',
+    border: '1px solid #dcfce7', // green-100
+    padding: '24px',
+    marginBottom: '32px',
+};
+
+const stoneCard = {
+    backgroundColor: '#fafaf9', // stone-50
+    borderRadius: '8px',
+    border: '1px solid #f5f5f4', // stone-100
+    padding: '24px',
+    marginBottom: '32px',
+    textAlign: 'center' as const,
+};
+
+const row = {
+    borderBottom: '1px solid #dcfce7',
+    padding: '12px 0',
+};
+
+const labelCol = {
+    width: '30%',
+    color: '#78716c', // stone-500
+    fontSize: '14px',
+    fontWeight: 'bold',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+    verticalAlign: 'top',
+};
+
+const valueCol = {
+    width: '70%',
+    color: '#1c1917', // stone-900
+    fontWeight: '500',
+    fontSize: '16px',
+    verticalAlign: 'top',
+};
+
+const footerSection = {
+    textAlign: 'center' as const,
+    borderTop: '1px solid #f5f5f4',
+    paddingTop: '24px',
+};
+
+const button = {
+    backgroundColor: '#ffffff',
+    color: '#1c1917',
+    border: '1px solid #e7e5e4',
+    borderRadius: '6px',
+    fontSize: '16px',
+    fontWeight: '500',
+    textDecoration: 'none',
+    textAlign: 'center' as const,
+    display: 'inline-block',
+};
+
 export default ReservationStatusEmail;
+

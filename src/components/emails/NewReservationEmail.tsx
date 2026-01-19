@@ -62,7 +62,7 @@ export const NewReservationEmail = ({
                 <Row style={row}>
                     <Column style={labelCol}>Quando</Column>
                     <Column style={valueCol}>
-                        {formattedDate} alle {time}
+                        {formattedDate} alle {time.slice(0, 5)}
                     </Column>
                 </Row>
                 <Row style={row}>
