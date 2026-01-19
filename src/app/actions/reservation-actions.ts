@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
 import NewReservationEmail from "@/components/emails/NewReservationEmail";
 import ReservationStatusEmail from "@/components/emails/ReservationStatusEmail";
+import { ReservationCancelledEmail } from "@/components/emails/ReservationCancelledEmail";
 import { revalidatePath } from "next/cache";
 import fs from 'fs';
 import path from 'path';
@@ -107,9 +108,10 @@ export async function submitReservation(formData: {
 }
 
 // --- Update Reservation Status (Protected / Dashboard) ---
+// --- Update Reservation Status (Protected / Dashboard) ---
 export async function updateReservationStatus(
     reservationId: string,
-    status: 'confirmed' | 'rejected',
+    status: 'confirmed' | 'rejected' | 'arrived' | 'cancelled',
     tableIds: string[] = [],
     rejectionReason?: string
 ) {
@@ -129,7 +131,7 @@ export async function updateReservationStatus(
         return { success: false, error: "Database error updating status" };
     }
 
-    // 2. Handle Table Assignments if confirmed
+    // 2. Handle Table Assignments
     if (status === 'confirmed') {
         logToFile(`[updateReservationStatus] Handling assignments for confirmed reservation: ${JSON.stringify(tableIds)}`);
 
@@ -141,7 +143,6 @@ export async function updateReservationStatus(
         if (deleteError) {
             logToFile(`[updateReservationStatus] Delete Assignments Error: ${JSON.stringify(deleteError)}`);
             console.error("Delete Assignments Error:", deleteError);
-            // We log but continue, hoping to overwrite or that it was empty
         }
 
         // 2b. Insert new assignments
@@ -160,44 +161,97 @@ export async function updateReservationStatus(
                 return { success: false, error: "Database error assigning tables" };
             }
         }
+    } else if (status === 'cancelled' || status === 'rejected') {
+        // Free up tables if cancelled or rejected
+        const { error: deleteError } = await (supabase.from('reservation_assignments') as any)
+            .delete()
+            .eq('reservation_id', reservationId);
+
+        if (deleteError) {
+            console.error("Error clearing assignments:", deleteError);
+        }
     }
 
-    // 2. Fetch Reservation & Tenant Details for Email
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: reservation } = await (supabase.from('reservations') as any)
-        .select(`
-            *,
-            tenants:tenant_id (restaurant_name, reservation_settings(notification_email))
-        `)
-        .eq('id', reservationId)
-        .single();
+    // 3. Send Email (Only for Confirm/Reject)
+    // We don't send emails for Arrived or Cancelled (unless requested, but usually cancellation is manual/phone)
+    if (status === 'confirmed' || status === 'rejected') {
+        // Fetch Reservation & Tenant Details for Email
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: reservation } = await (supabase.from('reservations') as any)
+            .select(`
+                *,
+                tenants:tenant_id (restaurant_name, reservation_settings(notification_email))
+            `)
+            .eq('id', reservationId)
+            .single();
 
-    if (reservation && reservation.customer_email) {
-        // 3. Send Email to Customer
-        try {
-            const tenantName = reservation.tenants?.restaurant_name || "Ristorante";
+        if (reservation && reservation.customer_email) {
+            try {
+                const tenantName = reservation.tenants?.restaurant_name || "Ristorante";
 
-            const subject = status === 'confirmed'
-                ? `Prenotazione Confermata - ${tenantName}`
-                : `La tua prenotazione è stata rifiutata - ${tenantName}`;
+                const subject = status === 'confirmed'
+                    ? `Prenotazione Confermata - ${tenantName}`
+                    : `La tua prenotazione è stata rifiutata - ${tenantName}`;
 
-            await resend.emails.send({
-                from: FROM_EMAIL,
-                to: reservation.customer_email,
-                subject: subject,
-                react: ReservationStatusEmail({
-                    status: status,
-                    restaurantName: tenantName,
-                    customerName: reservation.customer_name,
-                    date: reservation.reservation_date,
-                    time: reservation.reservation_time,
-                    guests: reservation.guests,
-                    rejectionReason: rejectionReason,
-                    restaurantPhone: "" // Could fetch from tenant if available in schema
-                }),
-            });
-        } catch (emailError) {
-            console.error("Email Sending Error (Customer):", emailError);
+                await resend.emails.send({
+                    from: FROM_EMAIL,
+                    to: reservation.customer_email,
+                    subject: subject,
+                    react: ReservationStatusEmail({
+                        status: status,
+                        restaurantName: tenantName,
+                        customerName: reservation.customer_name,
+                        date: reservation.reservation_date,
+                        time: reservation.reservation_time,
+                        guests: reservation.guests,
+                        rejectionReason: rejectionReason,
+                        restaurantPhone: ""
+                    }),
+                });
+            } catch (emailError) {
+                console.error("Email Sending Error (Customer):", emailError);
+            }
+        }
+    } else if (status === 'cancelled') {
+        // 4. Handle Cancellation (Email + Delete)
+        // Fetch details BEFORE deleting
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: reservation } = await (supabase.from('reservations') as any)
+            .select(`
+                *,
+                tenants:tenant_id (restaurant_name, reservation_settings(notification_email))
+            `)
+            .eq('id', reservationId)
+            .single();
+
+        if (reservation && reservation.customer_email) {
+            try {
+                const tenantName = reservation.tenants?.restaurant_name || "Ristorante";
+                await resend.emails.send({
+                    from: FROM_EMAIL,
+                    to: reservation.customer_email,
+                    subject: `Prenotazione Cancellata - ${tenantName}`,
+                    react: ReservationCancelledEmail({
+                        restaurantName: tenantName,
+                        customerName: reservation.customer_name,
+                        date: reservation.reservation_date,
+                        time: reservation.reservation_time,
+                    }),
+                });
+            } catch (emailError) {
+                console.error("Error sending cancellation email:", emailError);
+            }
+        }
+
+        // Hard Delete
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: deleteError } = await (supabase.from('reservations') as any)
+            .delete()
+            .eq('id', reservationId);
+
+        if (deleteError) {
+            console.error("Error deleting reservation:", deleteError);
+            return { success: false, error: "Database error deleting reservation" };
         }
     }
 

@@ -44,6 +44,14 @@ export function ReservationWizard({ onComplete, initialData }: ReservationWizard
 
     const isLastStep = step === 3;
 
+    const isNextDisabled = () => {
+        if (step === 2) {
+            const allocatedSeats = (data.tables || []).reduce((acc, t) => acc + t.seats, 0);
+            return allocatedSeats !== data.totalSeats;
+        }
+        return false;
+    };
+
     return (
         <div className="flex justify-center items-center min-h-[60vh]">
             <Card className="w-full max-w-7xl">
@@ -65,7 +73,7 @@ export function ReservationWizard({ onComplete, initialData }: ReservationWizard
                     {isLastStep ? (
                         <Button onClick={() => onComplete(data)}>Salva e Attiva</Button>
                     ) : (
-                        <Button onClick={nextStep}>Avanti</Button>
+                        <Button onClick={nextStep} disabled={isNextDisabled()}>Avanti</Button>
                     )}
                 </CardFooter>
             </Card>

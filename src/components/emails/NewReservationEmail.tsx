@@ -39,6 +39,7 @@ export const NewReservationEmail = ({
         year: "numeric",
         month: "long",
         day: "numeric",
+        timeZone: "Europe/Rome"
     });
 
     return (
@@ -56,7 +57,12 @@ export const NewReservationEmail = ({
                 <Row style={row}>
                     <Column style={labelCol}>Persone</Column>
                     <Column style={valueCol}>
-                        {guests} {highChairs > 0 && <span style={subInfo}>({highChairs} bambini)</span>}
+                        <strong>{guests} Totali</strong>
+                        {highChairs > 0 && (
+                            <div style={subInfo}>
+                                ({guests - highChairs} Adulti, {highChairs} Bambini)
+                            </div>
+                        )}
                     </Column>
                 </Row>
                 <Row style={row}>

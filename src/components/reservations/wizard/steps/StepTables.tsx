@@ -8,11 +8,11 @@ interface StepTablesProps {
 
 export function StepTables({ data, updateData }: StepTablesProps) {
     const updateTables = (newTables: TableConfig[]) => {
-        updateData({ tables: newTables });
+        const newTotalSeats = newTables.reduce((acc, t) => acc + t.seats, 0);
+        updateData({ tables: newTables, totalSeats: newTotalSeats });
     };
 
     const allocatedSeats = (data.tables || []).reduce((acc, table) => acc + table.seats, 0);
-    const remainingSeats = (data.totalSeats || 0) - allocatedSeats;
 
     return (
         <div className="space-y-4">
@@ -21,7 +21,7 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                     <div>
                         <h3 className="text-lg font-medium">Layout e Tavoli</h3>
                         <p className="text-sm text-muted-foreground">
-                            Crea i tavoli fino a coprire i <strong>{data.totalSeats} posti totali</strong>.
+                            Configura i tavoli del tuo locale. La <strong>capacità totale</strong> verrà calcolata automaticamente.
                         </p>
                     </div>
                     <div className="text-right">
@@ -34,27 +34,12 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                     </div>
                 </div>
 
-                {/* Capacity Progress Bar */}
-                <div className="bg-muted/40 p-4 rounded-lg border border-border">
-                    <div className="flex justify-between text-sm mb-2">
-                        <span>Posti Assegnati: <strong>{allocatedSeats}</strong> / {data.totalSeats}</span>
-                        <span className={remainingSeats < 0 ? "text-red-500 font-bold" : "text-muted-foreground"}>
-                            {remainingSeats < 0 ? `${Math.abs(remainingSeats)} in eccesso!` : `${remainingSeats} da assegnare`}
-                        </span>
+                {/* Capacity Summary */}
+                <div className="bg-primary/5 p-4 rounded-lg border border-primary/20 flex flex-col items-center justify-center text-center">
+                    <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Capacità Totale Configurata</span>
+                    <div className="text-3xl font-bold text-primary flex items-end gap-2 leading-none">
+                        {allocatedSeats} <span className="text-lg font-medium text-muted-foreground pb-0.5">posti</span>
                     </div>
-                    <div className="w-full bg-secondary h-2.5 rounded-full overflow-hidden">
-                        <div
-                            className={`h-2.5 rounded-full transition-all duration-500 ${remainingSeats < 0 ? 'bg-red-500 w-full' :
-                                remainingSeats === 0 ? 'bg-green-500' : 'bg-primary'
-                                }`}
-                            style={{ width: remainingSeats < 0 ? '100%' : `${(allocatedSeats / (data.totalSeats || 1)) * 100}%` }}
-                        ></div>
-                    </div>
-                    {remainingSeats === 0 && (
-                        <p className="text-xs text-green-600 mt-2 font-medium flex items-center">
-                            ✓ Capienza completata correttamente!
-                        </p>
-                    )}
                 </div>
             </div>
 

@@ -10,9 +10,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { RoomLayoutEditor } from "./RoomLayoutEditor";
 import { TableConfig, Reservation } from "./types";
-import { Users, AlertTriangle } from "lucide-react";
+import { Users, AlertTriangle, Baby } from "lucide-react";
 
 interface TableAssignmentDialogProps {
     isOpen: boolean;
@@ -20,6 +21,7 @@ interface TableAssignmentDialogProps {
     onConfirm: (tableIds: string[]) => void;
     reservation: Reservation;
     allTables: TableConfig[];
+    totalHighChairs: number;
     existingReservations: Reservation[];
     onUpdateTables?: (tables: TableConfig[]) => void;
 }
@@ -30,6 +32,7 @@ export function TableAssignmentDialog({
     onConfirm,
     reservation,
     allTables,
+    totalHighChairs,
     existingReservations,
     onUpdateTables,
 }: TableAssignmentDialogProps) {
@@ -42,67 +45,46 @@ export function TableAssignmentDialog({
     }, [isOpen, reservation.id]);
 
 
-    const { availableTables, occupiedTableIds, occupancyDetails } = useMemo(() => {
+    const { availableTables, occupiedTableIds, occupancyDetails, usedHighChairs, totalFreeSeats } = useMemo(() => {
         const occupiedIds = new Set<string>();
-        const details: Record<string, { time: string; guests: number; customerName: string; notes?: string }> = {};
+        const details: Record<string, { time: string; guests: number; highChairs: number; customerName: string; notes?: string }> = {};
+        let usedHC = 0;
 
         existingReservations.forEach(res => {
-            if (res.status === 'confirmed' &&
-                res.date === reservation.date &&
-                res.assignedTableIds &&
-                res.assignedTableIds.length > 0) {
+            if (res.status === 'confirmed' && res.date === reservation.date) {
+                usedHC += (res.highChairs || 0);
 
-                // Block table for the entire date regardless of time
-                res.assignedTableIds.forEach(id => {
-                    occupiedIds.add(id);
-                    details[id] = {
-                        time: res.time,
-                        guests: res.guests,
-                        customerName: res.customerName,
-                        notes: res.notes
-                    };
-                });
+                if (res.assignedTableIds && res.assignedTableIds.length > 0) {
+                    res.assignedTableIds.forEach(id => {
+                        occupiedIds.add(id);
+                        details[id] = {
+                            time: res.time,
+                            guests: res.guests,
+                            highChairs: res.highChairs || 0,
+                            customerName: res.customerName,
+                            notes: res.notes
+                        };
+                    });
+                }
             }
         });
 
+        const available = allTables.filter(t => !occupiedIds.has(t.id));
+        const freeSeats = available.reduce((sum, t) => sum + t.seats, 0);
+
         return {
-            availableTables: allTables.filter(t => !occupiedIds.has(t.id)),
+            availableTables: available,
             occupiedTableIds: Array.from(occupiedIds),
-            occupancyDetails: details
+            occupancyDetails: details,
+            usedHighChairs: usedHC,
+            totalFreeSeats: freeSeats
         };
     }, [allTables, existingReservations, reservation]);
-
-    const suggestions = useMemo(() => {
-        const perfectMatches = availableTables
-            .filter(t => t.seats >= reservation.guests)
-            .sort((a, b) => a.seats - b.seats);
-
-        const combinations: { tables: TableConfig[], totalSeats: number }[] = [];
-
-        for (let i = 0; i < availableTables.length; i++) {
-            for (let j = i + 1; j < availableTables.length; j++) {
-                const t1 = availableTables[i];
-                const t2 = availableTables[j];
-                const combinedSeats = t1.seats + t2.seats;
-                if (combinedSeats >= reservation.guests) {
-                    combinations.push({ tables: [t1, t2], totalSeats: combinedSeats });
-                }
-            }
-        }
-
-        combinations.sort((a, b) => a.totalSeats - b.totalSeats);
-
-        return { single: perfectMatches, pairs: combinations.slice(0, 3) };
-    }, [availableTables, reservation.guests]);
 
     const toggleTable = (id: string) => {
         setSelectedTableIds(prev =>
             prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
         );
-    };
-
-    const selectSuggestion = (ids: string[]) => {
-        setSelectedTableIds(ids);
     };
 
     const currentCapacity = useMemo(() => {
@@ -112,6 +94,13 @@ export function TableAssignmentDialog({
     }, [selectedTableIds, allTables]);
 
     const isCapacitySufficient = currentCapacity >= reservation.guests;
+    const progressValue = Math.min((currentCapacity / reservation.guests) * 100, 100);
+    const missingSeats = Math.max(0, reservation.guests - currentCapacity);
+
+    const availableHighChairs = Math.max(0, totalHighChairs - usedHighChairs);
+    const neededHighChairs = reservation.highChairs || 0;
+    const isHighChairSufficient = availableHighChairs >= neededHighChairs;
+
 
     const handleConfirm = () => {
         onConfirm(selectedTableIds);
@@ -120,94 +109,58 @@ export function TableAssignmentDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col p-0 overflow-hidden">
+                <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
                     <div className="flex justify-between items-start">
-                        <div>
-                            <DialogTitle>Assegna Tavolo per {reservation.customerName}</DialogTitle>
+                        <div className="space-y-1">
+                            <DialogTitle className="text-xl">Assegna Tavolo</DialogTitle>
                             <DialogDescription>
-                                Richiesti: <span className="font-bold text-foreground">{reservation.guests} posti</span>.
-                                {mode === 'edit' ? ' Modifica la disposizione dei tavoli.' : ' Seleziona i tavoli dalla griglia sottostante.'}
+                                Cliente: <span className="font-medium text-foreground">{reservation.customerName}</span>
                             </DialogDescription>
                         </div>
-                        {onUpdateTables && (
-                            <Button
-                                variant={mode === 'edit' ? "secondary" : "outline"}
-                                size="sm"
-                                className="mr-8"
-                                onClick={() => setMode(prev => prev === 'select' ? 'edit' : 'select')}
-                            >
-                                {mode === 'edit' ? 'Fatto' : 'Aggiungi Tavolo'}
-                            </Button>
-                        )}
                     </div>
                 </DialogHeader>
 
-                <div className="grid gap-6 py-4">
+                <div className="px-6 pb-3 space-y-4 shrink-0 bg-background z-10">
 
-                    {/* Suggestions Section */}
-                    {(suggestions.single.length > 0 || suggestions.pairs.length > 0) && (
-                        <div className="space-y-2">
-                            <h4 className="text-sm font-medium text-muted-foreground">Suggerimenti Rapidi</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {suggestions.single.slice(0, 2).map((table) => (
-                                    <Button
-                                        key={table.id}
-                                        variant="outline"
-                                        size="sm"
-                                        className={`justify-start h-auto py-2 ${selectedTableIds.length === 1 && selectedTableIds[0] === table.id ? 'border-primary bg-primary/5' : ''}`}
-                                        onClick={() => selectSuggestion([table.id])}
-                                    >
-                                        <Users className="w-3 h-3 mr-2 text-muted-foreground" />
-                                        <span>{table.name} ({table.seats}p)</span>
-                                    </Button>
-                                ))}
-                                {suggestions.pairs.map((combo, idx) => (
-                                    <Button
-                                        key={`combo-${idx}`}
-                                        variant="outline"
-                                        size="sm"
-                                        className={`justify-start h-auto py-2 ${JSON.stringify(selectedTableIds.sort()) === JSON.stringify(combo.tables.map(t => t.id).sort()) ? 'border-primary bg-primary/5' : ''}`}
-                                        onClick={() => selectSuggestion(combo.tables.map(t => t.id))}
-                                    >
-                                        <Users className="w-3 h-3 mr-2 text-muted-foreground" />
-                                        <span>Unione: {combo.tables.map(t => t.name).join("+")} ({combo.totalSeats}p)</span>
-                                    </Button>
-                                ))}
-                            </div>
+                    {/* Restaurant Stats Bar */}
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground bg-muted/30 p-2 rounded border border-border/40">
+                        <span className="font-semibold text-foreground">Disponibilità Sala:</span>
+                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {totalFreeSeats} posti liberi</span>
+                        <span className="w-px h-3 bg-border"></span>
+                        <span className="flex items-center gap-1"><Baby className="w-3 h-3" /> {availableHighChairs} seggiolini liberi</span>
+                    </div>
+
+
+
+                    {/* Highchairs Status */}
+                    {neededHighChairs > 0 && (
+                        <div className="flex items-center justify-between text-sm py-2 px-3 bg-muted/40 rounded-md border border-border/50">
+                            <span className="text-muted-foreground flex items-center gap-2">
+                                <Baby className="w-4 h-4" />
+                                Seggiolini Richiesti: <span className="text-foreground font-medium">{neededHighChairs}</span>
+                            </span>
+                            <span className={isHighChairSufficient ? "text-green-600 font-medium" : "text-destructive font-medium"}>
+                                {isHighChairSufficient ? `Disponibili (${availableHighChairs} rimasti)` : `Non sufficienti (${availableHighChairs} rimasti)`}
+                            </span>
                         </div>
                     )}
-
-                    {/* Visual Map Selection */}
-                    <div className="border rounded-md overflow-hidden">
-                        <RoomLayoutEditor
-                            tables={allTables}
-                            mode={mode} // Dynamic mode
-                            selectedTableIds={selectedTableIds}
-                            occupiedTableIds={occupiedTableIds}
-                            occupancyDetails={occupancyDetails}
-                            onTableClick={toggleTable}
-                            onUpdateTables={onUpdateTables} // Pass update handler
-                            allowEditExisting={false} // Only allow adding new tables
-                        />
-                    </div>
-
-                    {/* Summary/Warning */}
-                    <div className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
-                        <div className="text-sm">
-                            Selezionati: <span className="font-bold">{selectedTableIds.length} tavoli</span> ({currentCapacity} posti)
-                        </div>
-                        {!isCapacitySufficient && currentCapacity > 0 && (
-                            <div className="flex items-center text-amber-600 text-sm font-medium">
-                                <AlertTriangle className="w-4 h-4 mr-1" />
-                                Capacità insuff.
-                            </div>
-                        )}
-                    </div>
-
                 </div>
 
-                <DialogFooter>
+                <div className="flex-1 overflow-auto bg-muted/10 border-t border-b relative">
+                    <RoomLayoutEditor
+                        tables={allTables}
+                        mode={mode}
+                        selectedTableIds={selectedTableIds}
+                        occupiedTableIds={occupiedTableIds}
+                        occupancyDetails={occupancyDetails}
+                        onTableClick={toggleTable}
+                        onUpdateTables={onUpdateTables}
+                        allowEditExisting={false}
+                    />
+                </div>
+
+                <DialogFooter className="p-4 bg-muted/10 shrink-0">
                     <Button variant="outline" onClick={onClose}>Annulla</Button>
                     <Button onClick={handleConfirm} disabled={selectedTableIds.length === 0}>
                         Conferma e Assegna

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Users, LayoutGrid, Clock } from "lucide-react";
+import { Plus, Trash2, Users, LayoutGrid, Clock, Baby } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { TableEditForm } from "./TableEditForm";
@@ -21,7 +21,7 @@ interface RoomLayoutEditorProps {
     onTableClick?: (tableId: string) => void;
     occupiedTableIds?: string[];
     allowEditExisting?: boolean;
-    occupancyDetails?: Record<string, { time: string; guests: number; customerName: string; notes?: string }>;
+    occupancyDetails?: Record<string, { time: string; guests: number; highChairs: number; customerName: string; notes?: string }>;
 }
 
 function GridTable({
@@ -37,7 +37,7 @@ function GridTable({
     selected: boolean,
     mode: 'edit' | 'select' | 'view',
     isOccupied?: boolean,
-    occupancyInfo?: { time: string; guests: number; customerName: string; notes?: string }
+    occupancyInfo?: { time: string; guests: number; highChairs: number; customerName: string; notes?: string }
 }) {
 
     // Main table shape styles
@@ -84,8 +84,13 @@ function GridTable({
                             </div>
                         </div>
                         <div className="flex items-center text-[10px]">
-                            <Users className="w-3 h-3 mr-0.5" />
-                            {occupancyInfo.guests}
+                            <Users className="w-3 h-3 mr-0.5 text-gray-700" />
+                            {occupancyInfo.guests - (occupancyInfo.highChairs || 0)}
+                            {(occupancyInfo.highChairs || 0) > 0 && (
+                                <span className="flex items-center ml-1 text-orange-700 font-bold">
+                                    +<Baby className="w-3 h-3 mr-0.5" />{occupancyInfo.highChairs}
+                                </span>
+                            )}
                         </div>
                     </div>
                 ) : (

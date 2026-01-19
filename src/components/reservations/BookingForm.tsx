@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ReservationConfig } from "./types";
+import { getTodayItaly } from "@/lib/date-utils";
 import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Clock, Users, CheckCircle2 } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Clock, Users, CheckCircle2, Baby } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { submitReservation } from "@/app/actions/reservation-actions";
@@ -32,7 +33,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         phone: "",
         guests: "",
         highChairs: "0",
-        date: "",
+        date: getTodayItaly(),
         time: "",
         notes: ""
     });
@@ -56,32 +57,46 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
             const start = parseInt(shift.startTime.replace(':', ''));
             const end = parseInt(shift.endTime.replace(':', ''));
 
-            let current = start; // e.g. 1900
+            const generateSlots = (s: number, e: number) => {
+                let current = s;
+                while (current < e) {
+                    const hour = Math.floor(current / 100);
+                    const min = current % 100;
+                    const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
 
-            while (current < end) {
-                // Convert back to HH:mm
-                const hour = Math.floor(current / 100);
-                const min = current % 100;
-                const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+                    slots.push(timeStr);
 
-                slots.push(timeStr);
-
-                // Increment by 30 mins
-                let nextMin = min + 30;
-                let nextHour = hour;
-                if (nextMin >= 60) {
-                    nextMin -= 60;
-                    nextHour += 1;
+                    let nextMin = min + 30;
+                    let nextHour = hour;
+                    if (nextMin >= 60) {
+                        nextMin -= 60;
+                        nextHour += 1;
+                    }
+                    current = nextHour * 100 + nextMin;
                 }
-                current = nextHour * 100 + nextMin;
+            }
+
+            if (end < start) {
+                // Overnight shift (e.g., 22:00 to 06:00)
+                // 1. From start to 24:00 (end of day)
+                generateSlots(start, 2400);
+                // 2. From 00:00 to end
+                generateSlots(0, end);
+            } else {
+                // Normal same-day shift
+                generateSlots(start, end);
             }
         });
 
         // Filter past times if today
-        const today = new Date().toISOString().split('T')[0];
+        // Filter past times if today
+        const today = getTodayItaly();
         if (formData.date === today) {
-            const now = new Date();
+            // Get current time in Italy
+            const nowItaly = new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" });
+            const now = new Date(nowItaly);
             const currentHm = now.getHours() * 100 + now.getMinutes();
+
             return slots.filter(s => {
                 const slotHm = parseInt(s.replace(':', ''));
                 return slotHm > currentHm;
@@ -106,6 +121,10 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         setIsSubmitting(true);
 
         try {
+            const adults = parseInt(formData.guests); // Now represents "Adulti"
+            const children = parseInt(formData.highChairs);
+            const totalGuests = adults + children;
+
             const result = await submitReservation({
                 tenantId,
                 restaurantName,
@@ -113,8 +132,8 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
-                guests: parseInt(formData.guests),
-                highChairs: parseInt(formData.highChairs),
+                guests: totalGuests, // Sum of adults + children
+                highChairs: children,
                 date: formData.date,
                 time: formData.time,
                 notes: formData.notes
@@ -161,7 +180,22 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                         </div>
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Ospiti:</span>
-                            <span className="font-medium">{formData.guests}</span>
+                            <span className="font-medium flex items-center gap-2">
+                                {/* Adults */}
+                                <span className="flex items-center gap-1">
+                                    <Users className="w-3.5 h-3.5 text-gray-500" />
+                                    <span>{formData.guests}</span>
+                                </span>
+
+                                {/* Children */}
+                                {parseInt(formData.highChairs) > 0 && (
+                                    <span className="flex items-center gap-1 text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-md text-xs font-medium border border-orange-100">
+                                        <span>+</span>
+                                        <Baby className="w-3.5 h-3.5" />
+                                        <span>{formData.highChairs}</span>
+                                    </span>
+                                )}
+                            </span>
                         </div>
                     </div>
 
@@ -267,7 +301,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="guests" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Persone</Label>
+                                <Label htmlFor="guests" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Adulti</Label>
                                 <Input
                                     id="guests"
                                     type="number"
@@ -280,13 +314,12 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="highChairs">Di cui bambini (seggiolini)</Label>
+                                <Label htmlFor="highChairs" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Bambini (Seggiolini)</Label>
                                 <Input
                                     id="highChairs"
                                     type="number"
                                     min="0"
-                                    max={formData.guests}
-                                    required
+                                    max={config.totalSeats || 999}
                                     value={formData.highChairs}
                                     onChange={(e) => handleChange("highChairs", e.target.value)}
                                     placeholder="0"
@@ -301,7 +334,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                                     id="date"
                                     type="date"
                                     required
-                                    min={new Date().toISOString().split('T')[0]}
+                                    min={getTodayItaly()}
                                     value={formData.date}
                                     onChange={(e) => handleChange("date", e.target.value)}
                                 />

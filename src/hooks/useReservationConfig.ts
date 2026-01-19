@@ -128,9 +128,23 @@ export function useReservationConfig() {
 
             if (settingsError) throw settingsError;
 
-            // 2. Save Tables (Upsert)
-            // Ideally we should handle deletions too, but for configuration wizard lets assume full sync logic later.
-            // For now, simple upsert of active tables.
+            // 2. Save Tables (Upsert & Delete)
+            const tableIds = newConfig.tables.map(t => t.id);
+
+            // Delete removed tables
+            if (tableIds.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (supabase.from('reservation_tables') as any)
+                    .delete()
+                    .eq('tenant_id', tenant.id)
+                    .not('id', 'in', `(${tableIds.join(',')})`);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (supabase.from('reservation_tables') as any)
+                    .delete()
+                    .eq('tenant_id', tenant.id);
+            }
+
             if (newConfig.tables.length > 0) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { error: tablesError } = await (supabase.from('reservation_tables') as any)
@@ -145,13 +159,25 @@ export function useReservationConfig() {
                         }))
                     );
                 if (tablesError) throw tablesError;
-
-                // Remove tables not in the list?
-                // const currentIds = newConfig.tables.map(t => t.id);
-                // await supabase.from('reservation_tables').delete().eq('tenant_id', tenant.id).not('id', 'in', `(${currentIds.join(',')})`);
             }
 
-            // 3. Save Shifts
+            // 3. Save Shifts (Upsert & Delete)
+            const shiftIds = newConfig.shifts.map(s => s.id);
+
+            // Delete removed shifts
+            if (shiftIds.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (supabase.from('reservation_shifts') as any)
+                    .delete()
+                    .eq('tenant_id', tenant.id)
+                    .not('id', 'in', `(${shiftIds.join(',')})`);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (supabase.from('reservation_shifts') as any)
+                    .delete()
+                    .eq('tenant_id', tenant.id);
+            }
+
             if (newConfig.shifts.length > 0) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { error: shiftsError } = await (supabase.from('reservation_shifts') as any)

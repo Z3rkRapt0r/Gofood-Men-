@@ -36,6 +36,7 @@ export const ReservationStatusEmail = ({
         year: "numeric",
         month: "long",
         day: "numeric",
+        timeZone: "Europe/Rome"
     });
     const formattedTime = time.split(':').slice(0, 2).join(':');
 

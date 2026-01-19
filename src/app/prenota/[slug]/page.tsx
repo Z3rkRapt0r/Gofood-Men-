@@ -97,10 +97,24 @@ export default async function ReservationPage({ params }: PageProps) {
         }))
     };
 
+    // DEBUG: Fetch specific missing shift
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: missingShift } = await (supabase.from('reservation_shifts') as any)
+        .select('*')
+        .eq('id', '2556da43-3a86-4e9e-b60e-976395b2b319')
+        .single();
+
+    // DEBUG: Fetch ALL shifts for tenant without active filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: allTenantShifts } = await (supabase.from('reservation_shifts') as any)
+        .select('*')
+        .eq('tenant_id', tenant.id);
+
     return (
         <ReservationPageClient
             tenant={tenant as Tenant}
             config={config}
+            debugData={{ missingShift, allTenantShifts, currentConfigShifts: config.shifts }}
         />
     );
 }

@@ -27,7 +27,7 @@ export type ReservationConfig = ReservationSettings & {
     shifts: ReservationShift[];
 };
 
-export type ReservationStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled';
+export type ReservationStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'arrived';
 
 export type Reservation = {
     id: string;
