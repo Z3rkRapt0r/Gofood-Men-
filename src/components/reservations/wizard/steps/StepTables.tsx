@@ -21,9 +21,9 @@ export function StepTables({ data, updateData }: StepTablesProps) {
             <div className="flex flex-col space-y-6 mb-8">
                 <div className="flex justify-between items-start">
                     <div>
-                        <h3 className="text-lg font-medium">Layout e Tavoli</h3>
+                        <h3 className="text-lg font-medium">Mappa del locale</h3>
                         <p className="text-sm text-muted-foreground">
-                            Configura i tavoli del tuo locale. La <strong>capacità totale</strong> verrà calcolata automaticamente.
+                            Crea i tavoli. Calcoliamo noi il totale dei posti.
                         </p>
                     </div>
                 </div>
@@ -33,7 +33,7 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                     <div className="space-y-4">
                         <div className="grid gap-1.5">
                             <Label htmlFor="totalHighChairs" className="flex gap-1 font-bold">
-                                Numero Totale Seggiolini <span className="text-red-500">*</span>
+                                Seggiolini per bambini <span className="text-red-500">*</span>
                             </Label>
                             <Input
                                 type="number"
@@ -45,13 +45,13 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                                 required
                             />
                             <p className="text-xs text-muted-foreground">
-                                Risorse "Jolly" da assegnare al bisogno. Non scalano dai posti fissi.
+                                Indica quanti seggiolini extra hai in totale.
                             </p>
                         </div>
                     </div>
 
                     <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg border shadow-sm self-center">
-                        <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-2">Capacità Totale</span>
+                        <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-2">Posti TOTALI</span>
                         <div className="text-4xl font-black text-primary flex items-end gap-2 leading-none">
                             {allocatedSeats} <span className="text-lg font-medium text-muted-foreground pb-0.5">posti</span>
                         </div>

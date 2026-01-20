@@ -49,10 +49,10 @@ export function ReservationWizard({ onComplete, initialData }: ReservationWizard
         <div className="flex justify-center items-center min-h-[60vh]">
             <Card className="w-full max-w-7xl">
                 <CardHeader>
-                    <CardTitle>Configurazione Prenotazioni - Passo {step} di 2</CardTitle>
+                    <CardTitle>Configurazione Prenotazioni - {step} di 2</CardTitle>
                     <CardDescription>
-                        {step === 1 && "Crea i tuoi tavoli e configura i parametri base."}
-                        {step === 2 && "Imposta le fasce orarie in cui è possibile prenotare."}
+                        {step === 1 && "Aggiungi i tuoi tavoli."}
+                        {step === 2 && "Decidi quando ricevere clienti."}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -76,20 +76,20 @@ export function StepTimeSlots({ data, updateData }: StepTimeSlotsProps) {
         <div className="space-y-6">
             <div className="grid gap-4 p-4 border rounded-lg bg-muted/20">
                 <h4 className="font-medium flex items-center gap-2">
-                    <Plus className="w-4 h-4" /> Aggiungi Fascia Oraria
+                    <Plus className="w-4 h-4" /> Nuovo Orario
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="shiftName">Nome (es. Pranzo)</Label>
+                        <Label htmlFor="shiftName">Nome (es. Cena)</Label>
                         <Input
                             id="shiftName"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Pranzo"
+                            placeholder="Cena"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="startTime">Inizio</Label>
+                        <Label htmlFor="startTime">Dalle</Label>
                         <Input
                             id="startTime"
                             type="time"
@@ -98,7 +98,7 @@ export function StepTimeSlots({ data, updateData }: StepTimeSlotsProps) {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="endTime">Fine</Label>
+                        <Label htmlFor="endTime">Alle</Label>
                         <Input
                             id="endTime"
                             type="time"
@@ -109,7 +109,7 @@ export function StepTimeSlots({ data, updateData }: StepTimeSlotsProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <Label>Giorni attivi</Label>
+                    <Label>In quali giorni?</Label>
                     <div className="flex flex-wrap gap-2">
                         {DAYS.map((day) => (
                             <div key={day.id} className="flex items-center space-x-2 border rounded-md p-2 bg-background">
@@ -125,15 +125,15 @@ export function StepTimeSlots({ data, updateData }: StepTimeSlotsProps) {
                 </div>
 
                 <Button onClick={addShift} disabled={!name || !start || !end || selectedDays.length === 0} className="w-full md:w-auto self-end">
-                    Aggiungi Fascia
+                    Aggiungi
                 </Button>
             </div>
 
             <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Fasce Attive</h4>
+                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Orari salvati</h4>
                 {data.shifts.length === 0 ? (
                     <p className="text-sm text-muted-foreground italic p-4 text-center border border-dashed rounded-lg">
-                        Nessuna fascia oraria configurata.
+                        Non hai ancora aggiunto orari.
                     </p>
                 ) : (
                     <div className="grid gap-3">
