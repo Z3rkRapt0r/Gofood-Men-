@@ -26,6 +26,16 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ReservationsDashboardProps {
     config: ReservationConfig;
@@ -40,6 +50,8 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
     const [isLoadingReservations, setIsLoadingReservations] = useState(false);
     const [selectedDate, setSelectedDate] = useState(getTodayItaly());
     const [reservationToAssign, setReservationToAssign] = useState<Reservation | null>(null);
+    const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
+    const [reservationToReject, setReservationToReject] = useState<Reservation | null>(null);
 
     const [isAgendaOpen, setIsAgendaOpen] = useState(false);
 
@@ -171,7 +183,6 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
     };
 
     const handleCancel = async (res: Reservation) => {
-        if (!confirm("Sei sicuro di voler annullare questa prenotazione?")) return;
         const result = await updateReservationStatus(res.id, 'cancelled');
         if (result.success) {
             toast.success("Prenotazione annullata");
@@ -179,11 +190,10 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
         } else {
             toast.error("Errore nell'annullamento");
         }
+        setReservationToCancel(null);
     };
 
     const handleReject = async (res: Reservation) => {
-        if (!confirm("Sei sicuro di voler rifiutare questa prenotazione?")) return;
-
         const result = await updateReservationStatus(res.id, 'rejected');
         if (result.success) {
             toast.success("Prenotazione rifiutata");
@@ -191,6 +201,7 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
         } else {
             toast.error("Errore nel rifiuto della prenotazione");
         }
+        setReservationToReject(null);
     };
 
     const changeDate = (days: number) => {
@@ -339,7 +350,7 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuLabel>Azioni</DropdownMenuLabel>
                                                             <DropdownMenuItem onClick={() => handleArrive(res)}>Segna Arrivato</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleCancel(res)} className="text-destructive">Annulla</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => setReservationToCancel(res)} className="text-destructive">Annulla</DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </div>
@@ -415,7 +426,7 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                                                 size="sm"
                                                 variant="ghost"
                                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full"
-                                                onClick={() => handleReject(res)}
+                                                onClick={() => setReservationToReject(res)}
                                                 title="Rifiuta"
                                             >
                                                 <X className="w-4 h-4" />
@@ -536,6 +547,41 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                     onUpdateTables={(newTables) => onUpdateConfig({ ...config, tables: newTables })}
                 />
             )}
+
+            {/* Confirmation Dialogs */}
+            <AlertDialog open={!!reservationToReject} onOpenChange={(open) => !open && setReservationToReject(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Vuoi davvero rifiutare la prenotazione di <strong>{reservationToReject?.customerName}</strong>?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => reservationToReject && handleReject(reservationToReject)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Sì, rifiuta
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={!!reservationToCancel} onOpenChange={(open) => !open && setReservationToCancel(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Conferma Annullamento</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Stai per annullare la prenotazione di <strong>{reservationToCancel?.customerName}</strong>. L'operazione non è reversibile.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Sospendi</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => reservationToCancel && handleCancel(reservationToCancel)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Annulla Prenotazione
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
