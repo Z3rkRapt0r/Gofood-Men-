@@ -23,7 +23,7 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                     <div>
                         <h3 className="text-lg font-medium">Mappa del locale</h3>
                         <p className="text-sm text-muted-foreground">
-                            Crea i tavoli. Calcoliamo noi il totale dei posti.
+                            Inserisci i tavoli che compongono il locale.
                         </p>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                                 required
                             />
                             <p className="text-xs text-muted-foreground">
-                                Indica quanti seggiolini extra hai in totale.
+                                Indica quanti seggiolini hai in totale.
                             </p>
                         </div>
                     </div>
