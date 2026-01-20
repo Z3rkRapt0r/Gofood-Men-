@@ -61,14 +61,14 @@ export async function submitReservation(formData: {
         return { success: false, error: "Database error" };
     }
 
-    // 2. Fetch Tenant Settings for Notification Email
+    // 2. Fetch Tenant Contact Email for Notifications
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: settings } = await (supabase.from('reservation_settings') as any)
-        .select('notification_email')
-        .eq('tenant_id', formData.tenantId)
+    const { data: tenantData } = await (supabase.from('tenants') as any)
+        .select('contact_email')
+        .eq('id', formData.tenantId)
         .single();
 
-    const ownerEmail = settings?.notification_email;
+    const ownerEmail = tenantData?.contact_email;
     logToFile(`[submitReservation] Owner email: ${ownerEmail}`);
 
     if (ownerEmail) {

@@ -1,5 +1,7 @@
 import { ReservationConfig, TableConfig } from "../../types";
 import { RoomLayoutEditor } from "../../RoomLayoutEditor";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface StepTablesProps {
     data: ReservationConfig;
@@ -16,7 +18,7 @@ export function StepTables({ data, updateData }: StepTablesProps) {
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col space-y-4 mb-6">
+            <div className="flex flex-col space-y-6 mb-8">
                 <div className="flex justify-between items-start">
                     <div>
                         <h3 className="text-lg font-medium">Layout e Tavoli</h3>
@@ -24,21 +26,35 @@ export function StepTables({ data, updateData }: StepTablesProps) {
                             Configura i tavoli del tuo locale. La <strong>capacità totale</strong> verrà calcolata automaticamente.
                         </p>
                     </div>
-                    <div className="text-right">
-                        <div className="text-sm font-semibold mb-1">
-                            Jolly Disponibili
-                        </div>
-                        <div className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded border border-blue-200">
-                            🧸 {data.totalHighChairs || 0} Seggiolini
-                        </div>
-                    </div>
                 </div>
 
-                {/* Capacity Summary */}
-                <div className="bg-primary/5 p-4 rounded-lg border border-primary/20 flex flex-col items-center justify-center text-center">
-                    <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Capacità Totale Configurata</span>
-                    <div className="text-3xl font-bold text-primary flex items-end gap-2 leading-none">
-                        {allocatedSeats} <span className="text-lg font-medium text-muted-foreground pb-0.5">posti</span>
+                {/* Settings Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-muted/20 rounded-xl border">
+                    <div className="space-y-4">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="totalHighChairs" className="flex gap-1 font-bold">
+                                Numero Totale Seggiolini <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                type="number"
+                                id="totalHighChairs"
+                                min="0"
+                                placeholder="Es. 5"
+                                value={data.totalHighChairs || ""}
+                                onChange={(e) => updateData({ totalHighChairs: parseInt(e.target.value) || 0 })}
+                                required
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Risorse "Jolly" da assegnare al bisogno. Non scalano dai posti fissi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg border shadow-sm self-center">
+                        <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-2">Capacità Totale</span>
+                        <div className="text-4xl font-black text-primary flex items-end gap-2 leading-none">
+                            {allocatedSeats} <span className="text-lg font-medium text-muted-foreground pb-0.5">posti</span>
+                        </div>
                     </div>
                 </div>
             </div>

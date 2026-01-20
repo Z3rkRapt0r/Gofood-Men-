@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { StepCapacity } from "./steps/StepCapacity";
 import { StepTables } from "./steps/StepTables";
 import { StepTimeSlots } from "./steps/StepTimeSlots";
 import { ReservationConfig } from "../types";
@@ -32,23 +31,17 @@ export function ReservationWizard({ onComplete, initialData }: ReservationWizard
     const renderStep = () => {
         switch (step) {
             case 1:
-                return <StepCapacity data={data} updateData={updateData} />;
-            case 2:
                 return <StepTables data={data} updateData={updateData} />;
-            case 3:
+            case 2:
                 return <StepTimeSlots data={data} updateData={updateData} />;
             default:
                 return null;
         }
     };
 
-    const isLastStep = step === 3;
+    const isLastStep = step === 2;
 
     const isNextDisabled = () => {
-        if (step === 2) {
-            const allocatedSeats = (data.tables || []).reduce((acc, t) => acc + t.seats, 0);
-            return allocatedSeats !== data.totalSeats;
-        }
         return false;
     };
 
@@ -56,11 +49,10 @@ export function ReservationWizard({ onComplete, initialData }: ReservationWizard
         <div className="flex justify-center items-center min-h-[60vh]">
             <Card className="w-full max-w-7xl">
                 <CardHeader>
-                    <CardTitle>Configurazione Prenotazioni - Passo {step} di 3</CardTitle>
+                    <CardTitle>Configurazione Prenotazioni - Passo {step} di 2</CardTitle>
                     <CardDescription>
-                        {step === 1 && "Definisci la capacità totale del tuo locale."}
-                        {step === 2 && "Crea e configura i tuoi tavoli."}
-                        {step === 3 && "Imposta le fasce orarie in cui è possibile prenotare."}
+                        {step === 1 && "Crea i tuoi tavoli e configura i parametri base."}
+                        {step === 2 && "Imposta le fasce orarie in cui è possibile prenotare."}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -2,7 +2,6 @@ export type ReservationSettings = {
     isActive: boolean;
     totalSeats: number;
     totalHighChairs: number;
-    notificationEmail?: string;
 };
 
 export type TableConfig = {

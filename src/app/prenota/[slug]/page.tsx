@@ -77,8 +77,6 @@ export default async function ReservationPage({ params }: PageProps) {
         totalSeats: settings?.total_seats ?? 0,
         totalHighChairs: settings?.total_high_chairs ?? 0,
 
-        notificationEmail: settings?.notification_email ?? undefined,
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tables: (tables || []).map((t: any) => ({
             id: t.id,

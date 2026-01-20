@@ -71,7 +71,6 @@ export function useReservationConfig() {
                 isActive: settings.is_active,
                 totalSeats: settings.total_seats,
                 totalHighChairs: settings.total_high_chairs,
-                notificationEmail: settings.notification_email,
 
                 tables: tables?.map((t: any) => ({
                     id: t.id,
@@ -122,7 +121,6 @@ export function useReservationConfig() {
                     is_active: newConfig.isActive,
                     total_seats: newConfig.totalSeats,
                     total_high_chairs: newConfig.totalHighChairs,
-                    notification_email: newConfig.notificationEmail,
                     updated_at: new Date().toISOString()
                 });
 
