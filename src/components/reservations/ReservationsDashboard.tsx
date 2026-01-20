@@ -182,10 +182,9 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
     };
 
     const handleReject = async (res: Reservation) => {
-        const reason = prompt("Motivo del rifiuto (verrà inviato al cliente - opzionale):", "Purtroppo siamo al completo.");
-        if (reason === null) return; // Cancelled by user
+        if (!confirm("Sei sicuro di voler rifiutare questa prenotazione?")) return;
 
-        const result = await updateReservationStatus(res.id, 'rejected', [], reason);
+        const result = await updateReservationStatus(res.id, 'rejected');
         if (result.success) {
             toast.success("Prenotazione rifiutata");
             fetchReservations();
