@@ -181,6 +181,19 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
         }
     };
 
+    const handleReject = async (res: Reservation) => {
+        const reason = prompt("Motivo del rifiuto (verrà inviato al cliente - opzionale):", "Purtroppo siamo al completo.");
+        if (reason === null) return; // Cancelled by user
+
+        const result = await updateReservationStatus(res.id, 'rejected', [], reason);
+        if (result.success) {
+            toast.success("Prenotazione rifiutata");
+            fetchReservations();
+        } else {
+            toast.error("Errore nel rifiuto della prenotazione");
+        }
+    };
+
     const changeDate = (days: number) => {
         const date = new Date(selectedDate);
         date.setDate(date.getDate() + days);
@@ -398,13 +411,24 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                                                 </span>
                                             </div>
                                         </div>
-                                        <Button
-                                            size="sm"
-                                            className="h-8 px-4 bg-orange-600 hover:bg-orange-700 text-white shadow-sm hover:shadow active:scale-95 transition-all text-xs font-medium rounded-full"
-                                            onClick={() => setReservationToAssign(res)}
-                                        >
-                                            Assegna
-                                        </Button>
+                                        <div className="flex gap-1">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full"
+                                                onClick={() => handleReject(res)}
+                                                title="Rifiuta"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                className="h-8 px-3 bg-orange-600 hover:bg-orange-700 text-white shadow-sm hover:shadow active:scale-95 transition-all text-xs font-medium rounded-full"
+                                                onClick={() => setReservationToAssign(res)}
+                                            >
+                                                Accetta
+                                            </Button>
+                                        </div>
                                     </div>
                                     {res.notes && (
                                         <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100 italic">
