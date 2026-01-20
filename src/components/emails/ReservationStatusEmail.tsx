@@ -42,7 +42,7 @@ export const ReservationStatusEmail = ({
 
     const title = isConfirmed ? "Prenotazione Confermata!" : "Prenotazione Rifiutata";
     const colorStyle = isConfirmed ? { color: '#16a34a' } : { color: '#dc2626' }; // green-600 : red-600
-    const icon = isConfirmed ? "✅" : null;
+    const icon = null;
 
     return (
         <EmailLayout preview={`${title} - ${restaurantName}`}>

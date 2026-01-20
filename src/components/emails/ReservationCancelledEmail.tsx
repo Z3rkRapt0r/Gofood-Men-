@@ -32,7 +32,6 @@ export const ReservationCancelledEmail = ({
     return (
         <EmailLayout preview={`Prenotazione Cancellata - ${restaurantName}`}>
             <Section style={headerSection}>
-                <Text style={iconStyle}>🗑️</Text>
                 <Heading style={h1}>
                     Prenotazione Cancellata
                 </Heading>
