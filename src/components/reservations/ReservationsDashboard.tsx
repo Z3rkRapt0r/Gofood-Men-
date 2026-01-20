@@ -340,19 +340,15 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-900">
-                                                                <span className="sr-only">Menu</span>
-                                                                <span className="">•••</span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Azioni</DropdownMenuLabel>
-                                                            <DropdownMenuItem onClick={() => handleArrive(res)}>Segna Arrivato</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => setReservationToCancel(res)} className="text-destructive">Annulla</DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                                                        onClick={() => setReservationToCancel(res)}
+                                                        title="Annulla"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         ))}
