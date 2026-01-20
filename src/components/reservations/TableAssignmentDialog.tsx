@@ -121,28 +121,31 @@ export function TableAssignmentDialog({
                     </div>
                 </DialogHeader>
 
-                <div className="px-6 pb-3 space-y-4 shrink-0 bg-background z-10">
+                <div className="px-6 pb-4 space-y-4 shrink-0 bg-background z-10">
+                    {/* Simplified Availability Display */}
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                        <div className="flex flex-col items-center justify-center p-4 bg-green-50 border-2 border-green-200 rounded-xl shadow-sm">
+                            <span className="text-[10px] uppercase font-bold text-green-700 tracking-wider mb-1">Posti Liberi</span>
+                            <div className="flex items-center gap-2">
+                                <Users className="w-5 h-5 text-green-600" />
+                                <span className="text-2xl font-black text-green-800">{totalFreeSeats}</span>
+                            </div>
+                        </div>
 
-                    {/* Restaurant Stats Bar */}
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground bg-muted/30 p-2 rounded border border-border/40">
-                        <span className="font-semibold text-foreground">Disponibilità Sala:</span>
-                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {totalFreeSeats} posti liberi</span>
-                        <span className="w-px h-3 bg-border"></span>
-                        <span className="flex items-center gap-1"><Baby className="w-3 h-3" /> {availableHighChairs} seggiolini liberi</span>
+                        <div className="flex flex-col items-center justify-center p-4 bg-orange-50 border-2 border-orange-200 rounded-xl shadow-sm">
+                            <span className="text-[10px] uppercase font-bold text-orange-700 tracking-wider mb-1">Seggiolini Liberi</span>
+                            <div className="flex items-center gap-2">
+                                <Baby className="w-5 h-5 text-orange-600" />
+                                <span className="text-2xl font-black text-orange-800">{availableHighChairs}</span>
+                            </div>
+                        </div>
                     </div>
 
-
-
-                    {/* Highchairs Status */}
-                    {neededHighChairs > 0 && (
-                        <div className="flex items-center justify-between text-sm py-2 px-3 bg-muted/40 rounded-md border border-border/50">
-                            <span className="text-muted-foreground flex items-center gap-2">
-                                <Baby className="w-4 h-4" />
-                                Seggiolini Richiesti: <span className="text-foreground font-medium">{neededHighChairs}</span>
-                            </span>
-                            <span className={isHighChairSufficient ? "text-green-600 font-medium" : "text-destructive font-medium"}>
-                                {isHighChairSufficient ? `Disponibili (${availableHighChairs} rimasti)` : `Non sufficienti (${availableHighChairs} rimasti)`}
-                            </span>
+                    {/* Alert if highchairs are needed but low */}
+                    {neededHighChairs > 0 && !isHighChairSufficient && (
+                        <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm font-medium">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            <span>Attenzione: Non ci sono abbastanza seggiolini ({neededHighChairs} richiesti).</span>
                         </div>
                     )}
                 </div>
