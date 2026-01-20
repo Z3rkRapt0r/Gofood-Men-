@@ -487,11 +487,11 @@ export function ReservationsDashboard({ config, onEditConfig, onUpdateConfig }: 
                                     <LayoutGrid className="w-5 h-5" />
                                     Mappa Sala
                                 </CardTitle>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <span>Occupazione: {occupancyPercentage}%</span>
-                                    <div className="w-24 bg-secondary h-2 rounded-full overflow-hidden">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-sm text-muted-foreground mt-1 sm:mt-0">
+                                    <span className="font-medium">Occupazione: {occupancyPercentage}%</span>
+                                    <div className="w-full sm:w-32 bg-secondary/50 h-2.5 rounded-full overflow-hidden border border-border/20 shadow-inner">
                                         <div
-                                            className={`h-full ${occupancyPercentage >= 90 ? 'bg-red-500' : occupancyPercentage >= 50 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                            className={`h-full transition-all duration-500 ${occupancyPercentage >= 90 ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : occupancyPercentage >= 50 ? 'bg-yellow-500' : 'bg-green-500'}`}
                                             style={{ width: `${Math.min(occupancyPercentage, 100)}%` }}
                                         />
                                     </div>
