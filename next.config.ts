@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/storage/v1/object/sign/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.belleepoquepalermo.it',
+        port: '',
+        pathname: '/wp-content/uploads/**',
+      },
     ],
   },
 };
