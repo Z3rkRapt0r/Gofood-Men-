@@ -34,143 +34,171 @@ export const NewReservationEmail = ({
     notes = "Nessuna nota particolare",
     dashboardUrl = "https://gofoodmenu.it/dashboard/reservations",
 }: NewReservationEmailProps) => {
+
     const formattedDate = new Date(date).toLocaleDateString("it-IT", {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
         timeZone: "Europe/Rome"
-    });
+    }).replace(/^\w/, (c) => c.toUpperCase());
 
     return (
         <EmailLayout preview={`Nuova prenotazione da ${customerName}`}>
-            <Heading style={h1}>Nuova Richiesta di Prenotazione</Heading>
-            <Text style={text}>
-                Ciao <strong>{restaurantName}</strong>, hai ricevuto una nuova richiesta.
-            </Text>
-
-            <Section style={card}>
-                <Row style={row}>
-                    <Column style={labelCol}>Cliente</Column>
-                    <Column style={valueCol}><strong>{customerName}</strong></Column>
-                </Row>
-                <Row style={row}>
-                    <Column style={labelCol}>Persone</Column>
-                    <Column style={valueCol}>
-                        <strong>{guests} Totali</strong>
-                        {highChairs > 0 && (
-                            <div style={subInfo}>
-                                ({guests - highChairs} Adulti, {highChairs} Bambini)
-                            </div>
-                        )}
-                    </Column>
-                </Row>
-                <Row style={row}>
-                    <Column style={labelCol}>Quando</Column>
-                    <Column style={valueCol}>
-                        {formattedDate} alle {time.slice(0, 5)}
-                    </Column>
-                </Row>
-                <Row style={row}>
-                    <Column style={labelCol}>Contatti</Column>
-                    <Column style={valueCol}>
-                        <div style={{ marginBottom: '4px' }}>{customerPhone}</div>
-                        <div style={subInfo}>{customerEmail}</div>
-                    </Column>
-                </Row>
-
-                {notes && (
-                    <Row style={{ ...row, borderBottom: 'none' }}>
-                        <Column style={labelCol}>Note</Column>
-                        <Column style={{ ...valueCol, fontStyle: 'italic', color: '#555' }}>
-                            "{notes}"
-                        </Column>
-                    </Row>
-                )}
+            <Section style={headerSection}>
+                <Heading style={h1}>Nuova Richiesta</Heading>
             </Section>
 
-            <Section style={{ textAlign: 'center', marginTop: '32px' }}>
-                <Button
-                    style={button}
-                    href={dashboardUrl}
-                >
-                    Gestisci Prenotazione
-                </Button>
-                <Text style={footerNote}>
-                    Cliccando accederai alla dashboard per accettare o rifiutare.
+            <Section style={mainContent}>
+                <Text style={introText}>
+                    Ciao <strong>{restaurantName}</strong>, hai ricevuto una nuova proposta di prenotazione tramite GoFood Menu.
                 </Text>
+
+                <Section style={detailsCard}>
+                    <div style={cardHeader}>DETTAGLI CLIENTE</div>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Nome</Column>
+                        <Column style={detailValue}><strong>{customerName}</strong></Column>
+                    </Row>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Contatti</Column>
+                        <Column style={detailValue}>
+                            <div>{customerPhone}</div>
+                            <div style={subValue}>{customerEmail}</div>
+                        </Column>
+                    </Row>
+
+                    <div style={{ ...cardHeader, marginTop: '24px' }}>DETTAGLI PRENOTAZIONE</div>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Quando</Column>
+                        <Column style={detailValue}>{formattedDate} ore {time.slice(0, 5)}</Column>
+                    </Row>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Ospiti</Column>
+                        <Column style={detailValue}>
+                            {guests} {guests === 1 ? 'persona' : 'persone'}
+                            {highChairs > 0 && <div style={subValue}>({highChairs} seggiolini)</div>}
+                        </Column>
+                    </Row>
+
+                    {notes && (
+                        <Row style={{ ...detailRow, borderBottom: 'none' }}>
+                            <Column style={detailLabel}>Note</Column>
+                            <Column style={{ ...detailValue, fontStyle: 'italic', fontWeight: '400' }}>
+                                "{notes}"
+                            </Column>
+                        </Row>
+                    )}
+                </Section>
+
+                <Section style={actionSection}>
+                    <Button
+                        style={button}
+                        href={dashboardUrl}
+                    >
+                        Gestisci Prenotazione
+                    </Button>
+                    <Text style={footerNote}>
+                        Accedi alla dashboard per confermare o rifiutare la richiesta.
+                    </Text>
+                </Section>
             </Section>
         </EmailLayout>
     );
 };
 
 // Styles
-const h1 = {
-    color: '#333',
-    fontSize: '24px',
-    fontWeight: 'bold',
+const headerSection = {
     textAlign: 'center' as const,
-    margin: '10px 0 20px 0',
+    padding: '32px 0 24px',
 };
 
-const text = {
-    color: '#333',
+const h1 = {
+    color: '#0f172a',
+    fontSize: '28px',
+    fontWeight: '800',
+    textAlign: 'center' as const,
+    margin: '0',
+    letterSpacing: '-0.02em',
+};
+
+const mainContent = {
+    padding: '0 20px',
+};
+
+const introText = {
     fontSize: '16px',
     lineHeight: '26px',
+    color: '#4b5563',
+    marginBottom: '32px',
     textAlign: 'center' as const,
-    marginBottom: '20px',
 };
 
-const card = {
-    backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
-    border: '1px solid #eee',
-    padding: '20px',
+const detailsCard = {
+    backgroundColor: '#f8fafc',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    padding: '24px',
+    marginBottom: '32px',
 };
 
-const row = {
-    borderBottom: '1px solid #eee',
-    padding: '10px 0',
-};
-
-const labelCol = {
-    width: '30%',
-    color: '#666',
-    fontWeight: 'bold',
-    fontSize: '14px',
+const cardHeader = {
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#64748b',
+    letterSpacing: '0.1em',
     textTransform: 'uppercase' as const,
-    verticalAlign: 'top',
-    paddingTop: '4px',
+    marginBottom: '12px',
 };
 
-const valueCol = {
-    width: '70%',
-    color: '#333',
-    fontSize: '16px',
-    verticalAlign: 'top',
+const detailRow = {
+    padding: '12px 0',
+    borderBottom: '1px solid #e2e8f0',
 };
 
-const subInfo = {
+const detailLabel = {
+    width: '30%',
+    color: '#64748b',
     fontSize: '14px',
-    color: '#888',
+    fontWeight: '500',
+};
+
+const detailValue = {
+    width: '70%',
+    color: '#0f172a',
+    fontSize: '16px',
+    fontWeight: '600',
+    textAlign: 'right' as const,
+};
+
+const subValue = {
+    fontSize: '13px',
+    color: '#64748b',
+    fontWeight: '400',
+};
+
+const actionSection = {
+    textAlign: 'center' as const,
+    marginTop: '32px',
 };
 
 const button = {
-    backgroundColor: '#000',
-    borderRadius: '5px',
-    color: '#fff',
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
+    borderRadius: '12px',
     fontSize: '16px',
-    fontWeight: 'bold',
+    fontWeight: '600',
     textDecoration: 'none',
     textAlign: 'center' as const,
     display: 'inline-block',
-    padding: '12px 24px',
+    padding: '14px 28px',
 };
 
 const footerNote = {
-    fontSize: '12px',
-    color: '#999',
-    marginTop: '12px',
+    fontSize: '13px',
+    color: '#94a3b8',
+    marginTop: '16px',
+    textAlign: 'center' as const,
 };
 
 export default NewReservationEmail;

@@ -31,76 +31,89 @@ export const ReservationStatusEmail = ({
     restaurantPhone,
 }: ReservationStatusEmailProps) => {
     const isConfirmed = status === "confirmed";
+
+    // Formattazione data italiana: "Venerdì 23 Gennaio 2026"
     const formattedDate = new Date(date).toLocaleDateString("it-IT", {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
         timeZone: "Europe/Rome"
-    });
+    }).replace(/^\w/, (c) => c.toUpperCase()); // Capitalize first letter
+
     const formattedTime = time.split(':').slice(0, 2).join(':');
 
-    const title = isConfirmed ? "Prenotazione Confermata!" : "Prenotazione Rifiutata";
-    const colorStyle = isConfirmed ? { color: '#16a34a' } : { color: '#dc2626' }; // green-600 : red-600
-    const icon = null;
+    const title = isConfirmed ? "Prenotazione Confermata!" : "Aggiornamento Prenotazione";
+    const colorStyle = isConfirmed ? { color: '#059669' } : { color: '#dc2626' }; // emerald-600 : red-600
 
     return (
         <EmailLayout preview={`${title} - ${restaurantName}`}>
             <Section style={headerSection}>
-                {icon && <Text style={iconStyle}>{icon}</Text>}
                 <Heading style={{ ...h1, ...colorStyle }}>
                     {title}
                 </Heading>
             </Section>
 
-            <Text style={text}>
-                Ciao <strong>{customerName}</strong>,
-                {isConfirmed
-                    ? ` siamo felici di confermare la tua prenotazione da ${restaurantName}.`
-                    : ` ci dispiace informarti che non possiamo accettare la tua richiesta di prenotazione presso ${restaurantName}.`}
-            </Text>
+            <Section style={mainContent}>
+                <Text style={greeting}>
+                    Ciao <strong>{customerName}</strong>,
+                </Text>
 
-            {isConfirmed && (
-                <Section style={greenCard}>
-                    <Row style={row}>
-                        <Column style={labelCol}>Quando</Column>
-                        <Column style={valueCol}>
-                            {formattedDate} ore {formattedTime}
-                        </Column>
-                    </Row>
-                    <Row style={row}>
-                        <Column style={labelCol}>Ospiti</Column>
-                        <Column style={valueCol}>
-                            {guests} persone
-                        </Column>
-                    </Row>
-                    <Row style={{ ...row, borderBottom: 'none' }}>
-                        <Column style={labelCol}>Dove</Column>
-                        <Column style={valueCol}>
-                            {restaurantName}
-                        </Column>
-                    </Row>
-                </Section>
-            )}
+                <Text style={introText}>
+                    {isConfirmed
+                        ? `Siamo lieti di confermare la tua prenotazione presso `
+                        : `Ti ringraziamo per l'interesse, purtroppo dobbiamo informarti che non è stato possibile accettare la tua richiesta di prenotazione presso `}
+                    <strong>{restaurantName}</strong>.
+                </Text>
 
-            {!isConfirmed && (
-                <Section style={stoneCard}>
-                    <Text style={{ ...text, marginBottom: 0, marginTop: 0 }}>
-                        Purtroppo non abbiamo disponibilità per la data o l'orario richiesto.
-                        <br />
-                        Ti invitiamo a contattarci telefonicamente per trovare una soluzione alternativa.
+                {isConfirmed ? (
+                    <Section style={detailsCard}>
+                        <div style={cardHeader}>DETTAGLI PRENOTAZIONE</div>
+                        <Row style={detailRow}>
+                            <Column style={detailLabel}>Data</Column>
+                            <Column style={detailValue}>{formattedDate}</Column>
+                        </Row>
+                        <Row style={detailRow}>
+                            <Column style={detailLabel}>Orario</Column>
+                            <Column style={detailValue}>{formattedTime}</Column>
+                        </Row>
+                        <Row style={detailRow}>
+                            <Column style={detailLabel}>Ospiti</Column>
+                            <Column style={detailValue}>{guests} {guests === 1 ? 'persona' : 'persone'}</Column>
+                        </Row>
+                        <Row style={{ ...detailRow, borderBottom: 'none' }}>
+                            <Column style={detailLabel}>Ristorante</Column>
+                            <Column style={detailValue}>{restaurantName}</Column>
+                        </Row>
+                    </Section>
+                ) : (
+                    <Section style={rejectionCard}>
+                        <Text style={rejectionText}>
+                            {rejectionReason
+                                ? rejectionReason
+                                : "Purtroppo non abbiamo disponibilità per la data o l'orario richiesto. Ti invitiamo a riprovare per un'altra data o a contattarci direttamente."}
+                        </Text>
+                    </Section>
+                )}
+
+                {isConfirmed && (
+                    <Text style={note}>
+                        Ti aspettiamo! Se dovessi avere ritardi o necessità di modificare la prenotazione, ti preghiamo di avvisarci il prima possibile.
                     </Text>
-                </Section>
-            )}
+                )}
+            </Section>
 
-            <Section style={footerSection}>
+            <Section style={footerAction}>
                 {restaurantPhone && (
-                    <Button
-                        style={button}
-                        href={`tel:${restaurantPhone}`}
-                    >
-                        Chiama {restaurantPhone}
-                    </Button>
+                    <div style={{ textAlign: 'center' as const }}>
+                        <Text style={supportText}>Hai bisogno di aiuto?</Text>
+                        <Button
+                            style={button}
+                            href={`tel:${restaurantPhone}`}
+                        >
+                            Chiama il Ristorante
+                        </Button>
+                    </div>
                 )}
             </Section>
         </EmailLayout>
@@ -110,86 +123,115 @@ export const ReservationStatusEmail = ({
 // Styles
 const headerSection = {
     textAlign: 'center' as const,
-    marginBottom: '24px',
-};
-
-const iconStyle = {
-    fontSize: '36px',
-    marginBottom: '8px',
-    textAlign: 'center' as const,
+    padding: '32px 0 24px',
 };
 
 const h1 = {
-    fontSize: '24px',
-    fontWeight: 'bold',
+    fontSize: '28px',
+    fontWeight: '800',
+    textAlign: 'center' as const,
+    margin: '0',
+    letterSpacing: '-0.02em',
+};
+
+const mainContent = {
+    padding: '0 20px',
+};
+
+const greeting = {
+    fontSize: '18px',
+    color: '#1f2937',
+    marginBottom: '12px',
+};
+
+const introText = {
+    fontSize: '16px',
+    lineHeight: '26px',
+    color: '#4b5563',
+    marginBottom: '32px',
+};
+
+const detailsCard = {
+    backgroundColor: '#f8fafc',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    padding: '24px',
+    marginBottom: '32px',
+};
+
+const cardHeader = {
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#64748b',
+    letterSpacing: '0.1em',
+    marginBottom: '16px',
+};
+
+const detailRow = {
+    padding: '12px 0',
+    borderBottom: '1px solid #e2e8f0',
+};
+
+const detailLabel = {
+    width: '30%',
+    color: '#64748b',
+    fontSize: '14px',
+    fontWeight: '500',
+};
+
+const detailValue = {
+    width: '70%',
+    color: '#0f172a',
+    fontSize: '16px',
+    fontWeight: '600',
+    textAlign: 'right' as const,
+};
+
+const rejectionCard = {
+    backgroundColor: '#fff1f2',
+    borderRadius: '16px',
+    border: '1px solid #fecdd3',
+    padding: '24px',
+    marginBottom: '32px',
+};
+
+const rejectionText = {
+    fontSize: '16px',
+    lineHeight: '24px',
+    color: '#9f1239',
     textAlign: 'center' as const,
     margin: '0',
 };
 
-const text = {
-    color: '#44403c', // stone-700ish
-    fontSize: '16px',
-    lineHeight: '24px',
-    textAlign: 'center' as const,
-    marginBottom: '24px',
-};
-
-const greenCard = {
-    backgroundColor: '#f0fdf4', // green-50
-    borderRadius: '8px',
-    border: '1px solid #dcfce7', // green-100
-    padding: '24px',
-    marginBottom: '32px',
-};
-
-const stoneCard = {
-    backgroundColor: '#fafaf9', // stone-50
-    borderRadius: '8px',
-    border: '1px solid #f5f5f4', // stone-100
-    padding: '24px',
-    marginBottom: '32px',
-    textAlign: 'center' as const,
-};
-
-const row = {
-    borderBottom: '1px solid #dcfce7',
-    padding: '12px 0',
-};
-
-const labelCol = {
-    width: '30%',
-    color: '#78716c', // stone-500
+const note = {
     fontSize: '14px',
-    fontWeight: 'bold',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    verticalAlign: 'top',
-};
-
-const valueCol = {
-    width: '70%',
-    color: '#1c1917', // stone-900
-    fontWeight: '500',
-    fontSize: '16px',
-    verticalAlign: 'top',
-};
-
-const footerSection = {
+    lineHeight: '22px',
+    color: '#6b7280',
     textAlign: 'center' as const,
-    borderTop: '1px solid #f5f5f4',
-    paddingTop: '24px',
+    fontStyle: 'italic',
+};
+
+const footerAction = {
+    marginTop: '32px',
+    textAlign: 'center' as const,
+};
+
+const supportText = {
+    fontSize: '14px',
+    color: '#6b7280',
+    marginBottom: '12px',
 };
 
 const button = {
-    backgroundColor: '#ffffff',
-    color: '#1c1917',
-    border: '1px solid #e7e5e4',
-    borderRadius: '6px',
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
+    borderRadius: '12px',
     fontSize: '16px',
-    fontWeight: '500',
+    fontWeight: '600',
     textDecoration: 'none',
     textAlign: 'center' as const,
     display: 'inline-block',
+    padding: '14px 28px',
 };
 
 export default ReservationStatusEmail;

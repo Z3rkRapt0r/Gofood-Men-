@@ -10,10 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { ReservationConfig } from "./types";
 import { getTodayItaly } from "@/lib/date-utils";
 import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Clock, Users, CheckCircle2, Baby } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Clock, Users, CheckCircle2, Baby, ArrowRight, ArrowLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { submitReservation } from "@/app/actions/reservation-actions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface BookingFormProps {
     config: ReservationConfig;
@@ -24,6 +25,7 @@ interface BookingFormProps {
 export function BookingForm({ config, tenantId, restaurantName }: BookingFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [step, setStep] = useState(1);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -31,14 +33,12 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         lastName: "",
         email: "",
         phone: "",
-        guests: "",
+        guests: "2",
         highChairs: "0",
         date: getTodayItaly(),
         time: "",
         notes: ""
     });
-
-    const supabase = createClient();
 
     // Calculate available time slots based on shifts and selected date
     const availableSlots = useMemo(() => {
@@ -48,7 +48,6 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         const dayOfWeek = date.getDay(); // 0 = Sunday
         const slots: string[] = [];
 
-        // Filter active shifts for this day
         const activeShifts = config.shifts.filter(s =>
             s.isActive && s.daysOfWeek.includes(dayOfWeek)
         );
@@ -63,7 +62,6 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                     const hour = Math.floor(current / 100);
                     const min = current % 100;
                     const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
-
                     slots.push(timeStr);
 
                     let nextMin = min + 30;
@@ -77,22 +75,15 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
             }
 
             if (end < start) {
-                // Overnight shift (e.g., 22:00 to 06:00)
-                // 1. From start to 24:00 (end of day)
                 generateSlots(start, 2400);
-                // 2. From 00:00 to end
                 generateSlots(0, end);
             } else {
-                // Normal same-day shift
                 generateSlots(start, end);
             }
         });
 
-        // Filter past times if today
-        // Filter past times if today
         const today = getTodayItaly();
         if (formData.date === today) {
-            // Get current time in Italy
             const nowItaly = new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" });
             const now = new Date(nowItaly);
             const currentHm = now.getHours() * 100 + now.getMinutes();
@@ -110,6 +101,20 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    const handleNext = () => {
+        if (step === 1) {
+            if (!formData.guests || !formData.date || !formData.time) {
+                toast.error("Per favore, compila tutti i campi richiesti.");
+                return;
+            }
+            setStep(2);
+        }
+    };
+
+    const handleBack = () => {
+        setStep(1);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -121,7 +126,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         setIsSubmitting(true);
 
         try {
-            const adults = parseInt(formData.guests); // Now represents "Adulti"
+            const adults = parseInt(formData.guests);
             const children = parseInt(formData.highChairs);
             const totalGuests = adults + children;
 
@@ -132,7 +137,7 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
-                guests: totalGuests, // Sum of adults + children
+                guests: totalGuests,
                 highChairs: children,
                 date: formData.date,
                 time: formData.time,
@@ -158,9 +163,13 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         return (
             <Card className="w-full max-w-md mx-auto mt-8 border-green-200 bg-green-50/50 shadow-lg">
                 <CardContent className="pt-10 pb-10 text-center space-y-6">
-                    <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4"
+                    >
                         <CheckCircle2 className="w-8 h-8" />
-                    </div>
+                    </motion.div>
                     <div>
                         <h2 className="text-2xl font-bold text-green-800 mb-2">Richiesta Inviata!</h2>
                         <p className="text-gray-600">
@@ -181,13 +190,10 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Ospiti:</span>
                             <span className="font-medium flex items-center gap-2">
-                                {/* Adults */}
                                 <span className="flex items-center gap-1">
                                     <Users className="w-3.5 h-3.5 text-gray-500" />
                                     <span>{formData.guests}</span>
                                 </span>
-
-                                {/* Children */}
                                 {parseInt(formData.highChairs) > 0 && (
                                     <span className="flex items-center gap-1 text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-md text-xs font-medium border border-orange-100">
                                         <span>+</span>
@@ -206,7 +212,18 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
                     <Button
                         onClick={() => {
                             setIsSuccess(false);
-                            setFormData(prev => ({ ...prev, date: "", time: "", notes: "" }));
+                            setStep(1);
+                            setFormData({
+                                firstName: "",
+                                lastName: "",
+                                email: "",
+                                phone: "",
+                                guests: "2",
+                                highChairs: "0",
+                                date: getTodayItaly(),
+                                time: "",
+                                notes: ""
+                            });
                         }}
                         variant="outline"
                         className="mt-4"
@@ -218,7 +235,6 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
         );
     }
 
-    // Config validation
     if (!config.isActive) {
         return (
             <Card className="w-full max-w-lg mx-auto mt-10 text-center p-8">
@@ -234,148 +250,225 @@ export function BookingForm({ config, tenantId, restaurantName }: BookingFormPro
 
     return (
         <form onSubmit={handleSubmit}>
-            <Card className="w-full max-w-lg mx-auto shadow-xl border-t-4 border-t-primary">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <CalendarIcon className="w-5 h-5 text-primary" />
-                        Prenota il tuo tavolo
-                    </CardTitle>
-                    <CardDescription>
-                        Compila il modulo per richiedere disponibilità a {restaurantName}.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* Contatti */}
-                    <div className="space-y-4">
-                        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider border-b pb-1 mb-3">I tuoi dati</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="firstName">Nome</Label>
-                                <Input
-                                    id="firstName"
-                                    required
-                                    value={formData.firstName}
-                                    onChange={(e) => handleChange("firstName", e.target.value)}
-                                    placeholder="Mario"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="lastName">Cognome</Label>
-                                <Input
-                                    id="lastName"
-                                    required
-                                    value={formData.lastName}
-                                    onChange={(e) => handleChange("lastName", e.target.value)}
-                                    placeholder="Rossi"
-                                />
-                            </div>
-                        </div>
+            <Card className="w-full max-w-lg mx-auto shadow-2xl border-none overflow-hidden bg-white">
+                <CardContent className="pt-8">
+                    <AnimatePresence mode="wait">
+                        {step === 1 ? (
+                            <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.2 }}
+                                className="space-y-6"
+                            >
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="guests" className="text-sm font-semibold">Adulti</Label>
+                                        <div className="relative">
+                                            <Users className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                            <Input
+                                                id="guests"
+                                                type="number"
+                                                min="1"
+                                                max={config.totalSeats || 999}
+                                                required
+                                                value={formData.guests}
+                                                onChange={(e) => handleChange("guests", e.target.value)}
+                                                className="pl-9 h-12 text-lg"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="highChairs" className="text-sm font-semibold">Bambini</Label>
+                                        <div className="relative">
+                                            <Baby className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                            <Input
+                                                id="highChairs"
+                                                type="number"
+                                                min="0"
+                                                max={config.totalSeats || 999}
+                                                value={formData.highChairs}
+                                                onChange={(e) => handleChange("highChairs", e.target.value)}
+                                                className="pl-9 h-12 text-lg"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                required
-                                value={formData.email}
-                                onChange={(e) => handleChange("email", e.target.value)}
-                                placeholder="mario@email.com"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Telefono</Label>
-                            <Input
-                                id="phone"
-                                type="tel"
-                                required
-                                value={formData.phone}
-                                onChange={(e) => handleChange("phone", e.target.value)}
-                                placeholder="+39 333 1234567"
-                            />
-                        </div>
-                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="date" className="text-sm font-semibold">Giorno</Label>
+                                    <div className="relative">
+                                        <CalendarIcon className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                        <Input
+                                            id="date"
+                                            type="date"
+                                            required
+                                            min={getTodayItaly()}
+                                            max={(() => {
+                                                const d = new Date();
+                                                d.setDate(d.getDate() + 60);
+                                                return d.toISOString().split('T')[0];
+                                            })()}
+                                            value={formData.date}
+                                            onChange={(e) => handleChange("date", e.target.value)}
+                                            className="pl-9 h-12 text-lg appearance-none"
+                                        />
+                                    </div>
+                                </div>
 
-                    {/* Dettagli Prenotazione */}
-                    <div className="space-y-4 pt-2">
-                        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider border-b pb-1 mb-3">La Prenotazione</h4>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="guests" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Adulti</Label>
-                                <Input
-                                    id="guests"
-                                    type="number"
-                                    min="1"
-                                    max={config.totalSeats || 999}
-                                    required
-                                    value={formData.guests}
-                                    onChange={(e) => handleChange("guests", e.target.value)}
-                                    placeholder="2"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="highChairs" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Bambini (Seggiolini)</Label>
-                                <Input
-                                    id="highChairs"
-                                    type="number"
-                                    min="0"
-                                    max={config.totalSeats || 999}
-                                    value={formData.highChairs}
-                                    onChange={(e) => handleChange("highChairs", e.target.value)}
-                                    placeholder="0"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="date">Data</Label>
-                                <Input
-                                    id="date"
-                                    type="date"
-                                    required
-                                    min={getTodayItaly()}
-                                    value={formData.date}
-                                    onChange={(e) => handleChange("date", e.target.value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="time" className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Ora</Label>
-                                <Select value={formData.time} onValueChange={(v) => handleChange("time", v)} disabled={!formData.date}>
-                                    <SelectTrigger id="time">
-                                        <SelectValue placeholder={!formData.date ? "Seleziona prima la data" : "Seleziona orario"} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableSlots.length > 0 ? (
-                                            availableSlots.map(slot => (
-                                                <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                                            ))
-                                        ) : (
-                                            <div className="p-2 text-sm text-muted-foreground text-center">
-                                                {formData.date ? "Nessun orario disponibile" : "Scegli una data"}
+                                <div className="space-y-2">
+                                    <Label htmlFor="time" className="text-sm font-semibold">Orario</Label>
+                                    <Select
+                                        value={formData.time}
+                                        onValueChange={(v) => handleChange("time", v)}
+                                        disabled={!formData.date}
+                                    >
+                                        <SelectTrigger id="time" className="h-12 text-lg pl-3">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                                <SelectValue placeholder={!formData.date ? "Scegli prima la data" : "Seleziona ora"} />
                                             </div>
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableSlots.length > 0 ? (
+                                                <div className="grid grid-cols-3 gap-1 p-1">
+                                                    {availableSlots.map(slot => (
+                                                        <SelectItem
+                                                            key={slot}
+                                                            value={slot}
+                                                            className="justify-center py-2"
+                                                        >
+                                                            {slot}
+                                                        </SelectItem>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-sm text-muted-foreground text-center">
+                                                    Nessun orario per questa data
+                                                </div>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.2 }}
+                                className="space-y-6"
+                            >
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="firstName" className="text-sm font-semibold">Nome</Label>
+                                        <Input
+                                            id="firstName"
+                                            required
+                                            value={formData.firstName}
+                                            onChange={(e) => handleChange("firstName", e.target.value)}
+                                            placeholder="Mario"
+                                            className="h-12"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="lastName" className="text-sm font-semibold">Cognome</Label>
+                                        <Input
+                                            id="lastName"
+                                            required
+                                            value={formData.lastName}
+                                            onChange={(e) => handleChange("lastName", e.target.value)}
+                                            placeholder="Rossi"
+                                            className="h-12"
+                                        />
+                                    </div>
+                                </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="notes">Note (Intolleranze, ricorrenze special, ecc)</Label>
-                            <Textarea
-                                id="notes"
-                                placeholder="Scrivi qui eventuali richieste..."
-                                value={formData.notes}
-                                onChange={(e) => handleChange("notes", e.target.value)}
-                                className="min-h-[80px]"
-                            />
-                        </div>
-                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={(e) => handleChange("email", e.target.value)}
+                                        placeholder="mario@esempio.com"
+                                        className="h-12"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone" className="text-sm font-semibold">Cellulare</Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        required
+                                        value={formData.phone}
+                                        onChange={(e) => handleChange("phone", e.target.value)}
+                                        placeholder="+39 340 123 4567"
+                                        className="h-12"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="notes" className="text-sm font-semibold">Note extra (opzionale)</Label>
+                                    <Textarea
+                                        id="notes"
+                                        placeholder="Allergie, intolleranze o richieste particolari..."
+                                        value={formData.notes}
+                                        onChange={(e) => handleChange("notes", e.target.value)}
+                                        className="min-h-[100px] resize-none"
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </CardContent>
-                <CardFooter>
-                    <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting || !formData.date || !formData.time}>
-                        {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Conferma Richiesta"}
-                    </Button>
+
+                <CardFooter className="flex flex-col gap-3 pt-2 pb-8 px-6">
+                    {step === 1 ? (
+                        <Button
+                            type="button"
+                            onClick={handleNext}
+                            className="w-full h-14 text-lg font-bold group"
+                            disabled={!formData.date || !formData.time}
+                        >
+                            Procedi al passo finale
+                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    ) : (
+                        <div className="w-full flex gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleBack}
+                                className="h-14 px-6"
+                                disabled={isSubmitting}
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="flex-1 h-14 text-lg font-bold"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                ) : (
+                                    "Conferma Prenotazione"
+                                )}
+                            </Button>
+                        </div>
+                    )}
+
+                    {step === 1 && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground justify-center">
+                            <ChevronRight className="w-3 h-3 text-primary" />
+                            <span>Richiedi disponibilità in pochi secondi</span>
+                        </div>
+                    )}
                 </CardFooter>
             </Card>
         </form>

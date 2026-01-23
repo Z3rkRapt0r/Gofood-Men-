@@ -26,7 +26,8 @@ export const ReservationCancelledEmail = ({
         year: "numeric",
         month: "long",
         day: "numeric",
-    });
+    }).replace(/^\w/, (c) => c.toUpperCase());
+
     const formattedTime = time.split(':').slice(0, 2).join(':');
 
     return (
@@ -37,30 +38,35 @@ export const ReservationCancelledEmail = ({
                 </Heading>
             </Section>
 
-            <Text style={text}>
-                Ciao <strong>{customerName}</strong>,
-                <br />
-                ti confermiamo che la tua prenotazione presso <strong>{restaurantName}</strong> è stata cancellata correttamente.
-            </Text>
+            <Section style={mainContent}>
+                <Text style={greeting}>
+                    Ciao <strong>{customerName}</strong>,
+                </Text>
 
-            <Section style={stoneCard}>
-                <Row style={row}>
-                    <Column style={labelCol}>Quando era</Column>
-                    <Column style={valueCol}>
-                        {formattedDate} ore {formattedTime}
-                    </Column>
-                </Row>
-                <Row style={{ ...row, borderBottom: 'none' }}>
-                    <Column style={labelCol}>Dove</Column>
-                    <Column style={valueCol}>
-                        {restaurantName}
-                    </Column>
-                </Row>
+                <Text style={introText}>
+                    Ti confermiamo che la tua prenotazione presso <strong>{restaurantName}</strong> è stata cancellata correttamente.
+                </Text>
+
+                <Section style={detailsCard}>
+                    <div style={cardHeader}>DETTAGLI PRENOTAZIONE CANCELLATA</div>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Data</Column>
+                        <Column style={detailValue}>{formattedDate}</Column>
+                    </Row>
+                    <Row style={detailRow}>
+                        <Column style={detailLabel}>Orario</Column>
+                        <Column style={detailValue}>{formattedTime}</Column>
+                    </Row>
+                    <Row style={{ ...detailRow, borderBottom: 'none' }}>
+                        <Column style={detailLabel}>Ristorante</Column>
+                        <Column style={detailValue}>{restaurantName}</Column>
+                    </Row>
+                </Section>
+
+                <Text style={note}>
+                    Se hai cancellato per errore o vuoi effettuare una nuova prenotazione, non esitare a contattarci o a visitare nuovamente il nostro sito.
+                </Text>
             </Section>
-
-            <Text style={{ ...text, fontSize: '12px', color: '#666', marginTop: '20px' }}>
-                Se hai cancellato per errore o vuoi effettuare una nuova prenotazione, contattaci o visita nuovamente il nostro sito.
-            </Text>
         </EmailLayout>
     );
 };
@@ -68,54 +74,77 @@ export const ReservationCancelledEmail = ({
 // Styles
 const headerSection = {
     textAlign: 'center' as const,
-    padding: '20px 0',
-};
-
-const iconStyle = {
-    fontSize: '48px',
-    margin: '0 0 10px',
+    padding: '32px 0 24px',
 };
 
 const h1 = {
     color: '#dc2626', // Red color for cancellation
-    fontSize: '24px',
-    fontWeight: '700',
-    margin: '0',
-    lineHeight: '1.3',
-};
-
-const text = {
-    fontSize: '16px',
-    lineHeight: '1.6',
-    color: '#374151',
-    margin: '16px 0',
+    fontSize: '28px',
+    fontWeight: '800',
     textAlign: 'center' as const,
+    margin: '0',
+    letterSpacing: '-0.02em',
 };
 
-const stoneCard = {
-    backgroundColor: '#f5f5f4', // stone-100
-    borderRadius: '12px',
-    padding: '16px',
-    margin: '24px 0',
-    border: '1px solid #e7e5e4',
+const mainContent = {
+    padding: '0 20px',
 };
 
-const row = {
-    borderBottom: '1px solid #d6d3d1',
-    padding: '8px 0',
+const greeting = {
+    fontSize: '18px',
+    color: '#1f2937',
+    marginBottom: '12px',
 };
 
-const labelCol = {
-    width: '30%',
-    color: '#78716c',
+const introText = {
+    fontSize: '16px',
+    lineHeight: '26px',
+    color: '#4b5563',
+    marginBottom: '32px',
+};
+
+const detailsCard = {
+    backgroundColor: '#f8fafc',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    padding: '24px',
+    marginBottom: '32px',
+};
+
+const cardHeader = {
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#64748b',
+    letterSpacing: '0.1em',
+    marginBottom: '16px',
+};
+
+const detailRow = {
+    padding: '12px 0',
+    borderBottom: '1px solid #e2e8f0',
+};
+
+const detailLabel = {
+    width: '40%',
+    color: '#64748b',
     fontSize: '14px',
     fontWeight: '500',
 };
 
-const valueCol = {
-    width: '70%',
-    color: '#1c1917',
-    fontSize: '14px',
+const detailValue = {
+    width: '60%',
+    color: '#0f172a',
+    fontSize: '16px',
     fontWeight: '600',
     textAlign: 'right' as const,
 };
+
+const note = {
+    fontSize: '14px',
+    lineHeight: '22px',
+    color: '#6b7280',
+    textAlign: 'center' as const,
+    fontStyle: 'italic',
+};
+
+export default ReservationCancelledEmail;

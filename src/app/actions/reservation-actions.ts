@@ -6,21 +6,9 @@ import NewReservationEmail from "@/components/emails/NewReservationEmail";
 import ReservationStatusEmail from "@/components/emails/ReservationStatusEmail";
 import { ReservationCancelledEmail } from "@/components/emails/ReservationCancelledEmail";
 import { revalidatePath } from "next/cache";
-import fs from 'fs';
-import path from 'path';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = "reservations@gofoodmenu.it";
-
-function logToFile(message: string) {
-    try {
-        const logPath = path.join(process.cwd(), 'reservation-debug.log');
-        const timestamp = new Date().toISOString();
-        fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`);
-    } catch (e) {
-        console.error("Failed to write to log file", e);
-    }
-}
 
 // --- Submit Reservation (Public) ---
 export async function submitReservation(formData: {
@@ -69,13 +57,11 @@ export async function submitReservation(formData: {
         .single();
 
     const ownerEmail = tenantData?.contact_email;
-    logToFile(`[submitReservation] Owner email: ${ownerEmail}`);
 
     if (ownerEmail) {
         // 3. Send Email to Owner
         try {
-            logToFile(`[submitReservation] Attempting to send email to: ${ownerEmail}`);
-            const data = await resend.emails.send({
+            await resend.emails.send({
                 from: FROM_EMAIL,
                 to: ownerEmail,
                 subject: `Nuova Richiesta di Prenotazione - ${formData.date} ${formData.time}`,
@@ -92,22 +78,15 @@ export async function submitReservation(formData: {
                     dashboardUrl: "https://gofoodmenu.it/dashboard/reservations"
                 }),
             });
-            logToFile(`[submitReservation] Email sent result: ${JSON.stringify(data)}`);
-            if (data.error) {
-                logToFile(`[submitReservation] Resend Error: ${JSON.stringify(data.error)}`);
-            }
         } catch (emailError) {
-            logToFile(`[submitReservation] Email Sending Exception: ${JSON.stringify(emailError)}`);
+            console.error("[submitReservation] Email Sending Exception:", emailError);
             // We don't fail the request if email fails, but we log it
         }
-    } else {
-        logToFile(`[submitReservation] No owner email configured for tenant: ${formData.tenantId}`);
     }
 
     return { success: true, reservation };
 }
 
-// --- Update Reservation Status (Protected / Dashboard) ---
 // --- Update Reservation Status (Protected / Dashboard) ---
 export async function updateReservationStatus(
     reservationId: string,
@@ -118,30 +97,24 @@ export async function updateReservationStatus(
     const supabase = await createClient();
 
     // 1. Update Reservation Status
-    logToFile(`[updateReservationStatus] Updating ${reservationId} to ${status}`);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: statusError } = await (supabase.from('reservations') as any)
         .update({ status })
         .eq('id', reservationId);
 
     if (statusError) {
-        logToFile(`[updateReservationStatus] Status Update Error: ${JSON.stringify(statusError)}`);
         console.error("Status Update Error:", statusError);
         return { success: false, error: "Database error updating status" };
     }
 
     // 2. Handle Table Assignments
     if (status === 'confirmed') {
-        logToFile(`[updateReservationStatus] Handling assignments for confirmed reservation: ${JSON.stringify(tableIds)}`);
-
         // 2a. Remove existing assignments
         const { error: deleteError } = await (supabase.from('reservation_assignments') as any)
             .delete()
             .eq('reservation_id', reservationId);
 
         if (deleteError) {
-            logToFile(`[updateReservationStatus] Delete Assignments Error: ${JSON.stringify(deleteError)}`);
             console.error("Delete Assignments Error:", deleteError);
         }
 
@@ -156,7 +129,6 @@ export async function updateReservationStatus(
                 .insert(assignments);
 
             if (insertError) {
-                logToFile(`[updateReservationStatus] Insert Assignments Error: ${JSON.stringify(insertError)}`);
                 console.error("Insert Assignments Error:", insertError);
                 return { success: false, error: "Database error assigning tables" };
             }
@@ -172,15 +144,13 @@ export async function updateReservationStatus(
         }
     }
 
-    // 3. Send Email (Only for Confirm/Reject)
-    // We don't send emails for Arrived or Cancelled (unless requested, but usually cancellation is manual/phone)
     if (status === 'confirmed' || status === 'rejected') {
         // Fetch Reservation & Tenant Details for Email
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: reservation } = await (supabase.from('reservations') as any)
             .select(`
                 *,
-                tenants:tenant_id (restaurant_name, reservation_settings(notification_email))
+                tenants:tenant_id (restaurant_name, contact_email)
             `)
             .eq('id', reservationId)
             .single();
@@ -188,7 +158,6 @@ export async function updateReservationStatus(
         if (reservation && reservation.customer_email) {
             try {
                 const tenantName = reservation.tenants?.restaurant_name || "Ristorante";
-
                 const subject = status === 'confirmed'
                     ? `Prenotazione Confermata - ${tenantName}`
                     : `La tua prenotazione è stata rifiutata - ${tenantName}`;
@@ -213,13 +182,12 @@ export async function updateReservationStatus(
             }
         }
     } else if (status === 'cancelled') {
-        // 4. Handle Cancellation (Email + Delete)
         // Fetch details BEFORE deleting
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: reservation } = await (supabase.from('reservations') as any)
             .select(`
                 *,
-                tenants:tenant_id (restaurant_name, reservation_settings(notification_email))
+                tenants:tenant_id (restaurant_name, contact_email)
             `)
             .eq('id', reservationId)
             .single();
