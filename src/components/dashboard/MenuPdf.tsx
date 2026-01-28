@@ -18,9 +18,11 @@ import { Download } from 'lucide-react';
 import type { Database } from '@/types/database';
 
 // Types
-type Dish = Database['public']['Tables']['dishes']['Row'];
+type Dish = Database['public']['Tables']['dishes']['Row'] & {
+    allergen_ids?: string[];
+};
 type Category = Database['public']['Tables']['categories']['Row'];
-type Allergen = { id: string; name: string; icon: string };
+type Allergen = { id: string; name: any; icon: string };
 type Tenant = {
     restaurant_name: string;
     logo_url: string | null;
@@ -114,6 +116,25 @@ const styles = StyleSheet.create({
         fontFamily: 'Times-Italic', // Ingredients in italic
         maxWidth: '90%',
     },
+    allergensContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginTop: 4,
+    },
+    allergenItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    allergenIcon: {
+        fontSize: 8,
+    },
+    allergenText: {
+        fontSize: 8,
+        color: '#9ca3af',
+        fontFamily: 'Helvetica',
+    },
     footer: {
         position: 'absolute',
         bottom: 30,
@@ -177,6 +198,17 @@ const MenuDocument = ({
 
     const logoSrc = getValidLogoUrl(tenant.logo_url, goFoodLogoUrl);
 
+    // Helper to extract string from Json name
+    const resolveJson = (val: any) => {
+        if (!val) return '';
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object' && val !== null) {
+            // Priority: Italian, then English, then first available key
+            return val.it || val.en || Object.values(val)[0] || '';
+        }
+        return String(val);
+    };
+
     return (
         <Document>
             {/* Create a separate Page (or sequence of pages) for EACH category to allow unique Headers */}
@@ -197,23 +229,36 @@ const MenuDocument = ({
 
                         {/* Category Title */}
                         <View style={styles.categoryHeader}>
-                            <Text style={styles.categoryTitle}>{cat.name as string}</Text>
+                            <Text style={styles.categoryTitle}>{resolveJson(cat.name)}</Text>
                         </View>
 
                         {/* List of Dishes */}
                         <View>
                             {catDishes.map((dish) => {
+                                const dishAllergens = getDishesAllergens(dish.allergen_ids || []);
                                 return (
                                     <View key={dish.id} style={styles.dishRow} wrap={false}>
                                         <View style={styles.dishHeader}>
-                                            <Text style={styles.dishName}>{dish.name as string}</Text>
+                                            <Text style={styles.dishName}>{resolveJson(dish.name)}</Text>
                                             <View style={styles.dishLeader} />
                                             <Text style={styles.dishPrice}>€{(dish.price || 0).toFixed(2)}</Text>
                                         </View>
 
                                         <Text style={styles.dishDesc}>
-                                            {(dish.description as string) || ''}
+                                            {resolveJson(dish.description)}
                                         </Text>
+
+                                        {/* Allergens list */}
+                                        {dishAllergens.length > 0 && (
+                                            <View style={styles.allergensContainer}>
+                                                {dishAllergens.map((allergen) => (
+                                                    <View key={allergen.id} style={styles.allergenItem}>
+                                                        {/* Icon removed because emojis cause rendering issues in built-in PDF fonts */}
+                                                        <Text style={styles.allergenText}>• {resolveJson(allergen.name)}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
                                     </View>
                                 );
                             })}
