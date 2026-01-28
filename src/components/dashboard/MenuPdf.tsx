@@ -351,9 +351,6 @@ const MenuDocument = ({
                                     <Text style={styles.legendName}>
                                         • {resolveJson(allergen.name)}
                                     </Text>
-                                    <Text style={styles.legendDesc}>
-                                        Sostanza allergenica presente nel prodotto
-                                    </Text>
                                 </View>
                             </View>
                         ))}
