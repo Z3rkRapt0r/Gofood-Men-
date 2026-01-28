@@ -160,19 +160,19 @@ const styles = StyleSheet.create({
     },
     // Useful Info Section
     infoSection: {
-        marginTop: 40,
-        paddingTop: 15,
+        marginTop: 20,
+        paddingTop: 10,
         borderTopWidth: 1,
         borderTopColor: '#e5e7eb',
     },
     infoTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: 'Times-Bold',
-        marginBottom: 8,
+        marginBottom: 6,
         color: '#111827',
     },
     infoText: {
-        fontSize: 10,
+        fontSize: 9,
         color: '#4b5563',
         fontFamily: 'Times-Italic',
     },
@@ -180,29 +180,29 @@ const styles = StyleSheet.create({
     legendGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginTop: 20,
-        gap: 15,
+        marginTop: 15,
+        gap: 10,
     },
     legendItem: {
-        width: '45%',
+        width: '48%',
         flexDirection: 'row',
         alignItems: 'baseline',
         gap: 5,
-        marginBottom: 10,
+        marginBottom: 6,
     },
     legendIcon: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: 'bold',
     },
     legendName: {
-        fontSize: 10,
+        fontSize: 9,
         fontFamily: 'Helvetica-Bold',
         color: '#111827',
     },
     legendDesc: {
-        fontSize: 9,
+        fontSize: 8,
         color: '#6b7280',
-        marginTop: 2,
+        marginTop: 1,
     },
 });
 
@@ -333,12 +333,12 @@ const MenuDocument = ({
                 <View style={styles.infoSection}>
                     <Text style={styles.infoTitle}>Informazioni</Text>
                     <Text style={styles.infoText}>
-                        Prezzo per il pane e coperto: €{tenant.cover_charge.toFixed(2)}
+                        Prezzo per il coperto: €{tenant.cover_charge.toFixed(2)}
                     </Text>
                 </View>
 
                 {/* Allergen Legend */}
-                <View style={{ marginTop: 30 }}>
+                <View style={{ marginTop: 20 }}>
                     <Text style={styles.infoTitle}>Legenda Allergeni</Text>
                     <Text style={styles.infoText}>
                         Secondo il Regolamento UE 1169/2011, i nostri piatti possono contenere le seguenti sostanze o i prodotti loro derivati:
@@ -349,7 +349,7 @@ const MenuDocument = ({
                             <View key={allergen.id} style={styles.legendItem}>
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.legendName}>
-                                        {allergen.icon} {resolveJson(allergen.name)}
+                                        • {resolveJson(allergen.name)}
                                     </Text>
                                     <Text style={styles.legendDesc}>
                                         Sostanza allergenica presente nel prodotto
@@ -361,8 +361,8 @@ const MenuDocument = ({
                 </View>
 
                 {/* Final legal note */}
-                <View style={{ marginTop: 40 }}>
-                    <Text style={{ fontSize: 8, color: '#9ca3af', textAlign: 'center' }}>
+                <View style={{ marginTop: 20 }}>
+                    <Text style={{ fontSize: 7, color: '#9ca3af', textAlign: 'center', lineHeight: 1.4 }}>
                         Per maggiori informazioni sulle intolleranze e allergie alimentari, il nostro personale è a vostra completa disposizione.
                         In mancanza di prodotti freschi, alcune materie prime potrebbero essere surgelate o abbattute all'origine.
                     </Text>
