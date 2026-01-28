@@ -29,136 +29,112 @@ type Tenant = {
 // Styles
 const styles = StyleSheet.create({
     page: {
-        padding: 30,
-        paddingBottom: 60, // Space for footer
+        paddingTop: 50,
+        paddingBottom: 70,
+        paddingLeft: 60,
+        paddingRight: 60,
         fontFamily: 'Helvetica',
         backgroundColor: '#ffffff',
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#fed7aa', // orange-200
-        paddingBottom: 15,
-    },
-    headerLeft: {
         flexDirection: 'column',
+        alignItems: 'center',
+        marginBottom: 40,
+        paddingBottom: 20,
+        borderBottomWidth: 1.5,
+        borderBottomColor: '#111827',
     },
     restaurantName: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#ea580c', // orange-600
+        fontSize: 32,
+        fontFamily: 'Times-Bold',
+        color: '#111827',
+        textTransform: 'uppercase',
+        letterSpacing: 2,
+        marginBottom: 8,
     },
     categorySubtitle: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#6b7280',
-        marginTop: 4,
-        fontWeight: 'medium',
+        textTransform: 'uppercase',
+        letterSpacing: 4,
+        fontFamily: 'Helvetica-Bold',
     },
     headerLogo: {
-        width: 60,
-        height: 60,
+        width: 50,
+        height: 50,
         objectFit: 'contain',
-        borderRadius: 8,
+        marginBottom: 15,
     },
-    // Removed old categoryTitle style as it is now in header
-    dishRow: {
-        flexDirection: 'row',
-        marginBottom: 12,
-        borderBottomWidth: 0.5,
+    categoryHeader: {
+        marginTop: 30,
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    categoryTitle: {
+        fontSize: 22,
+        fontFamily: 'Times-Bold',
+        color: '#111827',
+        textAlign: 'center',
+        borderBottomWidth: 1,
         borderBottomColor: '#e5e7eb',
-        paddingBottom: 8,
-        minHeight: 50,
+        paddingBottom: 5,
+        paddingHorizontal: 20, // Added padding for the border look
     },
-    dishContent: {
-        flex: 1,
-        paddingRight: 10,
+    dishRow: {
+        marginBottom: 20,
     },
     dishHeader: {
         flexDirection: 'row',
+        alignItems: 'baseline',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
         marginBottom: 4,
     },
     dishName: {
-        fontSize: 12,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontFamily: 'Times-Bold',
         color: '#111827',
     },
+    dishLeader: {
+        flex: 1,
+        borderBottomWidth: 1,
+        borderBottomColor: '#d1d5db',
+        borderStyle: 'dotted',
+        marginHorizontal: 8,
+        height: 10,
+    },
     dishPrice: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#ea580c',
+        fontSize: 13,
+        fontFamily: 'Helvetica-Bold',
+        color: '#111827',
     },
     dishDesc: {
         fontSize: 10,
         color: '#4b5563',
-        lineHeight: 1.4,
-    },
-    dishImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 4,
-        objectFit: 'cover',
-        marginLeft: 10,
-    },
-    badgesContainer: {
-        flexDirection: 'row',
-        gap: 4,
-        marginTop: 4,
-        flexWrap: 'wrap',
-    },
-    badge: {
-        fontSize: 8,
-        color: '#6b7280',
-        padding: '2 4',
-        backgroundColor: '#f3f4f6',
-        borderRadius: 2,
-    },
-    allergensContainer: {
-        marginTop: 4,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 6,
-    },
-    allergenItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-    },
-    allergenIcon: {
-        fontSize: 8, // Emoji/Text icon size
-    },
-    allergenText: {
-        fontSize: 8,
-        color: '#ef4444',
+        lineHeight: 1.5,
+        fontFamily: 'Times-Italic', // Ingredients in italic
+        maxWidth: '90%',
     },
     footer: {
         position: 'absolute',
-        bottom: 20,
-        left: 0,
-        right: 0,
-        textAlign: 'center',
-        display: 'flex',
+        bottom: 30,
+        left: 60,
+        right: 60,
+        borderTopWidth: 0.5,
+        borderTopColor: '#e5e7eb',
+        paddingTop: 10,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
+        gap: 4,
     },
     footerText: {
-        fontSize: 9,
+        fontSize: 8,
         color: '#9ca3af',
     },
     footerLink: {
-        fontSize: 9,
-        color: '#ea580c',
+        fontSize: 8,
+        color: '#9ca3af',
         textDecoration: 'none',
-    },
-    footerLogo: {
-        width: 24,
-        height: 24,
     },
 });
 
@@ -210,49 +186,41 @@ const MenuDocument = ({
 
                 return (
                     <Page key={cat.id} size="A4" style={styles.page} wrap>
-                        {/* Header - Fixed on Every Page for this Category Section */}
+                        {/* Header - Centered for each category section */}
                         <View style={styles.header} fixed>
-                            <View style={styles.headerLeft}>
-                                <Text style={styles.restaurantName}>{tenant.restaurant_name}</Text>
-                                {/* Category Name REPLACES "Menu" */}
-                                <Text style={styles.categorySubtitle}>{cat.name as string}</Text>
-                            </View>
                             <Image
                                 src={logoSrc}
                                 style={styles.headerLogo}
                             />
+                            <Text style={styles.restaurantName}>{tenant.restaurant_name}</Text>
                         </View>
 
-                        {/* List of Dishes for this Category */}
+                        {/* Category Title */}
+                        <View style={styles.categoryHeader}>
+                            <Text style={styles.categoryTitle}>{cat.name as string}</Text>
+                        </View>
+
+                        {/* List of Dishes */}
                         <View>
                             {catDishes.map((dish) => {
                                 return (
                                     <View key={dish.id} style={styles.dishRow} wrap={false}>
-                                        <View style={styles.dishContent}>
-                                            <View style={styles.dishHeader}>
-                                                <Text style={styles.dishName}>{dish.name as string}</Text>
-                                                <Text style={styles.dishPrice}>€{(dish.price || 0).toFixed(2)}</Text>
-                                            </View>
-                                            <Text style={styles.dishDesc}>
-                                                {(dish.description as string) || ''}
-                                            </Text>
-
-                                            {/* Badges */}
-                                            <View style={styles.badgesContainer}>
-                                                {dish.is_homemade && <Text style={styles.badge}>Fatto in casa</Text>}
-                                                {dish.is_frozen && <Text style={styles.badge}>Surgelato</Text>}
-                                                {dish.is_vegetarian && <Text style={styles.badge}>Vegetariano</Text>}
-                                                {dish.is_vegan && <Text style={styles.badge}>Vegano</Text>}
-                                            </View>
+                                        <View style={styles.dishHeader}>
+                                            <Text style={styles.dishName}>{dish.name as string}</Text>
+                                            <View style={styles.dishLeader} />
+                                            <Text style={styles.dishPrice}>€{(dish.price || 0).toFixed(2)}</Text>
                                         </View>
+
+                                        <Text style={styles.dishDesc}>
+                                            {(dish.description as string) || ''}
+                                        </Text>
                                     </View>
                                 );
                             })}
                         </View>
 
-                        {/* Footer - Fixed on Every Page */}
+                        {/* Footer */}
                         <View style={styles.footer} fixed>
-                            <Image src={goFoodLogoUrl} style={styles.footerLogo} />
                             <Text style={styles.footerText}>Powered by </Text>
                             <Link src="https://gofoodmenu.it/" style={styles.footerLink}>
                                 Go!Food Menù

@@ -107,10 +107,10 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <Card className="shadow-2xl border-orange-100">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-3xl font-black text-gray-900">Accedi</CardTitle>
-            <CardDescription className="text-gray-600">
+        <Card className="shadow-2xl border-orange-100 overflow-hidden">
+          <CardHeader className="space-y-1 pt-10 pb-6">
+            <CardTitle className="text-3xl font-black text-gray-900 tracking-tight">Accedi</CardTitle>
+            <CardDescription className="text-gray-600 text-base">
               Continua a personalizzare il tuo menu
             </CardDescription>
           </CardHeader>
@@ -202,18 +202,21 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pt-2">
+          <CardFooter className="flex flex-col space-y-5 pt-4 pb-10 px-8">
             <div className="relative w-full text-center">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-200" />
+                <span className="w-full border-t border-gray-100" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500 font-medium">Non hai un account?</span>
+                <span className="bg-white px-3 text-gray-400 font-bold tracking-wider">Non hai un account?</span>
               </div>
             </div>
 
             <Link href="/register" className="w-full">
-              <Button variant="outline" className="w-full py-6 font-bold border-2 border-orange-200 hover:border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700">
+              <Button
+                variant="outline"
+                className="w-full py-7 font-black border-2 border-orange-100 hover:border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all text-base rounded-xl"
+              >
                 Crea un account gratis
               </Button>
             </Link>
