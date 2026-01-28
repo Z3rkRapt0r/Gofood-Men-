@@ -26,6 +26,7 @@ type Allergen = { id: string; name: any; icon: string };
 type Tenant = {
     restaurant_name: string;
     logo_url: string | null;
+    cover_charge: number;
 };
 
 // Styles
@@ -157,6 +158,52 @@ const styles = StyleSheet.create({
         color: '#9ca3af',
         textDecoration: 'none',
     },
+    // Useful Info Section
+    infoSection: {
+        marginTop: 40,
+        paddingTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#e5e7eb',
+    },
+    infoTitle: {
+        fontSize: 16,
+        fontFamily: 'Times-Bold',
+        marginBottom: 8,
+        color: '#111827',
+    },
+    infoText: {
+        fontSize: 10,
+        color: '#4b5563',
+        fontFamily: 'Times-Italic',
+    },
+    // Legend Styles
+    legendGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 20,
+        gap: 15,
+    },
+    legendItem: {
+        width: '45%',
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 5,
+        marginBottom: 10,
+    },
+    legendIcon: {
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    legendName: {
+        fontSize: 10,
+        fontFamily: 'Helvetica-Bold',
+        color: '#111827',
+    },
+    legendDesc: {
+        fontSize: 9,
+        color: '#6b7280',
+        marginTop: 2,
+    },
 });
 
 // PDF Document Component
@@ -274,6 +321,60 @@ const MenuDocument = ({
                     </Page>
                 );
             })}
+
+            {/* Final Information & Legend Page */}
+            <Page size="A4" style={styles.page}>
+                <View style={styles.header}>
+                    <Image src={logoSrc} style={styles.headerLogo} />
+                    <Text style={styles.restaurantName}>{tenant.restaurant_name}</Text>
+                </View>
+
+                {/* Cover Charge */}
+                <View style={styles.infoSection}>
+                    <Text style={styles.infoTitle}>Informazioni</Text>
+                    <Text style={styles.infoText}>
+                        Prezzo per il pane e coperto: €{tenant.cover_charge.toFixed(2)}
+                    </Text>
+                </View>
+
+                {/* Allergen Legend */}
+                <View style={{ marginTop: 30 }}>
+                    <Text style={styles.infoTitle}>Legenda Allergeni</Text>
+                    <Text style={styles.infoText}>
+                        Secondo il Regolamento UE 1169/2011, i nostri piatti possono contenere le seguenti sostanze o i prodotti loro derivati:
+                    </Text>
+
+                    <View style={styles.legendGrid}>
+                        {allergens.map((allergen) => (
+                            <View key={allergen.id} style={styles.legendItem}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.legendName}>
+                                        {allergen.icon} {resolveJson(allergen.name)}
+                                    </Text>
+                                    <Text style={styles.legendDesc}>
+                                        Sostanza allergenica presente nel prodotto
+                                    </Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Final legal note */}
+                <View style={{ marginTop: 40 }}>
+                    <Text style={{ fontSize: 8, color: '#9ca3af', textAlign: 'center' }}>
+                        Per maggiori informazioni sulle intolleranze e allergie alimentari, il nostro personale è a vostra completa disposizione.
+                        In mancanza di prodotti freschi, alcune materie prime potrebbero essere surgelate o abbattute all'origine.
+                    </Text>
+                </View>
+
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerText}>Powered by </Text>
+                    <Link src="https://gofoodmenu.it/" style={styles.footerLink}>
+                        Go!Food Menù
+                    </Link>
+                </View>
+            </Page>
         </Document>
     );
 };
@@ -286,6 +387,7 @@ interface DownloadMenuButtonProps {
     tenant: {
         restaurant_name: string;
         logo_url: string | null;
+        cover_charge: number;
     };
 }
 

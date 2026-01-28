@@ -296,7 +296,7 @@ export default function DishesPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [tenantId, setTenantId] = useState('');
-  const [tenant, setTenant] = useState<{ restaurant_name: string; logo_url: string | null } | null>(null);
+  const [tenant, setTenant] = useState<{ restaurant_name: string; logo_url: string | null; cover_charge: number } | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
@@ -404,7 +404,7 @@ export default function DishesPage() {
 
       const { data: tenantData } = await supabase
         .from('tenants')
-        .select('id, restaurant_name, logo_url')
+        .select('id, restaurant_name, logo_url, cover_charge')
         .eq('owner_id', user.id)
         .single();
 
