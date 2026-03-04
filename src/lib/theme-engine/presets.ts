@@ -292,6 +292,48 @@ export const THEME_PRESETS: ThemePreset[] = [
         logoHeight: 60,
 
     },
+
+    // 10. MODERNO SCURO (STILE LAVAGNA/CHIC)
+    {
+        id: 'moderno',
+        name: 'Moderno Scuro',
+        description: 'Design elegante in dark mode, con sfondo scuro geometrico e testi ad alto contrasto. Ispirato allo stile lavagna chic.',
+        category: 'restaurant',
+        colors: {
+            primary: '#FFFFFF',          // Testo bianco predominante
+            secondary: '#D4AF37',        // Accento Ocra/Oro/Legno (dal logo)
+            accent: '#D4AF37',           // Accento per bottoni e badge
+            background: '#121212',       // Sfondo nero/grigio scuro
+            surface: '#1E1E1E',          // Superfici delle card leggermente più chiare
+            text: '#F3F4F6',             // Testo del corpo (grigio chiarissimo/bianco rotto)
+            textSecondary: '#9CA3AF',    // Testo secondario in grigio
+            border: '#4B5563',           // Bordi sottili grigio medio
+            price: '#FFFFFF',            // Prezzo bianco per massima visibilità
+            success: '#10B981',          // Verde per messaggi di successo
+
+            // Nuovi slot granulari
+            priceBackground: 'transparent',
+            badgeBackground: '#D4AF37',
+            badgeText: '#121212',
+            footerBackground: '#000000',
+            footerText: '#9CA3AF',
+            headerBackground: '#121212',
+            headerText: '#FFFFFF',
+            overlay: '#000000',
+            overlayOpacity: 0.6
+        },
+        frame: 'minimal',
+        texture: 'slate',                // Per simulare la texture opaca/pietra
+        pattern: 'elegant-rhombus',    // Usiamo il nuovo pattern al posto di grid
+        fontHeading: 'Montserrat',       // Font moderno, pulito e audace
+        fontBody: 'Roboto',              // Tipografia neutra e ultra-leggibile
+        scale: 1,
+        rounded: 'md',                   // Bordi appena arrotondati
+        shadows: 'hard',                 // Ombre decise se necessarie
+        dividerStyle: 'dashed',          // Divisori tratteggiati stile lavagna
+        logoHeight: 80,
+        textShadow: '0px 2px 4px rgba(0,0,0,0.5)', // Ombra per staccare il testo
+    },
 ];
 
 export const DEFAULT_THEME = THEME_PRESETS[0];

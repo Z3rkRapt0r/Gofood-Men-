@@ -1,6 +1,6 @@
 export type FrameStyle = 'none' | 'simple' | 'double' | 'elegant' | 'wooden' | 'geometric' | 'gold-leaf' | 'minimal';
 export type TextureType = 'none' | 'paper' | 'grain' | 'slate' | 'fabric' | 'marble' | 'wood';
-export type PatternType = 'none' | 'dots' | 'lines' | 'waves' | 'grid' | 'leaves' | 'japanese-waves';
+export type PatternType = 'none' | 'dots' | 'lines' | 'waves' | 'grid' | 'leaves' | 'pinstripe' | 'elegant-rhombus';
 export type AnimationType = 'none' | 'fade' | 'slide' | 'zoom' | 'float';
 export type ElementStyle = 'modern' | 'vintage' | ' handwritten' | 'bold';
 export type DividerStyle = 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'wavy' | 'slash' | 'filigree' | 'gradient';

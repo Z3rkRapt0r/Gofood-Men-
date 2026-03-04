@@ -121,8 +121,11 @@ export default function LanguageSwitcher({ compact = false, disabled = false }: 
           {/* Italian Button (Fixed - Default Active) */}
           <button
             disabled
-            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 text-white shadow-sm"
-            style={{ backgroundColor: 'var(--tenant-primary, #8B0000)' }}
+            className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 shadow-sm"
+            style={{
+              backgroundColor: 'var(--tenant-primary, #8B0000)',
+              color: 'var(--tenant-background, #FFFFFF)'
+            }}
           >
             <span className="text-base notranslate">🇮🇹</span>
             <span className="notranslate">IT</span>
@@ -152,10 +155,13 @@ export default function LanguageSwitcher({ compact = false, disabled = false }: 
           onClick={() => handleLanguageChange('it')}
           disabled={isChanging || disabled}
           className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang === 'it'
-            ? 'text-white shadow-sm'
+            ? 'shadow-sm'
             : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
             }`}
-          style={{ backgroundColor: currentLang === 'it' ? 'var(--tenant-primary, #8B0000)' : undefined }}
+          style={currentLang === 'it' ? {
+            backgroundColor: 'var(--tenant-primary, #8B0000)',
+            color: 'var(--tenant-background, #FFFFFF)'
+          } : undefined}
           aria-label="Passa all'italiano"
           aria-pressed={currentLang === 'it'}
         >
@@ -169,10 +175,13 @@ export default function LanguageSwitcher({ compact = false, disabled = false }: 
             <button
               disabled={isChanging || disabled}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all touch-manipulation flex items-center gap-1.5 notranslate ${currentLang !== 'it'
-                ? 'text-white shadow-sm'
+                ? 'shadow-sm'
                 : 'text-gray-600 hover:text-gray-900 active:bg-gray-100'
                 }`}
-              style={{ backgroundColor: currentLang !== 'it' ? 'var(--tenant-primary, #8B0000)' : undefined }}
+              style={currentLang !== 'it' ? {
+                backgroundColor: 'var(--tenant-primary, #8B0000)',
+                color: 'var(--tenant-background, #FFFFFF)'
+              } : undefined}
               aria-label="Scegli altra lingua"
               aria-pressed={currentLang !== 'it'}
             >

@@ -46,12 +46,21 @@ export function TextureOverlay() {
                     backgroundSize: '40px 40px',
                     opacity: 0.1
                 };
-            case 'japanese-waves':
+            case 'pinstripe':
                 return {
-                    backgroundImage: `radial-gradient(circle, transparent 20%, ${colors.surface} 20%, ${colors.surface} 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, ${colors.surface} 20%, ${colors.surface} 80%, transparent 80%, transparent) `,
-                    backgroundSize: '30px 30px',
-                    backgroundPosition: '0 0, 15px 15px',
-                    opacity: 0.05
+                    backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 40px, ${colors.secondary} 40px, ${colors.secondary} 41px)`,
+                    opacity: 0.15
+                };
+            case 'elegant-rhombus':
+                const strokeColor = colors.secondary || '#FFFFFF';
+                const svgString = `<svg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'><path d='M20 0L40 20L20 40L0 20z' fill='none' stroke='${strokeColor}' stroke-width='1'/><circle cx='20' cy='20' r='2' fill='${strokeColor}'/></svg>`;
+                const encodedSvg = encodeURIComponent(svgString);
+                return {
+                    backgroundImage: `url("data:image/svg+xml,${encodedSvg}")`,
+                    backgroundRepeat: 'repeat',
+                    backgroundSize: '40px 40px',
+                    opacity: 0.20,
+                    mixBlendMode: 'normal'
                 };
             default:
                 return {};

@@ -477,6 +477,24 @@ export const VisualEditorPanel = React.memo(function VisualEditorPanel({
 
 
 
+                                {/* Textures and Patterns */}
+                                <div className="space-y-4 pt-4 border-t border-gray-100">
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Motivo Sfondo (Pattern)</label>
+                                        <select
+                                            value={currentTheme.pattern || 'none'}
+                                            onChange={(e) => updateTheme({ pattern: e.target.value as any })}
+                                            className="styled-select"
+                                        >
+                                            <option value="none">Nessun Motivo</option>
+                                            <option value="dots">Pois</option>
+                                            <option value="grid">Griglia</option>
+                                            <option value="pinstripe">Gessato Elegante (Linee)</option>
+                                            <option value="elegant-rhombus">Rombo Prezioso (Lusso)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 {/* Dividers */}
                                 <div>
                                     <label className="text-xs font-semibold text-gray-500 mb-1.5 block">Stile Divisori</label>

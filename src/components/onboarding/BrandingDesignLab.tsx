@@ -211,10 +211,10 @@ export default function BrandingDesignLab({ formData, onUpdate, onNext, onBack, 
                         <ThemeWrapper>
                             <div
                                 ref={mainRef}
-                                className="min-h-full pb-8 md:overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+                                className="min-h-full pb-8 md:overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent relative z-10"
                                 style={{
-                                    // Cleaned up: ThemeWrapper handles CSS variables now
-                                    backgroundColor: mockTenant.background_color,
+                                    // Cleaned up: ThemeWrapper handles CSS variables now.
+                                    // backgroundColor rimosso per permettere al TextureOverlay di gestire il colore di fondo e il pattern.
                                     color: currentTheme.colors.text
                                 } as React.CSSProperties}
                             >

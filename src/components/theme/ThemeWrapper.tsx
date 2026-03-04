@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTheme } from './ThemeContext';
 import { MenuFrame } from './MenuFrame';
+import { TextureOverlay } from './TextureOverlay';
 
 export function ThemeWrapper({ children, className }: { children: React.ReactNode; className?: string }) {
     const { currentTheme } = useTheme();
@@ -56,8 +57,11 @@ export function ThemeWrapper({ children, className }: { children: React.ReactNod
             .theme-body { font-family: '${fontBody}', sans-serif; text-shadow: var(--tenant-text-shadow); }
         `}} />
 
+            {/* Texture/Pattern Layer */}
+            <TextureOverlay />
+
             {/* Content Layer */}
-            <div className="relative z-10 h-full bg-[var(--tenant-background,#FFF8E7)]">
+            <div className="relative z-10 h-full">
                 {children}
             </div>
         </div>

@@ -124,9 +124,9 @@ function MenuContent({ tenant, categories }: { tenant: Tenant, categories: Categ
 
   return (
     <div
-      className="min-h-screen pt-[135px] select-none overflow-x-hidden"
+      className="min-h-screen pt-[135px] select-none overflow-x-hidden relative z-10"
       style={{
-        backgroundColor: currentTheme.colors.background,
+        // backgroundColor: currentTheme.colors.background, // RIMOSSO PER PERMETTERE AL TEXTURE OVERLAY DI ESSERE VISIBILE
         color: currentTheme.colors.text,
         '--tenant-primary': currentTheme.colors.primary,
         '--tenant-secondary': currentTheme.colors.secondary,
