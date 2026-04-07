@@ -32,7 +32,7 @@ export default function AllergensLegal({ data, logoUrl, coverChargeValue }: Alle
             height={60}
             className="h-16 w-auto mx-auto mb-2 object-contain"
           />
-          <p className="text-sm text-white/90 uppercase tracking-wider">
+          <p className="text-sm text-[var(--tenant-background,#FFFFFF)] opacity-90 uppercase tracking-wider">
             Menu Digitale
           </p>
         </div>

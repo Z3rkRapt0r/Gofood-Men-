@@ -71,8 +71,8 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
                             <button
                                 onClick={() => setActiveTab('list')}
                                 className={`px-6 py-3 rounded-md text-sm md:text-base font-medium transition-all ${activeTab === 'list'
-                                    ? 'bg-[var(--tenant-primary,#8B0000)] text-white shadow-lg'
-                                    : 'text-[var(--tenant-text,#171717)] hover:bg-gray-100'
+                                    ? 'bg-[var(--tenant-primary,#8B0000)] text-[var(--tenant-background,#FFFFFF)] shadow-lg'
+                                    : 'text-[var(--tenant-text,#171717)] hover:bg-[var(--tenant-text,#171717)] hover:bg-opacity-10'
                                     }`}
                             >
                                 {language === 'it' ? '📋 Lista Allergeni' : '📋 Allergen List'}
@@ -80,8 +80,8 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
                             <button
                                 onClick={() => setActiveTab('legal')}
                                 className={`px-6 py-3 rounded-md text-sm md:text-base font-medium transition-all ${activeTab === 'legal'
-                                    ? 'bg-[var(--tenant-primary,#8B0000)] text-white shadow-lg'
-                                    : 'text-[var(--tenant-text,#171717)] hover:bg-gray-100'
+                                    ? 'bg-[var(--tenant-primary,#8B0000)] text-[var(--tenant-background,#FFFFFF)] shadow-lg'
+                                    : 'text-[var(--tenant-text,#171717)] hover:bg-[var(--tenant-text,#171717)] hover:bg-opacity-10'
                                     }`}
                             >
                                 {language === 'it' ? '📄 Info Legali' : '📄 Legal Info'}
@@ -114,14 +114,14 @@ export default function AllergensPageClient({ tenant, initialTheme }: AllergensP
 
                     {/* Info Box */}
                     <div className="max-w-4xl mx-auto">
-                        <div className="bg-[var(--tenant-primary,#8B0000)] rounded-2xl p-6 md:p-8 text-white shadow-xl">
+                        <div className="bg-[var(--tenant-primary,#8B0000)] rounded-2xl p-6 md:p-8 text-[var(--tenant-background,#FFFFFF)] shadow-xl">
                             <div className="flex items-start gap-4">
                                 <span className="text-3xl md:text-4xl flex-shrink-0">💬</span>
                                 <div>
                                     <h3 className="text-xl md:text-2xl font-bold mb-2">
                                         {language === 'it' ? 'Hai domande?' : 'Have questions?'}
                                     </h3>
-                                    <p className="text-sm md:text-base text-white/90 leading-relaxed">
+                                    <p className="text-sm md:text-base opacity-90 leading-relaxed">
                                         {language === 'it'
                                             ? 'Il nostro personale è a tua disposizione per fornirti informazioni dettagliate sugli ingredienti di ogni piatto e per aiutarti a scegliere in base alle tue esigenze alimentari.'
                                             : 'Our staff is at your disposal to provide you with detailed information about the ingredients of each dish and to help you choose according to your dietary needs.'}
